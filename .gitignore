@@ -3,3 +3,4 @@
 .RData
 .Ruserdata
 .DS_Store
+inputs/prism_raw/*
