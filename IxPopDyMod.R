@@ -7,7 +7,8 @@ require(tidyverse)
 # read inputs
 # host_community <- read_csv('inputs/host_community.csv')
 weather <- read_csv('inputs/weather.csv')
-# tick_parameters <- read_csv('tic_parameters.csv')
+tick_params <- read_csv('inputs/tick_parameters.csv')
+tick_funs <- read_csv('inputs/tick_functions.csv')
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp = 4
@@ -26,7 +27,10 @@ get_temp <- function(time, weather) {
 }
 
 get_rh <- function(time, weather) {
-
+  # DA comment: yeah all the other papers use RH, but I think the VPD is the more
+  # biologically relavent value, but if all the parameterization is iwth RH, we might
+  # have to go back to RH. Eitherway if you know the temp you can convert between RH and VPD
+  
   rh <- weather %>% 
     filter(j_day == time) %>%
     select(vpdmean) %>% # TODO placeholder - is rh a function of this (vpdmean) or ppt (ppt water?)?
@@ -49,9 +53,32 @@ get_host_densities <- function(time, host_community) {return(runif(n_host_spp))}
 get_host_preferences <- function(tick_parameters) {return(runif(n_host_spp))}
 get_host_reservoir_competences <- function(host_community) {return(runif(n_host_spp))} # TODO based on tick params or host community?
 
-# 02
+# 02 functional forms for transition probabilities
+
+expo_fun <- function(x, p) p['a']*x^p['b']
+briere_fun <- function(x, p) p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x) # https://doi.org/10.7554/eLife.58511
+
+# 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
-m_egg_larvae <- function(temp) {return(runif(1))}
+m_egg_larvae <- function(temp, fun = tick_funs, param = tick_params) {
+  f <- fun %>%
+    filter(transition == 'egg_larva') %>%
+    pull(transition_fun) %>%
+    get()
+  
+  params <- param %>%
+    filter(transition == 'egg_larva') %>%
+    pull(param_value)
+  
+  names(params) <- param %>%
+    filter(transition == 'egg_larva') %>%
+    pull(param_name)
+  
+  f(x = temp, p =  params)
+  
+}
+
+
 m_larvae_hardening_larvae <- function(temp, rh) {return(runif(1))}
 m_hardening_larvae_questing_larvae <- function(host_densities) {return(runif(1))}
 
@@ -85,7 +112,7 @@ m_egg_egg <- function() {return(runif(1))}
 # the matrix generating function. I think having separate functions could come in handy though, e.g. for
 # fitting individual relationships between params (temp, rh, host community) and transition probabilities
 
-# 03
+# 04
 # at each step, we generate a new transition matrix whose transition probabilities
 # are based on the input data (weather, host_community) at that time 
 
@@ -108,7 +135,7 @@ gen_trans_matrix <- function(time, life_stages) {
   return(trans_matrix)
 } 
 
-# 04 iteratively run model
+# 05 iteratively run model
 
 run <- function(steps, life_stages, pop) {
   # steps: number of iterations
