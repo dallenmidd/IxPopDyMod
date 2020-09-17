@@ -55,7 +55,7 @@ get_host_reservoir_competences <- function(host_community) {return(runif(n_host_
 
 # 02 functional forms for transition probabilities
 
-expo_fun <- function(x, y, p) p['a']*x^p['b']
+expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
 briere_fun <- function(x, y, p) p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x) # https://doi.org/10.7554/eLife.58511
 constant_fun <- function(x, y, p) p['a']
 
@@ -157,7 +157,7 @@ run <- function(steps, life_stages, pop) {
 }
 
 initial_pop <- runif(length(life_stages), min = 0, max = 100) %>% as.integer()
-run(10, life_stages, initial_pop)
+run(250, life_stages, initial_pop)
 
 
 
