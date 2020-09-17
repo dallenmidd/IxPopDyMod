@@ -56,7 +56,7 @@ get_host_reservoir_competences <- function(host_community) {return(runif(n_host_
 # 02 functional forms for transition probabilities
 
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
-briere_fun <- function(x, y, p) p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x) # https://doi.org/10.7554/eLife.58511
+briere_fun <- function(x, y, p) ifelse(x>tmin & x<tmax,p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
 constant_fun <- function(x, y, p) p['a']
 
 # 03
@@ -91,6 +91,7 @@ m_hardening_larvae_questing_larvae <- function(host_densities) {return(runif(1))
 # Dave: We will get these transition probs from other studies
 # Ogden et al 2004: https://doi.org/10.1603/0022-2585-41.4.622
 # Ogden et al. 2005: https://doi.org/10.1016/j.ijpara.2004.12.013
+# Dobson et al. 2011: https://doi.org/10.1111/j.1365-2664.2011.02003.x
 
 # TODO this function naming scheme is quickly getting unweildy... need more concise alternative
 # could do acronyms like this:
