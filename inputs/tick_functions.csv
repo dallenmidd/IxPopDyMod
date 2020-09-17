@@ -1,2 +1,3 @@
 transition, transition_fun, source
 egg_larva, expo_fun, "Ogden et al. 2004"
+egg_mort, constant_fun, "Ogden et al. 2005"

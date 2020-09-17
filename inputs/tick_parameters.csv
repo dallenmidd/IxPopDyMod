@@ -1,3 +1,4 @@
 transition, param_name, param_value, param_ci_low, param_ci_high, source
 egg_larva, a, 0.0000292, NA, NA, "Ogden et al. 2004"
 egg_larva, b, 2.27, NA, NA, "Ogden et al. 2004"
+egg_mort, a, 0.002, NA, NA, "Ogden et al. 2005"

@@ -55,27 +55,28 @@ get_host_reservoir_competences <- function(host_community) {return(runif(n_host_
 
 # 02 functional forms for transition probabilities
 
-expo_fun <- function(x, p) p['a']*x^p['b']
-briere_fun <- function(x, p) p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x) # https://doi.org/10.7554/eLife.58511
+expo_fun <- function(x, y, p) p['a']*x^p['b']
+briere_fun <- function(x, y, p) p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x) # https://doi.org/10.7554/eLife.58511
+constant_fun <- function(x, y, p) p['a']
 
 # 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
-m_egg_larvae <- function(temp, fun = tick_funs, param = tick_params) {
-  f <- fun %>%
-    filter(transition == 'egg_larva') %>%
+# this generic function will pull out the functional form and parameters need to make the transition function
+get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
+  f <- functions %>%
+    filter(transition == which_trans) %>%
     pull(transition_fun) %>%
     get()
   
-  params <- param %>%
-    filter(transition == 'egg_larva') %>%
+  params <- parameters %>%
+    filter(transition == transition) %>%
     pull(param_value)
   
-  names(params) <- param %>%
-    filter(transition == 'egg_larva') %>%
+  names(params) <- parameters %>%
+    filter(transition == transition) %>%
     pull(param_name)
   
-  f(x = temp, p =  params)
-  
+  f(x = pred1, y = pred2, p =  params) %>% unname()
 }
 
 
@@ -88,6 +89,10 @@ m_egg_egg <- function() {return(runif(1))}
 # rates. Some functions are defined in research_strat.pdf for transition probabilities
 # to consecutive life stage, but can't find for remaining in same stage. Any chance these
 # are in the presentation that Dave screenshared briefly?
+
+# Dave: We will get these transition probs from other studies
+# Ogden et al 2004: https://doi.org/10.1603/0022-2585-41.4.622
+# Ogden et al. 2005: https://doi.org/10.1016/j.ijpara.2004.12.013
 
 # TODO this function naming scheme is quickly getting unweildy... need more concise alternative
 # could do acronyms like this:
@@ -129,8 +134,8 @@ gen_trans_matrix <- function(time, life_stages) {
                          dimnames = list(life_stages, life_stages))
 
   # calculate the transition probabilities for possible transitions
-  trans_matrix['e', 'e'] <- m_egg_egg()
-  trans_matrix['e', 'hl'] <- m_egg_larvae(temp)
+  trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
+  trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
   
   return(trans_matrix)
 } 
