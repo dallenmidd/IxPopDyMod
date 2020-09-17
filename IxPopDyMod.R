@@ -83,8 +83,6 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
 m_larvae_hardening_larvae <- function(temp, rh) {return(runif(1))}
 m_hardening_larvae_questing_larvae <- function(host_densities) {return(runif(1))}
 
-# probabilities of remaining in a given life stage
-m_egg_egg <- function() {return(runif(1))}
 # TODO not sure where to find how the inputs influence the growth (vs mortality) 
 # rates. Some functions are defined in research_strat.pdf for transition probabilities
 # to consecutive life stage, but can't find for remaining in same stage. Any chance these
