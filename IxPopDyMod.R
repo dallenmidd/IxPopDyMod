@@ -56,7 +56,7 @@ get_host_reservoir_competences <- function(host_community) {return(runif(n_host_
 # 02 functional forms for transition probabilities
 
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
-briere_fun <- function(x, y, p) ifelse(x>tmin & x<tmax,p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
+briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
 constant_fun <- function(x, y, p) p['a']
 
 # 03
@@ -79,9 +79,6 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
   f(x = pred1, y = pred2, p =  params) %>% unname()
 }
 
-
-m_larvae_hardening_larvae <- function(temp, rh) {return(runif(1))}
-m_hardening_larvae_questing_larvae <- function(host_densities) {return(runif(1))}
 
 # TODO not sure where to find how the inputs influence the growth (vs mortality) 
 # rates. Some functions are defined in research_strat.pdf for transition probabilities
@@ -135,6 +132,12 @@ gen_trans_matrix <- function(time, life_stages) {
   # calculate the transition probabilities for possible transitions
   trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
   trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
+  trans_matrix['hl', 'ql'] <- get_transition_fun('larva_quest', pred1 = temp)
+  trans_matrix['hl', 'hl'] <- 1 - trans_matrix['hl', 'ql'] - get_transition_fun('larva_mort')
+  # if it is too cold questing larving go back to hardening, not sure whether this is right?
+  trans_matrix['ql', 'ql'] <- get_transition_fun('larva_quest', pred1 = temp)
+  trans_matrix['ql', 'hl'] <- 1 - get_transition_fun('larva_quest', pred1 = temp) - get_transition_fun('larva_mort') 
+  
   
   return(trans_matrix)
 } 
