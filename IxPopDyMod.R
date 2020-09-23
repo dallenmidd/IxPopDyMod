@@ -89,6 +89,7 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
 # Ogden et al 2004: https://doi.org/10.1603/0022-2585-41.4.622
 # Ogden et al. 2005: https://doi.org/10.1016/j.ijpara.2004.12.013
 # Dobson et al. 2011: https://doi.org/10.1111/j.1365-2664.2011.02003.x
+# Wallace et al 2019: https://doi.org/10.1155/2019/9817930
 
 # TODO this function naming scheme is quickly getting unweildy... need more concise alternative
 # could do acronyms like this:
