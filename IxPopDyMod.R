@@ -12,7 +12,9 @@ tick_funs <- read_csv('inputs/tick_functions.csv')
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp = 4
-life_stages = c('e', 'hl', 'ql', 'fl', 'el', 'oun', 'oin', 'qun', 'qin', 'fua', 'fia', 'ra') 
+life_stages = c('e', 'hl', 'ql', 'fl', 'el',                                # larvae
+                'oun', 'oin', 'qun', 'qin', 'fun', 'fin', 'eun', 'ein',     # nymphs
+                'qua', 'qia', 'fua', 'fia', 'ra')                           # adults
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
 get_temp <- function(time, weather) {
@@ -26,21 +28,20 @@ get_temp <- function(time, weather) {
   return(temp)
 }
 
-get_rh <- function(time, weather) {
+get_vpd <- function(time, weather) {
   # DA comment: yeah all the other papers use RH, but I think the VPD is the more
   # biologically relavent value, but if all the parameterization is iwth RH, we might
   # have to go back to RH. Eitherway if you know the temp you can convert between RH and VPD
   
-  rh <- weather %>% 
+  vpd <- weather %>% 
     filter(j_day == time) %>%
-    select(vpdmean) %>% # TODO placeholder - is rh a function of this (vpdmean) or ppt (ppt water?)?
+    select(vpdmean) %>% 
     as.numeric()
   
-  # return(runif(1))
-  return(rh)
+  return(vpd)
 } 
 
-# The weather parameters for generating the transition matrix are single vals (return values of get_temp, get_rh).
+# The weather parameters for generating the transition matrix are single vals (return values of get_temp, get_vpd).
 # What host community data do we need and how will host densities be stored (format/data structure)?  
 # Currently, these functions return vectors of length n_host_spp
 # Parameters from research_strat p.4: 
@@ -79,40 +80,11 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
   f(x = pred1, y = pred2, p =  params) %>% unname()
 }
 
-
-# TODO not sure where to find how the inputs influence the growth (vs mortality) 
-# rates. Some functions are defined in research_strat.pdf for transition probabilities
-# to consecutive life stage, but can't find for remaining in same stage. Any chance these
-# are in the presentation that Dave screenshared briefly?
-
 # Dave: We will get these transition probs from other studies
 # Ogden et al 2004: https://doi.org/10.1603/0022-2585-41.4.622
 # Ogden et al. 2005: https://doi.org/10.1016/j.ijpara.2004.12.013
 # Dobson et al. 2011: https://doi.org/10.1111/j.1365-2664.2011.02003.x
 # Wallace et al 2019: https://doi.org/10.1155/2019/9817930
-
-# TODO this function naming scheme is quickly getting unweildy... need more concise alternative
-# could do acronyms like this:
-#
-# e_hl
-# hl_ql
-# ql_fl
-# fl_el
-# el_oun
-# el_oin
-# oun_qun
-# oin_qin
-# qun_fua
-# qun_fia
-# qin_fia
-# fua_ra
-# fia_ra
-# ra_e
-# (and also fxns for remaining in life stage, e.g. e_e)
-# 
-# OR, could avoid defining functions for each transition probability and instead do it all within 
-# the matrix generating function. I think having separate functions could come in handy though, e.g. for
-# fitting individual relationships between params (temp, rh, host community) and transition probabilities
 
 # 04
 # at each step, we generate a new transition matrix whose transition probabilities
@@ -122,7 +94,7 @@ gen_trans_matrix <- function(time, life_stages) {
   
   # get the parameters 
   temp = get_temp(time, weather)
-  rh = get_rh(time, weather)
+  vpd = get_vpd(time, weather)
   host_densities = get_host_densities(time)
 
   # initialize the transition matrix with zeros
@@ -138,7 +110,30 @@ gen_trans_matrix <- function(time, life_stages) {
   # if it is too cold questing larving go back to hardening, not sure whether this is right?
   trans_matrix['ql', 'ql'] <- get_transition_fun('larva_quest', pred1 = temp)
   trans_matrix['ql', 'hl'] <- 1 - get_transition_fun('larva_quest', pred1 = temp) - get_transition_fun('larva_mort') 
+
+  # skip fl <- ql because it depends on host commmunity
+    
+  trans_matrix['fl', 'el'] <- get_transition_fun('larva_feed_engorged')
+  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'el'] - get_transition_fun('larva_engorged_mort')
   
+  # comments refer to the two transitions below (oun <- el and el <- el)
+  # (1) haven't actually handled infected/uninfected here, it's just the transition from 
+  # any engorged larva to any overwintering nymph. 
+  # (2) Ogden 2005 doesn't have overwintering nymphs, so winter_nymph_mort is not yet defined 
+  # (3) there's no stage between EL and QN in Ogden 2005, so it seems like they assume that 
+  # after developing into nymphs, ticks go directly into questing. I think that means that 
+  # it's okay to use their QN <- EL transition for our O(U/I)N <- EL transition
+  trans_matrix['el', 'oun'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp)
+  trans_matrix['el', 'el'] <- 1 - trans_matrix['el', 'oun'] #- get_transition_fun('winter_nymph_mort') # TODO: mort not defined
+  
+  # skip qn <- oun because Ogden doesn't include overwinting nymphs
+  # skip fn <- qn because it depends on host community
+  
+  trans_matrix['fun', 'eun'] <- get_transition_fun('nymph_feed_engorged')
+  trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - get_transition_fun('nymph_engorged_mort')
+  
+  trans_matrix['eun', 'qua'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp)
+  trans_matrix['eun', 'eun'] <- 1 - trans_matrix['eun', 'qua'] - get_transition_fun('adult_quest_mort')
   
   return(trans_matrix)
 } 
