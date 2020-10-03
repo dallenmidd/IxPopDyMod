@@ -106,14 +106,12 @@ gen_trans_matrix <- function(time, life_stages) {
   trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
   trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
   
-  trans_matrix['hl', 'ql'] <- get_transition_fun('larva_quest', pred1 = temp)
+  trans_matrix['hl', 'ql'] <- get_transition_fun('larva_harden')
   trans_matrix['hl', 'hl'] <- 1 - trans_matrix['hl', 'ql'] - get_transition_fun('larva_mort')
   
-  # if it is too cold questing larving go back to hardening, not sure whether this is right?
-  trans_matrix['ql', 'ql'] <- get_transition_fun('larva_quest', pred1 = temp)
-  trans_matrix['ql', 'hl'] <- 1 - trans_matrix['ql', 'ql'] - get_transition_fun('larva_mort') 
-  # trans_matrix['ql', 'fl'] skipped because it depends on host commmunity
-  
+  # trans_matrix['ql', 'fl'] <- get_transition_fun('larva_quest', pred1 = temp) * PROB OF FINDING HOST IF QUESTING
+  # trans_matrix['ql', 'ql'] <- 1 - trans_matrix['ql', 'fl'] - get_transition_fun('larva_mort')
+ 
   trans_matrix['fl', 'el'] <- get_transition_fun('larva_feed_engorged')
   trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'el'] - get_transition_fun('larva_engorged_mort')
   
