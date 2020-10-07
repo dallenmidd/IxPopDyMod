@@ -12,8 +12,8 @@ tick_funs <- read_csv('inputs/tick_functions.csv')
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp = 4
-life_stages = c('e', 'hl', 'ql', 'fl', 'el',                                # larvae
-                'oun', 'oin', 'qun', 'qin', 'fun', 'fin', 'eun', 'ein',     # nymphs
+life_stages = c('e', 'hl', 'ql', 'fl', 'eul', 'eil',                        # larvae
+                'qun', 'qin', 'fun', 'fin', 'eun', 'ein',                   # nymphs
                 'qua', 'qia', 'fua', 'fia', 'ra')                           # adults
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
@@ -111,41 +111,32 @@ gen_trans_matrix <- function(time, life_stages) {
   
   # trans_matrix['ql', 'fl'] <- get_transition_fun('larva_quest', pred1 = temp) * PROB OF FINDING HOST IF QUESTING
   # trans_matrix['ql', 'ql'] <- 1 - trans_matrix['ql', 'fl'] - get_transition_fun('larva_mort')
- 
-  trans_matrix['fl', 'el'] <- get_transition_fun('larva_feed_engorged')
-  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'el'] - get_transition_fun('larva_engorged_mort')
+
+  # haven't actually handled infected/uninfected here (depends on hosts), this just says that there's 
+  # a 50/50 chance that an uninfected feeding larva or nymph is infected/uninfected when it becomes engorged
+  trans_matrix['fl', 'eul'] <- get_transition_fun('larva_feed_engorged') / 2 # placeholder splitting pop into half infected/uninfected
+  trans_matrix['fl', 'eil'] <- get_transition_fun('larva_feed_engorged') / 2
+  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('larva_engorged_mort')
   
-  # comments refer to ['el', 'oun/oin'] and ['el', 'el']
-  # (1) haven't actually handled infected/uninfected here (depends on hosts), this just says that there's 
-  #     a 50/50 chance that an uninfected engorged larva or nymph is infected/uninfected when it matures 
-  # (2) Ogden 2005 doesn't have overwintering nymphs, so winter_nymph_mort is not yet defined 
-  # (3) there's no stage between EL and QN in Ogden 2005, so it seems like they assume that 
-  #     after developing into nymphs, ticks go directly into questing. I think that means that 
-  #     it's okay to use their ['el, 'qn'] transition for our ['el', 'oun/oin'] transition
-  trans_matrix['el', 'oun'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp) / 2 # placeholder splitting pop into half infected/uninfected
-  trans_matrix['el', 'oin'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp) / 2
-  trans_matrix['el', 'el'] <- 1 - trans_matrix['el', 'oun'] - trans_matrix['el', 'oin'] #- get_transition_fun('winter_nymph_mort') # TODO: mort not defined
-  
-  # TODO see research_strat for ['oun', 'qun'] and ['oin', 'qin'] - dependent on temp and rh 
-  # trans_matrix['oun', 'qun'] skipped because Ogden doesn't include overwinting nymphs 
-  # trans_matrix['oun', 'oun'] ...
-  # trans_matrix['oin', 'qin'] ...
-  # trans_matrix['oin', 'oin'] ...
-  
+  trans_matrix['eul', 'qun'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp)
+  trans_matrix['eul', 'eul'] <- 1 - trans_matrix['eul', 'qun'] - get_transition_fun('larva_engorged_mort')
+  trans_matrix['eil', 'qin'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp)
+  trans_matrix['eil', 'eil'] <- 1 - trans_matrix['eil', 'qin'] - get_transition_fun('larva_engorged_mort')
+
   # trans_matrix['qun', 'fun'] skipped because depends on host community
   # trans_matrix['qun', 'qun'] ...
   # trans_matrix['qin', 'fin'] ...
   # trans_matrix['qin', 'qin'] ...
   
-  trans_matrix['fun', 'eun'] <- get_transition_fun('nymph_feed_engorged')
-  trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - get_transition_fun('nymph_engorged_mort')
+  trans_matrix['fun', 'eun'] <- get_transition_fun('nymph_feed_engorged') / 2 # placeholder, dependent on hosts 
+  trans_matrix['fun', 'ein'] <- get_transition_fun('nymph_feed_engorged') / 2
+  trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_fun('nymph_engorged_mort')
   
   trans_matrix['fin', 'ein'] <- get_transition_fun('nymph_feed_engorged')
   trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_fun('nymph_engorged_mort')
   
-  trans_matrix['eun', 'qua'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp) / 2 # placeholder, depedent on host community
-  trans_matrix['eun', 'qia'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp) / 2
-  trans_matrix['eun', 'eun'] <- 1 - trans_matrix['eun', 'qua'] - trans_matrix['eun', 'qia'] - get_transition_fun('adult_quest_mort')
+  trans_matrix['eun', 'qua'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp)
+  trans_matrix['eun', 'eun'] <- 1 - trans_matrix['eun', 'qua'] - get_transition_fun('adult_quest_mort')
   
   trans_matrix['ein', 'qia'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp)
   trans_matrix['ein', 'ein'] <- 1 - trans_matrix['ein', 'qia'] - get_transition_fun('adult_quest_mort')
