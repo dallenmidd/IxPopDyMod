@@ -16,6 +16,9 @@ life_stages = c('e', 'hl', 'ql', 'fl', 'eul', 'eil',                        # la
                 'qun', 'qin', 'fun', 'fin', 'eun', 'ein',                   # nymphs
                 'qua', 'qia', 'fua', 'fia', 'ra')                           # adults
 
+delay_mat <- matrix(nrow = length(life_stages), ncol = dim(weather)[1], data = 0)
+rownames(delay_mat) <- life_stages
+
 # 01 functions to grab the parameters that determine the transition matrix at a given time
 get_temp <- function(time, weather) {
   
@@ -27,6 +30,8 @@ get_temp <- function(time, weather) {
   # return(runif(1, min = 30, max = 70)) # placeholder
   return(temp)
 }
+
+v_temp <- Vectorize(function(x) get_temp(x,weather))
 
 get_vpd <- function(time, weather) {
   # DA comment: yeah all the other papers use RH, but I think the VPD is the more
@@ -93,7 +98,7 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
 gen_trans_matrix <- function(time, life_stages) {
   
   # get the parameters 
-  temp = get_temp(time, weather)
+  temp = v_temp(time:(time + 300))
   vpd = get_vpd(time, weather)
   host_densities = get_host_densities(time)
 
@@ -103,8 +108,12 @@ gen_trans_matrix <- function(time, life_stages) {
                          dimnames = list(life_stages, life_stages))
 
   # calculate the transition probabilities for possible transitions
-  trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
-  trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
+  # trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
+  # trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
+  
+  # days from e to hl
+  days_to_hl <- min(which(cumsum(get_transition_fun("egg_larva", pred1 = temp))>1))
+
   
   trans_matrix['hl', 'ql'] <- get_transition_fun('larva_harden')
   trans_matrix['hl', 'hl'] <- 1 - trans_matrix['hl', 'ql'] - get_transition_fun('larva_mort')
