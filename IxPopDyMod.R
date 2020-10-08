@@ -98,7 +98,7 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
 gen_trans_matrix <- function(time, life_stages) {
   
   # get the parameters 
-  temp = v_temp(time:(time + 300))
+  temp = get_temp(time, weather)
   vpd = get_vpd(time, weather)
   host_densities = get_host_densities(time)
 
@@ -108,12 +108,8 @@ gen_trans_matrix <- function(time, life_stages) {
                          dimnames = list(life_stages, life_stages))
 
   # calculate the transition probabilities for possible transitions
-  # trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
-  # trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
-  
-  # days from e to hl
-  days_to_hl <- min(which(cumsum(get_transition_fun("egg_larva", pred1 = temp))>1))
-
+   trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
+   trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
   
   trans_matrix['hl', 'ql'] <- get_transition_fun('larva_harden')
   trans_matrix['hl', 'hl'] <- 1 - trans_matrix['hl', 'ql'] - get_transition_fun('larva_mort')
@@ -183,9 +179,16 @@ initial_pop <- runif(length(life_stages), min = 0, max = 100) %>% as.integer()
 run(250, life_stages, initial_pop)
 
 
+### 06 thoughts on delay_mat
+time <- 100
+temp2 <- v_temp(time:(time + 300))
 
+days_to_hatch <- min(which(cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1))
+surv_to_hatch <- (1-get_transition_fun('egg_mort'))^days_to_hatch
 
+delay_mat['hl',time+days_to_hatch] <- N['e',time]*surv_to_hatch
 
+N[,time+1] <- delay_mat[,time+1]
 
 
 
