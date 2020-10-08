@@ -186,7 +186,7 @@ temp2 <- v_temp(time:(time + 300))
 days_to_hatch <- min(which(cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1))
 surv_to_hatch <- (1-get_transition_fun('egg_mort'))^days_to_hatch
 
-delay_mat['hl',time+days_to_hatch] <- N['e',time]*surv_to_hatch
+delay_mat['hl',time+days_to_hatch] <- N['e',time]*surv_to_hatch + delay_mat['hl',time+days_to_hatch]
 
 N[,time+1] <- delay_mat[,time+1]
 
