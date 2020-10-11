@@ -18,7 +18,8 @@ life_stages = c('e', 'hl', 'ql', 'fl', 'eul', 'eil',                        # la
 
 # initialize a delay matrix with a row for each of the tick life_stages and
 # a column for each day we have weather data
-delay_mat <- matrix(nrow = length(life_stages), ncol = dim(weather)[1], data = 0)
+max_delay = 300
+delay_mat <- matrix(nrow = length(life_stages), ncol = dim(weather)[1] + max_delay, data = 0)
 rownames(delay_mat) <- life_stages
 
 # also initialize a population matrix N
@@ -171,22 +172,26 @@ run <- function(steps) {
   # steps: number of iterations
   
   # update N[, time + 1]
-  for (time in 1:steps - 1) {
-    
+  for (time in 1:(steps - 1)) {
+
     # generate transition matrix for (time -> time + 1), which is based on 
     # conditions (weather and host community) at day "time"
     trans_matrix <- gen_trans_matrix(time, life_stages)
     
     # update the delay matrix, also based on conditions at day "time"
     # e.g. ['e', 'hl']
-    temp2 <- v_temp(time:(time + 300))
-    days_to_hatch <- min(which(cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1))
-    surv_to_hatch <- (1-get_transition_fun('egg_mort'))^days_to_hatch
-    delay_mat['hl',time+days_to_hatch] <- N['e',time]*surv_to_hatch + delay_mat['hl',time+days_to_hatch]
+    temp2 <- v_temp(time:(time + max_delay))
+    days <- cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1
+    
+    # if cumsum ever gets to 1
+    if (TRUE %in% days) {
+      days_to_hatch <- min(which(days))
+      surv_to_hatch <- (1-get_transition_fun('egg_mort'))^days_to_hatch
+      delay_mat['hl',time+days_to_hatch] <- N['e',time]*surv_to_hatch + delay_mat['hl',time+days_to_hatch]
+    }
     
     # now, we've used conditions at time "time" to predict future population sizes, so we can 
     # update the population size at time + 1
-    
     # first, multiply by the transition matrix, which should have 0 transition probability for 
     # transitions that are being handled as delays, e.g. ['e', 'hl]
     # second, we add the new individuals that are emerging from a delay at time + 1
@@ -204,7 +209,7 @@ N_out <- run(dim(weather)[1])
 
 ### 06 thoughts on delay_mat
 time <- 100
-temp2 <- v_temp(time:(time + 300))
+temp2 <- v_temp(time:(time + max_delay))
 
 days_to_hatch <- min(which(cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1))
 surv_to_hatch <- (1-get_transition_fun('egg_mort'))^days_to_hatch
