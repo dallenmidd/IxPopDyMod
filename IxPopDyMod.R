@@ -9,12 +9,10 @@ require(tidyverse)
 weather <- read_csv('inputs/weather.csv')
 tick_params <- read_csv('inputs/tick_parameters.csv')
 tick_funs <- read_csv('inputs/tick_functions.csv')
+life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp = 4
-life_stages = c('e', 'hl', 'ql', 'fl', 'eul', 'eil',                        # larvae
-                'qun', 'qin', 'fun', 'fin', 'eun', 'ein',                   # nymphs
-                'qua', 'qia', 'fua', 'fia', 'ra')                           # adults
 
 # initialize a delay matrix with a row for each of the tick life_stages and
 # a column for each day we have weather data
