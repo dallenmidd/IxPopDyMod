@@ -75,11 +75,11 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
     get()
   
   params <- parameters %>%
-    filter(transition == transition) %>%
+    filter(transition == which_trans) %>%
     pull(param_value)
   
   names(params) <- parameters %>%
-    filter(transition == transition) %>%
+    filter(transition == which_trans) %>%
     pull(param_name)
   
   f(x = pred1, y = pred2, p =  params) %>% unname()
