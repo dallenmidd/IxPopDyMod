@@ -90,6 +90,7 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
 # Ogden et al. 2005: https://doi.org/10.1016/j.ijpara.2004.12.013
 # Dobson et al. 2011: https://doi.org/10.1111/j.1365-2664.2011.02003.x
 # Wallace et al 2019: https://doi.org/10.1155/2019/9817930
+# Randolph 1999 effect of Sat Def on questing, see FIg 3: http://doi.org/10.1093/jmedent/36.6.741
 
 # 04
 # at each step, we generate a new transition matrix whose transition probabilities
