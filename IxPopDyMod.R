@@ -9,15 +9,22 @@ require(tidyverse)
 weather <- read_csv('inputs/weather.csv')
 tick_params <- read_csv('inputs/tick_parameters.csv')
 tick_funs <- read_csv('inputs/tick_functions.csv')
+life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp = 4
-life_stages = c('e', 'hl', 'ql', 'fl', 'eul', 'eil',                        # larvae
-                'qun', 'qin', 'fun', 'fin', 'eun', 'ein',                   # nymphs
-                'qua', 'qia', 'fua', 'fia', 'ra')                           # adults
 
-delay_mat <- matrix(nrow = length(life_stages), ncol = dim(weather)[1], data = 0)
+# initialize a delay matrix with a row for each of the tick life_stages and
+# a column for each day we have weather data
+max_delay = 300
+delay_mat <- matrix(nrow = length(life_stages), ncol = dim(weather)[1] + max_delay, data = 0)
 rownames(delay_mat) <- life_stages
+
+# also initialize a population matrix N
+N <- matrix(nrow = length(life_stages), ncol = dim(weather)[1], data = 0)
+rownames(N) <- life_stages
+initial_pop <- runif(length(life_stages), min = 1000, max = 1000) %>% as.integer()
+N[,1] <- initial_pop
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
 get_temp <- function(time, weather) {
@@ -26,7 +33,7 @@ get_temp <- function(time, weather) {
     filter(j_day == time) %>%
     select(tmean) %>% 
     as.numeric() # tbl to vector
-
+  
   # return(runif(1, min = 30, max = 70)) # placeholder
   return(temp)
 }
@@ -75,11 +82,11 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
     get()
   
   params <- parameters %>%
-    filter(transition == transition) %>%
+    filter(transition == which_trans) %>%
     pull(param_value)
   
   names(params) <- parameters %>%
-    filter(transition == transition) %>%
+    filter(transition == which_trans) %>%
     pull(param_name)
   
   f(x = pred1, y = pred2, p =  params) %>% unname()
@@ -102,22 +109,22 @@ gen_trans_matrix <- function(time, life_stages) {
   temp = get_temp(time, weather)
   vpd = get_vpd(time, weather)
   host_densities = get_host_densities(time)
-
+  
   # initialize the transition matrix with zeros
   n_life_stages <- length(life_stages)
   trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages, 
                          dimnames = list(life_stages, life_stages))
-
+  
   # calculate the transition probabilities for possible transitions
-   trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
-   trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
+  trans_matrix['e', 'hl'] <- get_transition_fun("egg_larva", pred1 = temp)
+  trans_matrix['e', 'e'] <- 1 - trans_matrix['e', 'hl'] - get_transition_fun('egg_mort')
   
   trans_matrix['hl', 'ql'] <- get_transition_fun('larva_harden')
   trans_matrix['hl', 'hl'] <- 1 - trans_matrix['hl', 'ql'] - get_transition_fun('larva_mort')
   
   # trans_matrix['ql', 'fl'] <- get_transition_fun('larva_quest', pred1 = temp) * PROB OF FINDING HOST IF QUESTING
   # trans_matrix['ql', 'ql'] <- 1 - trans_matrix['ql', 'fl'] - get_transition_fun('larva_mort')
-
+  
   # haven't actually handled infected/uninfected here (depends on hosts), this just says that there's 
   # a 50/50 chance that an uninfected feeding larva or nymph is infected/uninfected when it becomes engorged
   trans_matrix['fl', 'eul'] <- get_transition_fun('larva_feed_engorged') / 2 # placeholder splitting pop into half infected/uninfected
@@ -128,7 +135,7 @@ gen_trans_matrix <- function(time, life_stages) {
   trans_matrix['eul', 'eul'] <- 1 - trans_matrix['eul', 'qun'] - get_transition_fun('larva_engorged_mort')
   trans_matrix['eil', 'qin'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp)
   trans_matrix['eil', 'eil'] <- 1 - trans_matrix['eil', 'qin'] - get_transition_fun('larva_engorged_mort')
-
+  
   # trans_matrix['qun', 'fun'] skipped because depends on host community
   # trans_matrix['qun', 'qun'] ...
   # trans_matrix['qin', 'fin'] ...
@@ -160,29 +167,48 @@ gen_trans_matrix <- function(time, life_stages) {
 
 # 05 iteratively run model
 
-run <- function(steps, life_stages, pop) {
+run <- function(steps) {
   # steps: number of iterations
-  # life_stages: vector of life stage names (there's likely a cleaner way to pass this)
-  # pop: initial population vector
   
-  # at each step, generate the trans_matrix for that time
-  # then update the population vector as product of pop and trans_matrix
-  for (time in 1:steps) {
+  # update N[, time + 1]
+  for (time in 1:(steps - 1)) {
+
+    # generate transition matrix for (time -> time + 1), which is based on 
+    # conditions (weather and host community) at day "time"
     trans_matrix <- gen_trans_matrix(time, life_stages)
-    pop <- pop %*% trans_matrix %>% c()
-    names(pop) <- life_stages
+    
+    # update the delay matrix, also based on conditions at day "time"
+    # e.g. ['e', 'hl']
+    temp2 <- v_temp(time:(time + max_delay))
+    days <- cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1
+    
+    # if cumsum ever gets to 1
+    if (TRUE %in% days) {
+      days_to_hatch <- min(which(days))
+      surv_to_hatch <- (1-get_transition_fun('egg_mort'))^days_to_hatch
+      delay_mat['hl',time+days_to_hatch] <- N['e',time]*surv_to_hatch + delay_mat['hl',time+days_to_hatch]
+    }
+    
+    # now, we've used conditions at time "time" to predict future population sizes, so we can 
+    # update the population size at time + 1
+    # first, multiply by the transition matrix, which should have 0 transition probability for 
+    # transitions that are being handled as delays, e.g. ['e', 'hl]
+    # second, we add the new individuals that are emerging from a delay at time + 1
+    N[,time + 1] <- N[,time] %*% trans_matrix + delay_mat[,time + 1]
+    
   }
   
-  return(pop)
+  rownames(N) <- life_stages
+  return(N)
 }
 
-initial_pop <- runif(length(life_stages), min = 0, max = 100) %>% as.integer()
-run(250, life_stages, initial_pop)
+# currently run() copies the input population matrix N, might be more efficient to modify it in place
+N_out <- run(dim(weather)[1])
 
 
 ### 06 thoughts on delay_mat
 time <- 100
-temp2 <- v_temp(time:(time + 300))
+temp2 <- v_temp(time:(time + max_delay))
 
 days_to_hatch <- min(which(cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1))
 surv_to_hatch <- (1-get_transition_fun('egg_mort'))^days_to_hatch
