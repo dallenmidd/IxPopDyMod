@@ -12,7 +12,14 @@ tick_funs <- read_csv('inputs/tick_functions.csv')
 life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
 
 # hard code in some values as placeholders until we have nicely formatted inputs
-n_host_spp = 4
+n_host_spp <- 3 # mouse, squirrel, deer
+host_den <- c(40, 8, 0.25)
+l_pref <- c(1, 0.75, 0.25)
+n_pref <- c(1, 1, 0.25)
+a_pref <- c(0, 0, 1)
+l_feed_success <- c(0.49, 0.17, 0.49)
+host_rc <- c(0.92, 0.147, 0.046)
+
 
 # initialize a delay matrix with a row for each of the tick life_stages and
 # a column for each day we have weather data
@@ -71,6 +78,7 @@ get_host_reservoir_competences <- function(host_community) {return(runif(n_host_
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
 briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
 constant_fun <- function(x, y, p) p['a']
+binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 
 # 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
@@ -97,6 +105,7 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
 # Ogden et al. 2005: https://doi.org/10.1016/j.ijpara.2004.12.013
 # Dobson et al. 2011: https://doi.org/10.1111/j.1365-2664.2011.02003.x
 # Wallace et al 2019: https://doi.org/10.1155/2019/9817930
+# Randolph 1999 effect of Sat Def on questing, see FIg 3: http://doi.org/10.1093/jmedent/36.6.741
 
 # 04
 # at each step, we generate a new transition matrix whose transition probabilities
@@ -121,13 +130,16 @@ gen_trans_matrix <- function(time, life_stages) {
   trans_matrix['hl', 'ql'] <- get_transition_fun('larva_harden')
   trans_matrix['hl', 'hl'] <- 1 - trans_matrix['hl', 'ql'] - get_transition_fun('larva_mort')
   
-  # trans_matrix['ql', 'fl'] <- get_transition_fun('larva_quest', pred1 = temp) * PROB OF FINDING HOST IF QUESTING
-  # trans_matrix['ql', 'ql'] <- 1 - trans_matrix['ql', 'fl'] - get_transition_fun('larva_mort')
+   trans_matrix['ql', 'fl'] <- get_transition_fun('larva_quest', pred1 = temp) * get_transition_fun('host_finding', pred1 = sum(host_den * l_pref))
+   trans_matrix['ql', 'ql'] <- 1 - trans_matrix['ql', 'fl'] - get_transition_fun('larva_mort')
   
   # haven't actually handled infected/uninfected here (depends on hosts), this just says that there's 
   # a 50/50 chance that an uninfected feeding larva or nymph is infected/uninfected when it becomes engorged
-  trans_matrix['fl', 'eul'] <- get_transition_fun('larva_feed_engorged') / 2 # placeholder splitting pop into half infected/uninfected
-  trans_matrix['fl', 'eil'] <- get_transition_fun('larva_feed_engorged') / 2
+  # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
+  # for now ignore density dependent feeding success
+  # this doesn't have time delay
+  trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+  trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
   trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('larva_engorged_mort')
   
   # commented out engorged larvae to questing nymph: if we don't change the (zero) transition 
