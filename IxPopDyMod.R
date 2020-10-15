@@ -4,7 +4,7 @@
 require(tidyverse)
 
 # 00
-# read inputs
+# read inputs 
 # host_community <- read_csv('inputs/host_community.csv')
 weather <- read_csv('inputs/weather.csv')
 tick_params <- read_csv('inputs/tick_parameters.csv')
@@ -34,30 +34,19 @@ initial_pop <- runif(length(life_stages), min = 1000, max = 1000) %>% as.integer
 N[,1] <- initial_pop
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
-get_temp <- function(time, weather) {
-  
-  temp <- weather %>%
-    filter(j_day == time) %>%
-    select(tmean) %>% 
-    as.numeric() # tbl to vector
-  
-  # return(runif(1, min = 30, max = 70)) # placeholder
-  return(temp)
+get_temp <- function(time) {
+  weather %>%
+    filter(j_day %in% time) %>%
+    pull(tmean)
 }
 
-v_temp <- Vectorize(function(x) get_temp(x,weather))
-
-get_vpd <- function(time, weather) {
+get_vpd <- function(time) {
   # DA comment: yeah all the other papers use RH, but I think the VPD is the more
   # biologically relavent value, but if all the parameterization is iwth RH, we might
   # have to go back to RH. Eitherway if you know the temp you can convert between RH and VPD
-  
-  vpd <- weather %>% 
-    filter(j_day == time) %>%
-    select(vpdmean) %>% 
-    as.numeric()
-  
-  return(vpd)
+  weather %>% 
+    filter(j_day %in% time) %>%
+    pull(vpdmean)
 } 
 
 # The weather parameters for generating the transition matrix are single vals (return values of get_temp, get_vpd).
@@ -111,11 +100,11 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
 # at each step, we generate a new transition matrix whose transition probabilities
 # are based on the input data (weather, host_community) at that time 
 
-gen_trans_matrix <- function(time, life_stages) {
+gen_trans_matrix <- function(time) {
   
   # get the parameters 
-  temp = get_temp(time, weather)
-  vpd = get_vpd(time, weather)
+  temp = get_temp(time)
+  vpd = get_vpd(time)
   host_densities = get_host_densities(time)
   
   # initialize the transition matrix with zeros
@@ -192,12 +181,12 @@ run <- function(steps) {
     trans_matrix <- gen_trans_matrix(time, life_stages)
     
     # update the delay matrix, also based on conditions at day "time"
-    temp2 <- v_temp(time:(time + max_delay))
+    temp <- get_temp(time:(time + max_delay))
     
     # for each transition using a delay, generate a vector of whether the cumsum is > 1 on each day
-    e_hl_days <- cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1
-    eul_qun_days <- cumsum(get_transition_fun('larva_engorged_nymph', pred1 = temp2)) > 1
-    eil_qin_days <- cumsum(get_transition_fun('larva_engorged_nymph', pred1 = temp2)) > 1    
+    e_hl_days <- cumsum(get_transition_fun("egg_larva", pred1 = temp)) > 1
+    eul_qun_days <- cumsum(get_transition_fun('larva_engorged_nymph', pred1 = temp)) > 1
+    eil_qin_days <- cumsum(get_transition_fun('larva_engorged_nymph', pred1 = temp)) > 1    
     
     # for each transition, if cumsum ever gets to 1
     if (TRUE %in% e_hl_days) {
