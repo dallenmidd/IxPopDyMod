@@ -130,10 +130,13 @@ gen_trans_matrix <- function(time, life_stages) {
   trans_matrix['fl', 'eil'] <- get_transition_fun('larva_feed_engorged') / 2
   trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('larva_engorged_mort')
   
-  trans_matrix['eul', 'qun'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp)
-  trans_matrix['eul', 'eul'] <- 1 - trans_matrix['eul', 'qun'] - get_transition_fun('larva_engorged_mort')
-  trans_matrix['eil', 'qin'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp)
-  trans_matrix['eil', 'eil'] <- 1 - trans_matrix['eil', 'qin'] - get_transition_fun('larva_engorged_mort')
+  # commented out engorged larvae to questing nymph: if we don't change the (zero) transition 
+  # probabilities for these stages, multiplication gives the desired behavior of  any engorged larvae 
+  # dropping out of the population matrix at the next time step (first we copy the # individuals to the delay matrix)
+  # trans_matrix['eul', 'qun'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp)
+  # trans_matrix['eul', 'eul'] <- 1 - trans_matrix['eul', 'qun'] - get_transition_fun('larva_engorged_mort')
+  # trans_matrix['eil', 'qin'] <- get_transition_fun('larva_engorged_nymph', pred1 = temp)
+  # trans_matrix['eil', 'eil'] <- 1 - trans_matrix['eil', 'qin'] - get_transition_fun('larva_engorged_mort')
   
   # trans_matrix['qun', 'fun'] skipped because depends on host community
   # trans_matrix['qun', 'qun'] ...
@@ -146,13 +149,13 @@ gen_trans_matrix <- function(time, life_stages) {
   
   trans_matrix['fin', 'ein'] <- get_transition_fun('nymph_feed_engorged')
   trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_fun('nymph_engorged_mort')
-  
-  trans_matrix['eun', 'qua'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp)
-  trans_matrix['eun', 'eun'] <- 1 - trans_matrix['eun', 'qua'] - get_transition_fun('adult_quest_mort')
-  
-  trans_matrix['ein', 'qia'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp)
-  trans_matrix['ein', 'ein'] <- 1 - trans_matrix['ein', 'qia'] - get_transition_fun('adult_quest_mort')
-  
+
+  # TODO: implement as delay  
+  # trans_matrix['eun', 'qua'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp)
+  # trans_matrix['eun', 'eun'] <- 1 - trans_matrix['eun', 'qua'] - get_transition_fun('adult_quest_mort')
+  # trans_matrix['ein', 'qia'] <- get_transition_fun('nymph_engorged_adult', pred1 = temp)
+  # trans_matrix['ein', 'ein'] <- 1 - trans_matrix['ein', 'qia'] - get_transition_fun('adult_quest_mort')
+ 
   # trans_matrix['qua', 'fua'] skipped because depends on hosts
   # trans_matrix['qua', 'qua'] ...
   # trans_matrix['qia', 'fia'] ...
@@ -164,7 +167,7 @@ gen_trans_matrix <- function(time, life_stages) {
   return(trans_matrix)
 } 
 
-# 05 iteratively run model
+# 05 iteratively run model  
 
 run <- function(steps) {
   # steps: number of iterations
@@ -177,15 +180,24 @@ run <- function(steps) {
     trans_matrix <- gen_trans_matrix(time, life_stages)
     
     # update the delay matrix, also based on conditions at day "time"
-    # e.g. ['e', 'hl']
     temp2 <- v_temp(time:(time + max_delay))
-    days <- cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1
     
-    # if cumsum ever gets to 1
-    if (TRUE %in% days) {
-      days_to_hatch <- min(which(days))
+    # for each transition using a delay, generate a vector of whether the cumsum is > 1 on each day
+    e_hl_days <- cumsum(get_transition_fun("egg_larva", pred1 = temp2)) > 1
+    eul_qun_days <- cumsum(get_transition_fun('larva_engorged_nymph', pred1 = temp2)) > 1
+    eil_qin_days <- cumsum(get_transition_fun('larva_engorged_nymph', pred1 = temp2)) > 1    
+    
+    # for each transition, if cumsum ever gets to 1
+    if (TRUE %in% e_hl_days) {
+      days_to_hatch <- min(which(e_hl_days))
       surv_to_hatch <- (1-get_transition_fun('egg_mort'))^days_to_hatch
       delay_mat['hl',time+days_to_hatch] <- N['e',time]*surv_to_hatch + delay_mat['hl',time+days_to_hatch]
+    }
+    
+    if (TRUE %in% eul_qun_days) {
+      days_to_quest <- min(which(eul_qun_days))
+      surv_to_quest <- (1-get_transition_fun('larva_engorged_mort'))^days_to_quest
+      delay_mat['qun', time+days_to_quest] <- N['eul', time]*surv_to_hatch + delay_mat['qun', time+days_to_quest]
     }
     
     # now, we've used conditions at time "time" to predict future population sizes, so we can 
@@ -217,4 +229,5 @@ delay_mat['hl',time+days_to_hatch] <- N['e',time]*surv_to_hatch + delay_mat['hl'
 N[,time+1] <- delay_mat[,time+1]
 
 
+out <- run(steps=10)
 
