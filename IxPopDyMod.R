@@ -207,7 +207,7 @@ run <- function(steps) {
     }
     
     if (TRUE %in% ein_qia_days) {
-      days_to_next <- min(which(eil_qin_days))
+      days_to_next <- min(which(ein_qia_days))
       surv_to_next <- (1-get_transition_fun('en_m'))^days_to_next
       delay_mat['qia', time+days_to_next] <- N['ein', time]*surv_to_next + delay_mat['qia', time+days_to_next]
     }
