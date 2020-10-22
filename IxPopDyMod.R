@@ -225,7 +225,7 @@ run <- function(steps) {
     # generate transition matrix for (time -> time + 1), which is based on 
     # conditions (weather and host community) at day "time"
     trans_matrix <- gen_trans_matrix(time)
-    delay_mat <- update_delay_mat(time)
+    delay_mat <<- update_delay_mat(time)
     
     # now, we've used conditions at time "time" to predict future population sizes, so we can 
     # update the population size at time + 1
