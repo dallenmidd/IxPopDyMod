@@ -1,23 +1,37 @@
-transition, param_name, param_value, param_ci_low, param_ci_high, source
-e_hl, a, 0.0000292, NA, NA, "Ogden et al. 2004"
-e_hl, b, 2.27, NA, NA, "Ogden et al. 2004"
-e_m, a, 0.002, NA, NA, "Ogden et al. 2005"
-l_m, a, 0.006, NA, NA, "Ogden et al. 2005"
-hl_ql, a, 0.0476, NA, NA, "Daniels et al. 1996"
-ql_fl, tmin, 10, NA, NA, "Ogden et al. 2005"
-ql_fl, tmax, 35, NA, NA, "Ogden et al. 2005"
-ql_fl, q, 0.0007, NA, NA, "Ogden et al. 2005"
-el_m, a, 0.003, NA, NA, "Ogden et al. 2005 (note: same mortality for engorged and feeding larvae)"
-fl_el, a, 0.333, NA, NA, "Ogden et al. 2005 (note: assumes 1 day time step)"
-el_qn, a, 0.000009883278, NA, NA,"Ogden et al. 2005"
-el_qn, b, 2.55, NA, NA, "Ogden et al. 2005"
-fn_en, a, 0.2, NA, NA, "Ogden et al. 2005"
-en_m, a, 0.002, NA, NA, "Ogden et al. 2005"
-en_qa, a, 0.0006265664, NA, NA, "Ogden et al. 2005"
-en_qa, b, 1.21, NA, NA, "Ogden et al. 2005"
-qa_m, a, 0.006, NA, NA, "Ogden et al. 2005"
-q_f, a, 0.0004, NA, NA, "daily chance a tick finds one given host"
-ra_e, a, 0.0007692308, NA, NA, "Ogden et al. 2004"
-ra_e, b, 1.42, NA, NA, "Ogden et al. 2004"
-ra_m, a, 0.0001, NA, NA, "Ogden et al. 2005"
-n_e, a, 3000, NA, NA, "Ogden et al. 2005"
+from, to, transition, param_name, param_value, param_ci_low, param_ci_high, source
+e, hl, e_hl, a, 2.92e-5, NA, NA, Ogden et al. 2004
+e, hl, e_hl, b, 2.27, NA, NA, Ogden et al. 2004
+e, m, e_m, a, 0.002, NA, NA, Ogden et al. 2005
+hl, m, l_m, a, 0.006, NA, NA, Ogden et al. 2005
+ql, m, l_m, a, 0.006, NA, NA, Ogden et al. 2005
+hl, ql, hl_ql, a, 0.0476, NA, NA, Daniels et al. 1996
+ql, fl, ql_fl, tmin, 10, NA, NA, Ogden et al. 2005
+ql, fl, ql_fl, tmax, 35, NA, NA, Ogden et al. 2005
+ql, fl, ql_fl, q, 7e-4, NA, NA, Ogden et al. 2005
+eil, m, el_m, a, 0.003, NA, NA, Ogden et al. 2005
+eul, m, el_m, a, 0.003, NA, NA, Ogden et al. 2005
+fl, m, el_m, a, 0.003, NA, NA, Ogden et al. 2005 
+fl, eul, fl_el, a, 0.333, NA, NA, Ogden et al. 2005
+fl, eil, fl_el, a, 0.333, NA, NA, Ogden et al. 2005
+eil, qin, el_qn, a, 9.883278e-6, NA, NA, Ogden et al. 2005
+eul, qun, el_qn, a, 9.883278e-6, NA, NA, Ogden et al. 2005
+eil, qin, el_qn, b, 2.55, NA, NA, Ogden et al. 2005
+eul, qun, el_qn, b, 2.55, NA, NA, Ogden et al. 2005
+fin, ein, fn_en, a, 0.2, NA, NA, Ogden et al. 2005
+fun, eun, fn_en, a, 0.2, NA, NA, Ogden et al. 2005
+fun, ein, fn_en, a, 0.2, NA, NA, Ogden et al. 2005
+ein, m, en_m, a, 0.002, NA, NA, Ogden et al. 2005
+eun, m, en_m, a, 0.002, NA, NA, Ogden et al. 2005
+fin, m, en_m, a, 0.002, NA, NA, Ogden et al. 2005
+fun, m, en_m, a, 0.002, NA, NA, Ogden et al. 2005
+ein, qia, en_qa, a, 6.265664e-4, NA, NA, Ogden et al. 2005
+eun, qua, en_qa, a, 6.265664e-4, NA, NA, Ogden et al. 2005
+ein, qia, en_qa, b, 1.21, NA, NA, Ogden et al. 2005
+eun, qua, en_qa, b, 1.21, NA, NA, Ogden et al. 2005
+qia, m, qa_m, a, 0.006, NA, NA, Ogden et al. 2005
+qua, m, qa_m, a, 0.006, NA, NA, Ogden et al. 2005
+q, f, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
+ra, e, ra_e, a, 7.692308e-4, NA, NA, Ogden et al. 2004
+ra, e, ra_e, b, 1.42, NA, NA, Ogden et al. 2004
+ra, m, ra_m, a, 1e-4, NA, NA, Ogden et al. 2005
+NA, NA, n_e, a, 3000, NA, NA, Ogden et al. 2005
