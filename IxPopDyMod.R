@@ -136,6 +136,29 @@ gen_trans_matrix <- function(time) {
   return(trans_matrix)
 } 
 
+"
+for each stage in life_stages:
+  
+  # handle transitions without delay
+  transitions <- tick_functions %>% 
+    filter(from == stage, to != m, delay == false)
+  for (t in transitions):
+      trans_matrix[t$from, t$to] <- get_transition_fun(t$from_t$to, pred1, pred2)
+  trans_matrix[stage, stage] <- 1 - sum(trans_matrix[stage,]) - get_transition_fun(stage_m, pred1, pred2)
+  
+  # with delay
+  transitions <- tick_functions %>% 
+    filter(from = stage, to != m,  delay == true)
+  for (t in transitions) {
+    days <- cumsum(get_transition_fun(from_to, pred1, pred2)) > 1
+    if (TRUE %in% days) {
+      days_to_next <- min(which(days))
+      surv_to_next <- 1 - get_transition_fun(stage_m) ^ days_to_next
+      delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + N[from, time] * surv_to_next * ifelse(is_reproductive_transition, 1, clutch size)
+    }
+  }
+  
+"
 
 update_delay_mat <- function(time) {
   temp <- get_temp(time:(time + max_delay))
