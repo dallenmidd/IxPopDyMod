@@ -136,6 +136,61 @@ gen_trans_matrix <- function(time) {
   return(trans_matrix)
 } 
 
+
+update_delay_mat <- function(time) {
+  temp <- get_temp(time:(time + max_delay))
+  
+  # for each transition using a delay, generate a vector of whether the cumsum is > 1 on each day
+  e_hl_days <- cumsum(get_transition_fun("e_hl", pred1 = temp)) > 1
+  eul_qun_days <- cumsum(get_transition_fun('el_qn', pred1 = temp)) > 1
+  eil_qin_days <- cumsum(get_transition_fun('el_qn', pred1 = temp)) > 1    
+  eun_qua_days <- cumsum(get_transition_fun('en_qa', pred1 = temp)) > 1
+  ein_qia_days <- cumsum(get_transition_fun('en_qa', pred1 = temp)) > 1
+  ra_e_days <- cumsum(get_transition_fun('ra_e', pred1 = temp)) > 1
+  
+  # for each transition, if cumsum ever gets to 1
+  if (TRUE %in% e_hl_days) {
+    days_to_next <- min(which(e_hl_days))
+    surv_to_next <- (1-get_transition_fun('e_m'))^days_to_next
+    delay_mat['hl',time+days_to_next] <- N['e',time]*surv_to_next + delay_mat['hl',time+days_to_next]
+  }
+  
+  if (TRUE %in% eul_qun_days) {
+    days_to_next <- min(which(eul_qun_days))
+    surv_to_next <- (1-get_transition_fun('el_m'))^days_to_next
+    delay_mat['qun', time+days_to_next] <- N['eul', time]*surv_to_next + delay_mat['qun', time+days_to_next]
+  }
+  
+  if (TRUE %in% eil_qin_days) {
+    days_to_next <- min(which(eul_qun_days))
+    surv_to_next <- (1-get_transition_fun('el_m'))^days_to_next
+    delay_mat['qin', time+days_to_next] <- N['eil', time]*surv_to_next + delay_mat['qin', time+days_to_next]
+  }
+  
+  if (TRUE %in% eun_qua_days) {
+    days_to_next <- min(which(eun_qua_days))
+    surv_to_next <- (1-get_transition_fun('en_m'))^days_to_next
+    delay_mat['qua', time+days_to_next] <- N['eun', time]*surv_to_next + delay_mat['qua', time+days_to_next]
+  }
+  
+  if (TRUE %in% ein_qia_days) {
+    days_to_next <- min(which(ein_qia_days))
+    surv_to_next <- (1-get_transition_fun('en_m'))^days_to_next
+    delay_mat['qia', time+days_to_next] <- N['ein', time]*surv_to_next + delay_mat['qia', time+days_to_next]
+  }
+  
+  # we hande egg laying similarly to other development transitions
+  # the difference is that we multiply the number of surviving reproductive adults by
+  # the number of eggs each adult produces
+  if (TRUE %in% ra_e_days) {
+    days_to_next <- min(which(ra_e_days))
+    surv_to_next <- (1-get_transition_fun('ra_m'))^days_to_next
+    delay_mat['e', time+days_to_next] <- N['ra', time]*surv_to_next * get_transition_fun('n_e') + delay_mat['e', time+days_to_next]
+  }
+  
+  return(delay_mat)
+}
+
 # 05 iteratively run model  
 
 run <- function(steps) {
@@ -147,79 +202,7 @@ run <- function(steps) {
     # generate transition matrix for (time -> time + 1), which is based on 
     # conditions (weather and host community) at day "time"
     trans_matrix <- gen_trans_matrix(time)
-    
-    # update the delay matrix, also based on conditions at day "time"
-    temp <- get_temp(time:(time + max_delay))
-    
-    # TODO initial thoughts on how to generalize
-    # for (trans in c("e_hl", "eul_qun", "eil_qin", "eun_qua", "ein_qia", "ra_e")) { # development transitions only here
-    #   days <- cumsum(get_transition_fun(trans, pred1 = temp)) > 1
-    #   
-    #   if (TRUE %in% days) {
-    # 
-    #     # TODO the issue here is that we would need some way to identify the transition to grab based on the name of the transition
-    #     # options: (1) have a duplicate entry for each transition function and parameter each time it is used (e.g. duplicate for 
-    #     # eul_qun and eil_qin), or (2) use some string pattern matching, e.g. to get the transition fun/params "el_qn" for the 
-    #     # transitions "eul_qun" and "eil_qin"
-    #     
-    #     from <- str_split(trans, '_')[1]
-    #     to <- str_split(trans, '_')[2]
-    # 
-    #     days_to_next <- min(which(days))
-    #     surv_to_next <- 1 - get_transition_fun()
-    # 
-    #     # TODO need condition for multiplying by number of eggs
-    #     delay_mat[to, time + days_to_next] <- N[from, time]*surv_to_next + delay_mat[to, time + days_to_next] 
-    #   }
-    # }
-
-    # for each transition using a delay, generate a vector of whether the cumsum is > 1 on each day
-    e_hl_days <- cumsum(get_transition_fun("e_hl", pred1 = temp)) > 1
-    eul_qun_days <- cumsum(get_transition_fun('el_qn', pred1 = temp)) > 1
-    eil_qin_days <- cumsum(get_transition_fun('el_qn', pred1 = temp)) > 1    
-    eun_qua_days <- cumsum(get_transition_fun('en_qa', pred1 = temp)) > 1
-    ein_qia_days <- cumsum(get_transition_fun('en_qa', pred1 = temp)) > 1
-    ra_e_days <- cumsum(get_transition_fun('ra_e', pred1 = temp)) > 1
-    
-    # for each transition, if cumsum ever gets to 1
-    if (TRUE %in% e_hl_days) {
-      days_to_next <- min(which(e_hl_days))
-      surv_to_next <- (1-get_transition_fun('e_m'))^days_to_next
-      delay_mat['hl',time+days_to_next] <- N['e',time]*surv_to_next + delay_mat['hl',time+days_to_next]
-    }
-    
-    if (TRUE %in% eul_qun_days) {
-      days_to_next <- min(which(eul_qun_days))
-      surv_to_next <- (1-get_transition_fun('el_m'))^days_to_next
-      delay_mat['qun', time+days_to_next] <- N['eul', time]*surv_to_next + delay_mat['qun', time+days_to_next]
-    }
-    
-    if (TRUE %in% eil_qin_days) {
-      days_to_next <- min(which(eul_qun_days))
-      surv_to_next <- (1-get_transition_fun('el_m'))^days_to_next
-      delay_mat['qin', time+days_to_next] <- N['eil', time]*surv_to_next + delay_mat['qin', time+days_to_next]
-    }
-    
-    if (TRUE %in% eun_qua_days) {
-      days_to_next <- min(which(eun_qua_days))
-      surv_to_next <- (1-get_transition_fun('en_m'))^days_to_next
-      delay_mat['qua', time+days_to_next] <- N['eun', time]*surv_to_next + delay_mat['qua', time+days_to_next]
-    }
-    
-    if (TRUE %in% ein_qia_days) {
-      days_to_next <- min(which(ein_qia_days))
-      surv_to_next <- (1-get_transition_fun('en_m'))^days_to_next
-      delay_mat['qia', time+days_to_next] <- N['ein', time]*surv_to_next + delay_mat['qia', time+days_to_next]
-    }
-    
-    # we hande egg laying similarly to other development transitions
-    # the difference is that we multiply the number of surviving reproductive adults by
-    # the number of eggs each adult produces
-    if (TRUE %in% ra_e_days) {
-      days_to_next <- min(which(ra_e_days))
-      surv_to_next <- (1-get_transition_fun('ra_m'))^days_to_next
-      delay_mat['e', time+days_to_next] <- N['ra', time]*surv_to_next * get_transition_fun('n_e') + delay_mat['e', time+days_to_next]
-    }
+    delay_mat <- update_delay_mat(time)
     
     # now, we've used conditions at time "time" to predict future population sizes, so we can 
     # update the population size at time + 1
@@ -227,7 +210,6 @@ run <- function(steps) {
     # transitions that are being handled as delays, e.g. ['e', 'hl]
     # second, we add the new individuals that are emerging from a delay at time + 1
     N[,time + 1] <- N[,time] %*% trans_matrix + delay_mat[,time + 1]
-    
   }
   
   rownames(N) <- life_stages
@@ -236,7 +218,6 @@ run <- function(steps) {
 
 # currently run() copies the input population matrix N, might be more efficient to modify it in place
 N_out <- run(dim(weather)[1])
-
 
 ### 06 thoughts on delay_mat
 time <- 100
@@ -251,4 +232,8 @@ N[,time+1] <- delay_mat[,time+1]
 
 
 out <- run(steps=10)
+
+
+
+
 
