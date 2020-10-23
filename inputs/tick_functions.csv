@@ -20,8 +20,8 @@ fun, ein, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts, no
 hl, ql, hl_ql, constant_fun, 0, Daniels et al. 1996, confirm source w Dave, 1
 hl, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 2
 ql, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 4
-ne, NA, n_e, NA, NA, NA, number of eggs... not sure how to handle, 37
-q, f, q_f, binomial_fun, 0, Dave theory, unclear on this, 38
+ne, NA, n_e, constant_fun, NA, NA, number of eggs... not sure how to handle (to and from are not life stages), 37
+q, f, q_f, binomial_fun, 0, Dave theory, not sure how to handle (to and from are not life stages), 38
 ql, fl, ql_fl, briere_fun, 0, Ogden et al. 2005, what's the deal with q_f which Dave added?, 3
 ra, e, ra_e, expo_fun, 1, Ogden et al. 2004, NA, 35
 ra, m, ra_m, constant_fun, 1, Ogden et al. 2005, NA, 36

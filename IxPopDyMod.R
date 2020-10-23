@@ -1,7 +1,7 @@
 ## Ixodes population dynamics model
 ## Dave Allen and Myles Stokowski
 
-require(tidyverse)
+library(tidyverse)
 
 # 00
 # read inputs 
@@ -66,6 +66,23 @@ get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, function
   
   names(params) <- parameters %>%
     filter(transition == which_trans) %>%
+    pull(param_name)
+  
+  f(x = pred1, y = pred2, p =  params) %>% unname()
+}
+
+get_transition_fun2 <- function(which_from, which_to, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
+  f <- functions %>%
+    filter(from == which_from, to == which_to) %>%
+    pull(transition_fun) %>%
+    get()
+  
+  params <- parameters %>%
+    filter(from == which_from, to == which_to) %>%
+    pull(param_value)
+  
+  names(params) <- parameters %>%
+    filter(from == which_from, to == which_to) %>%
     pull(param_name)
   
   f(x = pred1, y = pred2, p =  params) %>% unname()
@@ -136,29 +153,45 @@ gen_trans_matrix <- function(time) {
   return(trans_matrix)
 } 
 
-"
-for each stage in life_stages:
+step <- function(time) {
   
-  # handle transitions without delay
-  transitions <- tick_functions %>% 
-    filter(from == stage, to != m, delay == false)
-  for (t in transitions):
-      trans_matrix[t$from, t$to] <- get_transition_fun(t$from_t$to, pred1, pred2)
-  trans_matrix[stage, stage] <- 1 - sum(trans_matrix[stage,]) - get_transition_fun(stage_m, pred1, pred2)
+  # initialize the transition matrix with zeros
+  n_life_stages <- length(life_stages)
+  trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages, 
+                         dimnames = list(life_stages, life_stages))
   
-  # with delay
-  transitions <- tick_functions %>% 
-    filter(from = stage, to != m,  delay == true)
-  for (t in transitions) {
-    days <- cumsum(get_transition_fun(from_to, pred1, pred2)) > 1
-    if (TRUE %in% days) {
-      days_to_next <- min(which(days))
-      surv_to_next <- 1 - get_transition_fun(stage_m) ^ days_to_next
-      delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + N[from, time] * surv_to_next * ifelse(is_reproductive_transition, 1, clutch size)
+  # for each stage
+  for (stage in unique(pull(tick_funs, from))) {
+    
+    transitions <- tick_funs %>% filter(
+      from == stage, to != 'm',  # non mortality transitions from stage
+      is.na(todo),               # need until we've updated tick_funs
+      stage %in% life_stages)    # need until all tick_funs lines are to and from life stage names
+    
+    if (nrow(transitions) > 0) {                  # check that there is at least one valid transition
+      for (t in seq_along(nrow(transitions))) {   # for each transition
+        to <- transitions[t,]$to
+        
+        # TODO hardcoded, could do something like "pred1 <- transitions[t,]$pred1"
+        pred1 <- get_temp(time) 
+        pred2 <- NULL
+        
+        if (transitions[t,]$delay) {              # delay transitions
+          days <- cumsum(get_transition_fun2(stage, to, pred1, pred2)) > 1
+          if (TRUE %in% days) {
+            days_to_next <- min(which(days))
+            surv_to_next <- 1 - get_transition_fun(stage, 'm', pred1, pred2) ^ days_to_next
+            delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + 
+                                                  N[stage, time] * surv_to_next 
+                                                  # * ifelse(is_reproductive_transition, clutch_size, 1)
+          }
+        } else {                                  # non-delay transitions 
+          trans_matrix[stage, to] <- get_transition_fun2(stage, to, pred1, pred2)
+        }
+      }
     }
   }
-  
-"
+}
 
 update_delay_mat <- function(time) {
   temp <- get_temp(time:(time + max_delay))
@@ -226,6 +259,10 @@ run <- function(steps) {
     # conditions (weather and host community) at day "time"
     trans_matrix <- gen_trans_matrix(time)
     delay_mat <<- update_delay_mat(time)
+    
+    # TODO matrix is copied at each iteration
+    # print(time)
+    # cat(tracemem(delay_mat))
     
     # now, we've used conditions at time "time" to predict future population sizes, so we can 
     # update the population size at time + 1
