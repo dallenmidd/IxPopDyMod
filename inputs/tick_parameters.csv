@@ -35,3 +35,5 @@ ra, e, ra_e, a, 7.692308e-4, NA, NA, Ogden et al. 2004
 ra, e, ra_e, b, 1.42, NA, NA, Ogden et al. 2004
 ra, m, ra_m, a, 1e-4, NA, NA, Ogden et al. 2005
 NA, NA, n_e, a, 3000, NA, NA, Ogden et al. 2005
+qun, m, NA, a, 0.006, NA, NA, Ogden et al. 2005
+qin, m, NA, a, 0.006, NA, NA, Ogden et al. 2005

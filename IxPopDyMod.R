@@ -192,7 +192,19 @@ step <- function(time) {
         }
       }
     }
+    
+    # handle mortality for non-delay transitions
+    # I think we have to do this outside the main loop because we need to wait to make sure we've 
+    # gone through all non-mortality transitions from "stage" to ___
+    m <- tick_funs %>% filter(from == stage, to == 'm',
+                              stage %in% life_stages)    # need until all tick_funs lines are to and from life stage names
+    if (nrow(m) > 0) {
+      if (m %>% pull(delay) == 0) {
+        trans_matrix[stage, stage] <- 1 - sum(trans_matrix[stage, ]) - get_transition_fun2(stage, 'm', pred1, pred2)
+      }
+    }
   }
+  
   return(trans_matrix)
 }
 
