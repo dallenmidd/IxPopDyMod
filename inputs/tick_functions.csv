@@ -3,21 +3,21 @@ e, hl, e_hl, expo_fun, 1, Ogden et al. 2004, NA, 25, 1
 e, m, e_m, constant_fun, 1, Ogden et al. 2005, NA, 26, 1
 eil, m, el_m, constant_fun, 1, Ogden et al. 2005, NA, 30, 1
 eul, m, el_m, constant_fun, 1, Ogden et al. 2005, NA, 28, 1
-fl, m, el_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 7, 1
+fl, m, el_m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 7, 1
 eil, qin, el_qn, expo_fun, 1, Ogden et al. 2005, NA, 29, 1
 eul, qun, el_qn, expo_fun, 1, Ogden et al. 2005, NA, 27, 1
 ein, m, en_m, constant_fun, 1, Ogden et al. 2005, NA, 34, 1
 eun, m, en_m, constant_fun, 1, Ogden et al. 2005, NA, 32, 1
-fin, m, en_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 16, 1
-fun, m, en_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 14, 1
+fin, m, en_m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 16, 1
+fun, m, en_m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 14, 1
 ein, qia, en_qa, expo_fun, 1, Ogden et al. 2005, NA, 33, 1
 eun, qua, en_qa, expo_fun, 1, Ogden et al. 2005, NA, 31, 1
-fl, eul, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs), not yet implemented as delay", 5, 1
-fl, eil, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs), not yet implemented as delay", 6, 1
-fin, ein, fn_en, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 15, 1
-fun, eun, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts, not yet implemented as delay", 12, 1
-fun, ein, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts, not yet implemented as delay", 13, 1
-hl, ql, hl_ql, constant_fun, 0, Daniels et al. 1996, confirm source w Dave, 1, 1
+fl, eul, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs)", 5, 1
+fl, eil, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs)", 6, 1
+fin, ein, fn_en, constant_fun, 1, Ogden et al. 2005, NA, 15, 1
+fun, eun, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts", 12, 1
+fun, ein, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts", 13, 1
+hl, ql, hl_ql, constant_fun, 0, Daniels et al. 1996, NA, 1, 1
 hl, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 2, 1
 ql, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 4, 1
 ne, NA, n_e, constant_fun, NA, NA, number of eggs... handled as an additional column - this is now redundant, 37, 1
