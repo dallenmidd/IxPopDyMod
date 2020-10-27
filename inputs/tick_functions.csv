@@ -1,39 +1,39 @@
-from, to, transition, transition_fun, delay, source, todo, order_in_code
-e, hl, e_hl, expo_fun, 1, Ogden et al. 2004, NA, 25
-e, m, e_m, constant_fun, 1, Ogden et al. 2005, NA, 26
-eil, m, el_m, constant_fun, 1, Ogden et al. 2005, NA, 30
-eul, m, el_m, constant_fun, 1, Ogden et al. 2005, NA, 28
-fl, m, el_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 7
-eil, qin, el_qn, expo_fun, 1, Ogden et al. 2005, NA, 29
-eul, qun, el_qn, expo_fun, 1, Ogden et al. 2005, NA, 27
-ein, m, en_m, constant_fun, 1, Ogden et al. 2005, NA, 34
-eun, m, en_m, constant_fun, 1, Ogden et al. 2005, NA, 32
-fin, m, en_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 16
-fun, m, en_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 14
-ein, qia, en_qa, expo_fun, 1, Ogden et al. 2005, NA, 33
-eun, qua, en_qa, expo_fun, 1, Ogden et al. 2005, NA, 31
-fl, eul, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs), not yet implemented as delay", 5
-fl, eil, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs), not yet implemented as delay", 6
-fin, ein, fn_en, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 15
-fun, eun, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts, not yet implemented as delay", 12
-fun, ein, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts, not yet implemented as delay", 13
-hl, ql, hl_ql, constant_fun, 0, Daniels et al. 1996, confirm source w Dave, 1
-hl, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 2
-ql, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 4
-ne, NA, n_e, constant_fun, NA, NA, number of eggs... not sure how to handle (to and from are not life stages), 37
-q, f, q_f, binomial_fun, 0, Dave theory, not sure how to handle (to and from are not life stages), 38
-ql, fl, ql_fl, briere_fun, 0, Ogden et al. 2005, what's the deal with q_f which Dave added?, 3
-ra, e, ra_e, expo_fun, 1, Ogden et al. 2004, NA, 35
-ra, m, ra_m, constant_fun, 1, Ogden et al. 2005, NA, 36
-fia, ra, NA, NA, 1, NA, not implemented yet, 23
-fia, m, NA, constant_fun, 1, Ogden et al. 2005, not implemented yet, 24
-fua, ra, NA, NA, 1, NA, not implemented yet, 21
-fua, m, NA, constant_fun, 1, Ogden et al. 2005, not implemented yet, 22
-qia, fia, NA, NA, 0, NA, not implemented yet, 19
-qia, m, NA, constant_fun, 0, Ogden et al. 2005, not implemented yet, 20
-qin, fin, NA, NA, 0, NA, not implemented yet, 10
-qin, m, NA, constant_fun, 0, Ogden et al. 2005, not implemented yet, 11
-qua, fua, NA, NA, 0, NA, not implemented yet, 17
-qua, m, NA, constant_fun, 0, Ogden et al. 2005, not implemented yet, 18
-qun, fun, NA, NA, 0, NA, not implemented yet, 8
-qun, m, NA, constant_fun, 0, Ogden et al. 2005, not implemented yet, 9
+from, to, transition, transition_fun, delay, source, todo, order_in_code, fecundity
+e, hl, e_hl, expo_fun, 1, Ogden et al. 2004, NA, 25, 1
+e, m, e_m, constant_fun, 1, Ogden et al. 2005, NA, 26, 1
+eil, m, el_m, constant_fun, 1, Ogden et al. 2005, NA, 30, 1
+eul, m, el_m, constant_fun, 1, Ogden et al. 2005, NA, 28, 1
+fl, m, el_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 7, 1
+eil, qin, el_qn, expo_fun, 1, Ogden et al. 2005, NA, 29, 1
+eul, qun, el_qn, expo_fun, 1, Ogden et al. 2005, NA, 27, 1
+ein, m, en_m, constant_fun, 1, Ogden et al. 2005, NA, 34, 1
+eun, m, en_m, constant_fun, 1, Ogden et al. 2005, NA, 32, 1
+fin, m, en_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 16, 1
+fun, m, en_m, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 14, 1
+ein, qia, en_qa, expo_fun, 1, Ogden et al. 2005, NA, 33, 1
+eun, qua, en_qa, expo_fun, 1, Ogden et al. 2005, NA, 31, 1
+fl, eul, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs), not yet implemented as delay", 5, 1
+fl, eil, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs), not yet implemented as delay", 6, 1
+fin, ein, fn_en, constant_fun, 1, Ogden et al. 2005, not yet implemented as delay, 15, 1
+fun, eun, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts, not yet implemented as delay", 12, 1
+fun, ein, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts, not yet implemented as delay", 13, 1
+hl, ql, hl_ql, constant_fun, 0, Daniels et al. 1996, confirm source w Dave, 1, 1
+hl, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 2, 1
+ql, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 4, 1
+ne, NA, n_e, constant_fun, NA, NA, number of eggs... handled as an additional column, this is now redundant, 37, 1
+q, f, q_f, binomial_fun, 0, Dave theory, not sure how to handle (to and from are not life stages), 38, 1
+ql, fl, ql_fl, briere_fun, 0, Ogden et al. 2005, what's the deal with q_f which Dave added?, 3, 1
+ra, e, ra_e, expo_fun, 1, Ogden et al. 2004, NA, 35, 3000
+ra, m, ra_m, constant_fun, 1, Ogden et al. 2005, NA, 36, 1
+fia, ra, NA, NA, 1, NA, not implemented yet, 23, 1
+fia, m, NA, constant_fun, 1, Ogden et al. 2005, not implemented yet, 24, 1
+fua, ra, NA, NA, 1, NA, not implemented yet, 21, 1
+fua, m, NA, constant_fun, 1, Ogden et al. 2005, not implemented yet, 22, 1
+qia, fia, NA, NA, 0, NA, not implemented yet, 19, 1
+qia, m, NA, constant_fun, 0, Ogden et al. 2005, not implemented yet, 20, 1
+qin, fin, NA, NA, 0, NA, not implemented yet, 10, 1
+qin, m, NA, constant_fun, 0, Ogden et al. 2005, not implemented yet, 11, 1
+qua, fua, NA, NA, 0, NA, not implemented yet, 17, 1
+qua, m, NA, constant_fun, 0, Ogden et al. 2005, not implemented yet, 18, 1
+qun, fun, NA, NA, 0, NA, not implemented yet, 8, 1
+qun, m, NA, constant_fun, 0, Ogden et al. 2005, not implemented yet, 9, 1

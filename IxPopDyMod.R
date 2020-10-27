@@ -162,6 +162,7 @@ step <- function(time) {
   
   # for each stage
   for (stage in unique(pull(tick_funs, from))) {
+    print(str_c("transitions from: ", stage))
     
     transitions <- tick_funs %>% filter(
       from == stage, to != 'm',  # non mortality transitions from stage
@@ -173,24 +174,26 @@ step <- function(time) {
         to <- transitions[t,]$to
         
         # TODO hardcoded, could do something like "pred1 <- transitions[t,]$pred1"
-        pred1 <- get_temp(time) 
+        pred1 <- get_temp(time:(time + max_delay)) 
         pred2 <- NULL
         
         if (transitions[t,]$delay) {              # delay transitions
+          print(str_c("delay: ", stage, " -> ", to))
           days <- cumsum(get_transition_fun2(stage, to, pred1, pred2)) > 1
           if (TRUE %in% days) {
             days_to_next <- min(which(days))
-            surv_to_next <- 1 - get_transition_fun(stage, 'm', pred1, pred2) ^ days_to_next
+            surv_to_next <- (1 - get_transition_fun2(stage, 'm', pred1, pred2)) ^ days_to_next
             delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + 
-                                                  N[stage, time] * surv_to_next 
-                                                  # * ifelse(is_reproductive_transition, clutch_size, 1)
+                                                  N[stage, time] * surv_to_next * transitions[t, 'fecundity'][[1]]
           }
         } else {                                  # non-delay transitions 
-          trans_matrix[stage, to] <- get_transition_fun2(stage, to, pred1, pred2)
+          print(str_c("non-delay: ", stage, " -> ", to))
+          trans_matrix[stage, to] <- get_transition_fun2(stage, to, pred1[1], pred2)
         }
       }
     }
   }
+  return(trans_matrix)
 }
 
 update_delay_mat <- function(time) {
