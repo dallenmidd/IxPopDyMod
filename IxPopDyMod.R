@@ -262,7 +262,101 @@ update_delay_mat <- function(time) {
   return(delay_mat)
 }
 
+# Myles note: I think all the transitions we're handling this way are questing -> feeding
+gen_trans_matrix2 <- function(time) {
+  
+  # get the parameters 
+  temp = get_temp(time)
+  vpd = get_vpd(time)
+  
+  # initialize the transition matrix with zeros
+  n_life_stages <- length(life_stages)
+  trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages, 
+                         dimnames = list(life_stages, life_stages))
+  
+  transitions <- tick_funs %>% 
+    filter(delay == 0,
+           from %in% life_stages, # need until all tick_funs lines are to and from life stage names (or m)
+           to %in% life_stages,  # exclude mortality
+           is.na(todo))          
+  
+  mort <- tick_funs %>%
+    filter(delay == 0, 
+           from %in% life_stages,
+           to == 'm',
+           is.na(todo))
+  
+  # TODO harcoded 
+  pred1 <- get_temp(time)
+  pred2 <- NULL
+  
+  if (nrow(transitions) > 0) {
+    for (t in seq_along(nrow(transitions))) {
+      from <- transitions[t,]$from
+      to <- transitions[t,]$to
+      # print(str_c("delay: ", to, " ", from))
+      print(from)
+      print(to)
+      trans_matrix[from, to] <- get_transition_fun2(from, to, pred1, pred2)
+    }
+  }
+  
+  if (nrow(mort) > 0 ) {
+    for (m in seq_along(nrow(mort))) {
+      from <- mort[m,]$from
+      trans_matrix[from, from] <- 1 - sum(trans_matrix[from,]) - get_transition_fun2(from, 'm', pred1, pred2)
+    }
+  }
+  
+  return(trans_matrix)
+}
+
+update_delay_mat2 <- function(time, delay_mat, N) {
+  
+  transitions <- tick_funs %>% filter(delay == 1,
+                                      is.na(todo), 
+                                      from %in% life_stages)
+  
+  for (t in seq_along(nrow(transitions))) {
+    from <- transitions[t,]$from
+    to <- transitions[t,]$to
+    print(str_c("delay: ", to, " ", from))
+    
+    pred1 <- get_temp(time:(time + max_delay))
+    pred2 <- NULL
+    
+    days <- cumsum(get_transition_fun2(from, to, pred1, pred2 )) > 1
+    if (TRUE %in% days) {
+      days_to_next <- min(which(days))
+      surv_to_next <- (1 - get_transition_fun2(from, 'm', pred1, pred2)) ^ days_to_next
+      delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + 
+        N[from, time] * surv_to_next * transitions[t, 'fecundity'][[1]]
+    }
+  }
+  return(delay_mat)
+}
+
 # 05 iteratively run model  
+
+run2 <- function(steps) {
+  
+  max_delay = 300
+  delay_mat <- matrix(nrow = length(life_stages), ncol = dim(weather)[1] + max_delay, data = 0)
+  rownames(delay_mat) <- life_stages
+  
+  N <- matrix(nrow = length(life_stages), ncol = dim(weather)[1], data = 0)
+  N[,1] <- runif(length(life_stages), min = 1000, max = 1000)
+  rownames(N) <- life_stages
+  
+  for (time in 1:(steps - 1)) {
+    print(time)
+    trans_matrix <- gen_trans_matrix2(time)
+    delay_mat <- update_delay_mat2(time, delay_mat, N)
+    N[, time + 1] <- N[, time] %*% trans_matrix + delay_mat[, time + 1]
+  }
+  
+  return(N)
+}
 
 run <- function(steps) {
   # steps: number of iterations (days) to run model
