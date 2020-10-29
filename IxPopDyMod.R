@@ -102,7 +102,7 @@ gen_trans_matrix <- function(time) {
   pred2 <- NULL
   
   if (nrow(transitions) > 0) {
-    for (t in seq_along(nrow(transitions))) {
+    for (t in seq_len(nrow(transitions))) {
       from <- transitions[t,]$from
       to <- transitions[t,]$to
       trans_matrix[from, to] <- get_transition_fun(from, to, pred1, pred2)
@@ -134,7 +134,7 @@ gen_trans_matrix <- function(time) {
   trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
   
   if (nrow(mort) > 0 ) {
-    for (m in seq_along(nrow(mort))) {
+    for (m in seq_len(nrow(mort))) {
       from <- mort[m,]$from
       trans_matrix[from, from] <- 1 - sum(trans_matrix[from,]) - get_transition_fun(from, 'm', pred1, pred2)
     }
@@ -150,7 +150,7 @@ update_delay_mat <- function(time, delay_mat, N) {
                                       is.na(todo), 
                                       from %in% life_stages)
   
-  for (t in seq_along(nrow(transitions))) {
+  for (t in seq_len(nrow(transitions))) {
     from <- transitions[t,]$from
     to <- transitions[t,]$to
 
