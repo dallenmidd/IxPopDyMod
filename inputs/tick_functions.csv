@@ -1,38 +1,38 @@
-from, to, transition, transition_fun, delay, source, todo, order_in_code, fecundity
-e, hl, e_hl, expo_fun, 1, Ogden et al. 2004, NA, 25, 1
-e, m, e_m, constant_fun, 1, Ogden et al. 2005, NA, 26, 1
-eil, m, el_m, constant_fun, 1, Ogden et al. 2005, NA, 30, 1
-eul, m, el_m, constant_fun, 1, Ogden et al. 2005, NA, 28, 1
-fl, m, el_m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 7, 1
-eil, qin, el_qn, expo_fun, 1, Ogden et al. 2005, NA, 29, 1
-eul, qun, el_qn, expo_fun, 1, Ogden et al. 2005, NA, 27, 1
-ein, m, en_m, constant_fun, 1, Ogden et al. 2005, NA, 34, 1
-eun, m, en_m, constant_fun, 1, Ogden et al. 2005, NA, 32, 1
-fin, m, en_m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 16, 1
-fun, m, en_m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 14, 1
-ein, qia, en_qa, expo_fun, 1, Ogden et al. 2005, NA, 33, 1
-eun, qua, en_qa, expo_fun, 1, Ogden et al. 2005, NA, 31, 1
-fl, eul, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs)", 5, 1
-fl, eil, fl_el, constant_fun, 1, Ogden et al. 2005, "currently hardcoded (not in tick_funs)", 6, 1
-fin, ein, fn_en, constant_fun, 1, Ogden et al. 2005, NA, 15, 1
-fun, eun, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts", 12, 1
-fun, ein, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts", 13, 1
-hl, ql, hl_ql, constant_fun, 1, Daniels et al. 1996, NA, 1, 1
-hl, m, l_m, constant_fun, 1, Ogden et al. 2005, NA, 2, 1
-ql, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 4, 1
-q, f, q_f, binomial_fun, 0, Dave theory, not sure how to handle (to and from are not life stages), 38, 1
-ql, fl, ql_fl, briere_fun, 0, Ogden et al. 2005, NA, 3, 1
-ra, e, ra_e, expo_fun, 1, Ogden et al. 2004, NA, 35, 3000
-ra, m, ra_m, constant_fun, 1, Ogden et al. 2005, NA, 36, 1
-fia, ra, NA, NA, 1, NA, not implemented yet, 23, 1
-fia, m, NA, NA, 1, Ogden et al. 2005, not implemented yet, 24, 1
-fua, ra, NA, NA, 1, NA, not implemented yet, 21, 1
-fua, m, NA, NA, 1, Ogden et al. 2005, not implemented yet, 22, 1
-qia, fia, NA, briere_fun, 0, Ogden et al. 2005, NA, 19, 1
-qia, m, NA, constant_fun, 0, Ogden et al. 2005, NA, 20, 1
-qin, fin, NA, briere_fun, 0, Ogden et al. 2005, NA, 10, 1
-qin, m, NA, constant_fun, 0, Ogden et al. 2005, NA, 11, 1
-qua, fua, NA, briere_fun, 0, Ogden et al. 2005, NA, 17, 1
-qua, m, NA, constant_fun, 0, Ogden et al. 2005, NA, 18, 1
-qun, fun, NA, briere_fun, 0, Ogden et al. 2005, NA, 8, 1
-qun, m, NA, constant_fun, 0, Ogden et al. 2005, NA, 9, 1
+from, to, transition_fun, delay, source, todo, fecundity
+e, hl, expo_fun, 1, Ogden et al. 2004, NA, 1
+e, m, constant_fun, 1, Ogden et al. 2005, NA, 1
+eil, m, constant_fun, 1, Ogden et al. 2005, NA, 1
+eul, m, constant_fun, 1, Ogden et al. 2005, NA, 1
+fl, m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 1
+eil, qin, expo_fun, 1, Ogden et al. 2005, NA, 1
+eul, qun, expo_fun, 1, Ogden et al. 2005, NA, 1
+ein, m, constant_fun, 1, Ogden et al. 2005, NA, 1
+eun, m, constant_fun, 1, Ogden et al. 2005, NA, 1
+fin, m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 1
+fun, m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 1
+ein, qia, expo_fun, 1, Ogden et al. 2005, NA, 1
+eun, qua, expo_fun, 1, Ogden et al. 2005, NA, 1
+fl, eul, constant_fun, 1, Ogden et al. 2005, currently hardcoded (not in tick_funs), 1
+fl, eil, constant_fun, 1, Ogden et al. 2005, currently hardcoded (not in tick_funs), 1
+fin, ein, constant_fun, 1, Ogden et al. 2005, NA, 1
+fun, eun, constant_fun, 1, Ogden et al. 2005, not yet handling hosts, 1
+fun, ein, constant_fun, 1, Ogden et al. 2005, not yet handling hosts, 1
+hl, ql, constant_fun, 1, Daniels et al. 1996, NA, 1
+hl, m, constant_fun, 1, Ogden et al. 2005, NA, 1
+ql, m, constant_fun, 0, Ogden et al. 2005, NA, 1
+q, f, binomial_fun, 0, Dave theory, not sure how to handle (to and from are not life stages), 1
+ql, fl, briere_fun, 0, Ogden et al. 2005, NA, 1
+ra, e, expo_fun, 1, Ogden et al. 2004, NA, 3000
+ra, m, constant_fun, 1, Ogden et al. 2005, NA, 1
+fia, ra, NA, 1, NA, not implemented yet, 1
+fia, m, NA, 1, Ogden et al. 2005, not implemented yet, 1
+fua, ra, NA, 1, NA, not implemented yet, 1
+fua, m, NA, 1, Ogden et al. 2005, not implemented yet, 1
+qia, fia, briere_fun, 0, Ogden et al. 2005, NA, 1
+qia, m, constant_fun, 0, Ogden et al. 2005, NA, 1
+qin, fin, briere_fun, 0, Ogden et al. 2005, NA, 1
+qin, m, constant_fun, 0, Ogden et al. 2005, NA, 1
+qua, fua, briere_fun, 0, Ogden et al. 2005, NA, 1
+qua, m, constant_fun, 0, Ogden et al. 2005, NA, 1
+qun, fun, briere_fun, 0, Ogden et al. 2005, NA, 1
+qun, m, constant_fun, 0, Ogden et al. 2005, NA, 1
