@@ -112,16 +112,14 @@ gen_trans_matrix <- function(time) {
   # this is where we should (temporarily) hard code in any transitions
   # probability of feeding <- chance of active questing * chance of finding a host
   trans_matrix['ql', 'fl'] <- trans_matrix['ql', 'fl'] * get_transition_fun('q', 'f', pred1 = sum(host_den * l_pref))
+  trans_matrix['qun', 'fun'] <- trans_matrix['qun', 'fun'] * get_transition_fun('q', 'f', pred1 = sum(host_den * n_pref))
+  trans_matrix['qin', 'fin'] <- trans_matrix['qin', 'fin'] * get_transition_fun('q', 'f', pred1 = sum(host_den * n_pref))
+  trans_matrix['qua', 'fua'] <- trans_matrix['qua', 'fua'] * get_transition_fun('q', 'f', pred1 = sum(host_den * a_pref))
+  trans_matrix['qia', 'fia'] <- trans_matrix['qia', 'fia'] * get_transition_fun('q', 'f', pred1 = sum(host_den * a_pref))
   # TODO: idea for implementing this without hardcoding: could have a rule that if there are multiple transitions with the
   # same from and to, we take the product of them. This would allow us to keep these functions on separate lines in the
   # input file, and would mean that we wouldn't have to write a new function in step 02 "binomial * briere". But that
   # would still be a rule that's not controllable in the input file...
-  
-  # TODO do these all have a similar structure to above ['ql', 'fl']?
-  # trans_matrix['qun', 'fun'] skipped because depends on host community
-  # trans_matrix['qin', 'fin'] ...
-  # trans_matrix['qua', 'fua'] ...
-  # trans_matrix['qia', 'fia'] ...
   
   # TODO!!! these should be implemented as time delay
   # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????

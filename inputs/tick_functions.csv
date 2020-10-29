@@ -28,11 +28,11 @@ fia, ra, NA, NA, 1, NA, not implemented yet, 23, 1
 fia, m, NA, NA, 1, Ogden et al. 2005, not implemented yet, 24, 1
 fua, ra, NA, NA, 1, NA, not implemented yet, 21, 1
 fua, m, NA, NA, 1, Ogden et al. 2005, not implemented yet, 22, 1
-qia, fia, NA, NA, 0, NA, not implemented yet, 19, 1
+qia, fia, NA, briere_fun, 0, Ogden et al. 2005, NA, 19, 1
 qia, m, NA, constant_fun, 0, Ogden et al. 2005, NA, 20, 1
-qin, fin, NA, NA, 0, NA, not implemented yet, 10, 1
+qin, fin, NA, briere_fun, 0, Ogden et al. 2005, NA, 10, 1
 qin, m, NA, constant_fun, 0, Ogden et al. 2005, NA, 11, 1
-qua, fua, NA, NA, 0, NA, not implemented yet, 17, 1
+qua, fua, NA, briere_fun, 0, Ogden et al. 2005, NA, 17, 1
 qua, m, NA, constant_fun, 0, Ogden et al. 2005, NA, 18, 1
-qun, fun, NA, NA, 0, NA, not implemented yet, 8, 1
+qun, fun, NA, briere_fun, 0, Ogden et al. 2005, NA, 8, 1
 qun, m, NA, constant_fun, 0, Ogden et al. 2005, NA, 9, 1
