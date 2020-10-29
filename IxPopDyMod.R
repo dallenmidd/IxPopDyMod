@@ -101,10 +101,6 @@ gen_trans_matrix <- function(time) {
   trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages, 
                          dimnames = list(life_stages, life_stages))
   
-  # calculate the transition probabilities for possible transitions
-  trans_matrix['ql', 'fl'] <- get_transition_fun('ql_fl', pred1 = temp) * get_transition_fun('q_f', pred1 = sum(host_den * l_pref))
-  trans_matrix['ql', 'ql'] <- 1 - trans_matrix['ql', 'fl'] - get_transition_fun('l_m')
-  
   # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
   # for now ignore density dependent feeding success
   # TODO!!! this doesn't have time delay 
@@ -115,7 +111,7 @@ gen_trans_matrix <- function(time) {
   # becoming engorged (interpret this as a time delay)
   trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
   trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('el_m')
+  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun2('fl', 'm')
   
   # trans_matrix['qun', 'fun'] skipped because depends on host community
   # trans_matrix['qun', 'qun'] ...
@@ -162,12 +158,17 @@ gen_trans_matrix2 <- function(time) {
     for (t in seq_along(nrow(transitions))) {
       from <- transitions[t,]$from
       to <- transitions[t,]$to
-      # print(str_c("delay: ", to, " ", from))
-      print(from)
-      print(to)
       trans_matrix[from, to] <- get_transition_fun2(from, to, pred1, pred2)
     }
   }
+  
+  # this is where we should (temporarily) hard code in any transitions
+  # probability of feeding <- chance of active questing * chance of finding a host
+  trans_matrix['ql', 'fl'] <- trans_matrix['ql', 'fl'] * get_transition_fun2('q', 'f', pred1 = sum(host_den * l_pref))
+  # TODO: idea for implementing this without hardcoding: could have a rule that if there are multiple transitions with the
+  # same from and to, we take the product of them. This would allow us to keep these functions on separate lines in the
+  # input file, and would mean that we wouldn't have to write a new function in step 02 "binomial * briere". But that
+  # would still be a rule that's not controllable in the input file...
   
   if (nrow(mort) > 0 ) {
     for (m in seq_along(nrow(mort))) {

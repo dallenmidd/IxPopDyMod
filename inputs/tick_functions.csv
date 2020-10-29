@@ -22,7 +22,7 @@ hl, m, l_m, constant_fun, 1, Ogden et al. 2005, NA, 2, 1
 ql, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 4, 1
 ne, NA, n_e, constant_fun, NA, NA, number of eggs... handled as an additional column - this is now redundant, 37, 1
 q, f, q_f, binomial_fun, 0, Dave theory, not sure how to handle (to and from are not life stages), 38, 1
-ql, fl, ql_fl, briere_fun, 0, Ogden et al. 2005, what's the deal with q_f which Dave added?, 3, 1
+ql, fl, ql_fl, briere_fun, 0, Ogden et al. 2005, NA, 3, 1
 ra, e, ra_e, expo_fun, 1, Ogden et al. 2004, NA, 35, 3000
 ra, m, ra_m, constant_fun, 1, Ogden et al. 2005, NA, 36, 1
 fia, ra, NA, NA, 1, NA, not implemented yet, 23, 1
