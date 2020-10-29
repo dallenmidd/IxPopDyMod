@@ -20,6 +20,7 @@ a_pref <- c(0, 0, 1)
 l_feed_success <- c(0.49, 0.17, 0.49)
 host_rc <- c(0.92, 0.147, 0.046)
 
+max_delay <- 300
 initial_population <- runif(length(life_stages), 1000, 1000)
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
@@ -45,24 +46,7 @@ binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 # 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
 # this generic function will pull out the functional form and parameters need to make the transition function
-get_transition_fun <- function(which_trans, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
-  f <- functions %>%
-    filter(transition == which_trans) %>%
-    pull(transition_fun) %>%
-    get()
-  
-  params <- parameters %>%
-    filter(transition == which_trans) %>%
-    pull(param_value)
-  
-  names(params) <- parameters %>%
-    filter(transition == which_trans) %>%
-    pull(param_name)
-  
-  f(x = pred1, y = pred2, p =  params) %>% unname()
-}
-
-get_transition_fun2 <- function(which_from, which_to, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
+get_transition_fun <- function(which_from, which_to, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
   f <- functions %>%
     filter(from == which_from, to == which_to) %>%
     pull(transition_fun) %>%
@@ -89,45 +73,8 @@ get_transition_fun2 <- function(which_from, which_to, pred1 = NULL, pred2 = NULL
 # 04
 # at each step, we generate a new transition matrix whose transition probabilities
 # are based on the input data (weather, host_community) at that time 
-
-gen_trans_matrix <- function(time) {
-  
-  # get the parameters 
-  temp = get_temp(time)
-  vpd = get_vpd(time)
-
-  # initialize the transition matrix with zeros
-  n_life_stages <- length(life_stages)
-  trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages, 
-                         dimnames = list(life_stages, life_stages))
-  
-  # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
-  # for now ignore density dependent feeding success
-  # TODO!!! this doesn't have time delay 
-  # Myles note: not sure how to implement time delay here. What's different here is that one class goes to multiple, 
-  # and the transition probability is not only describing the chance of advancing to next stage, but also the 
-  # relative number of feeding ticks that become either infected or uninfected.
-  # Idea: maybe we have to split up the processes of becoming infected (interpret this is a probability) and 
-  # becoming engorged (interpret this as a time delay)
-  trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-  trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun2('fl', 'm')
-  
-  # trans_matrix['qun', 'fun'] skipped because depends on host community
-  # trans_matrix['qun', 'qun'] ...
-  # trans_matrix['qin', 'fin'] ...
-  # trans_matrix['qin', 'qin'] ...
-  
-  # trans_matrix['qua', 'fua'] skipped because depends on hosts
-  # trans_matrix['qua', 'qua'] ...
-  # trans_matrix['qia', 'fia'] ...
-  # trans_matrix['qia', 'qia'] ...
-  
-  return(trans_matrix)
-} 
-
 # Myles note: I think all the transitions we're handling this way are questing -> feeding
-gen_trans_matrix2 <- function(time) {
+gen_trans_matrix <- function(time) {
   
   # get the parameters 
   temp = get_temp(time)
@@ -158,22 +105,40 @@ gen_trans_matrix2 <- function(time) {
     for (t in seq_along(nrow(transitions))) {
       from <- transitions[t,]$from
       to <- transitions[t,]$to
-      trans_matrix[from, to] <- get_transition_fun2(from, to, pred1, pred2)
+      trans_matrix[from, to] <- get_transition_fun(from, to, pred1, pred2)
     }
   }
   
   # this is where we should (temporarily) hard code in any transitions
   # probability of feeding <- chance of active questing * chance of finding a host
-  trans_matrix['ql', 'fl'] <- trans_matrix['ql', 'fl'] * get_transition_fun2('q', 'f', pred1 = sum(host_den * l_pref))
+  trans_matrix['ql', 'fl'] <- trans_matrix['ql', 'fl'] * get_transition_fun('q', 'f', pred1 = sum(host_den * l_pref))
   # TODO: idea for implementing this without hardcoding: could have a rule that if there are multiple transitions with the
   # same from and to, we take the product of them. This would allow us to keep these functions on separate lines in the
   # input file, and would mean that we wouldn't have to write a new function in step 02 "binomial * briere". But that
   # would still be a rule that's not controllable in the input file...
   
+  # TODO do these all have a similar structure to above ['ql', 'fl']?
+  # trans_matrix['qun', 'fun'] skipped because depends on host community
+  # trans_matrix['qin', 'fin'] ...
+  # trans_matrix['qua', 'fua'] ...
+  # trans_matrix['qia', 'fia'] ...
+  
+  # TODO!!! these should be implemented as time delay
+  # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
+  # for now ignore density dependent feeding success
+  # Myles note: not sure how to implement time delay here. What's different here is that one class goes to multiple, 
+  # and the transition probability is not only describing the chance of advancing to next stage, but also the 
+  # relative number of feeding ticks that become either infected or uninfected.
+  # Idea: maybe we have to split up the processes of becoming infected (interpret this is a probability) and 
+  # becoming engorged (interpret this as a time delay)
+  trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+  trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
+  
   if (nrow(mort) > 0 ) {
     for (m in seq_along(nrow(mort))) {
       from <- mort[m,]$from
-      trans_matrix[from, from] <- 1 - sum(trans_matrix[from,]) - get_transition_fun2(from, 'm', pred1, pred2)
+      trans_matrix[from, from] <- 1 - sum(trans_matrix[from,]) - get_transition_fun(from, 'm', pred1, pred2)
     }
   }
   
@@ -181,7 +146,7 @@ gen_trans_matrix2 <- function(time) {
 }
 
 # based on the current time, delay_mat and N, return a delay_mat for the next time step
-update_delay_mat2 <- function(time, delay_mat, N) {
+update_delay_mat <- function(time, delay_mat, N) {
   
   transitions <- tick_funs %>% filter(delay == 1,
                                       is.na(todo), 
@@ -194,10 +159,10 @@ update_delay_mat2 <- function(time, delay_mat, N) {
     pred1 <- get_temp(time:(time + max_delay))
     pred2 <- NULL
     
-    days <- cumsum(get_transition_fun2(from, to, pred1, pred2 )) > 1
+    days <- cumsum(get_transition_fun(from, to, pred1, pred2 )) > 1
     if (TRUE %in% days) {
       days_to_next <- min(which(days))
-      surv_to_next <- (1 - get_transition_fun2(from, 'm', pred1, pred2)) ^ days_to_next
+      surv_to_next <- (1 - get_transition_fun(from, 'm', pred1, pred2)) ^ days_to_next
       delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + 
         N[from, time] * surv_to_next * transitions[t, 'fecundity'][[1]]
     }
@@ -210,7 +175,6 @@ update_delay_mat2 <- function(time, delay_mat, N) {
 run <- function(steps, initial_population) {
   
   # initialize a delay matrix of all zeros
-  max_delay <- 300
   delay_mat <- matrix(nrow = length(life_stages), ncol = dim(weather)[1] + max_delay, data = 0)
   rownames(delay_mat) <- life_stages
   
@@ -224,8 +188,8 @@ run <- function(steps, initial_population) {
   # (2) update the delay_mat based on conditions at "time" 
   # (3) update the population matrix "N" for "time + 1"
   for (time in 1:(steps - 1)) {
-    trans_matrix <- gen_trans_matrix2(time)
-    delay_mat <- update_delay_mat2(time, delay_mat, N)
+    trans_matrix <- gen_trans_matrix(time)
+    delay_mat <- update_delay_mat(time, delay_mat, N)
     N[, time + 1] <- N[, time] %*% trans_matrix + delay_mat[, time + 1]
   }
   

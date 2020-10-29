@@ -20,7 +20,6 @@ fun, ein, fn_en, constant_fun, 1, Ogden et al. 2005, "not yet handling hosts", 1
 hl, ql, hl_ql, constant_fun, 1, Daniels et al. 1996, NA, 1, 1
 hl, m, l_m, constant_fun, 1, Ogden et al. 2005, NA, 2, 1
 ql, m, l_m, constant_fun, 0, Ogden et al. 2005, NA, 4, 1
-ne, NA, n_e, constant_fun, NA, NA, number of eggs... handled as an additional column - this is now redundant, 37, 1
 q, f, q_f, binomial_fun, 0, Dave theory, not sure how to handle (to and from are not life stages), 38, 1
 ql, fl, ql_fl, briere_fun, 0, Ogden et al. 2005, NA, 3, 1
 ra, e, ra_e, expo_fun, 1, Ogden et al. 2004, NA, 35, 3000
