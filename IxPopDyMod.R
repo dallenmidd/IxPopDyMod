@@ -7,9 +7,9 @@ library(tidyverse)
 # read inputs 
 # host_community <- read_csv('inputs/host_community.csv')
 weather <- read_csv('inputs/weather.csv')
-tick_params <- read_csv('inputs/tick_parameters.csv')
-tick_funs <- read_csv('inputs/tick_functions.csv')
-life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
+tick_params <- read_csv('inputs/tick_parameters_simple.csv')
+tick_funs <- read_csv('inputs/tick_functions_simple.csv')
+life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp <- 3 # mouse, squirrel, deer
@@ -105,10 +105,13 @@ gen_trans_matrix <- function(time) {
     for (t in seq_len(nrow(transitions))) {
       from <- transitions[t,]$from
       to <- transitions[t,]$to
-      trans_matrix[from, to] <- get_transition_fun(from, to, pred1, pred2)
+      trans_matrix[from, to] <- get_transition_fun(from, to, pred1, pred2) * transitions[t,]$fecundity
     }
   }
   
+  # just turning this off for now for the simple run
+  if (FALSE)
+  {
   # this is where we should (temporarily) hard code in any transitions
   # probability of feeding <- chance of active questing * chance of finding a host
   trans_matrix['ql', 'fl'] <- trans_matrix['ql', 'fl'] * get_transition_fun('q', 'f', pred1 = sum(host_den * l_pref))
@@ -132,6 +135,7 @@ gen_trans_matrix <- function(time) {
   trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
   trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
   trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
+  }
   
   if (nrow(mort) > 0 ) {
     for (m in seq_len(nrow(mort))) {
@@ -201,3 +205,5 @@ out <- run(steps=10, initial_population)
 out_N <- out[[1]]
 out_delay_mat <- out[[2]]
 
+# not sure what is going on??
+out_N[4,1:25]

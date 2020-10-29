@@ -1,0 +1,5 @@
+from, to, transition, transition_fun, delay, source, todo, order_in_code, fecundity
+e, l, e_l, constant_fun, 0, NA, NA, 1, 1
+l, n, l_n, constant_fun, 0, NA, NA, 1, 1
+n, a, n_a, constant_fun, 0, NA, NA, 1, 1
+a, e, a_e, constant_fun, 0, NA, NA, 1, 1000
