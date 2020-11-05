@@ -201,9 +201,11 @@ run <- function(steps, initial_population) {
 }
 
 # run the model and extract the output population matrix and delay_matrix
-out <- run(steps=10, initial_population)
+out <- run(steps=100, initial_population)
 out_N <- out[[1]]
 out_delay_mat <- out[[2]]
 
 # not sure what is going on??
-out_N[4,1:25]
+out_N[4,1:100]
+
+
