@@ -40,7 +40,8 @@ get_vpd <- function(time) {
 
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
 briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
-constant_fun <- function(x, y, p) p['a']
+constant_fun <- function(x, y, p) p['a'] # because there is no pred (x or y) input in this function, it always outputs a scalar
+                                         # which is problematic when we want to do a cumsum
 binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 
 # 03
@@ -97,14 +98,13 @@ gen_trans_matrix <- function(time) {
            to == 'm',
            is.na(todo))
   
-  # TODO hardcoded 
-  pred1 <- get_temp(time)
-  pred2 <- NULL
   
   if (nrow(transitions) > 0) {
     for (t in seq_len(nrow(transitions))) {
       from <- transitions[t,]$from
       to <- transitions[t,]$to
+      pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay)
+      pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay)
       trans_matrix[from, to] <- get_transition_fun(from, to, pred1, pred2) * transitions[t,]$fecundity
     }
   }
@@ -137,7 +137,7 @@ gen_trans_matrix <- function(time) {
   trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
   }
   
-  if (nrow(mort) > 0 ) {
+  if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
       from <- mort[m,]$from
       trans_matrix[from, from] <- 1 - sum(trans_matrix[from,]) - get_transition_fun(from, 'm', pred1, pred2)
@@ -158,10 +158,20 @@ update_delay_mat <- function(time, delay_mat, N) {
     from <- transitions[t,]$from
     to <- transitions[t,]$to
 
-    pred1 <- get_temp(time:(time + max_delay))
-    pred2 <- NULL
+    pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay)
+    pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay)
+  
+    # calculate transition
+    fun <- get_transition_fun(from, to, pred1, pred2)
     
-    days <- cumsum(get_transition_fun(from, to, pred1, pred2 )) > 1
+    # constant functions return a single value, 
+    # we need a vector with many entries for the cumsum
+    if (length(fun) == 1) {
+      fun <- seq(from=fun, to=fun, length.out = max_delay) # I think this is still 1 shorter than time:(time+max_delay), may not matter
+    }
+    
+    days <- cumsum(fun) > 1
+    
     if (TRUE %in% days) {
       days_to_next <- min(which(days))
       surv_to_next <- (1 - get_transition_fun(from, 'm', pred1, pred2)) ^ days_to_next
@@ -172,16 +182,33 @@ update_delay_mat <- function(time, delay_mat, N) {
   return(delay_mat)
 }
 
-# 05 iteratively run model  
+# return a vector of length max_delay of a predictor
+get_pred <- function(time, pred, is_delay) {
+  
+  # if delay, we want a long vector so the cumsum will reach 1
+  # otherwise, we want a vector of length 1
+  if (is_delay) {time <- time:(time + max_delay)}
+  
+  if (is.na(pred)) {
+    return(NULL)
+  } else if (pred == "temp") {
+    return(get_temp(time))
+  } else if (pred == "sum(host_den * l_pref)") {
+    return(sum(host_den * l_pref))
+  } else {
+    print("error: couldn't match pred")
+  }
+}
 
+# 05 iteratively run model 
 run <- function(steps, initial_population) {
   
   # initialize a delay matrix of all zeros
-  delay_mat <- matrix(nrow = length(life_stages), ncol = dim(weather)[1] + max_delay, data = 0)
+  delay_mat <- matrix(nrow = length(life_stages), ncol = steps + max_delay, data = 0)
   rownames(delay_mat) <- life_stages
   
   # intialize a population matrix with initial_population
-  N <- matrix(nrow = length(life_stages), ncol = dim(weather)[1], data = 0)
+  N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
   N[,1] <- initial_population 
   rownames(N) <- life_stages
   
@@ -201,11 +228,14 @@ run <- function(steps, initial_population) {
 }
 
 # run the model and extract the output population matrix and delay_matrix
-out <- run(steps=100, initial_population)
+out <- run(steps=150, initial_population)
 out_N <- out[[1]]
 out_delay_mat <- out[[2]]
 
 # not sure what is going on??
-out_N[4,1:100]
+out_N[,1:200]
+out_delay_mat[,1:200]
+
+
 
 

@@ -1,5 +1,9 @@
-from, to, transition, param_name, param_value, param_ci_low, param_ci_high, source
-e, l, e_l, a, 1, NA, NA, NA
-l, n, l_n, a, 0.01, NA, NA, NA
-n, a, n_a, a, 0.1, NA, NA, NA
-a, e, a_e, a, 1, NA, NA, NA
+from, to, param_name, param_value, param_ci_low, param_ci_high, source
+e, l, a, 1, NA, NA, NA
+e, m, a, 0, NA, NA, NA
+l, n, a, 0.01, NA, NA, NA
+l, m, a, 0, NA, NA, NA
+n, a, a, 0.1, NA, NA, NA
+n, m, a, 0, NA, NA, NA
+a, e, a, 1, NA, NA, NA
+a, m, a, 0, NA, NA, NA
