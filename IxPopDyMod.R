@@ -137,10 +137,12 @@ gen_trans_matrix <- function(time) {
   trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
   }
   
+  
   if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
-      from <- mort[m,]$from
-      trans_matrix[from, from] <- 1 - sum(trans_matrix[from,]) - get_transition_fun(from, 'm', pred1, pred2)
+      from_val <- mort[m,]$from
+      fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity)
+      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_fun(from_val, 'm', pred1, pred2)
     }
   }
   
@@ -228,13 +230,28 @@ run <- function(steps, initial_population) {
 }
 
 # run the model and extract the output population matrix and delay_matrix
-out <- run(steps=150, initial_population)
+out <- run(steps=100, initial_population)
 out_N <- out[[1]]
 out_delay_mat <- out[[2]]
 
-# not sure what is going on??
-out_N[,1:200]
-out_delay_mat[,1:200]
+# inspect the outputs
+out_N[,1:100]
+out_delay_mat[,1:100]
+
+# convert output population matrix to a friendly format for graphing
+out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>% 
+  pivot_longer(e:a, names_to = 'stage', values_to = 'pop')
+
+# select a smaller range of days for graphing
+out_N_selection <- out_N_df %>% filter(day < 20)
+
+# graph population over time
+ggplot(out_N_selection, aes(x = day, y = pop, color = stage)) + 
+  geom_line() + 
+  scale_y_log10()
+
+
+
 
 
 
