@@ -1,0 +1,9 @@
+from, to, param_name, param_value, param_ci_low, param_ci_high, source
+e, l, a, 1, NA, NA, NA
+e, m, a, .1, NA, NA, NA
+l, n, a, 0.1, NA, NA, NA
+l, m, a, .38, NA, NA, NA
+n, a, a, 0.1, NA, NA, NA
+n, m, a, .1, NA, NA, NA
+a, e, a, 1, NA, NA, NA
+a, m, a, .1, NA, NA, NA

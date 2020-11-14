@@ -7,8 +7,8 @@ library(tidyverse)
 # read inputs 
 # host_community <- read_csv('inputs/host_community.csv')
 weather <- read_csv('inputs/weather.csv')
-tick_params <- read_csv('inputs/tick_parameters_simple.csv')
-tick_funs <- read_csv('inputs/tick_functions_simple.csv')
+tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay1.csv')
+tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
 life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
 
 # hard code in some values as placeholders until we have nicely formatted inputs
@@ -141,8 +141,8 @@ gen_trans_matrix <- function(time) {
   if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
       from_val <- mort[m,]$from
-      fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity)
       trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_fun(from_val, 'm', pred1, pred2)
+      fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity)
     }
   }
   
@@ -154,15 +154,17 @@ update_delay_mat <- function(time, delay_mat, N) {
   
   transitions <- tick_funs %>% filter(delay == 1,
                                       is.na(todo), 
-                                      from %in% life_stages)
+                                      from %in% life_stages,
+                                      to %in% life_stages)
+                                      
   
   for (t in seq_len(nrow(transitions))) {
     from <- transitions[t,]$from
     to <- transitions[t,]$to
-
+    
     pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay)
     pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay)
-  
+    
     # calculate transition
     fun <- get_transition_fun(from, to, pred1, pred2)
     
@@ -230,7 +232,7 @@ run <- function(steps, initial_population) {
 }
 
 # run the model and extract the output population matrix and delay_matrix
-out <- run(steps=100, initial_population)
+out <- run(steps=300, initial_population)
 out_N <- out[[1]]
 out_delay_mat <- out[[2]]
 
@@ -242,13 +244,14 @@ out_delay_mat[,1:100]
 out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>% 
   pivot_longer(e:a, names_to = 'stage', values_to = 'pop')
 
-# select a smaller range of days for graphing
-out_N_selection <- out_N_df %>% filter(day < 20)
-
 # graph population over time
-ggplot(out_N_selection, aes(x = day, y = pop, color = stage)) + 
+ggplot(out_N_df, aes(x = day, y = pop, color = stage)) + 
+  geom_point(size = 2) + # (position = 'jitter') + 
   geom_line() + 
-  scale_y_log10()
+  #ylim(0,3000) + 
+  #xlim(0, 150) + 
+  scale_y_log10() + 
+  geom_hline(yintercept = 1000)
 
 
 
