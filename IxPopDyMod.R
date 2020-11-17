@@ -18,6 +18,8 @@ l_pref <- c(1, 0.75, 0.25)
 n_pref <- c(1, 1, 0.25)
 a_pref <- c(0, 0, 1)
 l_feed_success <- c(0.49, 0.17, 0.49)
+n_feed_success <- c(0.49, 0.17, 0.49)
+a_feed_success <- c(0, 0, 0.49)
 host_rc <- c(0.92, 0.147, 0.046)
 
 max_delay <- 300
@@ -112,29 +114,41 @@ gen_trans_matrix <- function(time) {
   # just turning this off for now for the simple run
   if (FALSE)
   {
-  # this is where we should (temporarily) hard code in any transitions
-  # probability of feeding <- chance of active questing * chance of finding a host
-  trans_matrix['ql', 'fl'] <- trans_matrix['ql', 'fl'] * get_transition_fun('q', 'f', pred1 = sum(host_den * l_pref))
-  trans_matrix['qun', 'fun'] <- trans_matrix['qun', 'fun'] * get_transition_fun('q', 'f', pred1 = sum(host_den * n_pref))
-  trans_matrix['qin', 'fin'] <- trans_matrix['qin', 'fin'] * get_transition_fun('q', 'f', pred1 = sum(host_den * n_pref))
-  trans_matrix['qua', 'fua'] <- trans_matrix['qua', 'fua'] * get_transition_fun('q', 'f', pred1 = sum(host_den * a_pref))
-  trans_matrix['qia', 'fia'] <- trans_matrix['qia', 'fia'] * get_transition_fun('q', 'f', pred1 = sum(host_den * a_pref))
-  # TODO: idea for implementing this without hardcoding: could have a rule that if there are multiple transitions with the
-  # same from and to, we take the product of them. This would allow us to keep these functions on separate lines in the
-  # input file, and would mean that we wouldn't have to write a new function in step 02 "binomial * briere". But that
-  # would still be a rule that's not controllable in the input file...
-  
-  # TODO!!! these should be implemented as time delay
-  # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
-  # for now ignore density dependent feeding success
-  # Myles note: not sure how to implement time delay here. What's different here is that one class goes to multiple, 
-  # and the transition probability is not only describing the chance of advancing to next stage, but also the 
-  # relative number of feeding ticks that become either infected or uninfected.
-  # Idea: maybe we have to split up the processes of becoming infected (interpret this is a probability) and 
-  # becoming engorged (interpret this as a time delay)
-  trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-  trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
+    # this is where we should (temporarily) hard code in any transitions
+    # probability of feeding <- chance of active questing * chance of finding a host
+    trans_matrix['ql', 'fl'] <- trans_matrix['ql', 'fl'] * get_transition_fun('q', 'f', pred1 = sum(host_den * l_pref))
+    trans_matrix['qun', 'fun'] <- trans_matrix['qun', 'fun'] * get_transition_fun('q', 'f', pred1 = sum(host_den * n_pref))
+    trans_matrix['qin', 'fin'] <- trans_matrix['qin', 'fin'] * get_transition_fun('q', 'f', pred1 = sum(host_den * n_pref))
+    trans_matrix['qua', 'fua'] <- trans_matrix['qua', 'fua'] * get_transition_fun('q', 'f', pred1 = sum(host_den * a_pref))
+    trans_matrix['qia', 'fia'] <- trans_matrix['qia', 'fia'] * get_transition_fun('q', 'f', pred1 = sum(host_den * a_pref))
+    # TODO: idea for implementing this without hardcoding: could have a rule that if there are multiple transitions with the
+    # same from and to, we take the product of them. This would allow us to keep these functions on separate lines in the
+    # input file, and would mean that we wouldn't have to write a new function in step 02 "binomial * briere". But that
+    # would still be a rule that's not controllable in the input file...
+    
+    # TODO!!! these should be implemented as time delay
+    # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
+    # for now ignore density dependent feeding success
+    # Myles note: not sure how to implement time delay here. What's different here is that one class goes to multiple, 
+    # and the transition probability is not only describing the chance of advancing to next stage, but also the 
+    # relative number of feeding ticks that become either infected or uninfected.
+    # Idea: maybe we have to split up the processes of becoming infected (interpret this is a probability) and 
+    # becoming engorged (interpret this as a time delay)
+    trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+    trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+    trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
+    
+    trans_matrix['fun', 'eun'] <- sum((1-host_rc) * (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
+    trans_matrix['fun', 'ein'] <- sum(host_rc* (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
+    trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_fun('fn', 'm')
+    trans_matrix['fin', 'ein'] <- n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref))
+    trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_fun('fn', 'm')
+    
+    trans_matrix['fua', 'eua'] <- sum((1-host_rc) * (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
+    trans_matrix['fua', 'eia'] <- sum(host_rc* (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
+    trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'eua'] - trans_matrix['fua', 'eia'] - get_transition_fun('fa', 'm')
+    trans_matrix['fia', 'eia'] <- a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref))
+    trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'eia'] - get_transition_fun('fa', 'm')
   }
   
   
@@ -249,7 +263,7 @@ ggplot(out_N_df, aes(x = day, y = pop, color = stage)) +
   geom_point(size = 2) + # (position = 'jitter') + 
   geom_line() + 
   #ylim(0,3000) + 
-  #xlim(0, 150) + 
+  xlim(0, 100) + 
   scale_y_log10() + 
   geom_hline(yintercept = 1000)
 
