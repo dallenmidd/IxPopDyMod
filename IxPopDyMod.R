@@ -7,7 +7,7 @@ library(tidyverse)
 # read inputs 
 # host_community <- read_csv('inputs/host_community.csv')
 weather <- read_csv('inputs/weather.csv')
-tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay1.csv')
+tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay2.csv')
 tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
 life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
 
@@ -23,7 +23,8 @@ a_feed_success <- c(0, 0, 0.49)
 host_rc <- c(0.92, 0.147, 0.046)
 
 max_delay <- 300
-initial_population <- runif(length(life_stages), 1000, 1000)
+#initial_population <- runif(length(life_stages), 1000, 1000)
+initial_population <- c(0,0,0,10)
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
 get_temp <- function(time) {
@@ -251,8 +252,8 @@ out_N <- out[[1]]
 out_delay_mat <- out[[2]]
 
 # inspect the outputs
-out_N[,1:100]
-out_delay_mat[,1:100]
+out_N[,1:50]
+out_delay_mat[,1:50]
 
 # convert output population matrix to a friendly format for graphing
 out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>% 
@@ -263,7 +264,7 @@ ggplot(out_N_df, aes(x = day, y = pop, color = stage)) +
   geom_point(size = 2) + # (position = 'jitter') + 
   geom_line() + 
   #ylim(0,3000) + 
-  xlim(0, 100) + 
+  xlim(0, 300) + 
   scale_y_log10() + 
   geom_hline(yintercept = 1000)
 
