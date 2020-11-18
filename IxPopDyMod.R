@@ -10,14 +10,22 @@ weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
 weather <- tibble(tmean = seq(from = 20, to = 20, length.out = 1000), j_day = seq(from = 1, to = 1000))
 
-# tick_params <- read_csv('inputs/tick_parameters.csv')
-# tick_funs <- read_csv('inputs/tick_functions.csv')
-# life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
+# option to run on simple inputs 
+simple <- FALSE
 
-# simple inputs
-tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay2.csv')
-tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
-life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
+if (simple) {
+  tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay2.csv')
+  tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
+  life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
+} else {
+  tick_params <- read_csv('inputs/tick_parameters.csv')
+  tick_funs <- read_csv('inputs/tick_functions.csv')
+  life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
+}
+
+initial_population <- runif(length(life_stages), 0, 0)
+initial_population[length(initial_population)] <- 10 # start with only one cohort (adults)
+
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp <- 3 # mouse, squirrel, deer
@@ -32,9 +40,6 @@ host_rc <- c(0.92, 0.147, 0.046)
 
 max_delay <- 300
 
-initial_population <- runif(length(life_stages), 0, 0)
-initial_population[1] <- 1000 # start with only one cohort (eggs)
-initial_population <- c(0,0,0,10)
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
 get_temp <- function(time) {
@@ -154,7 +159,7 @@ gen_trans_matrix <- function(time) {
   }
   
   # just turning this off for now for the simple run
-  if (FALSE)
+  if (!simple)
   {
     # TODO!!! these should be implemented as time delay
     # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
