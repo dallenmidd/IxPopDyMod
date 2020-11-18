@@ -20,7 +20,6 @@ fun, ein, constant_fun, 1, Ogden et al. 2005, not yet handling hosts, 1, NA, NA
 hl, ql, constant_fun, 1, Daniels et al. 1996, NA, 1, NA, NA
 hl, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 ql, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
-q, f, binomial_fun, 0, Dave theory, not sure how to handle (to and from are not life stages), 1, sum(host_den * n_pref)), NA
 ql, fl, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
 ra, e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
 ra, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
@@ -36,3 +35,9 @@ qua, fua, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
 qua, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 qun, fun, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
 qun, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
+ql, fl, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * l_pref), NA
+qun, fun, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * n_pref), NA
+qin, fin, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * n_pref), NA
+qua, fua, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * a_pref), NA
+qia, fia, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * a_pref), NA 
+

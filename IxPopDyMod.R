@@ -7,9 +7,12 @@ library(tidyverse)
 # read inputs 
 # host_community <- read_csv('inputs/host_community.csv')
 weather <- read_csv('inputs/weather.csv')
-tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay1.csv')
-tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
-life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
+# constant temperature for testing
+weather <- tibble(tmean = seq(from = 20, to = 20, length.out = 1000), j_day = seq(from = 1, to = 1000))
+
+tick_params <- read_csv('inputs/tick_parameters.csv')
+tick_funs <- read_csv('inputs/tick_functions.csv')
+life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp <- 3 # mouse, squirrel, deer
@@ -21,7 +24,8 @@ l_feed_success <- c(0.49, 0.17, 0.49)
 host_rc <- c(0.92, 0.147, 0.046)
 
 max_delay <- 300
-initial_population <- runif(length(life_stages), 1000, 1000)
+initial_population <- runif(length(life_stages), 0, 0)
+initial_population[1] <- 1000 # start with only one cohort (eggs)
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
 get_temp <- function(time) {
@@ -48,11 +52,18 @@ binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
 # this generic function will pull out the functional form and parameters need to make the transition function
 get_transition_fun <- function(which_from, which_to, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
+  
+  # this is problematic if we have multiple functions with the same from and to,
+  # because it will always get() the first function 
   f <- functions %>%
     filter(from == which_from, to == which_to) %>%
     pull(transition_fun) %>%
     get()
   
+  # I think parameter handling can still happen this way with multiple
+  # functions with the same from and to, becuase parameters are selected by
+  # name. Just CANNOT have parameters with same name for different functions
+  # that with same from and to
   params <- parameters %>%
     filter(from == which_from, to == which_to) %>%
     pull(param_value)
@@ -62,6 +73,26 @@ get_transition_fun <- function(which_from, which_to, pred1 = NULL, pred2 = NULL,
     pull(param_name)
   
   f(x = pred1, y = pred2, p =  params) %>% unname()
+}
+
+get_transition_fun2 <- function(time, transition_row, parameters = tick_params) {
+  # alternative approach that takes an entire transition row, which is a workaround for 
+  # having multiple rows with the same 'from' and 'to'
+  # transition_row: a row from the transitions tibble
+  
+  f <- transition_row[['transition_fun']] %>% get()
+  
+  params <- parameters %>%
+    filter(from == transition_row[['from']], to == transition_row[['to']]) %>%
+    pull(param_value)
+  
+  names(params) <- parameters %>%
+    filter(from == transition_row[['from']], to == transition_row[['to']]) %>%
+    pull(param_name)
+  
+  f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']]), 
+    y = get_pred(time, transition_row[['pred2']], transition_row[['delay']]),
+    p =  params) %>% unname()
 }
 
 # Dave: We will get these transition probs from other studies
@@ -78,8 +109,8 @@ get_transition_fun <- function(which_from, which_to, pred1 = NULL, pred2 = NULL,
 gen_trans_matrix <- function(time) {
   
   # get the parameters 
-  temp = get_temp(time)
-  vpd = get_vpd(time)
+  #temp = get_temp(time)
+  #vpd = get_vpd(time)
   
   # initialize the transition matrix with zeros
   n_life_stages <- length(life_stages)
@@ -105,25 +136,17 @@ gen_trans_matrix <- function(time) {
       to <- transitions[t,]$to
       pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay)
       pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay)
-      trans_matrix[from, to] <- get_transition_fun(from, to, pred1, pred2) * transitions[t,]$fecundity
+      # If there are multiple lines in the tick_funs input for a given transition, we take the product
+      # of these probabilities. Currently, this applies to the questing to feeding transitions, which are 
+      # the product of P(active questing) and P(host finding). Not sure if we want to implement something
+      # similar for delay transition 
+      trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) * get_transition_fun2(time, transition_row = transitions[t,]) * transitions[t,]$fecundity
     }
   }
   
   # just turning this off for now for the simple run
-  if (FALSE)
+  if (TRUE)
   {
-  # this is where we should (temporarily) hard code in any transitions
-  # probability of feeding <- chance of active questing * chance of finding a host
-  trans_matrix['ql', 'fl'] <- trans_matrix['ql', 'fl'] * get_transition_fun('q', 'f', pred1 = sum(host_den * l_pref))
-  trans_matrix['qun', 'fun'] <- trans_matrix['qun', 'fun'] * get_transition_fun('q', 'f', pred1 = sum(host_den * n_pref))
-  trans_matrix['qin', 'fin'] <- trans_matrix['qin', 'fin'] * get_transition_fun('q', 'f', pred1 = sum(host_den * n_pref))
-  trans_matrix['qua', 'fua'] <- trans_matrix['qua', 'fua'] * get_transition_fun('q', 'f', pred1 = sum(host_den * a_pref))
-  trans_matrix['qia', 'fia'] <- trans_matrix['qia', 'fia'] * get_transition_fun('q', 'f', pred1 = sum(host_den * a_pref))
-  # TODO: idea for implementing this without hardcoding: could have a rule that if there are multiple transitions with the
-  # same from and to, we take the product of them. This would allow us to keep these functions on separate lines in the
-  # input file, and would mean that we wouldn't have to write a new function in step 02 "binomial * briere". But that
-  # would still be a rule that's not controllable in the input file...
-  
   # TODO!!! these should be implemented as time delay
   # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
   # for now ignore density dependent feeding success
@@ -137,12 +160,14 @@ gen_trans_matrix <- function(time) {
   trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
   }
   
-  
   if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
       from_val <- mort[m,]$from
+      # TODO temporary fix: fecundity is a multi-element vector if there are multiple (non-mort) 
+      # transitions for the same "from". I think these should be all have the same fecundity, 
+      # for now we'll just assume that is true and use the first one
+      fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity) %>% .[1]
       trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_fun(from_val, 'm', pred1, pred2)
-      fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity)
     }
   }
   
@@ -199,6 +224,10 @@ get_pred <- function(time, pred, is_delay) {
     return(get_temp(time))
   } else if (pred == "sum(host_den * l_pref)") {
     return(sum(host_den * l_pref))
+  } else if (pred == "sum(host_den * n_pref)") {
+    return(sum(host_den * n_pref)) 
+  } else if (pred == "sum(host_den * a_pref)") {
+    return(sum(host_den * a_pref))
   } else {
     print("error: couldn't match pred")
   }
@@ -242,11 +271,14 @@ out_delay_mat[,1:100]
 
 # convert output population matrix to a friendly format for graphing
 out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>% 
-  pivot_longer(e:a, names_to = 'stage', values_to = 'pop')
+  pivot_longer(e:ra, names_to = 'stage', values_to = 'pop') %>%
+  mutate(age_group = substr(stage, str_length(stage), str_length(stage)),
+         sub_stage = substr(stage, 0, str_length(stage) - 1)) 
+  #filter(stage %in% c('ql', 'fl', 'hl'))
 
 # graph population over time
-ggplot(out_N_df, aes(x = day, y = pop, color = stage)) + 
-  geom_point(size = 2) + # (position = 'jitter') + 
+ggplot(out_N_df, aes(x = day, y = pop, color = sub_stage, shape = age_group)) + 
+  geom_point(size = 2, position = 'jitter') + 
   geom_line() + 
   #ylim(0,3000) + 
   #xlim(0, 150) + 

@@ -30,7 +30,11 @@ ein, qia, en_qa, b, 1.21, NA, NA, Ogden et al. 2005
 eun, qua, en_qa, b, 1.21, NA, NA, Ogden et al. 2005
 qia, m, qa_m, a, 0.006, NA, NA, Ogden et al. 2005
 qua, m, qa_m, a, 0.006, NA, NA, Ogden et al. 2005
-q, f, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
+ql, fl, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
+qun, fun, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
+qin, fin, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
+qua, fua, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
+qia, fia, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
 ra, e, ra_e, a, 7.692308e-4, NA, NA, Ogden et al. 2004
 ra, e, ra_e, b, 1.42, NA, NA, Ogden et al. 2004
 ra, m, ra_m, a, 1e-4, NA, NA, Ogden et al. 2005
