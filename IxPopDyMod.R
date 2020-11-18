@@ -10,9 +10,14 @@ weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
 weather <- tibble(tmean = seq(from = 20, to = 20, length.out = 1000), j_day = seq(from = 1, to = 1000))
 
-tick_params <- read_csv('inputs/tick_parameters.csv')
-tick_funs <- read_csv('inputs/tick_functions.csv')
-life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
+# tick_params <- read_csv('inputs/tick_parameters.csv')
+# tick_funs <- read_csv('inputs/tick_functions.csv')
+# life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
+
+# simple inputs
+tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay2.csv')
+tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
+life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp <- 3 # mouse, squirrel, deer
@@ -21,11 +26,15 @@ l_pref <- c(1, 0.75, 0.25)
 n_pref <- c(1, 1, 0.25)
 a_pref <- c(0, 0, 1)
 l_feed_success <- c(0.49, 0.17, 0.49)
+n_feed_success <- c(0.49, 0.17, 0.49)
+a_feed_success <- c(0, 0, 0.49)
 host_rc <- c(0.92, 0.147, 0.046)
 
 max_delay <- 300
+
 initial_population <- runif(length(life_stages), 0, 0)
 initial_population[1] <- 1000 # start with only one cohort (eggs)
+initial_population <- c(0,0,0,10)
 
 # 01 functions to grab the parameters that determine the transition matrix at a given time
 get_temp <- function(time) {
@@ -145,19 +154,32 @@ gen_trans_matrix <- function(time) {
   }
   
   # just turning this off for now for the simple run
-  if (TRUE)
+  if (FALSE)
   {
-  # TODO!!! these should be implemented as time delay
-  # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
-  # for now ignore density dependent feeding success
-  # Myles note: not sure how to implement time delay here. What's different here is that one class goes to multiple, 
-  # and the transition probability is not only describing the chance of advancing to next stage, but also the 
-  # relative number of feeding ticks that become either infected or uninfected.
-  # Idea: maybe we have to split up the processes of becoming infected (interpret this is a probability) and 
-  # becoming engorged (interpret this as a time delay)
-  trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-  trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-  trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
+    # TODO!!! these should be implemented as time delay
+    # density dependent feeding success? Yikes, will need to track how many of each life stage on each host every day?????
+    # for now ignore density dependent feeding success
+    # Myles note: not sure how to implement time delay here. What's different here is that one class goes to multiple, 
+    # and the transition probability is not only describing the chance of advancing to next stage, but also the 
+    # relative number of feeding ticks that become either infected or uninfected.
+    # Idea: maybe we have to split up the processes of becoming infected (interpret this is a probability) and 
+    # becoming engorged (interpret this as a time delay)
+    trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+    trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+    trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
+    
+    trans_matrix['fun', 'eun'] <- sum((1-host_rc) * (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
+    trans_matrix['fun', 'ein'] <- sum(host_rc* (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
+    trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_fun('fun', 'm')
+    trans_matrix['fin', 'ein'] <- sum(n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref)))
+    trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_fun('fin', 'm')
+    
+    # TODO should we do just reproductive adults, or split into eua/eia?
+    # trans_matrix['fua', 'eua'] <- sum((1-host_rc) * (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
+    # trans_matrix['fua', 'eia'] <- sum(host_rc* (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
+    # trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'eua'] - trans_matrix['fua', 'eia'] - get_transition_fun('fua', 'm')
+    # trans_matrix['fia', 'eia'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
+    # trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'eia'] - get_transition_fun('fia', 'm')
   }
   
   if (nrow(mort) > 0) {
@@ -266,12 +288,12 @@ out_N <- out[[1]]
 out_delay_mat <- out[[2]]
 
 # inspect the outputs
-out_N[,1:100]
-out_delay_mat[,1:100]
+# out_N[,1:50]
+# out_delay_mat[,1:50]
 
 # convert output population matrix to a friendly format for graphing
 out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>% 
-  pivot_longer(e:ra, names_to = 'stage', values_to = 'pop') %>%
+  pivot_longer(-c(day), names_to = 'stage', values_to = 'pop') %>%
   mutate(age_group = substr(stage, str_length(stage), str_length(stage)),
          sub_stage = substr(stage, 0, str_length(stage) - 1)) 
   #filter(stage %in% c('ql', 'fl', 'hl'))
@@ -281,7 +303,7 @@ ggplot(out_N_df, aes(x = day, y = pop, color = sub_stage, shape = age_group)) +
   geom_point(size = 2, position = 'jitter') + 
   geom_line() + 
   #ylim(0,3000) + 
-  #xlim(0, 150) + 
+  xlim(0, 300) + 
   scale_y_log10() + 
   geom_hline(yintercept = 1000)
 
