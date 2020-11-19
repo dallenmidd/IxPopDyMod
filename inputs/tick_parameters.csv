@@ -53,3 +53,5 @@ qia, fia, NA, q, 0.0088, NA, NA, Ogden et al. 2005
 qua, fua, NA, tmin, 3, NA, NA, Ogden et al. 2005
 qua, fua, NA, tmax, 16, NA, NA, Ogden et al. 2005
 qua, fua, NA, q, 0.0088, NA, NA, Ogden et al. 2005
+fua, m, NA, a, 0.0001, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
+fia, m, NA, a, 0.0001, NA, NA, Ogden et al. 2005 - value for ENGORGED mort

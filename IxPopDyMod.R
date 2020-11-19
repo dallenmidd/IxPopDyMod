@@ -155,6 +155,9 @@ gen_trans_matrix <- function(time) {
       # the product of P(active questing) and P(host finding). Not sure if we want to implement something
       # similar for delay transition 
       trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) * get_transition_fun2(time, transition_row = transitions[t,]) * transitions[t,]$fecundity
+      
+      # pretty printing of trans_matrix
+      # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
     }
   }
   
@@ -183,8 +186,12 @@ gen_trans_matrix <- function(time) {
     # trans_matrix['fua', 'eua'] <- sum((1-host_rc) * (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
     # trans_matrix['fua', 'eia'] <- sum(host_rc* (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
     # trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'eua'] - trans_matrix['fua', 'eia'] - get_transition_fun('fua', 'm')
+    trans_matrix['fua', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
+    trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'ra'] - get_transition_fun('fua', 'm')
     # trans_matrix['fia', 'eia'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
     # trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'eia'] - get_transition_fun('fia', 'm')
+    trans_matrix['fia', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
+    trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'ra'] - get_transition_fun('fia', 'm')
   }
   
   if (nrow(mort) > 0) {
@@ -308,7 +315,7 @@ ggplot(out_N_df, aes(x = day, y = pop, color = sub_stage, shape = age_group)) +
   geom_point(size = 2, position = 'jitter') + 
   geom_line() + 
   #ylim(0,3000) + 
-  xlim(0, 300) + 
+  #xlim(0, 300) + 
   scale_y_log10() + 
   geom_hline(yintercept = 1000)
 
