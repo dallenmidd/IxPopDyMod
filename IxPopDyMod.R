@@ -29,6 +29,7 @@ initial_population[length(initial_population)] <- 10 # start with only one cohor
 
 # hard code in some values as placeholders until we have nicely formatted inputs
 n_host_spp <- 3 # mouse, squirrel, deer
+host_spp <- c('mouse', 'squirrel', 'deer')
 host_den <- c(40, 8, 0.25)
 l_pref <- c(1, 0.75, 0.25)
 n_pref <- c(1, 1, 0.25)
@@ -65,7 +66,7 @@ binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 # 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
 # this generic function will pull out the functional form and parameters need to make the transition function
-get_transition_fun <- function(which_from, which_to, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
+get_transition_val <- function(which_from, which_to, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
   
   # this is problematic if we have multiple functions with the same from and to,
   # because it will always get() the first function 
@@ -89,7 +90,7 @@ get_transition_fun <- function(which_from, which_to, pred1 = NULL, pred2 = NULL,
   f(x = pred1, y = pred2, p =  params) %>% unname()
 }
 
-get_transition_fun2 <- function(time, transition_row, parameters = tick_params) {
+get_transition_val2 <- function(time, transition_row, parameters = tick_params) {
   # alternative approach that takes an entire transition row, which is a workaround for 
   # having multiple rows with the same 'from' and 'to'
   # transition_row: a row from the transitions tibble
@@ -154,7 +155,7 @@ gen_trans_matrix <- function(time) {
       # of these probabilities. Currently, this applies to the questing to feeding transitions, which are 
       # the product of P(active questing) and P(host finding). Not sure if we want to implement something
       # similar for delay transition 
-      trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) * get_transition_fun2(time, transition_row = transitions[t,]) * transitions[t,]$fecundity
+      trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) * get_transition_val2(time, transition_row = transitions[t,]) * transitions[t,]$fecundity
       
       # pretty printing of trans_matrix
       # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
@@ -201,7 +202,7 @@ gen_trans_matrix <- function(time) {
       # transitions for the same "from". I think these should be all have the same fecundity, 
       # for now we'll just assume that is true and use the first one
       fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity) %>% .[1]
-      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_fun(from_val, 'm', pred1, pred2)
+      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val(from_val, 'm', pred1, pred2)
     }
   }
   
@@ -225,19 +226,26 @@ update_delay_mat <- function(time, delay_mat, N) {
     pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay)
     
     # calculate transition
-    fun <- get_transition_fun(from, to, pred1, pred2)
+    val <- get_transition_val(from, to, pred1, pred2)
     
     # constant functions return a single value, 
     # we need a vector with many entries for the cumsum
-    if (length(fun) == 1) {
-      fun <- seq(from=fun, to=fun, length.out = max_delay) # I think this is still 1 shorter than time:(time+max_delay), may not matter
+    if (length(val) == 1) {
+      val <- rep(val, max_delay) # I think this is still 1 shorter than time:(time+max_delay), may not matter
     }
     
-    days <- cumsum(fun) > 1
+    days <- cumsum(val) > 1
     
     if (TRUE %in% days) {
       days_to_next <- min(which(days))
-      surv_to_next <- (1 - get_transition_fun(from, 'm', pred1, pred2)) ^ days_to_next
+      # I think this is a fix if mortality is not constant
+      if (length(pred1))
+      {
+        daily_survival <- 1 - get_transition_val(from, 'm', pred1[1:days_to_next], pred2[1:days_to_next])
+        surv_to_next <- prod(daily_survival)
+      } else {  
+        surv_to_next <- (1 - get_transition_val(from, 'm', pred1, pred2)) ^ days_to_next
+      }
       delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + 
         N[from, time] * surv_to_next * transitions[t, 'fecundity'][[1]]
     }
@@ -256,6 +264,8 @@ get_pred <- function(time, pred, is_delay) {
     return(NULL)
   } else if (pred == "temp") {
     return(get_temp(time))
+  } else if (pred == "vpd") {
+    return(get_vpd(time))
   } else if (pred == "sum(host_den * l_pref)") {
     return(sum(host_den * l_pref))
   } else if (pred == "sum(host_den * n_pref)") {
@@ -273,6 +283,12 @@ run <- function(steps, initial_population) {
   # initialize a delay matrix of all zeros
   delay_mat <- matrix(nrow = length(life_stages), ncol = steps + max_delay, data = 0)
   rownames(delay_mat) <- life_stages
+  
+  # host community array, hard coding three tick life stages
+  # this keeps track of the number of ticks of each life stage on the average host of each host spp on each day
+  hc_array <- array(dim = c(3, n_host_spp, steps + max_delay), 
+                    data = 0, 
+                    dimnames = list(c('l','n','a'), host_spp, NULL)) 
   
   # intialize a population matrix with initial_population
   N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
@@ -318,10 +334,3 @@ ggplot(out_N_df, aes(x = day, y = pop, color = sub_stage, shape = age_group)) +
   #xlim(0, 300) + 
   scale_y_log10() + 
   geom_hline(yintercept = 1000)
-
-
-
-
-
-
-
