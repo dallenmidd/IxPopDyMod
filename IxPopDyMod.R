@@ -175,24 +175,24 @@ gen_trans_matrix <- function(time) {
     # becoming engorged (interpret this as a time delay)
     trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
     trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-    trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_fun('fl', 'm')
+    trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_val('fl', 'm')
     
     trans_matrix['fun', 'eun'] <- sum((1-host_rc) * (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
     trans_matrix['fun', 'ein'] <- sum(host_rc* (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
-    trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_fun('fun', 'm')
+    trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_val('fun', 'm')
     trans_matrix['fin', 'ein'] <- sum(n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref)))
-    trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_fun('fin', 'm')
+    trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_val('fin', 'm')
     
     # TODO should we do just reproductive adults, or split into eua/eia?
     # trans_matrix['fua', 'eua'] <- sum((1-host_rc) * (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
     # trans_matrix['fua', 'eia'] <- sum(host_rc* (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
-    # trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'eua'] - trans_matrix['fua', 'eia'] - get_transition_fun('fua', 'm')
+    # trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'eua'] - trans_matrix['fua', 'eia'] - get_transition_val('fua', 'm')
     trans_matrix['fua', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
-    trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'ra'] - get_transition_fun('fua', 'm')
+    trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'ra'] - get_transition_val('fua', 'm')
     # trans_matrix['fia', 'eia'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
-    # trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'eia'] - get_transition_fun('fia', 'm')
+    # trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'eia'] - get_transition_val('fia', 'm')
     trans_matrix['fia', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
-    trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'ra'] - get_transition_fun('fia', 'm')
+    trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'ra'] - get_transition_val('fia', 'm')
   }
   
   if (nrow(mort) > 0) {
