@@ -149,8 +149,6 @@ gen_trans_matrix <- function(time) {
     for (t in seq_len(nrow(transitions))) {
       from <- transitions[t,]$from
       to <- transitions[t,]$to
-      pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay)
-      pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay)
       # If there are multiple lines in the tick_funs input for a given transition, we take the product
       # of these probabilities. Currently, this applies to the questing to feeding transitions, which are 
       # the product of P(active questing) and P(host finding). Not sure if we want to implement something
@@ -173,26 +171,27 @@ gen_trans_matrix <- function(time) {
     # relative number of feeding ticks that become either infected or uninfected.
     # Idea: maybe we have to split up the processes of becoming infected (interpret this is a probability) and 
     # becoming engorged (interpret this as a time delay)
+    
     trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
     trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-    trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_val('fl', 'm')
+    trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_val2(time, filter(tick_funs, from == 'fl', to == 'm'))
     
     trans_matrix['fun', 'eun'] <- sum((1-host_rc) * (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
     trans_matrix['fun', 'ein'] <- sum(host_rc* (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
-    trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_val('fun', 'm')
+    trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_val2(time, filter(tick_funs, from == 'fun', to == 'm'))
     trans_matrix['fin', 'ein'] <- sum(n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref)))
-    trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_val('fin', 'm')
+    trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_val2(time, filter(tick_funs, from == 'fin', to == 'm'))
     
     # TODO should we do just reproductive adults, or split into eua/eia?
     # trans_matrix['fua', 'eua'] <- sum((1-host_rc) * (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
     # trans_matrix['fua', 'eia'] <- sum(host_rc* (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
-    # trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'eua'] - trans_matrix['fua', 'eia'] - get_transition_val('fua', 'm')
+    # trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'eua'] - trans_matrix['fua', 'eia'] - get_transition_val2(time, filter(tick_funs, from == 'fua', to == 'm')
     trans_matrix['fua', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
-    trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'ra'] - get_transition_val('fua', 'm')
+    trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'ra'] - get_transition_val2(time, filter(tick_funs, from == 'fua', to == 'm'))
     # trans_matrix['fia', 'eia'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
-    # trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'eia'] - get_transition_val('fia', 'm')
+    # trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'eia'] - get_transition_val2(time, filter(tick_funs, from == 'fia', to == 'm'))
     trans_matrix['fia', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
-    trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'ra'] - get_transition_val('fia', 'm')
+    trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'ra'] - get_transition_val2(time, filter(tick_funs, from == 'fia', to == 'm'))
   }
   
   if (nrow(mort) > 0) {
@@ -202,7 +201,7 @@ gen_trans_matrix <- function(time) {
       # transitions for the same "from". I think these should be all have the same fecundity, 
       # for now we'll just assume that is true and use the first one
       fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity) %>% .[1]
-      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val(from_val, 'm', pred1, pred2)
+      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val2(time, mort[m,])
     }
   }
   
@@ -219,14 +218,14 @@ update_delay_mat <- function(time, delay_mat, N) {
                                       
   
   for (t in seq_len(nrow(transitions))) {
-    from <- transitions[t,]$from
+    from_val <- transitions[t,]$from
     to <- transitions[t,]$to
     
     pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay)
     pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay)
     
     # calculate transition
-    val <- get_transition_val(from, to, pred1, pred2)
+    val <- get_transition_val2(time, transitions[t,])
     
     # constant functions return a single value, 
     # we need a vector with many entries for the cumsum
@@ -241,13 +240,13 @@ update_delay_mat <- function(time, delay_mat, N) {
       # I think this is a fix if mortality is not constant
       if (length(pred1))
       {
-        daily_survival <- 1 - get_transition_val(from, 'm', pred1[1:days_to_next], pred2[1:days_to_next])
+        daily_survival <- 1 - get_transition_val(from_val, 'm', pred1[1:days_to_next], pred2[1:days_to_next])
         surv_to_next <- prod(daily_survival)
       } else {  
-        surv_to_next <- (1 - get_transition_val(from, 'm', pred1, pred2)) ^ days_to_next
+        surv_to_next <- (1 - get_transition_val2(time, filter(tick_funs, from == from_val, to == 'm'))) ^ days_to_next
       }
       delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + 
-        N[from, time] * surv_to_next * transitions[t, 'fecundity'][[1]]
+        N[from_val, time] * surv_to_next * transitions[t, 'fecundity'][[1]]
     }
   }
   return(delay_mat)
