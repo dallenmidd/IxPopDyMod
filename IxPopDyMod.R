@@ -10,7 +10,7 @@ weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
 weather <- tibble(tmean = seq(from = 20, to = 20, length.out = 1000), j_day = seq(from = 1, to = 1000))
 
-# option to run on simple inputs 
+# option to run on simple inputs for testing
 simple <- FALSE
 
 if (simple) {
@@ -23,6 +23,7 @@ if (simple) {
   life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
 }
 
+# set initial population
 initial_population <- runif(length(life_stages), 0, 0)
 initial_population[length(initial_population)] <- 10 # start with only one cohort (adults)
 
@@ -39,33 +40,63 @@ n_feed_success <- c(0.49, 0.17, 0.49)
 a_feed_success <- c(0, 0, 0.49)
 host_rc <- c(0.92, 0.147, 0.046)
 
+# At each time step, how many time steps should we look into the future to see if any
+# ticks emerge from a time delay? This value is a somewhat arbitrarily high constant.
 max_delay <- 300
 
 
-# 01 functions to grab the parameters that determine the transition matrix at a given time
+# 01 functions to grab the predictors that determine the transition probabiltiies at a given time
+
+# extract temperature from input data at time time 
 get_temp <- function(time) {
   weather %>%
     filter(j_day %in% time) %>%
     pull(tmean)
 }
 
+# extract vapour-pressure deficit from input data at time time 
 get_vpd <- function(time) {
   weather %>% 
     filter(j_day %in% time) %>%
     pull(vpdmean)
 } 
 
+# Return a vector of a predictor at time time. The vector's length is based on whether the transition is_delay.
+get_pred <- function(time, pred, is_delay) {
+  
+  # if is_delay, we want a long vector so the cumsum will reach 1
+  # otherwise, we want a vector of length 1
+  if (is_delay) {time <- time:(time + max_delay)}
+  
+  if (is.na(pred)) {
+    return(NULL)
+  } else if (pred == "temp") {
+    return(get_temp(time))
+  } else if (pred == "vpd") {
+    return(get_vpd(time))
+  } else if (pred == "sum(host_den * l_pref)") {
+    return(sum(host_den * l_pref))
+  } else if (pred == "sum(host_den * n_pref)") {
+    return(sum(host_den * n_pref)) 
+  } else if (pred == "sum(host_den * a_pref)") {
+    return(sum(host_den * a_pref))
+  } else {
+    print("error: couldn't match pred")
+  }
+}
+
 # 02 functional forms for transition probabilities
 
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
 briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
-constant_fun <- function(x, y, p) p['a'] # because there is no pred (x or y) input in this function, it always outputs a scalar
-                                         # which is problematic when we want to do a cumsum
+constant_fun <- function(x, y, p) p['a'] 
 binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 
 # 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
-# this generic function will pull out the functional form and parameters need to make the transition function
+
+# this generic function will pull out the functional form and parameters needed to make the transition function, 
+# then evaluate it using supplied predictors (pred1, pred2) like temperature or some host community metric
 get_transition_val <- function(which_from, which_to, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
   
   # this is problematic if we have multiple functions with the same from and to,
@@ -90,10 +121,10 @@ get_transition_val <- function(which_from, which_to, pred1 = NULL, pred2 = NULL,
   f(x = pred1, y = pred2, p =  params) %>% unname()
 }
 
+# alternative approach that takes an entire transition row, which is a workaround for 
+# having multiple rows with the same 'from' and 'to'
+# transition_row: a row from the tick_funs tibble
 get_transition_val2 <- function(time, transition_row, parameters = tick_params) {
-  # alternative approach that takes an entire transition row, which is a workaround for 
-  # having multiple rows with the same 'from' and 'to'
-  # transition_row: a row from the transitions tibble
   
   f <- transition_row[['transition_fun']] %>% get()
   
@@ -109,13 +140,6 @@ get_transition_val2 <- function(time, transition_row, parameters = tick_params) 
     y = get_pred(time, transition_row[['pred2']], transition_row[['delay']]),
     p =  params) %>% unname()
 }
-
-# Dave: We will get these transition probs from other studies
-# Ogden et al 2004: https://doi.org/10.1603/0022-2585-41.4.622
-# Ogden et al. 2005: https://doi.org/10.1016/j.ijpara.2004.12.013
-# Dobson et al. 2011: https://doi.org/10.1111/j.1365-2664.2011.02003.x
-# Wallace et al 2019: https://doi.org/10.1155/2019/9817930
-# Randolph 1999 effect of Sat Def on questing, see FIg 3: http://doi.org/10.1093/jmedent/36.6.741
 
 # 04
 # at each step, we generate a new transition matrix whose transition probabilities
@@ -144,7 +168,7 @@ gen_trans_matrix <- function(time) {
            to == 'm',
            is.na(todo))
   
-  
+
   if (nrow(transitions) > 0) {
     for (t in seq_len(nrow(transitions))) {
       from <- transitions[t,]$from
@@ -153,7 +177,8 @@ gen_trans_matrix <- function(time) {
       # of these probabilities. Currently, this applies to the questing to feeding transitions, which are 
       # the product of P(active questing) and P(host finding). Not sure if we want to implement something
       # similar for delay transition 
-      trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) * get_transition_val2(time, transition_row = transitions[t,]) * transitions[t,]$fecundity
+      trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) * 
+        get_transition_val2(time, transition_row = transitions[t,]) * transitions[t,]$fecundity
       
       # pretty printing of trans_matrix
       # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
@@ -208,7 +233,7 @@ gen_trans_matrix <- function(time) {
   return(trans_matrix)
 }
 
-# based on the current time, delay_mat and N, return a delay_mat for the next time step
+# based on the current time, delay_mat and N (population matrix), return a delay_mat for the next time step
 update_delay_mat <- function(time, delay_mat, N) {
   
   transitions <- tick_funs %>% filter(delay == 1,
@@ -227,7 +252,7 @@ update_delay_mat <- function(time, delay_mat, N) {
     # calculate transition
     val <- get_transition_val2(time, transitions[t,])
     
-    # constant functions return a single value, 
+    # constant function returns a single value, 
     # we need a vector with many entries for the cumsum
     if (length(val) == 1) {
       val <- rep(val, max_delay) # I think this is still 1 shorter than time:(time+max_delay), may not matter
@@ -252,31 +277,7 @@ update_delay_mat <- function(time, delay_mat, N) {
   return(delay_mat)
 }
 
-# return a vector of length max_delay of a predictor
-get_pred <- function(time, pred, is_delay) {
-  
-  # if delay, we want a long vector so the cumsum will reach 1
-  # otherwise, we want a vector of length 1
-  if (is_delay) {time <- time:(time + max_delay)}
-  
-  if (is.na(pred)) {
-    return(NULL)
-  } else if (pred == "temp") {
-    return(get_temp(time))
-  } else if (pred == "vpd") {
-    return(get_vpd(time))
-  } else if (pred == "sum(host_den * l_pref)") {
-    return(sum(host_den * l_pref))
-  } else if (pred == "sum(host_den * n_pref)") {
-    return(sum(host_den * n_pref)) 
-  } else if (pred == "sum(host_den * a_pref)") {
-    return(sum(host_den * a_pref))
-  } else {
-    print("error: couldn't match pred")
-  }
-}
-
-# 05 iteratively run model 
+# 05 iteratively run model for steps iterations, starting with initial_population
 run <- function(steps, initial_population) {
   
   # initialize a delay matrix of all zeros
