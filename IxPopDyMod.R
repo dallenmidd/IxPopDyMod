@@ -255,8 +255,10 @@ update_delay_mat <- function(time, delay_mat, N) {
     # constant function returns a single value, 
     # we need a vector with many entries for the cumsum
     if (length(val) == 1) {
-      val <- rep(val, max_delay) # I think this is still 1 shorter than time:(time+max_delay), may not matter
-    }
+      # we add 1 for consistency with output vector length from non-constant fxns
+      # which is determined by time:(time + max_delay) in get_pred()
+      val <- rep(val, max_delay + 1) 
+    } 
     
     days <- cumsum(val) > 1
     
