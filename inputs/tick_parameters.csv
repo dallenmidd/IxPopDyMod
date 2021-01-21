@@ -1,57 +1,144 @@
-from, to, transition, param_name, param_value, param_ci_low, param_ci_high, source
-e, hl, e_hl, a, 2.92e-5, NA, NA, Ogden et al. 2004
-e, hl, e_hl, b, 2.27, NA, NA, Ogden et al. 2004
-e, m, e_m, a, 0.002, NA, NA, Ogden et al. 2005
-hl, m, l_m, a, 0.006, NA, NA, Ogden et al. 2005
-ql, m, l_m, a, 0.006, NA, NA, Ogden et al. 2005
-hl, ql, hl_ql, a, 0.0476, NA, NA, Daniels et al. 1996
-ql, fl, ql_fl, tmin, 10, NA, NA, Ogden et al. 2005
-ql, fl, ql_fl, tmax, 35, NA, NA, Ogden et al. 2005
-ql, fl, ql_fl, q, 7e-4, NA, NA, Ogden et al. 2005
-eil, m, el_m, a, 0.003, NA, NA, Ogden et al. 2005
-eul, m, el_m, a, 0.003, NA, NA, Ogden et al. 2005
-fl, m, el_m, a, 0.003, NA, NA, Ogden et al. 2005 
-fl, eul, fl_el, a, 0.333, NA, NA, Ogden et al. 2005
-fl, eil, fl_el, a, 0.333, NA, NA, Ogden et al. 2005
-eil, qin, el_qn, a, 9.883278e-6, NA, NA, Ogden et al. 2005
-eul, qun, el_qn, a, 9.883278e-6, NA, NA, Ogden et al. 2005
-eil, qin, el_qn, b, 2.55, NA, NA, Ogden et al. 2005
-eul, qun, el_qn, b, 2.55, NA, NA, Ogden et al. 2005
-fin, ein, fn_en, a, 0.2, NA, NA, Ogden et al. 2005
-fun, eun, fn_en, a, 0.2, NA, NA, Ogden et al. 2005
-fun, ein, fn_en, a, 0.2, NA, NA, Ogden et al. 2005
-ein, m, en_m, a, 0.002, NA, NA, Ogden et al. 2005
-eun, m, en_m, a, 0.002, NA, NA, Ogden et al. 2005
-fin, m, en_m, a, 0.002, NA, NA, Ogden et al. 2005
-fun, m, en_m, a, 0.002, NA, NA, Ogden et al. 2005
-ein, qia, en_qa, a, 6.265664e-4, NA, NA, Ogden et al. 2005
-eun, qua, en_qa, a, 6.265664e-4, NA, NA, Ogden et al. 2005
-ein, qia, en_qa, b, 1.21, NA, NA, Ogden et al. 2005
-eun, qua, en_qa, b, 1.21, NA, NA, Ogden et al. 2005
-qia, m, qa_m, a, 0.006, NA, NA, Ogden et al. 2005
-qua, m, qa_m, a, 0.006, NA, NA, Ogden et al. 2005
-ql, fl, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
-qun, fun, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
-qin, fin, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
-qua, fua, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
-qia, fia, q_f, a, 4e-4, NA, NA, daily chance a tick finds one given host
-ra, e, ra_e, a, 7.692308e-4, NA, NA, Ogden et al. 2004
-ra, e, ra_e, b, 1.42, NA, NA, Ogden et al. 2004
-ra, m, ra_m, a, 1e-4, NA, NA, Ogden et al. 2005
-NA, NA, n_e, a, 3000, NA, NA, Ogden et al. 2005
-qun, m, NA, a, 0.006, NA, NA, Ogden et al. 2005
-qin, m, NA, a, 0.006, NA, NA, Ogden et al. 2005
-qin, fin, NA, tmin, 10, NA, NA, Ogden et al. 2005
-qin, fin, NA, tmax, 35, NA, NA, Ogden et al. 2005
-qin, fin, NA, q, 7e-4, NA, NA, Ogden et al. 2005
-qun, fun, NA, tmin, 10, NA, NA, Ogden et al. 2005
-qun, fun, NA, tmax, 35, NA, NA, Ogden et al. 2005
-qun, fun, NA, q, 7e-4, NA, NA, Ogden et al. 2005
-qia, fia, NA, tmin, 3, NA, NA, Ogden et al. 2005
-qia, fia, NA, tmax, 16, NA, NA, Ogden et al. 2005
-qia, fia, NA, q, 0.0088, NA, NA, Ogden et al. 2005
-qua, fua, NA, tmin, 3, NA, NA, Ogden et al. 2005
-qua, fua, NA, tmax, 16, NA, NA, Ogden et al. 2005
-qua, fua, NA, q, 0.0088, NA, NA, Ogden et al. 2005
-fua, m, NA, a, 0.0001, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
-fia, m, NA, a, 0.0001, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
+from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
+e, hl, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
+e, hl, b, NA, 2.27, NA, NA, Ogden et al. 2004
+e, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+hl, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+ql, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+hl, ql, a, NA, 0.0476, NA, NA, Daniels et al. 1996
+ql, fl, tmin, NA, 10, NA, NA, Ogden et al. 2005
+ql, fl, tmax, NA, 35, NA, NA, Ogden et al. 2005
+ql, fl, q, NA, 7e-4, NA, NA, Ogden et al. 2005
+eil, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
+eul, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
+fl, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
+fl, eul, a, NA, 0.333, NA, NA, Ogden et al. 2005
+fl, eil, a, NA, 0.333, NA, NA, Ogden et al. 2005
+eil, qin, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
+eul, qun, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
+eil, qin, b, NA, 2.55, NA, NA, Ogden et al. 2005
+eul, qun, b, NA, 2.55, NA, NA, Ogden et al. 2005
+fin, ein, a, NA, 0.2, NA, NA, Ogden et al. 2005
+fun, eun, a, NA, 0.2, NA, NA, Ogden et al. 2005
+fun, ein, a, NA, 0.2, NA, NA, Ogden et al. 2005
+ein, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+eun, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+fin, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+fun, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+ein, qia, a, NA, 6.265664e-4, NA, NA, Ogden et al. 2005
+eun, qua, a, NA, 6.265664e-4, NA, NA, Ogden et al. 2005
+ein, qia, b, NA, 1.21, NA, NA, Ogden et al. 2005
+eun, qua, b, NA, 1.21, NA, NA, Ogden et al. 2005
+qia, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+qua, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+ql, fl, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+qun, fun, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+qin, fin, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+qua, fua, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+qia, fia, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+ra, e, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
+ra, e, b, NA, 1.42, NA, NA, Ogdenp et al. 2004
+ra, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005
+NA, NA, a, NA, 3000, NA, NA, Ogden et al. 2005
+qun, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+qin, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+qin, fin, tmin, NA, 10, NA, NA, Ogden et al. 2005
+qin, fin, tmax, NA, 35, NA, NA, Ogden et al. 2005
+qin, fin, q, NA, 7e-4, NA, NA, Ogden et al. 2005
+qun, fun, tmin, NA, 10, NA, NA, Ogden et al. 2005
+qun, fun, tmax, NA, 35, NA, NA, Ogden et al. 2005
+qun, fun, q, NA, 7e-4, NA, NA, Ogden et al. 2005
+qia, fia, tmin, NA, 3, NA, NA, Ogden et al. 2005
+qia, fia, tmax, NA, 16, NA, NA, Ogden et al. 2005
+qia, fia, q, NA, 0.0088, NA, NA, Ogden et al. 2005
+qua, fua, tmin, NA, 3, NA, NA, Ogden et al. 2005
+qua, fua, tmax, NA, 16, NA, NA, Ogden et al. 2005
+qua, fua, q, NA, 0.0088, NA, NA, Ogden et al. 2005
+fua, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
+fia, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
+
+fl, eul, pref, mouse, 1, NA, NA, Dave theory
+fl, eul, feed_success, mouse, 0.49, NA, NA, Dave theory
+fl, eul, host_rc, mouse, 0.92, NA, NA, Dave theory
+fl, eul, pref, squirrel, 0.75, NA, NA, Dave theory
+fl, eul, feed_success, squirrel, 0.17, NA, NA, Dave theory
+fl, eul, host_rc, squirrel, 0.147, NA, NA, Dave theory
+fl, eul, pref, deer, 0.25, NA, NA, Dave theory
+fl, eul, feed_success, deer, 0.49, NA, NA, Dave theory
+fl, eul, host_rc, deer, 0.046, NA, NA, Dave theory
+fl, eul, from_infected, NA, 0, NA, NA, Dave theory
+fl, eul, to_infected, NA, 0, NA, NA, Dave theory
+
+fl, eil, pref, mouse, 1, NA, NA, Dave theory
+fl, eil, feed_success, mouse, 0.49, NA, NA, Dave theory
+fl, eil, host_rc, mouse, 0.92, NA, NA, Dave theory
+fl, eil, pref, squirrel, 0.75, NA, NA, Dave theory
+fl, eil, feed_success, squirrel, 0.17, NA, NA, Dave theory
+fl, eil, host_rc, squirrel, 0.147, NA, NA, Dave theory
+fl, eil, pref, deer, 0.25, NA, NA, Dave theory
+fl, eil, feed_success, deer, 0.49, NA, NA, Dave theory
+fl, eil, host_rc, deer, 0.046, NA, NA, Dave theory
+fl, eil, from_infected, NA, 0, NA, NA, Dave theory
+fl, eil, to_infected, NA, 1, NA, NA, Dave theory
+
+fun, eun, pref, mouse, 1, NA, NA, Dave theory
+fun, eun, feed_success, mouse, 0.49, NA, NA, Dave theory
+fun, eun, host_rc, mouse, 0.92, NA, NA, Dave theory
+fun, eun, pref, squirrel, 1, NA, NA, Dave theory
+fun, eun, feed_success, squirrel, 0.17, NA, NA, Dave theory
+fun, eun, host_rc, squirrel, 0.147, NA, NA, Dave theory
+fun, eun, pref, deer, 0.25, NA, NA, Dave theory
+fun, eun, feed_success, deer, 0.49, NA, NA, Dave theory
+fun, eun, host_rc, deer, 0.046, NA, NA, Dave theory
+fun, eun, from_infected, NA, 0, NA, NA, Dave theory
+fun, eun, to_infected, NA, 0, NA, NA, Dave theory
+
+fun, ein, pref, mouse, 1, NA, NA, Dave theory
+fun, ein, feed_success, mouse, 0.49, NA, NA, Dave theory
+fun, ein, host_rc, mouse, 0.92, NA, NA, Dave theory
+fun, ein, pref, squirrel, 1, NA, NA, Dave theory
+fun, ein, feed_success, squirrel, 0.17, NA, NA, Dave theory
+fun, ein, host_rc, squirrel, 0.147, NA, NA, Dave theory
+fun, ein, pref, deer, 0.25, NA, NA, Dave theory
+fun, ein, feed_success, deer, 0.49, NA, NA, Dave theory
+fun, ein, host_rc, deer, 0.046, NA, NA, Dave theory
+fun, ein, from_infected, NA, 0, NA, NA, Dave theory
+fun, ein, to_infected, NA, 1, NA, NA, Dave theory
+
+fin, ein, pref, mouse, 1, NA, NA, Dave theory
+fin, ein, feed_success, mouse, 0.49, NA, NA, Dave theory
+fin, ein, host_rc, mouse, 0.92, NA, NA, Dave theory
+fin, ein, pref, squirrel, 1, NA, NA, Dave theory
+fin, ein, feed_success, squirrel, 0.17, NA, NA, Dave theory
+fin, ein, host_rc, squirrel, 0.147, NA, NA, Dave theory
+fin, ein, pref, deer, 0.25, NA, NA, Dave theory
+fin, ein, feed_success, deer, 0.49, NA, NA, Dave theory
+fin, ein, host_rc, deer, 0.046, NA, NA, Dave theory
+fin, ein, from_infected, NA, 1, NA, NA, Dave theory
+fin, ein, to_infected, NA, 1, NA, NA, Dave theory
+
+fua, ra, pref, mouse, 0, NA, NA, Dave theory
+fua, ra, feed_success, mouse, 0, NA, NA, Dave theory
+fua, ra, host_rc, mouse, 0.92, NA, NA, Dave theory
+fua, ra, pref, squirrel, 0, NA, NA, Dave theory
+fua, ra, feed_success, squirrel, 0, NA, NA, Dave theory
+fua, ra, host_rc, squirrel, 0.147, NA, NA, Dave theory
+fua, ra, pref, deer, 1, NA, NA, Dave theory
+fua, ra, feed_success, deer, 0.49, NA, NA, Dave theory
+fua, ra, host_rc, deer, 0.046, NA, NA, Dave theory
+fua, ra, from_infected, NA, 1, NA, NA, Dave theory
+fua, ra, to_infected, NA, 1, NA, NA, Dave theory
+
+fia, ra, pref, mouse, 0, NA, NA, Dave theory
+fia, ra, feed_success, mouse, 0, NA, NA, Dave theory
+fia, ra, host_rc, mouse, 0.92, NA, NA, Dave theory
+fia, ra, pref, squirrel, 0, NA, NA, Dave theory
+fia, ra, feed_success, squirrel, 0, NA, NA, Dave theory
+fia, ra, host_rc, squirrel, 0.147, NA, NA, Dave theory
+fia, ra, pref, deer, 1, NA, NA, Dave theory
+fia, ra, feed_success, deer, 0.49, NA, NA, Dave theory
+fia, ra, host_rc, deer, 0.046, NA, NA, Dave theory
+fia, ra, from_infected, NA, 1, NA, NA, Dave theory - a little strange to do infected to infected but should work
+fia, ra, to_infected, NA, 1, NA, NA, Dave theory
+
+
+

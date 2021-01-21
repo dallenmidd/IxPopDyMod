@@ -5,20 +5,26 @@ library(tidyverse)
 
 # 00
 # read inputs 
-# host_community <- read_csv('inputs/host_community.csv')
+#host_community <- read_csv('inputs/host_community.csv')
 weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
 weather <- tibble(tmean = seq(from = 20, to = 20, length.out = 1000), j_day = seq(from = 1, to = 1000))
+host_comm <- tibble(
+  j_day = rep(1:1000, each=3), 
+  host_spp = rep(c('mouse', 'squirrel', 'deer'), 1000), 
+  host_den = rep(c(40, 8, 0.25), 1000)) %>% 
+  arrange(j_day, host_spp)
 
 # option to run on simple inputs for testing
 simple <- FALSE
 
 if (simple) {
-  tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay2.csv')
+  tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay2.csv') # %>% arrange(host_spp)
   tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
   life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
 } else {
-  tick_params <- read_csv('inputs/tick_parameters.csv')
+  tick_params <- read_csv('inputs/tick_parameters.csv') %>% 
+    arrange(host_spp) # so parameters are in same host_spp order for pairwise vector calculations
   tick_funs <- read_csv('inputs/tick_functions.csv')
   life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
 }
@@ -61,6 +67,12 @@ get_vpd <- function(time) {
     pull(vpdmean)
 } 
 
+get_host_den <- function(time) {
+  host_comm %>%
+    filter(j_day %in% time) %>%
+    pull(host_den)
+}
+
 # Return a vector of a predictor at time time. The vector's length is based on whether the transition is_delay.
 get_pred <- function(time, pred, is_delay) {
   
@@ -74,6 +86,8 @@ get_pred <- function(time, pred, is_delay) {
     return(get_temp(time))
   } else if (pred == "vpd") {
     return(get_vpd(time))
+  } else if (pred == "host_den") {
+    return(get_host_den(time))
   } else if (pred == "sum(host_den * l_pref)") {
     return(sum(host_den * l_pref))
   } else if (pred == "sum(host_den * n_pref)") {
@@ -91,6 +105,35 @@ expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
 briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
 constant_fun <- function(x, y, p) p['a'] 
 binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
+
+# engorge_uninfected_fun <- function(x, y, p) sum((1 - v_sub(p, 'host_rc')) * (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref'))))) # x is host_den
+# engorge_infect_fun <- function(x, y, p) sum(abs(ifelse(p['infect'], 0, 1) - v_sub(p, 'host_rc')) * 
+#                                               (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref'))))) 
+
+feed_fun <- function(x, y, p) sum(x * v_sub(p, 'pref'))
+
+engorge_fun <- function(x, y, p) sum(ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
+                                       (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref')))))
+
+
+# x is the terms to be multiplied together in numerator, y is terms in denominator
+# .33333333 is a (messy) way of dividing numerator by sum(.33 + .33 + .33) == 1
+# probability_fun <- function(x, y = .3333333333333, p) sum(vec_prod(x))/sum(vec_prod(y)) 
+
+# multiply a list of vectors of same length together using the * operator
+# this allows us to use the * on an arbitrary numnber of vectors (rather than just 2)
+# vec_prod <- function(vec_list, iter = c(1,1,1)) {
+#   
+#   if (length(vec_list) == 1) {
+#     return(vec_list[[1]] * iter)
+#   }
+#   
+#   vec_prod(vec_list[2:length(vec_list)], vec_list[[1]] * iter)
+# }
+
+# vector subset: return a subset of named vector v where the names are in sub_names
+v_sub <- function(v, sub_names) subset(v, names(v) %in% sub_names)
+
 
 # 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
@@ -118,7 +161,8 @@ get_transition_val <- function(which_from, which_to, pred1 = NULL, pred2 = NULL,
     filter(from == which_from, to == which_to) %>%
     pull(param_name)
   
-  f(x = pred1, y = pred2, p =  params) %>% unname()
+  # f(x = pred1, y = pred2, p = params, h = host_community) %>% unname()
+  f(x = pred1, y = pred2, p = params) %>% unname()
 }
 
 # alternative approach that takes an entire transition row, which is a workaround for 
@@ -138,7 +182,7 @@ get_transition_val2 <- function(time, transition_row, parameters = tick_params) 
   
   f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']]), 
     y = get_pred(time, transition_row[['pred2']], transition_row[['delay']]),
-    p =  params) %>% unname()
+    p = params) %>% unname()
 }
 
 # 04
@@ -195,27 +239,30 @@ gen_trans_matrix <- function(time) {
     # and the transition probability is not only describing the chance of advancing to next stage, but also the 
     # relative number of feeding ticks that become either infected or uninfected.
     # Idea: maybe we have to split up the processes of becoming infected (interpret this is a probability) and 
-    # becoming engorged (interpret this as a time delay)
+    # becoming engorged (interpret this as a time delay) 
     
-    trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-    trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
-    trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_val2(time, filter(tick_funs, from == 'fl', to == 'm'))
+  
+    #trans_matrix['fl', 'eul'] <- sum((1-host_rc) * (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+    # trans_matrix['fl', 'eul'] <- sum(vec_prod(list((1 - host_rc), l_feed_success, host_den, l_pref))) / sum(vec_prod(list(host_den, l_pref)))
+    #trans_matrix['fl', 'eil'] <- sum(host_rc* (l_feed_success * ( (host_den * l_pref)/sum(host_den * l_pref))))
+    #trans_matrix['fl', 'fl'] <- 1 - trans_matrix['fl', 'eul'] - trans_matrix['fl', 'eil'] - get_transition_val2(time, filter(tick_funs, from == 'fl', to == 'm'))
     
-    trans_matrix['fun', 'eun'] <- sum((1-host_rc) * (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
-    trans_matrix['fun', 'ein'] <- sum(host_rc* (n_feed_success * ( (host_den * n_pref)/sum(host_den * n_pref))))
+    
+    # trans_matrix['fun', 'eun'] <- sum((1-host_rc) * (n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref))))
+    # trans_matrix['fun', 'ein'] <- sum(host_rc * (n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref))))
     trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_val2(time, filter(tick_funs, from == 'fun', to == 'm'))
-    trans_matrix['fin', 'ein'] <- sum(n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref)))
+    #trans_matrix['fin', 'ein'] <- sum(n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref)))
     trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_val2(time, filter(tick_funs, from == 'fin', to == 'm'))
     
     # TODO should we do just reproductive adults, or split into eua/eia?
     # trans_matrix['fua', 'eua'] <- sum((1-host_rc) * (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
     # trans_matrix['fua', 'eia'] <- sum(host_rc* (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))
     # trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'eua'] - trans_matrix['fua', 'eia'] - get_transition_val2(time, filter(tick_funs, from == 'fua', to == 'm')
-    trans_matrix['fua', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
+    # trans_matrix['fua', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
     trans_matrix['fua', 'fua'] <- 1 - trans_matrix['fua', 'ra'] - get_transition_val2(time, filter(tick_funs, from == 'fua', to == 'm'))
     # trans_matrix['fia', 'eia'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
     # trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'eia'] - get_transition_val2(time, filter(tick_funs, from == 'fia', to == 'm'))
-    trans_matrix['fia', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
+    # trans_matrix['fia', 'ra'] <- sum(a_feed_success * ((host_den * a_pref)/sum(host_den * a_pref)))
     trans_matrix['fia', 'fia'] <- 1 - trans_matrix['fia', 'ra'] - get_transition_val2(time, filter(tick_funs, from == 'fia', to == 'm'))
   }
   
@@ -301,9 +348,19 @@ run <- function(steps, initial_population) {
   # (1) generate a new trans_matrix based on conditions at "time"
   # (2) update the delay_mat based on conditions at "time" 
   # (3) update the population matrix "N" for "time + 1"
+  
+  
+  # at each time step
   for (time in 1:(steps - 1)) {
+    
+    # calculate transition probabilities
     trans_matrix <- gen_trans_matrix(time)
+    
+    # calculate the number of ticks entering delayed development
     delay_mat <- update_delay_mat(time, delay_mat, N)
+    
+    # calculate the number of ticks at the next time step, which is 
+    # current population * transition probabilities + ticks emerging from delayed development
     N[, time + 1] <- N[, time] %*% trans_matrix + delay_mat[, time + 1]
   }
   
@@ -330,9 +387,9 @@ out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>%
 
 # graph population over time
 ggplot(out_N_df, aes(x = day, y = pop, color = sub_stage, shape = age_group)) + 
-  geom_point(size = 2, position = 'jitter') + 
+  geom_point(size = 2) + # , position = 'jitter') + 
   geom_line() + 
-  #ylim(0,3000) + 
-  #xlim(0, 300) + 
-  scale_y_log10() + 
+  #ylim(0,1e+05) + 
+  #xlim(0, 350) + 
+  scale_y_log10(limits = c(-1, 1e+05), breaks = c(10, 100, 1000, 10000, 100000)) + 
   geom_hline(yintercept = 1000)
