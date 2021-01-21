@@ -99,6 +99,9 @@ get_pred <- function(time, pred, is_delay) {
   }
 }
 
+# vector subset: return a subset of named vector v where the names are in sub_names
+v_sub <- function(v, sub_names) subset(v, names(v) %in% sub_names)
+
 # 02 functional forms for transition probabilities
 
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
@@ -130,10 +133,6 @@ engorge_fun <- function(x, y, p) sum(ifelse(rep(p['from_infected'], n_host_spp),
 #   
 #   vec_prod(vec_list[2:length(vec_list)], vec_list[[1]] * iter)
 # }
-
-# vector subset: return a subset of named vector v where the names are in sub_names
-v_sub <- function(v, sub_names) subset(v, names(v) %in% sub_names)
-
 
 # 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
