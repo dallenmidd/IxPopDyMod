@@ -381,12 +381,16 @@ out_delay_mat <- out[[2]]
 out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>% 
   pivot_longer(-c(day), names_to = 'stage', values_to = 'pop') %>%
   mutate(age_group = substr(stage, str_length(stage), str_length(stage)),
-         sub_stage = substr(stage, 0, str_length(stage) - 1)) 
+         sub_stage = substr(stage, 0, str_length(stage) - 1),
+         process = substr(stage, 0, 1),
+         infected = grepl("i", stage, fixed = TRUE))
   #filter(stage %in% c('ql', 'fl', 'hl'))
 
 # graph population over time
-ggplot(out_N_df, aes(x = day, y = pop, color = sub_stage, shape = age_group)) + 
-  geom_point(size = 2) + # , position = 'jitter') + 
+ggplot(out_N_df, aes(x = day, y = pop, color = process, shape = age_group, group = stage)) + 
+  geom_point(aes(size = infected)) + # , position = 'jitter') + 
+  scale_size_manual(values = c(1, 3)) + 
+  scale_shape_manual(values = c(15:18)) + 
   geom_line() + 
   #ylim(0,1e+05) + 
   #xlim(0, 350) + 
