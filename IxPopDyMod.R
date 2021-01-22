@@ -31,7 +31,8 @@ if (simple) {
 
 # set initial population
 initial_population <- runif(length(life_stages), 0, 0)
-initial_population[length(initial_population)] <- 10 # start with only one cohort (adults)
+names(initial_population) <- life_stages
+initial_population['eua'] <- 10 # start with only one cohort (adults)
 
 
 # hard code in some values as placeholders until we have nicely formatted inputs
@@ -88,12 +89,6 @@ get_pred <- function(time, pred, is_delay) {
     return(get_vpd(time))
   } else if (pred == "host_den") {
     return(get_host_den(time))
-  } else if (pred == "sum(host_den * l_pref)") {
-    return(sum(host_den * l_pref))
-  } else if (pred == "sum(host_den * n_pref)") {
-    return(sum(host_den * n_pref)) 
-  } else if (pred == "sum(host_den * a_pref)") {
-    return(sum(host_den * a_pref))
   } else {
     print("error: couldn't match pred")
   }
@@ -113,7 +108,12 @@ binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 # engorge_infect_fun <- function(x, y, p) sum(abs(ifelse(p['infect'], 0, 1) - v_sub(p, 'host_rc')) * 
 #                                               (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref'))))) 
 
-feed_fun <- function(x, y, p) sum(x * v_sub(p, 'pref'))
+feed_fun <- function(x, y, p) {
+  binomial_fun(
+    x = sum(x * v_sub(p, 'pref')),
+    y = NULL,
+    p = p
+  )}
 
 engorge_fun <- function(x, y, p) sum(ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
                                        (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref')))))

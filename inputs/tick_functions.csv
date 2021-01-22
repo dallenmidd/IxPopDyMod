@@ -41,11 +41,13 @@ qua, fua, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
 qua, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 qun, fun, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
 qun, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
-ql, fl, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * l_pref), NA
-qun, fun, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * n_pref), NA
-qin, fin, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * n_pref), NA
-qua, fua, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * a_pref), NA
-qia, fia, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * a_pref), NA 
+
+ql, fl, feed_fun, 0, Dave theory, NA, 1, host_den, NA
+qun, fun, feed_fun, 0, Dave theory, NA, 1, host_den, NA
+qin, fin, feed_fun, 0, Dave theory, NA, 1, host_den, NA
+qua, fua, feed_fun, 0, Dave theory, NA, 1, host_den, NA
+qia, fia, feed_fun, 0, Dave theory, NA, 1, host_den, NA 
+
 dl, eul, engorge_fun, 0, NA, NA, 1, host_den, NA
 dl, eil, engorge_fun, 0, NA, NA, 1, host_den, NA
 dun, eun, engorge_fun, 0, NA, NA, 1, host_den, NA 

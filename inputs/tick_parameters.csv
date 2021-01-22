@@ -1,4 +1,25 @@
 from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
+
+ql, fl, pref, mouse, 1, NA, NA, Dave theory
+ql, fl, pref, squirrel, 0.75, NA, NA, Dave theory
+ql, fl, pref, deer, 0.25, NA, NA, Dave theory
+
+qun, fun, pref, mouse, 1, NA, NA, Dave theory
+qun, fun, pref, squirrel, 1, NA, NA, Dave theory
+qun, fun, pref, deer, 0.25, NA, NA, Dave theory
+
+qin, fin, pref, mouse, 1, NA, NA, Dave theory
+qin, fin, pref, squirrel, 1, NA, NA, Dave theory
+qin, fin, pref, deer, 0.25, NA, NA, Dave theory
+
+qua, fua, pref, mouse, 0, NA, NA, Dave theory
+qua, fua, pref, squirrel, 0, NA, NA, Dave theory
+qua, fua, pref, deer, 1, NA, NA, Dave theory
+
+qia, fia, pref, mouse, 0, NA, NA, Dave theory
+qia, fia, pref, squirrel, 0, NA, NA, Dave theory
+qia, fia, pref, deer, 1, NA, NA, Dave theory
+
 e, hl, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
 e, hl, b, NA, 2.27, NA, NA, Ogden et al. 2004
 e, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
@@ -160,3 +181,6 @@ dia, eia, feed_success, deer, 0.49, NA, NA, Dave theory
 dia, eia, host_rc, deer, 0.046, NA, NA, Dave theory
 dia, eia, from_infected, NA, 1, NA, NA, Dave theory
 dia, eia, to_infected, NA, 1, NA, NA, Dave theory
+
+
+
