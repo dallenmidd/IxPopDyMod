@@ -25,12 +25,14 @@ hl, ql, constant_fun, 1, Daniels et al. 1996, NA, 1, NA, NA
 hl, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 ql, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 ql, fl, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
-ra, e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
-ra, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
-fia, ra, NA, 1, NA, currently hardcoded (not in tick_funs), 1, NA, NA
-fia, m, constant_fun, 0, Ogden et al. 2005, placeholder - should be density dependent, 1, NA, NA
-fua, ra, NA, 1, NA, currently hardcoded (not in tick_funs), 1, NA, NA
-fua, m, constant_fun, 0, Ogden et al. 2005, placeholder - should be density dependent, 1, NA, NA
+eua, e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
+eia, e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
+eua, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+eia, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+fia, dia, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+fua, dua, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+fia, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+fua, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 qia, fia, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
 qia, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 qin, fin, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
@@ -49,5 +51,6 @@ dl, eil, engorge_fun, 0, NA, NA, 1, host_den, NA
 dun, eun, engorge_fun, 0, NA, NA, 1, host_den, NA 
 dun, ein, engorge_fun, 0, NA, NA, 1, host_den, NA 
 din, ein, engorge_fun, 0, NA, NA, 1, host_den, NA
-fua, ra, engorge_fun, 0, NA, NA, 1, host_den, NA
-fia, ra, engorge_fun, 0, NA, NA, 1, host_den, NA
+dua, eua, engorge_fun, 0, NA, NA, 1, host_den, NA
+dua, eia, engorge_fun, 0, NA, NA, 1, host_den, NA
+dia, eia, engorge_fun, 0, NA, NA, 1, host_den, NA
