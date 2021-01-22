@@ -3,7 +3,8 @@ e, hl, expo_fun, 1, Ogden et al. 2004, NA, 1, temp, NA
 e, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eil, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eul, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
-fl, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
+dl, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
+fl, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eil, qin, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 eul, qun, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 ein, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
@@ -12,8 +13,7 @@ fin, m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! 
 fun, m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 1, NA, NA
 ein, qia, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 eun, qua, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
-fl, eul, constant_fun, 1, Ogden et al. 2005, currently hardcoded (not in tick_funs), 1, NA, NA
-fl, eil, constant_fun, 1, Ogden et al. 2005, currently hardcoded (not in tick_funs), 1, NA, NA
+fl, dl, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 fin, ein, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 fun, eun, constant_fun, 1, Ogden et al. 2005, currently hardcoded (not in tick_funs), 1, NA, NA
 fun, ein, constant_fun, 1, Ogden et al. 2005, currently hardcoded (not in tick_funs), 1, NA, NA
@@ -40,8 +40,8 @@ qun, fun, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * n_pref), NA
 qin, fin, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * n_pref), NA
 qua, fua, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * a_pref), NA
 qia, fia, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * a_pref), NA 
-fl, eul, engorge_fun, 0, NA, NA, 1, host_den, NA
-fl, eil, engorge_fun, 0, NA, NA, 1, host_den, NA
+dl, eul, engorge_fun, 0, NA, NA, 1, host_den, NA
+dl, eil, engorge_fun, 0, NA, NA, 1, host_den, NA
 fun, eun, engorge_fun, 0, NA, NA, 1, host_den, NA 
 fun, ein, engorge_fun, 0, NA, NA, 1, host_den, NA 
 fin, ein, engorge_fun, 0, NA, NA, 1, host_den, NA
