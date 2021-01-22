@@ -249,9 +249,9 @@ gen_trans_matrix <- function(time) {
     
     # trans_matrix['fun', 'eun'] <- sum((1-host_rc) * (n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref))))
     # trans_matrix['fun', 'ein'] <- sum(host_rc * (n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref))))
-    trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_val2(time, filter(tick_funs, from == 'fun', to == 'm'))
+    #trans_matrix['fun', 'fun'] <- 1 - trans_matrix['fun', 'eun'] - trans_matrix['fun', 'ein'] - get_transition_val2(time, filter(tick_funs, from == 'fun', to == 'm'))
     #trans_matrix['fin', 'ein'] <- sum(n_feed_success * ((host_den * n_pref)/sum(host_den * n_pref)))
-    trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_val2(time, filter(tick_funs, from == 'fin', to == 'm'))
+    #trans_matrix['fin', 'fin'] <- 1 - trans_matrix['fin', 'ein'] - get_transition_val2(time, filter(tick_funs, from == 'fin', to == 'm'))
     
     # TODO should we do just reproductive adults, or split into eua/eia?
     # trans_matrix['fua', 'eua'] <- sum((1-host_rc) * (a_feed_success * ( (host_den * a_pref)/sum(host_den * a_pref))))

@@ -9,14 +9,18 @@ eil, qin, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 eul, qun, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 ein, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eun, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
-fin, m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 1, NA, NA
-fun, m, constant_fun, 1, Ogden et al. 2005, WRONG! SHOULD BE DENSITY DEPENDENT! SEE OGDEN, 1, NA, NA
+din, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
+dun, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
+
+fin, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+fun, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+
 ein, qia, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 eun, qua, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 fl, dl, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
-fin, ein, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
-fun, eun, constant_fun, 1, Ogden et al. 2005, currently hardcoded (not in tick_funs), 1, NA, NA
-fun, ein, constant_fun, 1, Ogden et al. 2005, currently hardcoded (not in tick_funs), 1, NA, NA
+fin, din, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+fun, dun, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+
 hl, ql, constant_fun, 1, Daniels et al. 1996, NA, 1, NA, NA
 hl, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 ql, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
@@ -42,8 +46,8 @@ qua, fua, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * a_pref), NA
 qia, fia, binomial_fun, 0, Dave theory, NA, 1, sum(host_den * a_pref), NA 
 dl, eul, engorge_fun, 0, NA, NA, 1, host_den, NA
 dl, eil, engorge_fun, 0, NA, NA, 1, host_den, NA
-fun, eun, engorge_fun, 0, NA, NA, 1, host_den, NA 
-fun, ein, engorge_fun, 0, NA, NA, 1, host_den, NA 
-fin, ein, engorge_fun, 0, NA, NA, 1, host_den, NA
+dun, eun, engorge_fun, 0, NA, NA, 1, host_den, NA 
+dun, ein, engorge_fun, 0, NA, NA, 1, host_den, NA 
+din, ein, engorge_fun, 0, NA, NA, 1, host_den, NA
 fua, ra, engorge_fun, 0, NA, NA, 1, host_den, NA
 fia, ra, engorge_fun, 0, NA, NA, 1, host_den, NA
