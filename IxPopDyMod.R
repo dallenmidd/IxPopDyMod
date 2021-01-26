@@ -16,6 +16,7 @@ max_delay <- 300
 # weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
 weather <- tibble(tmean = seq(from = 20, to = 20, length.out = steps), j_day = seq(from = 1, to = steps))
+# host_comm <- read_csv('inputs/host_comm.csv') #### DA Note: will have to think about how to handle this
 host_comm <- tibble(
   j_day = rep(1:steps, each=3), 
   host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
@@ -90,7 +91,8 @@ get_pred <- function(time, pred, is_delay) {
 v_sub <- function(v, sub_names) subset(v, names(v) %in% sub_names)
 
 # 02 functional forms for transition probabilities
-
+## DA Note: this might want to be moved to a new file, maybe part of input?
+## DA Note: in the simple example can we show a simpiler verison of a host comm?
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
 briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
 constant_fun <- function(x, y, p) p['a'] 
