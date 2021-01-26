@@ -63,8 +63,6 @@ eua, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005
 eia, e, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
 eia, e, b, NA, 1.42, NA, NA, Ogdenp et al. 2004
 eia, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005
-
-NA, NA, a, NA, 3000, NA, NA, Ogden et al. 2005
 qun, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
 qin, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
 qin, fin, tmin, NA, 10, NA, NA, Ogden et al. 2005

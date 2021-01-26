@@ -3,16 +3,26 @@
 
 library(tidyverse)
 
+
+# set constant steps, which ensures that model doesn't try to run for longer than there is input data
+steps <- 300
+
+# At each time step, how many time steps should we look into the future to see if any
+# ticks emerge from a time delay? This value is a somewhat arbitrarily high constant.
+max_delay <- 300
+
 # 00
 # read inputs 
 # weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
-weather <- tibble(tmean = seq(from = 20, to = 20, length.out = 1000), j_day = seq(from = 1, to = 1000))
+weather <- tibble(tmean = seq(from = 20, to = 20, length.out = steps), j_day = seq(from = 1, to = steps))
 host_comm <- tibble(
-  j_day = rep(1:1000, each=3), 
-  host_spp = rep(c('mouse', 'squirrel', 'deer'), 1000), 
-  host_den = rep(c(40, 8, 0.25), 1000)) %>% 
+  j_day = rep(1:steps, each=3), 
+  host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
+  host_den = rep(c(40, 8, 0.25), steps)) %>% 
   arrange(j_day, host_spp)
+n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
+
 
 # option to run on simple inputs for testing
 simple <- FALSE
@@ -25,17 +35,14 @@ if (simple) {
   tick_params <- read_csv('inputs/tick_parameters.csv') %>% 
     arrange(host_spp) # sort so parameters are in same host_spp order for pairwise vector calculations
   tick_funs <- read_csv('inputs/tick_functions.csv')
-  life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
+  #life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
+  life_stages <- tick_funs %>% pull(from) %>% unique()
 }
 
 # set initial population
 initial_population <- runif(length(life_stages), 0, 0)
 names(initial_population) <- life_stages
 initial_population['eua'] <- 10 # start with only one cohort (adults)
-
-# At each time step, how many time steps should we look into the future to see if any
-# ticks emerge from a time delay? This value is a somewhat arbitrarily high constant.
-max_delay <- 300
 
 # 01 functions to grab the predictors that determine the transition probabiltiies at a given time
 
@@ -186,9 +193,8 @@ gen_trans_matrix <- function(time) {
       # of these probabilities. Currently, this applies to the questing to feeding transitions, which are 
       # the product of P(active questing) and P(host finding). Not sure if we want to implement something
       # similar for delay transition 
-      trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) * 
-        get_transition_val2(time, transition_row = transitions[t,]) * transitions[t,]$fecundity
-      
+      trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) *
+        get_transition_val2(time, transition_row = transitions[t, ]) * transitions[t, ]$fecundity
       # pretty printing of trans_matrix
       # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
     }
@@ -265,7 +271,7 @@ run <- function(steps, initial_population) {
   # this keeps track of the number of ticks of each life stage on the average host of each host spp on each day
   hc_array <- array(dim = c(3, n_host_spp, steps + max_delay), 
                     data = 0, 
-                    dimnames = list(c('l','n','a'), host_spp, NULL)) 
+                    dimnames = list(c('l','n','a'), host_comm %>% pull(host_spp) %>% unique(), NULL)) 
   
   # intialize a population matrix with initial_population
   N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
@@ -297,7 +303,7 @@ run <- function(steps, initial_population) {
 }
 
 # run the model and extract the output population matrix and delay_matrix
-out <- run(steps=300, initial_population)
+out <- run(steps, initial_population)
 out_N <- out[[1]]
 out_delay_mat <- out[[2]]
 
@@ -320,5 +326,6 @@ ggplot(out_N_df, aes(x = day, y = pop, color = process, shape = age_group, group
   scale_size_manual(values = c(1, 3)) + 
   scale_shape_manual(values = c(15:18)) + 
   geom_line() + 
-  scale_y_log10(limits = c(-1, 1e+05), breaks = c(10, 100, 1000, 10000, 100000)) + 
+  scale_y_log10(limits = c(-1, 1e+05), breaks = c(10, 100, 1000, 10000, 100000, 1000000)) + 
   geom_hline(yintercept = 1000)
+
