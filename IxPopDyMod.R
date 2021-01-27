@@ -19,7 +19,8 @@ weather <- tibble(tmean = seq(from = 20, to = 20, length.out = steps), j_day = s
 host_comm <- tibble(
   j_day = rep(1:steps, each=3), 
   host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
-  host_den = rep(c(40, 8, 0.25), steps)) %>% 
+  host_den = rep(c(40, 8, 0.25), steps)) %>%
+  # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %>% 
   arrange(j_day, host_spp)
 n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
 
@@ -67,7 +68,7 @@ get_host_den <- function(time) {
 }
 
 # Return a vector of a predictor at time time. The vector's length is based on whether the transition is_delay.
-get_pred <- function(time, pred, is_delay) {
+get_pred <- function(time, pred, is_delay, N) {
   
   # if is_delay, we want a long vector so the cumsum will reach 1
   # otherwise, we want a vector of length 1
@@ -81,6 +82,10 @@ get_pred <- function(time, pred, is_delay) {
     return(get_vpd(time))
   } else if (pred == "host_den") {
     return(get_host_den(time))
+  } else if (pred %in% life_stages) {
+    #print('density_dep_mort')
+    return(N[pred, time[1]] %>% unname())
+    #return(N[pred, time[1]:time[max(which(time <= steps))]] %>% unname()) 
   } else {
     print("error: couldn't match pred")
   }
@@ -106,6 +111,11 @@ feed_fun <- function(x, y, p) {
 engorge_fun <- function(x, y, p) sum(ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
                                        (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref')))))
 
+
+# density dependent mortality
+# x = host_den, y = number of feeding ticks
+density_fun <- function(x, y, p) sum((v_sub(p, 'a') + (v_sub(p, 'b') * log((v_sub(p, 'c') + y * v_sub(p, 'pref') * x / sum(v_sub(p, 'pref') * x)) / x))) * 
+                                                                                            v_sub(p, 'pref') * x / sum(v_sub(p, 'pref') * x))
 
 # 03
 # functions that calculate individual transition probabilities for advancing to consecutive life stage
@@ -140,7 +150,7 @@ get_transition_val <- function(which_from, which_to, pred1 = NULL, pred2 = NULL,
 # alternative approach that takes an entire transition row, which is a workaround for 
 # having multiple rows with the same 'from' and 'to'
 # transition_row: a row from the tick_funs tibble
-get_transition_val2 <- function(time, transition_row, parameters = tick_params) {
+get_transition_val2 <- function(time, transition_row, N, parameters = tick_params) {
   
   f <- transition_row[['transition_fun']] %>% get()
   
@@ -152,8 +162,8 @@ get_transition_val2 <- function(time, transition_row, parameters = tick_params) 
     filter(from == transition_row[['from']], to == transition_row[['to']]) %>%
     pull(param_name)
   
-  f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']]), 
-    y = get_pred(time, transition_row[['pred2']], transition_row[['delay']]),
+  f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']], N), 
+    y = get_pred(time, transition_row[['pred2']], transition_row[['delay']], N),
     p = params) %>% unname()
 }
 
@@ -161,11 +171,7 @@ get_transition_val2 <- function(time, transition_row, parameters = tick_params) 
 # at each step, we generate a new transition matrix whose transition probabilities
 # are based on the input data (weather, host_community) at that time 
 # Myles note: I think all the transitions we're handling this way are questing -> feeding
-gen_trans_matrix <- function(time) {
-  
-  # get the parameters 
-  #temp = get_temp(time)
-  #vpd = get_vpd(time)
+gen_trans_matrix <- function(time, N) {
   
   # initialize the transition matrix with zeros
   n_life_stages <- length(life_stages)
@@ -194,7 +200,7 @@ gen_trans_matrix <- function(time) {
       # the product of P(active questing) and P(host finding). Not sure if we want to implement something
       # similar for delay transition 
       trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) *
-        get_transition_val2(time, transition_row = transitions[t, ]) * transitions[t, ]$fecundity
+        get_transition_val2(time, transitions[t, ], N) * transitions[t, ]$fecundity
       # pretty printing of trans_matrix
       # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
     }
@@ -207,7 +213,7 @@ gen_trans_matrix <- function(time) {
       # transitions for the same "from". I think these should be all have the same fecundity, 
       # for now we'll just assume that is true and use the first one
       fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity) %>% .[1]
-      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val2(time, mort[m,])
+      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val2(time, mort[m,], N)
     }
   }
   
@@ -227,11 +233,11 @@ update_delay_mat <- function(time, delay_mat, N) {
     from_val <- transitions[t,]$from
     to <- transitions[t,]$to
     
-    pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay)
-    pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay)
+    pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay, N)
+    pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay, N)
     
     # calculate transition
-    val <- get_transition_val2(time, transitions[t,])
+    val <- get_transition_val2(time, transitions[t,], N)
     
     # constant function returns a single value, 
     # we need a vector with many entries for the cumsum
@@ -251,7 +257,7 @@ update_delay_mat <- function(time, delay_mat, N) {
         daily_survival <- 1 - get_transition_val(from_val, 'm', pred1[1:days_to_next], pred2[1:days_to_next])
         surv_to_next <- prod(daily_survival)
       } else {  
-        surv_to_next <- (1 - get_transition_val2(time, filter(tick_funs, from == from_val, to == 'm'))) ^ days_to_next
+        surv_to_next <- (1 - get_transition_val2(time, filter(tick_funs, from == from_val, to == 'm'), N)) ^ days_to_next
       }
       delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + 
         N[from_val, time] * surv_to_next * transitions[t, 'fecundity'][[1]]
@@ -278,6 +284,10 @@ run <- function(steps, initial_population) {
   N[,1] <- initial_population 
   rownames(N) <- life_stages
   
+  # Initialize a population matrix to keep track of the number of individuals of each stage
+  # that are currently developing (currently undergoing a delay)
+  N_developing <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+  
   # at each time step:
   # (1) generate a new trans_matrix based on conditions at "time"
   # (2) update the delay_mat based on conditions at "time" 
@@ -286,11 +296,17 @@ run <- function(steps, initial_population) {
   # at each time step
   for (time in 1:(steps - 1)) {
     
+    if (time %% 100 == 0) print(time)
+    
     # calculate transition probabilities
-    trans_matrix <- gen_trans_matrix(time)
+    trans_matrix <- gen_trans_matrix(time, N)
     
     # calculate the number of ticks entering delayed development
     delay_mat <- update_delay_mat(time, delay_mat, N)
+    
+    # calculate the number of ticks currently in delayed development
+    # TODO wrong, this currently records the stage that the ticks are transitioning TO
+    N_developing[, time] <- rowSums(delay_mat[, time:steps, drop=FALSE])
     
     # calculate the number of ticks at the next time step, which is 
     # current population * transition probabilities + ticks emerging from delayed development
@@ -299,13 +315,16 @@ run <- function(steps, initial_population) {
   
   # the population matrix N and delay_mat are local variables
   # we return them here after running "steps" times
-  return(list(N, delay_mat))
+  return(list(N, N_developing, delay_mat))
 }
 
 # run the model and extract the output population matrix and delay_matrix
 out <- run(steps, initial_population)
 out_N <- out[[1]]
-out_delay_mat <- out[[2]]
+out_N_developing <- out[[2]]
+out_delay_mat <- out[[3]]
+
+# out_N <- out_N + out_N_developing
 
 # inspect the outputs
 # out_N[,1:50]
