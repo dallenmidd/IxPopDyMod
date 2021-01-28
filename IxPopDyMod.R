@@ -84,7 +84,9 @@ get_pred <- function(time, pred, is_delay, N) {
     return(get_host_den(time))
   } else if (pred %in% life_stages) {
     #print('density_dep_mort')
-    return(N[pred, time[1]] %>% unname())
+    return(N[pred, time[1]] %>% unname()) 
+    # TODO WRONG bc this will always be length() == 1, unlike the other get_pred() outputs which
+    # are length() == max_delay + 1
     #return(N[pred, time[1]:time[max(which(time <= steps))]] %>% unname()) 
   } else {
     print("error: couldn't match pred")
@@ -98,7 +100,8 @@ v_sub <- function(v, sub_names) subset(v, names(v) %in% sub_names)
 
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
 briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
-constant_fun <- function(x, y, p) p['a'] 
+constant_fun <- function(x, y, p) p['a']
+# constant_fun <- function(x, y, p) rep(p['a'], max_delay)
 binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 
 feed_fun <- function(x, y, p) {
@@ -180,16 +183,11 @@ gen_trans_matrix <- function(time, N) {
   
   transitions <- tick_funs %>% 
     filter(delay == 0,
-           from %in% life_stages, # need until all tick_funs lines are to and from life stage names (or m)
-           to %in% life_stages,  # exclude mortality
-           is.na(todo))          
+           to %in% life_stages)  # exclude mortality
   
   mort <- tick_funs %>%
     filter(delay == 0, 
-           from %in% life_stages,
-           to == 'm',
-           is.na(todo))
-  
+           to == 'm')
 
   if (nrow(transitions) > 0) {
     for (t in seq_len(nrow(transitions))) {
@@ -222,45 +220,60 @@ gen_trans_matrix <- function(time, N) {
 
 # based on the current time, delay_mat and N (population matrix), return a delay_mat for the next time step
 update_delay_mat <- function(time, delay_mat, N) {
-  
-  transitions <- tick_funs %>% filter(delay == 1,
-                                      is.na(todo), 
-                                      from %in% life_stages,
-                                      to %in% life_stages)
-                                      
-  
-  for (t in seq_len(nrow(transitions))) {
-    from_val <- transitions[t,]$from
-    to <- transitions[t,]$to
+
+  # select all delay transition functions, including mortality
+  transitions <- tick_funs %>% filter(delay == 1)
+
+  # loop through these transitions by from_stage
+  for (from_stage in transitions %>% pull(from) %>% unique()) {
+
+    # for a given delay transition, every "from" stage has a unique "to" stage
+    trans <- transitions %>% filter(from == from_stage, to != 'm')
+    to_stage <- trans[['to']]
     
-    pred1 <- get_pred(time, transitions[t,]$pred1, transitions[t,]$delay, N)
-    pred2 <- get_pred(time, transitions[t,]$pred2, transitions[t,]$delay, N)
-    
-    # calculate transition
-    val <- get_transition_val2(time, transitions[t,], N)
-    
-    # constant function returns a single value, 
-    # we need a vector with many entries for the cumsum
-    if (length(val) == 1) {
-      # we add 1 for consistency with output vector length from non-constant fxns
-      # which is determined by time:(time + max_delay) in get_pred()
-      val <- rep(val, max_delay + 1) 
-    } 
-    
-    days <- cumsum(val) > 1
-    
+    # daily probability of transitioning to the next stage
+    val <- get_transition_val2(time, trans, N)
+
+    # daily mortality during the delayed transition
+    mort <- transitions %>% filter(from == from_stage, to == 'm') %>% get_transition_val2(time, ., N)
+
+    # Constant functions (for a fixed delay transition) return a single value
+    # We increase the length so that we can do a cumsum over the vector
+    # We add 1 for consistency with output vector length from non-constant fxns, 
+    # which is determined by time:(time + max_delay) in get_pred()
+    if (length(val) == 1) val <- rep(val, max_delay + 1)
+
+    # Myles note: For some constant transitions we set the parameters specifically to 1/n so 
+    # that they add to 1 on the nth day. Therefore, I think this should be >= 1
+    days <- cumsum(val) >= 1
+
     if (TRUE %in% days) {
-      days_to_next <- min(which(days))
-      # I think this is a fix if mortality is not constant
-      if (length(pred1))
-      {
-        daily_survival <- 1 - get_transition_val(from_val, 'm', pred1[1:days_to_next], pred2[1:days_to_next])
-        surv_to_next <- prod(daily_survival)
-      } else {  
-        surv_to_next <- (1 - get_transition_val2(time, filter(tick_funs, from == from_val, to == 'm'), N)) ^ days_to_next
+      
+      # delay duration is the number of days until the first day when the sum 
+      # of the daily probabilities >= 1
+      days_to_next <- min(which(days)) 
+      
+      if (length(mort) > 1) {
+        # Non-constant mortality
+        # We might ultimately want density_fun() to return a vector of length > 1,
+        # where the value for each day is calculated based on that day's feeding tick population
+        # But currently, all mortality transitions are either constant_fun() or density_fun(), 
+        # both of which return a vector of length 1, so we shouldn't ever get to this case.
+        print('non-constant mortality')
+        
+        # in this case, mort is a vector of length max_delay?
+        # we susbet it for the duration of the delay
+        # then elementwise subtract (1 - each element) to get vector of daily survival rate,
+        # and take product to get the overall survival rate throughout the delay
+        surv_to_next <- prod(1 - mort[1:days_to_next])
+        
+      } else {
+        # Constant mortality
+        surv_to_next <- (1 - mort) ^ days_to_next
       }
-      delay_mat[to, time + days_to_next] <- delay_mat[to, time + days_to_next] + 
-        N[from_val, time] * surv_to_next * transitions[t, 'fecundity'][[1]]
+      
+    delay_mat[to_stage, time + days_to_next] <- delay_mat[to_stage, time + days_to_next] +
+      N[from_stage, time] * surv_to_next * trans[['fecundity']]
     }
   }
   return(delay_mat)
@@ -296,7 +309,7 @@ run <- function(steps, initial_population) {
   # at each time step
   for (time in 1:(steps - 1)) {
     
-    if (time %% 100 == 0) print(time)
+    if (time %% 100 == 0) print(paste("day", time))
     
     # calculate transition probabilities
     trans_matrix <- gen_trans_matrix(time, N)
@@ -347,4 +360,6 @@ ggplot(out_N_df, aes(x = day, y = pop, color = process, shape = age_group, group
   geom_line() + 
   scale_y_log10(limits = c(-1, 1e+05), breaks = c(10, 100, 1000, 10000, 100000, 1000000)) + 
   geom_hline(yintercept = 1000)
+
+
 
