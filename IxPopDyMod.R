@@ -352,6 +352,28 @@ run <- function(steps, initial_population) {
   return(list(N, N_developing, delay_mat))
 }
 
+
+# for use in testing, faster than running the whole model and useful for seeing which functions are being 
+# problematic when the model breaks 
+test_transitions <- function() {
+  
+  # initialize a population matrix with 10 of each tick life_stage on day 1
+  N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+  N[,1] <- 10 
+  rownames(N) <- life_stages
+  
+  # select which functions to test
+  funs <- tick_funs %>% 
+    filter(transition_fun == 'density_fun')
+  
+  # loop through all the transition functions and calculate transition probabilities
+  for (i in 1:nrow(funs)) {
+    print(paste(funs[[i, 'from']], funs[[i, 'to']], funs[[i, 'transition_fun']]))
+    print(get_transition_val(1, funs[i,], N))
+  }
+}
+
+
 # run the model and extract the output population matrix and delay_matrix
 out <- run(steps, initial_population)
 out_N <- out[[1]]
