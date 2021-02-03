@@ -33,14 +33,19 @@ eil, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
 eul, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
 
 fl, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
-
 fl, m, b, NA, 0.049, NA, NA, Ogden et al. 2005
 fl, m, c, NA, 1.01, NA, NA, Ogden et al. 2005
 fl, m, pref, mouse, 1, NA, NA, Dave theory
 fl, m, pref, squirrel, 0.75, NA, NA, Dave theory
 fl, m, pref, deer, 0.25, NA, NA, Dave theory
 
-dl, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
+dl, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
+dl, m, b, NA, 0.049, NA, NA, Ogden et al. 2005
+dl, m, c, NA, 1.01, NA, NA, Ogden et al. 2005
+dl, m, pref, mouse, 1, NA, NA, Dave theory
+dl, m, pref, squirrel, 0.75, NA, NA, Dave theory
+dl, m, pref, deer, 0.25, NA, NA, Dave theory
+
 fl, dl, a, NA, 0.5, NA, NA, Ogden et al. 2005
 eil, qin, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 eul, qun, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005

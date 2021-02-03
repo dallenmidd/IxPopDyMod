@@ -3,9 +3,10 @@ e, hl, expo_fun, 1, Ogden et al. 2004, NA, 1, temp, NA
 e, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eil, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eul, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
-dl, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 
 fl, m, density_fun, 1, Ogden et al. 2005, NA, 1, host_den, fl
+dl, m, density_fun, 0, Ogden et al. 2005, NA, 1, host_den, dl
+
 
 eil, qin, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 eul, qun, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
