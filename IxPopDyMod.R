@@ -46,6 +46,48 @@ initial_population <- runif(length(life_stages), 0, 0)
 names(initial_population) <- life_stages
 initial_population['eua'] <- 10 # start with only one cohort (adults)
 
+# functions to extract tick age, process, and infection status from life_stage name
+
+# return age of tick in life_stage
+# e.g. age("fl") = "l"
+age <- function(life_stage) {
+  substr(life_stage, str_length(life_stage), str_length(life_stage))
+}
+
+# return current process of tick in life_stage
+process <- function(life_stage) {
+  #ifelse(str_length(life_stage) > 1,    substr(life_stage, 0, 1), '')
+  ifelse(substr(life_stage, 0, 1) != '', substr(life_stage, 0, 1), '')
+}
+
+# This was an alternative idea. Rather than using regex/pattern matching to select all feeding "f" 
+# or delayed "d" ticks, we could split feeding with numbers, e.g. f_l would be f1_l, dl would be f2_l
+# I think using regex is probably more flexible and prevents us from having a fourth char in each life_stage
+#
+# # return current step within process
+# # e.g. step("f1ia") = "1"
+# step <- function(life_stage) {
+#   str_extract(life_stage, "\\d")
+# }
+
+# return whether a life_stage is infected
+# unlike the 3 previous and similar functions, infected() returns a boolean
+infected <- function(life_stage) {
+  str_detect(life_stage, "i")
+  
+}
+
+# matches
+# return all the life_stages matching a general life_stage string with wildcard characters ("_")
+match_general <- function(string) {
+  life_stages[str_detect(life_stages, pattern = str_replace_all(string, "_", "."))]
+}
+
+is_match <- function(specific, general) {
+  specific %in% match_general(general)
+}
+
+
 # 01 functions to grab the predictors that determine the transition probabiltiies at a given time
 
 # extract temperature from input data at time time 
@@ -133,8 +175,12 @@ get_transition_val <- function(time, transition_row, N, parameters = tick_params
   f <- transition_row[['transition_fun']] %>% get()
   
   params <- parameters %>%
-    filter(from == transition_row[['from']], to == transition_row[['to']]) %>%
+    filter(from == transition_row[['from']], to == transition_row[['to']]) %>% 
     pull(param_value)
+    
+    # filter(is_match(transition_row[['from']], match_general(from)), 
+    #        is_match(transition_row[['to']], match_general(to))) %>%
+    # pull(param_value)
   
   names(params) <- parameters %>%
     filter(from == transition_row[['from']], to == transition_row[['to']]) %>%
@@ -143,6 +189,9 @@ get_transition_val <- function(time, transition_row, N, parameters = tick_params
   f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']], N), 
     y = get_pred(time, transition_row[['pred2']], transition_row[['delay']], N),
     p = params) %>% unname()
+  # TODO: currently engorge_fun() uses parameters to handle infection, which is redundant bc that info 
+  # is in the from and to life_stage strings. We could pass the from and to strings to f(), so that
+  # engorge_fun() could use infected() to determine from_infected and to_infected
 }
 
 # 04
@@ -321,11 +370,9 @@ out_delay_mat <- out[[3]]
 # convert output population matrix to a friendly format for graphing
 out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>% 
   pivot_longer(-c(day), names_to = 'stage', values_to = 'pop') %>%
-  mutate(age_group = substr(stage, str_length(stage), str_length(stage)),
-         sub_stage = substr(stage, 0, str_length(stage) - 1),
-         process = substr(stage, 0, 1),
-         infected = grepl("i", stage, fixed = TRUE))
-  #filter(stage %in% c('ql', 'fl', 'hl'))
+  mutate(age_group = age(stage),
+         process = process(stage),
+         infected = infected(stage))
 
 # graph population over time
 ggplot(out_N_df, aes(x = day, y = pop, color = process, shape = age_group, group = stage)) + 

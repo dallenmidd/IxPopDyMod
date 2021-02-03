@@ -1,52 +1,115 @@
 from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
-
-ql, fl, pref, mouse, 1, NA, NA, Dave theory
-ql, fl, pref, squirrel, 0.75, NA, NA, Dave theory
-ql, fl, pref, deer, 0.25, NA, NA, Dave theory
-
-qun, fun, pref, mouse, 1, NA, NA, Dave theory
-qun, fun, pref, squirrel, 1, NA, NA, Dave theory
+q_l, f_l, pref, deer, 0.25, NA, NA, Dave theory
 qun, fun, pref, deer, 0.25, NA, NA, Dave theory
-
-qin, fin, pref, mouse, 1, NA, NA, Dave theory
-qin, fin, pref, squirrel, 1, NA, NA, Dave theory
 qin, fin, pref, deer, 0.25, NA, NA, Dave theory
-
-qua, fua, pref, mouse, 0, NA, NA, Dave theory
-qua, fua, pref, squirrel, 0, NA, NA, Dave theory
 qua, fua, pref, deer, 1, NA, NA, Dave theory
-
-qia, fia, pref, mouse, 0, NA, NA, Dave theory
-qia, fia, pref, squirrel, 0, NA, NA, Dave theory
 qia, fia, pref, deer, 1, NA, NA, Dave theory
-
-e, hl, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
-e, hl, b, NA, 2.27, NA, NA, Ogden et al. 2004
-e, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
-hl, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
-ql, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
-hl, ql, a, NA, 0.0476, NA, NA, Daniels et al. 1996
-ql, fl, tmin, NA, 10, NA, NA, Ogden et al. 2005
-ql, fl, tmax, NA, 35, NA, NA, Ogden et al. 2005
-ql, fl, q, NA, 7e-4, NA, NA, Ogden et al. 2005
+f_l, m, pref, deer, 0.25, NA, NA, Dave theory
+d_l, m, pref, deer, 0.25, NA, NA, Dave theory
+d_l, eul, pref, deer, 0.25, NA, NA, Dave theory
+d_l, eul, feed_success, deer, 0.49, NA, NA, Dave theory
+d_l, eul, host_rc, deer, 0.046, NA, NA, Dave theory
+d_l, eil, pref, deer, 0.25, NA, NA, Dave theory
+d_l, eil, feed_success, deer, 0.49, NA, NA, Dave theory
+d_l, eil, host_rc, deer, 0.046, NA, NA, Dave theory
+dun, eun, pref, deer, 0.25, NA, NA, Dave theory
+dun, eun, feed_success, deer, 0.49, NA, NA, Dave theory
+dun, eun, host_rc, deer, 0.046, NA, NA, Dave theory
+dun, ein, pref, deer, 0.25, NA, NA, Dave theory
+dun, ein, feed_success, deer, 0.49, NA, NA, Dave theory
+dun, ein, host_rc, deer, 0.046, NA, NA, Dave theory
+din, ein, pref, deer, 0.25, NA, NA, Dave theory
+din, ein, feed_success, deer, 0.49, NA, NA, Dave theory
+din, ein, host_rc, deer, 0.046, NA, NA, Dave theory
+dua, eua, pref, deer, 1, NA, NA, Dave theory
+dua, eua, feed_success, deer, 0.49, NA, NA, Dave theory
+dua, eua, host_rc, deer, 0.046, NA, NA, Dave theory
+dua, eia, pref, deer, 1, NA, NA, Dave theory
+dua, eia, feed_success, deer, 0.49, NA, NA, Dave theory
+dua, eia, host_rc, deer, 0.046, NA, NA, Dave theory
+dia, eia, pref, deer, 1, NA, NA, Dave theory
+dia, eia, feed_success, deer, 0.49, NA, NA, Dave theory
+dia, eia, host_rc, deer, 0.046, NA, NA, Dave theory
+q_l, f_l, pref, mouse, 1, NA, NA, Dave theory
+qun, fun, pref, mouse, 1, NA, NA, Dave theory
+qin, fin, pref, mouse, 1, NA, NA, Dave theory
+qua, fua, pref, mouse, 0, NA, NA, Dave theory
+qia, fia, pref, mouse, 0, NA, NA, Dave theory
+f_l, m, pref, mouse, 1, NA, NA, Dave theory
+d_l, m, pref, mouse, 1, NA, NA, Dave theory
+d_l, eul, pref, mouse, 1, NA, NA, Dave theory
+d_l, eul, feed_success, mouse, 0.49, NA, NA, Dave theory
+d_l, eul, host_rc, mouse, 0.92, NA, NA, Dave theory
+d_l, eil, pref, mouse, 1, NA, NA, Dave theory
+d_l, eil, feed_success, mouse, 0.49, NA, NA, Dave theory
+d_l, eil, host_rc, mouse, 0.92, NA, NA, Dave theory
+dun, eun, pref, mouse, 1, NA, NA, Dave theory
+dun, eun, feed_success, mouse, 0.49, NA, NA, Dave theory
+dun, eun, host_rc, mouse, 0.92, NA, NA, Dave theory
+dun, ein, pref, mouse, 1, NA, NA, Dave theory
+dun, ein, feed_success, mouse, 0.49, NA, NA, Dave theory
+dun, ein, host_rc, mouse, 0.92, NA, NA, Dave theory
+din, ein, pref, mouse, 1, NA, NA, Dave theory
+din, ein, feed_success, mouse, 0.49, NA, NA, Dave theory
+din, ein, host_rc, mouse, 0.92, NA, NA, Dave theory
+dua, eua, pref, mouse, 0, NA, NA, Dave theory
+dua, eua, feed_success, mouse, 0, NA, NA, Dave theory
+dua, eua, host_rc, mouse, 0.92, NA, NA, Dave theory
+dua, eia, pref, mouse, 0, NA, NA, Dave theory
+dua, eia, feed_success, mouse, 0, NA, NA, Dave theory
+dua, eia, host_rc, mouse, 0.92, NA, NA, Dave theory
+dia, eia, pref, mouse, 0, NA, NA, Dave theory
+dia, eia, feed_success, mouse, 0, NA, NA, Dave theory
+dia, eia, host_rc, mouse, 0.92, NA, NA, Dave theory
+q_l, f_l, pref, squirrel, 0.75, NA, NA, Dave theory
+qun, fun, pref, squirrel, 1, NA, NA, Dave theory
+qin, fin, pref, squirrel, 1, NA, NA, Dave theory
+qua, fua, pref, squirrel, 0, NA, NA, Dave theory
+qia, fia, pref, squirrel, 0, NA, NA, Dave theory
+f_l, m, pref, squirrel, 0.75, NA, NA, Dave theory
+d_l, m, pref, squirrel, 0.75, NA, NA, Dave theory
+d_l, eul, pref, squirrel, 0.75, NA, NA, Dave theory
+d_l, eul, feed_success, squirrel, 0.17, NA, NA, Dave theory
+d_l, eul, host_rc, squirrel, 0.147, NA, NA, Dave theory
+d_l, eil, pref, squirrel, 0.75, NA, NA, Dave theory
+d_l, eil, feed_success, squirrel, 0.17, NA, NA, Dave theory
+d_l, eil, host_rc, squirrel, 0.147, NA, NA, Dave theory
+dun, eun, pref, squirrel, 1, NA, NA, Dave theory
+dun, eun, feed_success, squirrel, 0.17, NA, NA, Dave theory
+dun, eun, host_rc, squirrel, 0.147, NA, NA, Dave theory
+dun, ein, pref, squirrel, 1, NA, NA, Dave theory
+dun, ein, feed_success, squirrel, 0.17, NA, NA, Dave theory
+dun, ein, host_rc, squirrel, 0.147, NA, NA, Dave theory
+din, ein, pref, squirrel, 1, NA, NA, Dave theory
+din, ein, feed_success, squirrel, 0.17, NA, NA, Dave theory
+din, ein, host_rc, squirrel, 0.147, NA, NA, Dave theory
+dua, eua, pref, squirrel, 0, NA, NA, Dave theory
+dua, eua, feed_success, squirrel, 0, NA, NA, Dave theory
+dua, eua, host_rc, squirrel, 0.147, NA, NA, Dave theory
+dua, eia, pref, squirrel, 0, NA, NA, Dave theory
+dua, eia, feed_success, squirrel, 0, NA, NA, Dave theory
+dua, eia, host_rc, squirrel, 0.147, NA, NA, Dave theory
+dia, eia, pref, squirrel, 0, NA, NA, Dave theory
+dia, eia, feed_success, squirrel, 0, NA, NA, Dave theory
+dia, eia, host_rc, squirrel, 0.147, NA, NA, Dave theory
+__e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
+__e, h_l, b, NA, 2.27, NA, NA, Ogden et al. 2004
+__e, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+h_l, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+q_l, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+h_l, q_l, a, NA, 0.0476, NA, NA, Daniels et al. 1996
+q_l, f_l, tmin, NA, 10, NA, NA, Ogden et al. 2005
+q_l, f_l, tmax, NA, 35, NA, NA, Ogden et al. 2005
+q_l, f_l, q, NA, 7e-4, NA, NA, Ogden et al. 2005
 eil, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
 eul, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
-
-fl, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
-fl, m, b, NA, 0.049, NA, NA, Ogden et al. 2005
-fl, m, c, NA, 1.01, NA, NA, Ogden et al. 2005
-fl, m, pref, mouse, 1, NA, NA, Dave theory
-fl, m, pref, squirrel, 0.75, NA, NA, Dave theory
-fl, m, pref, deer, 0.25, NA, NA, Dave theory
-
-dl, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
-dl, m, b, NA, 0.049, NA, NA, Ogden et al. 2005
-dl, m, c, NA, 1.01, NA, NA, Ogden et al. 2005
-dl, m, pref, mouse, 1, NA, NA, Dave theory
-dl, m, pref, squirrel, 0.75, NA, NA, Dave theory
-dl, m, pref, deer, 0.25, NA, NA, Dave theory
-
-fl, dl, a, NA, 0.5, NA, NA, Ogden et al. 2005
+f_l, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
+f_l, m, b, NA, 0.049, NA, NA, Ogden et al. 2005
+f_l, m, c, NA, 1.01, NA, NA, Ogden et al. 2005
+d_l, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
+d_l, m, b, NA, 0.049, NA, NA, Ogden et al. 2005
+d_l, m, c, NA, 1.01, NA, NA, Ogden et al. 2005
+f_l, d_l, a, NA, 0.5, NA, NA, Ogden et al. 2005
 eil, qin, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 eul, qun, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 eil, qin, b, NA, 2.55, NA, NA, Ogden et al. 2005
@@ -65,16 +128,16 @@ ein, qia, b, NA, 1.21, NA, NA, Ogden et al. 2005
 eun, qua, b, NA, 1.21, NA, NA, Ogden et al. 2005
 qia, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
 qua, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
-ql, fl, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+q_l, f_l, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
 qun, fun, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
 qin, fin, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
 qua, fua, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
 qia, fia, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
-eua, e, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
-eua, e, b, NA, 1.42, NA, NA, Ogdenp et al. 2004
+eua, __e, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
+eua, __e, b, NA, 1.42, NA, NA, Ogdenp et al. 2004
 eua, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005
-eia, e, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
-eia, e, b, NA, 1.42, NA, NA, Ogdenp et al. 2004
+eia, __e, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
+eia, __e, b, NA, 1.42, NA, NA, Ogdenp et al. 2004
 eia, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005
 qun, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
 qin, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
@@ -94,104 +157,21 @@ fua, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
 fia, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
 dua, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
 dia, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005 - value for ENGORGED mort
-fua, dua, a, NA, .111, NA, NA, Ogden et al. 2005
-fia, dia, a, NA, .111, NA, NA, Ogden et al. 2005
-
-dl, eul, pref, mouse, 1, NA, NA, Dave theory
-dl, eul, feed_success, mouse, 0.49, NA, NA, Dave theory
-dl, eul, host_rc, mouse, 0.92, NA, NA, Dave theory
-dl, eul, pref, squirrel, 0.75, NA, NA, Dave theory
-dl, eul, feed_success, squirrel, 0.17, NA, NA, Dave theory
-dl, eul, host_rc, squirrel, 0.147, NA, NA, Dave theory
-dl, eul, pref, deer, 0.25, NA, NA, Dave theory
-dl, eul, feed_success, deer, 0.49, NA, NA, Dave theory
-dl, eul, host_rc, deer, 0.046, NA, NA, Dave theory
-dl, eul, from_infected, NA, 0, NA, NA, Dave theory
-dl, eul, to_infected, NA, 0, NA, NA, Dave theory
-
-dl, eil, pref, mouse, 1, NA, NA, Dave theory
-dl, eil, feed_success, mouse, 0.49, NA, NA, Dave theory
-dl, eil, host_rc, mouse, 0.92, NA, NA, Dave theory
-dl, eil, pref, squirrel, 0.75, NA, NA, Dave theory
-dl, eil, feed_success, squirrel, 0.17, NA, NA, Dave theory
-dl, eil, host_rc, squirrel, 0.147, NA, NA, Dave theory
-dl, eil, pref, deer, 0.25, NA, NA, Dave theory
-dl, eil, feed_success, deer, 0.49, NA, NA, Dave theory
-dl, eil, host_rc, deer, 0.046, NA, NA, Dave theory
-dl, eil, from_infected, NA, 0, NA, NA, Dave theory
-dl, eil, to_infected, NA, 1, NA, NA, Dave theory
-
-dun, eun, pref, mouse, 1, NA, NA, Dave theory
-dun, eun, feed_success, mouse, 0.49, NA, NA, Dave theory
-dun, eun, host_rc, mouse, 0.92, NA, NA, Dave theory
-dun, eun, pref, squirrel, 1, NA, NA, Dave theory
-dun, eun, feed_success, squirrel, 0.17, NA, NA, Dave theory
-dun, eun, host_rc, squirrel, 0.147, NA, NA, Dave theory
-dun, eun, pref, deer, 0.25, NA, NA, Dave theory
-dun, eun, feed_success, deer, 0.49, NA, NA, Dave theory
-dun, eun, host_rc, deer, 0.046, NA, NA, Dave theory
+fua, dua, a, NA, 0.111, NA, NA, Ogden et al. 2005
+fia, dia, a, NA, 0.111, NA, NA, Ogden et al. 2005
+d_l, eul, from_infected, NA, 0, NA, NA, Dave theory
+d_l, eul, to_infected, NA, 0, NA, NA, Dave theory
+d_l, eil, from_infected, NA, 0, NA, NA, Dave theory
+d_l, eil, to_infected, NA, 1, NA, NA, Dave theory
 dun, eun, from_infected, NA, 0, NA, NA, Dave theory
 dun, eun, to_infected, NA, 0, NA, NA, Dave theory
-
-dun, ein, pref, mouse, 1, NA, NA, Dave theory
-dun, ein, feed_success, mouse, 0.49, NA, NA, Dave theory
-dun, ein, host_rc, mouse, 0.92, NA, NA, Dave theory
-dun, ein, pref, squirrel, 1, NA, NA, Dave theory
-dun, ein, feed_success, squirrel, 0.17, NA, NA, Dave theory
-dun, ein, host_rc, squirrel, 0.147, NA, NA, Dave theory
-dun, ein, pref, deer, 0.25, NA, NA, Dave theory
-dun, ein, feed_success, deer, 0.49, NA, NA, Dave theory
-dun, ein, host_rc, deer, 0.046, NA, NA, Dave theory
 dun, ein, from_infected, NA, 0, NA, NA, Dave theory
 dun, ein, to_infected, NA, 1, NA, NA, Dave theory
-
-din, ein, pref, mouse, 1, NA, NA, Dave theory
-din, ein, feed_success, mouse, 0.49, NA, NA, Dave theory
-din, ein, host_rc, mouse, 0.92, NA, NA, Dave theory
-din, ein, pref, squirrel, 1, NA, NA, Dave theory
-din, ein, feed_success, squirrel, 0.17, NA, NA, Dave theory
-din, ein, host_rc, squirrel, 0.147, NA, NA, Dave theory
-din, ein, pref, deer, 0.25, NA, NA, Dave theory
-din, ein, feed_success, deer, 0.49, NA, NA, Dave theory
-din, ein, host_rc, deer, 0.046, NA, NA, Dave theory
 din, ein, from_infected, NA, 1, NA, NA, Dave theory
 din, ein, to_infected, NA, 1, NA, NA, Dave theory
-
-dua, eua, pref, mouse, 0, NA, NA, Dave theory
-dua, eua, feed_success, mouse, 0, NA, NA, Dave theory
-dua, eua, host_rc, mouse, 0.92, NA, NA, Dave theory
-dua, eua, pref, squirrel, 0, NA, NA, Dave theory
-dua, eua, feed_success, squirrel, 0, NA, NA, Dave theory
-dua, eua, host_rc, squirrel, 0.147, NA, NA, Dave theory
-dua, eua, pref, deer, 1, NA, NA, Dave theory
-dua, eua, feed_success, deer, 0.49, NA, NA, Dave theory
-dua, eua, host_rc, deer, 0.046, NA, NA, Dave theory
 dua, eua, from_infected, NA, 0, NA, NA, Dave theory
 dua, eua, to_infected, NA, 0, NA, NA, Dave theory
-
-dua, eia, pref, mouse, 0, NA, NA, Dave theory
-dua, eia, feed_success, mouse, 0, NA, NA, Dave theory
-dua, eia, host_rc, mouse, 0.92, NA, NA, Dave theory
-dua, eia, pref, squirrel, 0, NA, NA, Dave theory
-dua, eia, feed_success, squirrel, 0, NA, NA, Dave theory
-dua, eia, host_rc, squirrel, 0.147, NA, NA, Dave theory
-dua, eia, pref, deer, 1, NA, NA, Dave theory
-dua, eia, feed_success, deer, 0.49, NA, NA, Dave theory
-dua, eia, host_rc, deer, 0.046, NA, NA, Dave theory
 dua, eia, from_infected, NA, 0, NA, NA, Dave theory
 dua, eia, to_infected, NA, 1, NA, NA, Dave theory
-
-dia, eia, pref, mouse, 0, NA, NA, Dave theory
-dia, eia, feed_success, mouse, 0, NA, NA, Dave theory
-dia, eia, host_rc, mouse, 0.92, NA, NA, Dave theory
-dia, eia, pref, squirrel, 0, NA, NA, Dave theory
-dia, eia, feed_success, squirrel, 0, NA, NA, Dave theory
-dia, eia, host_rc, squirrel, 0.147, NA, NA, Dave theory
-dia, eia, pref, deer, 1, NA, NA, Dave theory
-dia, eia, feed_success, deer, 0.49, NA, NA, Dave theory
-dia, eia, host_rc, deer, 0.046, NA, NA, Dave theory
 dia, eia, from_infected, NA, 1, NA, NA, Dave theory
 dia, eia, to_infected, NA, 1, NA, NA, Dave theory
-
-
-

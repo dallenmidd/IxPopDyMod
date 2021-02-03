@@ -1,12 +1,11 @@
 from, to, transition_fun, delay, source, todo, fecundity, pred1, pred2
-e, hl, expo_fun, 1, Ogden et al. 2004, NA, 1, temp, NA
-e, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+__e, h_l, expo_fun, 1, Ogden et al. 2004, NA, 1, temp, NA
+__e, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eil, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eul, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+d_l, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 
-fl, m, density_fun, 1, Ogden et al. 2005, NA, 1, host_den, fl
-dl, m, density_fun, 0, Ogden et al. 2005, NA, 1, host_den, dl
-
+f_l, m, density_fun, 1, Ogden et al. 2005, NA, 1, host_den, f_l
 
 eil, qin, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 eul, qun, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
@@ -20,16 +19,16 @@ fun, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 
 ein, qia, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 eun, qua, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
-fl, dl, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+f_l, d_l, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 fin, din, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 fun, dun, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 
-hl, ql, constant_fun, 1, Daniels et al. 1996, NA, 1, NA, NA
-hl, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
-ql, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
-ql, fl, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
-eua, e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
-eia, e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
+h_l, q_l, constant_fun, 1, Daniels et al. 1996, NA, 1, NA, NA
+h_l, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+q_l, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
+q_l, f_l, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
+eua, __e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
+eia, __e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
 eua, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eia, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 fia, dia, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
@@ -45,14 +44,14 @@ qua, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 qun, fun, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
 qun, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 
-ql, fl, feed_fun, 0, Dave theory, NA, 1, host_den, NA
+q_l, f_l, feed_fun, 0, Dave theory, NA, 1, host_den, NA
 qun, fun, feed_fun, 0, Dave theory, NA, 1, host_den, NA
 qin, fin, feed_fun, 0, Dave theory, NA, 1, host_den, NA
 qua, fua, feed_fun, 0, Dave theory, NA, 1, host_den, NA
 qia, fia, feed_fun, 0, Dave theory, NA, 1, host_den, NA 
 
-dl, eul, engorge_fun, 0, NA, NA, 1, host_den, NA
-dl, eil, engorge_fun, 0, NA, NA, 1, host_den, NA
+d_l, eul, engorge_fun, 0, NA, NA, 1, host_den, NA
+d_l, eil, engorge_fun, 0, NA, NA, 1, host_den, NA
 dun, eun, engorge_fun, 0, NA, NA, 1, host_den, NA 
 dun, ein, engorge_fun, 0, NA, NA, 1, host_den, NA 
 din, ein, engorge_fun, 0, NA, NA, 1, host_den, NA
