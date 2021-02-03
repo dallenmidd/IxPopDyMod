@@ -122,39 +122,13 @@ density_fun <- function(x, y, p) sum((v_sub(p, 'a') + (v_sub(p, 'b') * log((v_su
                                                                                             v_sub(p, 'pref') * x / sum(v_sub(p, 'pref') * x))
 
 # 03
-# functions that calculate individual transition probabilities for advancing to consecutive life stage
+# calculate individual transition probabilities for advancing to consecutive life stage
 
-# this generic function will pull out the functional form and parameters needed to make the transition function, 
-# then evaluate it using supplied predictors (pred1, pred2) like temperature or some host community metric
-get_transition_val <- function(which_from, which_to, pred1 = NULL, pred2 = NULL, functions = tick_funs, parameters = tick_params) {
-  
-  # this is problematic if we have multiple functions with the same from and to,
-  # because it will always get() the first function 
-  f <- functions %>%
-    filter(from == which_from, to == which_to) %>%
-    pull(transition_fun) %>%
-    get()
-  
-  # I think parameter handling can still happen this way with multiple
-  # functions with the same from and to, becuase parameters are selected by
-  # name. Just CANNOT have parameters with same name for different functions
-  # that with same from and to
-  params <- parameters %>%
-    filter(from == which_from, to == which_to) %>%
-    pull(param_value)
-  
-  names(params) <- parameters %>%
-    filter(from == which_from, to == which_to) %>%
-    pull(param_name)
-  
-  # f(x = pred1, y = pred2, p = params, h = host_community) %>% unname()
-  f(x = pred1, y = pred2, p = params) %>% unname()
-}
-
-# alternative approach that takes an entire transition row, which is a workaround for 
-# having multiple rows with the same 'from' and 'to'
+# This generic function will pull out the functional form and parameters needed to make the transition function, 
+# then evaluate it using supplied predictors (pred1, pred2) like temperature or host density
+# This approach takes an entire transition_row, since there can be multiple rows with the same 'from' and 'to'
 # transition_row: a row from the tick_funs tibble
-get_transition_val2 <- function(time, transition_row, N, parameters = tick_params) {
+get_transition_val <- function(time, transition_row, N, parameters = tick_params) {
   
   f <- transition_row[['transition_fun']] %>% get()
   
@@ -199,7 +173,7 @@ gen_trans_matrix <- function(time, N) {
       # the product of P(active questing) and P(host finding). Not sure if we want to implement something
       # similar for delay transition 
       trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) *
-        get_transition_val2(time, transitions[t, ], N) * transitions[t, ]$fecundity
+        get_transition_val(time, transitions[t, ], N) * transitions[t, ]$fecundity
       # pretty printing of trans_matrix
       # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
     }
@@ -212,7 +186,7 @@ gen_trans_matrix <- function(time, N) {
       # transitions for the same "from". I think these should be all have the same fecundity, 
       # for now we'll just assume that is true and use the first one
       fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity) %>% .[1]
-      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val2(time, mort[m,], N)
+      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val(time, mort[m,], N)
     }
   }
   
@@ -233,10 +207,10 @@ update_delay_mat <- function(time, delay_mat, N) {
     to_stage <- trans[['to']]
     
     # daily probability of transitioning to the next stage
-    val <- get_transition_val2(time, trans, N)
+    val <- get_transition_val(time, trans, N)
 
     # daily mortality during the delayed transition
-    mort <- transitions %>% filter(from == from_stage, to == 'm') %>% get_transition_val2(time, ., N)
+    mort <- transitions %>% filter(from == from_stage, to == 'm') %>% get_transition_val(time, ., N)
 
     # Constant functions (for a fixed delay transition) return a single value
     # We increase the length so that we can do a cumsum over the vector
