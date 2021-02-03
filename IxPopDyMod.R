@@ -84,11 +84,9 @@ get_pred <- function(time, pred, is_delay, N) {
   } else if (pred == "host_den") {
     return(get_host_den(time))
   } else if (pred %in% life_stages) {
-    #print('density_dep_mort')
+    # unlike the other predictors which are length == max_delay + 1, 
+    # this will always be a vector of length == 1
     return(N[pred, time[1]] %>% unname()) 
-    # TODO WRONG bc this will always be length() == 1, unlike the other get_pred() outputs which
-    # are length() == max_delay + 1
-    #return(N[pred, time[1]:time[max(which(time <= steps))]] %>% unname()) 
   } else {
     print("error: couldn't match pred")
   }
@@ -113,6 +111,7 @@ feed_fun <- function(x, y, p) {
     p = p
   )}
 
+# x = host_den
 engorge_fun <- function(x, y, p) sum(ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
                                        (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref')))))
 
@@ -360,7 +359,7 @@ ggplot(out_N_df, aes(x = day, y = pop, color = process, shape = age_group, group
   scale_size_manual(values = c(1, 3)) + 
   scale_shape_manual(values = c(15:18)) + 
   geom_line() + 
-  scale_y_log10(limits = c(-1, 1e+05), breaks = c(10, 100, 1000, 10000, 100000, 1000000)) + 
+  scale_y_log10(limits = c(-1, 1e+05), breaks = c(10, 100, 1000, 10000, 100000, 1000000)) +
   geom_hline(yintercept = 1000)
 
 
