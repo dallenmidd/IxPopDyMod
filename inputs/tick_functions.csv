@@ -5,7 +5,7 @@ eil, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eul, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 d_l, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 
-f_l, m, density_fun, 1, Ogden et al. 2005, NA, 1, host_den, f_l
+f_l, m, density_fun, 1, Ogden et al. 2005, NA, 1, host_den, [fd]__
 
 eil, qin, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA
 eul, qun, expo_fun, 1, Ogden et al. 2005, NA, 1, temp, NA

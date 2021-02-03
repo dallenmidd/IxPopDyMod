@@ -128,6 +128,8 @@ get_pred <- function(time, pred, is_delay, N) {
     # unlike the other predictors which are length == max_delay + 1, 
     # this will always be a vector of length == 1
     return(N[pred, time[1]] %>% unname()) 
+  } else if (TRUE %in% str_detect(life_stages, str_replace_all(pred, "_", "."))) {
+    return(sum(N[match_general(pred), time[1]]))
   } else {
     print("error: couldn't match pred")
   }
