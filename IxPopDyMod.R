@@ -84,9 +84,8 @@ match_general <- function(string) {
 }
 
 is_match <- function(specific, general) {
-  specific %in% match_general(general)
+  str_detect(specific, general %>% str_replace_all('_', '.'))
 }
-
 
 # 01 functions to grab the predictors that determine the transition probabiltiies at a given time
 
@@ -174,16 +173,12 @@ get_transition_val <- function(time, transition_row, N, parameters = tick_params
   
   f <- transition_row[['transition_fun']] %>% get()
   
-  params <- parameters %>%
-    filter(from == transition_row[['from']], to == transition_row[['to']]) %>% 
+  params <- parameters %>% 
+    filter(is_match(transition_row[['from']], from), is_match(transition_row[['to']], to)) %>%
     pull(param_value)
     
-    # filter(is_match(transition_row[['from']], match_general(from)), 
-    #        is_match(transition_row[['to']], match_general(to))) %>%
-    # pull(param_value)
-  
   names(params) <- parameters %>%
-    filter(from == transition_row[['from']], to == transition_row[['to']]) %>%
+    filter(is_match(transition_row[['from']], from), is_match(transition_row[['to']], to)) %>%
     pull(param_name)
   
   f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']], N), 
