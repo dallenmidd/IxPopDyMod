@@ -393,6 +393,12 @@ out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>%
          process = process(stage),
          infected = infected(stage))
 
+# for checking whether model output has changed, a more
+# thorough alternative to visually inspecting the output graph
+# write_csv(out_N_df, 'inputs/output.csv')
+# prev_out_N_df <- read_csv('inputs/output.csv')
+# (out_N_df == prev_out_N_df) %>% unique()
+
 # graph population over time
 ggplot(out_N_df, aes(x = day, y = pop, color = process, shape = age_group, group = stage)) + 
   geom_point(aes(size = infected)) + # , position = 'jitter') + 
