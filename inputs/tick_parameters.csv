@@ -42,7 +42,7 @@ q_a, f_a, tmin, NA, 3, NA, NA, Ogden et al. 2005
 q_l, f_l, tmin, NA, 10, NA, NA, Ogden et al. 2005
 q_n, f_n, tmin, NA, 10, NA, NA, Ogden et al. 2005
 ___, _i_, to_infected, NA, 1, NA, NA, Dave theory
-___, _[^i], to_infected, NA, 0, NA, NA, Dave theory
+___, _[^i]_, to_infected, NA, 0, NA, NA, Dave theory
 
 __e, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
 e_a, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005

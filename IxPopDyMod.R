@@ -183,6 +183,10 @@ get_transition_val <- function(time, transition_row, N, parameters = tick_params
     filter(is_match(transition_row[['from']], from), is_match(transition_row[['to']], to)) %>%
     pull(param_name)
   
+  # useful for debugging with test_transitions(), for seeing the parameters
+  # that are being grabbed for each transition via pattern matching
+  # print(params)
+  
   f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']], N), 
     y = get_pred(time, transition_row[['pred2']], transition_row[['delay']], N),
     p = params) %>% unname()
