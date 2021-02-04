@@ -18,19 +18,19 @@ ___, ___, host_rc, squirrel, 0.147, NA, NA, Dave theory
 __a, __a, pref, squirrel, 0, NA, NA, Dave theory
 __l, ___, pref, squirrel, 0.75, NA, NA, Dave theory
 __n, __n, pref, squirrel, 1, NA, NA, Dave theory
-e[ui]l, q[ui]n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
+e_l, q_n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 __e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
 q__, f__, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
-e[ui]n, q[ui]a, a, NA, 6.265664e-4, NA, NA, Ogden et al. 2005
-e[ui]a, __e, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
+e_n, q_a, a, NA, 6.265664e-4, NA, NA, Ogden et al. 2005
+e_a, __e, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
 h_l, q_l, a, NA, 0.0476, NA, NA, Daniels et al. 1996
-f[ui]a, d[ui]a, a, NA, 0.111, NA, NA, Ogden et al. 2005
-f[ui]n, d[ui]n, a, NA, 0.25, NA, NA, Ogden et al. 2005
+f_a, d_a, a, NA, 0.111, NA, NA, Ogden et al. 2005
+f_n, d_n, a, NA, 0.25, NA, NA, Ogden et al. 2005
 f_l, d_l, a, NA, 0.5, NA, NA, Ogden et al. 2005
-e[ui]n, q[ui]a, b, NA, 1.21, NA, NA, Ogden et al. 2005
-e[ui]a, __e, b, NA, 1.42, NA, NA, Ogden et al. 2004
+e_n, q_a, b, NA, 1.21, NA, NA, Ogden et al. 2005
+e_a, __e, b, NA, 1.42, NA, NA, Ogden et al. 2004
 __e, h_l, b, NA, 2.27, NA, NA, Ogden et al. 2004
-e[ui]l, q[ui]n, b, NA, 2.55, NA, NA, Ogden et al. 2005
+e_l, q_n, b, NA, 2.55, NA, NA, Ogden et al. 2005
 _i_, ___, from_infected, NA, 1, NA, NA, Dave theory
 _[^i]_, ___, from_infected, NA, 0, NA, NA, Dave theory
 q_[ln], f_[ln], q, NA, 7e-4, NA, NA, Ogden et al. 2005
@@ -45,11 +45,11 @@ ___, _i_, to_infected, NA, 1, NA, NA, Dave theory
 ___, _[^i], to_infected, NA, 0, NA, NA, Dave theory
 
 __e, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
-e[ui]a, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005
-e[ui]n, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
-e[ui]l, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
+e_a, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005
+e_n, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+e_l, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
 [hq]_l, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
-q[ui][na], m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+q_[na], m, a, NA, 0.006, NA, NA, Ogden et al. 2005
 
 [fd]_l, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
 [fd]_n, m, a, NA, 0.55, NA, NA, Ogden et al. 2005
