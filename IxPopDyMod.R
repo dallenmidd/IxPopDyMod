@@ -363,7 +363,7 @@ test_transitions <- function() {
   rownames(N) <- life_stages
   
   # select which functions to test
-  funs <- tick_funs %>% 
+  funs <- tick_funs %>%
     filter(transition_fun == 'density_fun')
   
   # loop through all the transition functions and calculate transition probabilities
@@ -397,7 +397,7 @@ out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>%
 # thorough alternative to visually inspecting the output graph
 # write_csv(out_N_df, 'inputs/output.csv')
 # prev_out_N_df <- read_csv('inputs/output.csv')
-# (out_N_df == prev_out_N_df) %>% unique()
+# (out_N_df$pop == prev_out_N_df$pop) %>% unique()
 
 # graph population over time
 ggplot(out_N_df, aes(x = day, y = pop, color = process, shape = age_group, group = stage)) + 

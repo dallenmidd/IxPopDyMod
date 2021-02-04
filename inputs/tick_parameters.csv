@@ -1,23 +1,23 @@
 from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
 ___, ___, feed_success, deer, 0.49, NA, NA, Dave theory
 ___, ___, host_rc, deer, 0.046, NA, NA, Dave theory
-__l, ___, pref, deer, 0.25, NA, NA, Dave theory
-__n, __n, pref, deer, 0.25, NA, NA, Dave theory
-__a, __a, pref, deer, 1, NA, NA, Dave theory
+__l, __l|[m], pref, deer, 0.25, NA, NA, Dave theory
+__n, __n|[m], pref, deer, 0.25, NA, NA, Dave theory
+__a, __a|[m], pref, deer, 1, NA, NA, Dave theory
 __a, __a, feed_success, mouse, 0, NA, NA, Dave theory
 __l, __l, feed_success, mouse, 0.49, NA, NA, Dave theory
 __n, __n, feed_success, mouse, 0.49, NA, NA, Dave theory
 ___, ___, host_rc, mouse, 0.92, NA, NA, Dave theory
-__a, __a, pref, mouse, 0, NA, NA, Dave theory
-__l, ___, pref, mouse, 1, NA, NA, Dave theory
-__n, __n, pref, mouse, 1, NA, NA, Dave theory
+__a, __a|[m], pref, mouse, 0, NA, NA, Dave theory
+__l, __l|[m], pref, mouse, 1, NA, NA, Dave theory
+__n, __n|[m], pref, mouse, 1, NA, NA, Dave theory
 __a, __a, feed_success, squirrel, 0, NA, NA, Dave theory
 __l, __l, feed_success, squirrel, 0.17, NA, NA, Dave theory
 __n, __n, feed_success, squirrel, 0.17, NA, NA, Dave theory
 ___, ___, host_rc, squirrel, 0.147, NA, NA, Dave theory
-__a, __a, pref, squirrel, 0, NA, NA, Dave theory
-__l, ___, pref, squirrel, 0.75, NA, NA, Dave theory
-__n, __n, pref, squirrel, 1, NA, NA, Dave theory
+__a, __a|[m], pref, squirrel, 0, NA, NA, Dave theory
+__l, __l|[m], pref, squirrel, 0.75, NA, NA, Dave theory
+__n, __n|[m], pref, squirrel, 1, NA, NA, Dave theory
 e_l, q_n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 __e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
 q__, f__, a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
