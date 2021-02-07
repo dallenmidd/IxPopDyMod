@@ -243,40 +243,39 @@ gen_trans_matrix <- function(time, N) {
   return(trans_matrix)
 }
 
-# based on the current time, delay_mat and N (population matrix), return a delay_mat for the next time step
-update_delay_mat <- function(time, delay_mat, N) {
-
+# based on the current time, delay_arr and N (population matrix), return a delay_arr for the next time step
+update_delay_arr <- function(time, delay_arr, N) {
+  
   # select all delay transition functions, including mortality
   transitions <- tick_funs %>% filter(delay == 1)
-
-  # loop through these transitions by from_stage
+  
+  # loop through these transitions by from_stage 
   for (from_stage in transitions %>% pull(from) %>% unique()) {
-
+    
     # for a given delay transition, every "from" stage has a unique "to" stage
     trans <- transitions %>% filter(from == from_stage, to != 'm')
     to_stage <- trans[['to']]
     
     # daily probability of transitioning to the next stage
     val <- get_transition_val(time, trans, N)
-
+    
     # daily mortality during the delayed transition
+    # (each "from" stage has a unique mortality transition)
     mort <- transitions %>% filter(from == from_stage, to == 'm') %>% get_transition_val(time, ., N)
-
+    
     # Constant functions (for a fixed delay transition) return a single value
     # We increase the length so that we can do a cumsum over the vector
-    # We add 1 for consistency with output vector length from non-constant fxns, 
+    # We add 1 for consistency with output vector length from non-constant fxns,
     # which is determined by time:(time + max_delay) in get_pred()
     if (length(val) == 1) val <- rep(val, max_delay + 1)
-
-    # Myles note: For some constant transitions we set the parameters specifically to 1/n so 
-    # that they add to 1 on the nth day. Therefore, I think this should be >= 1
+    
     days <- cumsum(val) >= 1
-
+    
     if (TRUE %in% days) {
       
-      # delay duration is the number of days until the first day when the sum 
+      # delay duration is the number of days until the first day when the sum
       # of the daily probabilities >= 1
-      days_to_next <- min(which(days)) 
+      days_to_next <- min(which(days))
       
       if (length(mort) > 1) {
         # Non-constant mortality
@@ -291,25 +290,30 @@ update_delay_mat <- function(time, delay_mat, N) {
         # then elementwise subtract (1 - each element) to get vector of daily survival rate,
         # and take product to get the overall survival rate throughout the delay
         surv_to_next <- prod(1 - mort[1:days_to_next])
-        
+      
       } else {
         # Constant mortality
         surv_to_next <- (1 - mort) ^ days_to_next
       }
       
-    delay_mat[to_stage, time + days_to_next] <- delay_mat[to_stage, time + days_to_next] +
-      N[from_stage, time] * surv_to_next * trans[['fecundity']]
+      # number of ticks emerging from from_stage to to_stage at time + days_to_next is the number of ticks 
+      # that were already going to emerge then plus the current number of ticks in the from_stage * survival * fecundity
+      delay_arr[to_stage, from_stage, time + days_to_next] <- delay_arr[to_stage, from_stage, time + days_to_next] +
+        N[from_stage, time] * surv_to_next * trans[['fecundity']]
     }
   }
-  return(delay_mat)
+  return(delay_arr)
 }
 
 # 05 iteratively run model for steps iterations, starting with initial_population
 run <- function(steps, initial_population) {
   
-  # initialize a delay matrix of all zeros
-  delay_mat <- matrix(nrow = length(life_stages), ncol = steps + max_delay, data = 0)
-  rownames(delay_mat) <- life_stages
+  # initialize a delay array of all zeros
+  # dimensions: to, from, time
+  delay_arr <- array(dim = c(length(life_stages), length(life_stages), steps + max_delay),
+                       dimnames = list(life_stages, life_stages, NULL),
+                       data = 0)
+  
   
   # host community array, hard coding three tick life stages
   # this keeps track of the number of ticks of each life stage on the average host of each host spp on each day
@@ -340,11 +344,14 @@ run <- function(steps, initial_population) {
     trans_matrix <- gen_trans_matrix(time, N)
     
     # calculate the number of ticks entering delayed development
-    delay_mat <- update_delay_mat(time, delay_mat, N)
+    delay_arr <- update_delay_arr(time, delay_arr, N)
     
     # calculate the number of ticks currently in delayed development
     # TODO wrong, this currently records the stage that the ticks are transitioning TO
-    N_developing[, time] <- rowSums(delay_mat[, time:steps, drop=FALSE])
+    # N_developing[, time] <- rowSums(delay_mat[, time:steps, drop=FALSE])
+    
+    # collapse the delay_arr by summing across 'from', giving a matrix with dims = (to, days)
+    delay_mat <- apply(delay_arr, 3, rowSums)
     
     # calculate the number of ticks at the next time step, which is 
     # current population * transition probabilities + ticks emerging from delayed development
@@ -400,7 +407,7 @@ out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>%
 # for checking whether model output has changed, a more
 # thorough alternative to visually inspecting the output graph
 # write_csv(out_N_df, 'inputs/output.csv')
-# prev_out_N_df <- read_csv('inputs/output.csv')
+# prev_out_N_df <- read_csv('../IxPopDyMod-master/inputs/output.csv')
 # (out_N_df$pop == prev_out_N_df$pop) %>% unique()
 
 # graph population over time
