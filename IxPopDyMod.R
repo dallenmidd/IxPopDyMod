@@ -340,19 +340,23 @@ run <- function(steps, initial_population) {
   for (time in 1:(steps - 1)) {
     
     if (time %% 100 == 0) print(paste("day", time))
-    
-    # calculate transition probabilities
-    trans_matrix <- gen_trans_matrix(time, N)
-    
-    # calculate the number of ticks entering delayed development
-    delay_arr <- update_delay_arr(time, delay_arr, N)
-    
-    # calculate the number of ticks currently in delayed development
-    # slice the delay array from the current time to the end
+  
+    # Calculate the number of ticks currently in delayed development NOT INCLUDING those 
+    # added on current day, because that would be double counting ticks in the population matrix, N. 
+    # We exclude those added on current day by calculating N_developing before updating delay_arr
+    # Slice the delay array from the current time + 1 to the end. We add 1 because ticks that 
+    # emerge from delay at current time would have been added to N on the previous iteration 
+    # when we update N[, time + 1] by adding delay_mat[, time + 1]
     # sum across columns (to_stage)
     # sum across rows (days)
     # Result is a vector of the number of ticks currently developing FROM each life stage
-    N_developing[, time] <- rowSums(colSums(delay_arr[,,time:dim(delay_arr)[3]]))
+    N_developing[, time] <- rowSums(colSums(delay_arr[,,(time + 1):dim(delay_arr)[3]]))
+      
+    # calculate transition probabilities
+    trans_matrix <- gen_trans_matrix(time, N)
+  
+    # calculate the number of ticks entering delayed development
+    delay_arr <- update_delay_arr(time, delay_arr, N)
 
     # collapse the delay_arr by summing across 'from', giving a matrix with dims = (to, days)
     delay_mat <- apply(delay_arr, 3, rowSums)
