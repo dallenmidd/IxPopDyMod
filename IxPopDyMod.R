@@ -123,12 +123,17 @@ get_pred <- function(time, pred, is_delay, N) {
   } else if (pred == "vpd") {
     return(get_vpd(time))
   } else if (pred == "host_den") {
-    return(get_host_den(time))
-  } else if (pred %in% life_stages) {
+    return(get_host_den(time[1])) 
+    # Density dependent mortality for delay transitions was breaking because of unintended
+    # consequences of operations on vectors of various lengths. As a fix, we always return 
+    # a vector of length n_host_spp. This is probably fine because the temporal resolution 
+    # for host community data is likely to be low enough that it's fine to repeat the same
+    # value. Additionally, it's more consistent because we employ a similar strategy for 
+    # the N predictor, where we always return a single value, the feeding tick population size 
+    # at the current step (not a vector of feeding tick population size over time)
+  } else if (TRUE %in% str_detect(life_stages, str_replace_all(pred, "_", "."))) {
     # unlike the other predictors which are length == max_delay + 1, 
     # this will always be a vector of length == 1
-    return(N[pred, time[1]] %>% unname()) 
-  } else if (TRUE %in% str_detect(life_stages, str_replace_all(pred, "_", "."))) {
     return(sum(N[match_general(pred), time[1]]))
   } else {
     print("error: couldn't match pred")
