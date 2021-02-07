@@ -317,9 +317,9 @@ run <- function(steps, initial_population) {
   
   # host community array, hard coding three tick life stages
   # this keeps track of the number of ticks of each life stage on the average host of each host spp on each day
-  hc_array <- array(dim = c(3, n_host_spp, steps + max_delay), 
-                    data = 0, 
-                    dimnames = list(c('l','n','a'), host_comm %>% pull(host_spp) %>% unique(), NULL)) 
+  # hc_array <- array(dim = c(3, n_host_spp, steps + max_delay), 
+  #                   data = 0, 
+  #                   dimnames = list(c('l','n','a'), host_comm %>% pull(host_spp) %>% unique(), NULL)) 
   
   # intialize a population matrix with initial_population
   N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
@@ -329,6 +329,7 @@ run <- function(steps, initial_population) {
   # Initialize a population matrix to keep track of the number of individuals of each stage
   # that are currently developing (currently undergoing a delay)
   N_developing <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+  rownames(N_developing) <- life_stages
   
   # at each time step:
   # (1) generate a new trans_matrix based on conditions at "time"
@@ -347,9 +348,12 @@ run <- function(steps, initial_population) {
     delay_arr <- update_delay_arr(time, delay_arr, N)
     
     # calculate the number of ticks currently in delayed development
-    # TODO wrong, this currently records the stage that the ticks are transitioning TO
-    # N_developing[, time] <- rowSums(delay_mat[, time:steps, drop=FALSE])
-    
+    # slice the delay array from the current time to the end
+    # sum across columns (to_stage)
+    # sum across rows (days)
+    # Result is a vector of the number of ticks currently developing FROM each life stage
+    N_developing[, time] <- rowSums(colSums(delay_arr[,,time:dim(delay_arr)[3]]))
+
     # collapse the delay_arr by summing across 'from', giving a matrix with dims = (to, days)
     delay_mat <- apply(delay_arr, 3, rowSums)
     
@@ -391,7 +395,16 @@ out_N <- out[[1]]
 out_N_developing <- out[[2]]
 out_delay_mat <- out[[3]]
 
-# out_N <- out_N + out_N_developing
+# get a more complete picture of the population size over time by summing the 
+# population matrix (of ticks not in delays) with the N_developing matrix (of ticks
+# currently undergoing a delay)
+out_N <- out_N + out_N_developing
+# As expected, out_N_developing only has nonzero entries corresponding to life stages
+# with delay transitions FROM that life stage, specifically:
+# c("__e" "eia" "eil" "ein" "eua" "eul" "eun" "f_l" "fia" "fin" "fua" "fun" "h_l")
+# These are all the feeding to engorged transitions, the engorged to next life stage transitions, 
+# as well as egg to hardening larvae, and hardening to questing larvae
+# In turn, the model output (inspect graph or df) only has increased tick populations for these life stages
 
 # inspect the outputs
 # out_N[,1:50]
