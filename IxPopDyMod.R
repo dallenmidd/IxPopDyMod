@@ -32,7 +32,7 @@ simple <- FALSE
 if (simple) {
   tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay2.csv') # %>% arrange(host_spp)
   tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
-  life_stages <- read_csv('inputs/tick_stages_simple.csv')[[1]]
+  life_stages <- tick_funs %>% pull(from) %>% unique()
 } else {
   tick_params <- read_csv('inputs/tick_parameters.csv') %>% 
     arrange(host_spp) # sort so parameters are in same host_spp order for pairwise vector calculations
