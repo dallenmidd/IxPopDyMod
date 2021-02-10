@@ -67,16 +67,6 @@ infected <- function(life_stage) {
   
 }
 
-# matches
-# return all the life_stages matching a general life_stage string with wildcard characters ("_")
-match_general <- function(string) {
-  life_stages[str_detect(life_stages, pattern = str_replace_all(string, "_", "."))]
-}
-
-is_match <- function(specific, general) {
-  str_detect(specific, general %>% str_replace_all('_', '.'))
-}
-
 # 01 functions to grab the predictors that determine the transition probabiltiies at a given time
 
 # extract temperature from input data at time time 
@@ -121,10 +111,10 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
     # value. Additionally, it's more consistent because we employ a similar strategy for 
     # the N predictor, where we always return a single value, the feeding tick population size 
     # at the current step (not a vector of feeding tick population size over time)
-  } else if (TRUE %in% str_detect(life_stages, str_replace_all(pred, "_", "."))) {
+  } else if (any(str_detect(life_stages, pred))) {
     # unlike the other predictors which are length == max_delay + 1, 
     # this will always be a vector of length == 1
-    return(sum((N + N_developing)[match_general(pred), time[1]]))
+    return(sum((N + N_developing)[str_subset(life_stages, pred), time[1]]))
   } else {
     print("error: couldn't match pred")
   }
@@ -186,11 +176,11 @@ get_transition_val <- function(time, transition_row, N, N_developing, parameters
   f <- transition_row[['transition_fun']] %>% get()
   
   params <- parameters %>% 
-    filter(is_match(transition_row[['from']], from), is_match(transition_row[['to']], to)) %>%
+    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
     pull(param_value)
     
   names(params) <- parameters %>%
-    filter(is_match(transition_row[['from']], from), is_match(transition_row[['to']], to)) %>%
+    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
     pull(param_name)
   
   # useful for debugging with test_transitions(), for seeing the parameters
@@ -295,7 +285,7 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
     
     days <- cumsum(val) >= 1
     
-    if (TRUE %in% days) {
+    if (any(days)) {
       
       # delay duration is the number of days until the first day when the sum
       # of the daily probabilities >= 1
