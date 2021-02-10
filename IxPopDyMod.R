@@ -60,16 +60,6 @@ process <- function(life_stage) {
   ifelse(substr(life_stage, 0, 1) != '', substr(life_stage, 0, 1), '')
 }
 
-# This was an alternative idea. Rather than using regex/pattern matching to select all feeding "f" 
-# or delayed "d" ticks, we could split feeding with numbers, e.g. f_l would be f1_l, dl would be f2_l
-# I think using regex is probably more flexible and prevents us from having a fourth char in each life_stage
-#
-# # return current step within process
-# # e.g. step("f1ia") = "1"
-# step <- function(life_stage) {
-#   str_extract(life_stage, "\\d")
-# }
-
 # return whether a life_stage is infected
 # unlike the 3 previous and similar functions, infected() returns a boolean
 infected <- function(life_stage) {
@@ -159,6 +149,21 @@ feed_fun <- function(x, y, p) {
     p = p
   )}
 
+# An alternative version of feed_fun() that is the product of the binomial
+# and briere functions. If we implemented this, we wouldn't have to handle
+# taking the product of multiple transition functions to claculate a probability
+# in gen_trans_matrix. In this new version, the function is the product of the 
+# briere_fun, which determines prob of active questing, and 
+# binomial_fun, which determines prob of host finding
+# x is host_den for binomial_fun, y is temp for briere_fun
+# feed_fun <- function(x, y, p) {
+#   binomial_fun(
+#     x = sum(x * v_sub(p, 'pref')),
+#     y = NULL,
+#     p = p
+#   ) * briere_fun(y, NULL, p)
+# }
+
 # x = host_den
 engorge_fun <- function(x, y, p) sum(ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
                                        (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref')))))
@@ -206,9 +211,9 @@ get_transition_val <- function(time, transition_row, N, parameters = tick_params
 # Myles note: I think all the transitions we're handling this way are questing -> feeding
 gen_trans_matrix <- function(time, N) {
   
-  # initialize the transition matrix with zeros
+  # initialize the transition matrix with NAs
   n_life_stages <- length(life_stages)
-  trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages, 
+  trans_matrix <- matrix(NA, ncol = n_life_stages, nrow = n_life_stages, 
                          dimnames = list(life_stages, life_stages))
   
   transitions <- tick_funs %>% 
@@ -227,12 +232,26 @@ gen_trans_matrix <- function(time, N) {
       # of these probabilities. Currently, this applies to the questing to feeding transitions, which are 
       # the product of P(active questing) and P(host finding). Not sure if we want to implement something
       # similar for delay transition 
-      trans_matrix[from, to] <- ifelse((trans_matrix[from, to] == 0), 1, trans_matrix[from, to]) *
+      
+      # We initialize the trans_matrix with NA entries rather than zeros.
+      # Previously, we assumed that if a trans_matrix cell was 0, then it hadn't been modified.
+      # However, some functions can return 0 transition probabilities, which was happening 
+      # with the briere_fun since the temperature (20) was above tmax for adults (16). 
+      # In turn, the transition probability for questing to feeding adults was not 0 * feed_fun() = 0,
+      # but just feed_fun(). Now, with the current (20 degree) temp data, no adults reach feeding,
+      # so as expected model output population of feeding adults and all subsequent stages are lower
+      # than previously.
+      # Using NAs instead of zeros is a fix, but an alternative would be to not allow/handle taking
+      # the product of multiple transition rows, and instead combine functions (see the commented out)
+      # feed_fun() code above
+      trans_matrix[from, to] <- ifelse(is.na(trans_matrix[from, to]), 1, trans_matrix[from, to]) *
         get_transition_val(time, transitions[t, ], N) * transitions[t, ]$fecundity
       # pretty printing of trans_matrix
       # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
     }
   }
+  
+  trans_matrix <- ifelse(is.na(trans_matrix), 0, trans_matrix)
   
   if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
@@ -429,7 +448,7 @@ out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>%
 # for checking whether model output has changed, a more
 # thorough alternative to visually inspecting the output graph
 # write_csv(out_N_df, 'inputs/output.csv')
-# prev_out_N_df <- read_csv('../IxPopDyMod-master/inputs/output.csv')
+# prev_out_N_df <- read_csv('inputs/output.csv')
 # (out_N_df$pop == prev_out_N_df$pop) %>% unique()
 
 # graph population over time
