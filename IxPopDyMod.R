@@ -100,7 +100,7 @@ get_host_den <- function(time) {
 }
 
 # Return a vector of a predictor at time time. The vector's length is based on whether the transition is_delay.
-get_pred <- function(time, pred, is_delay, N) {
+get_pred <- function(time, pred, is_delay, N, N_developing) {
   
   # if is_delay, we want a long vector so the cumsum will reach 1
   # otherwise, we want a vector of length 1
@@ -124,7 +124,7 @@ get_pred <- function(time, pred, is_delay, N) {
   } else if (TRUE %in% str_detect(life_stages, str_replace_all(pred, "_", "."))) {
     # unlike the other predictors which are length == max_delay + 1, 
     # this will always be a vector of length == 1
-    return(sum(N[match_general(pred), time[1]]))
+    return(sum((N + N_developing)[match_general(pred), time[1]]))
   } else {
     print("error: couldn't match pred")
   }
@@ -181,7 +181,7 @@ density_fun <- function(x, y, p) sum((v_sub(p, 'a') + (v_sub(p, 'b') * log((v_su
 # then evaluate it using supplied predictors (pred1, pred2) like temperature or host density
 # This approach takes an entire transition_row, since there can be multiple rows with the same 'from' and 'to'
 # transition_row: a row from the tick_funs tibble
-get_transition_val <- function(time, transition_row, N, parameters = tick_params) {
+get_transition_val <- function(time, transition_row, N, N_developing, parameters = tick_params) {
   
   f <- transition_row[['transition_fun']] %>% get()
   
@@ -197,8 +197,8 @@ get_transition_val <- function(time, transition_row, N, parameters = tick_params
   # that are being grabbed for each transition via pattern matching
   # print(params)
   
-  f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']], N), 
-    y = get_pred(time, transition_row[['pred2']], transition_row[['delay']], N),
+  f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing), 
+    y = get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing),
     p = params) %>% unname()
   # TODO: currently engorge_fun() uses parameters to handle infection, which is redundant bc that info 
   # is in the from and to life_stage strings. We could pass the from and to strings to f(), so that
@@ -209,7 +209,7 @@ get_transition_val <- function(time, transition_row, N, parameters = tick_params
 # at each step, we generate a new transition matrix whose transition probabilities
 # are based on the input data (weather, host_community) at that time 
 # Myles note: I think all the transitions we're handling this way are questing -> feeding
-gen_trans_matrix <- function(time, N) {
+gen_trans_matrix <- function(time, N, N_developing) {
   
   # initialize the transition matrix with NAs
   n_life_stages <- length(life_stages)
@@ -245,7 +245,7 @@ gen_trans_matrix <- function(time, N) {
       # the product of multiple transition rows, and instead combine functions (see the commented out)
       # feed_fun() code above
       trans_matrix[from, to] <- ifelse(is.na(trans_matrix[from, to]), 1, trans_matrix[from, to]) *
-        get_transition_val(time, transitions[t, ], N) * transitions[t, ]$fecundity
+        get_transition_val(time, transitions[t, ], N, N_developing) * transitions[t, ]$fecundity
       # pretty printing of trans_matrix
       # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
     }
@@ -260,7 +260,7 @@ gen_trans_matrix <- function(time, N) {
       # transitions for the same "from". I think these should be all have the same fecundity, 
       # for now we'll just assume that is true and use the first one
       fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity) %>% .[1]
-      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val(time, mort[m,], N)
+      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val(time, mort[m,], N, N_developing)
     }
   }
   
@@ -268,7 +268,7 @@ gen_trans_matrix <- function(time, N) {
 }
 
 # based on the current time, delay_arr and N (population matrix), return a delay_arr for the next time step
-update_delay_arr <- function(time, delay_arr, N) {
+update_delay_arr <- function(time, delay_arr, N, N_developing) {
   
   # select all delay transition functions, including mortality
   transitions <- tick_funs %>% filter(delay == 1)
@@ -281,11 +281,11 @@ update_delay_arr <- function(time, delay_arr, N) {
     to_stage <- trans[['to']]
     
     # daily probability of transitioning to the next stage
-    val <- get_transition_val(time, trans, N)
+    val <- get_transition_val(time, trans, N, N_developing)
     
     # daily mortality during the delayed transition
     # (each "from" stage has a unique mortality transition)
-    mort <- transitions %>% filter(from == from_stage, to == 'm') %>% get_transition_val(time, ., N)
+    mort <- transitions %>% filter(from == from_stage, to == 'm') %>% get_transition_val(time, ., N, N_developing)
     
     # Constant functions (for a fixed delay transition) return a single value
     # We increase the length so that we can do a cumsum over the vector
@@ -377,10 +377,10 @@ run <- function(steps, initial_population) {
     N_developing[, time] <- rowSums(colSums(delay_arr[,,(time + 1):dim(delay_arr)[3]]))
       
     # calculate transition probabilities
-    trans_matrix <- gen_trans_matrix(time, N)
+    trans_matrix <- gen_trans_matrix(time, N, N_developing)
   
     # calculate the number of ticks entering delayed development
-    delay_arr <- update_delay_arr(time, delay_arr, N)
+    delay_arr <- update_delay_arr(time, delay_arr, N, N_developing)
 
     # collapse the delay_arr by summing across 'from', giving a matrix with dims = (to, days)
     delay_mat <- apply(delay_arr, 3, rowSums)
@@ -405,6 +405,9 @@ test_transitions <- function() {
   N[,1] <- 10 
   rownames(N) <- life_stages
   
+  N_developing <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+  rownames(N) <- life_stages
+  
   # select which functions to test
   funs <- tick_funs %>%
     filter(transition_fun == 'density_fun')
@@ -412,7 +415,7 @@ test_transitions <- function() {
   # loop through all the transition functions and calculate transition probabilities
   for (i in 1:nrow(funs)) {
     print(paste(funs[[i, 'from']], funs[[i, 'to']], funs[[i, 'transition_fun']]))
-    print(get_transition_val(1, funs[i,], N))
+    print(get_transition_val(1, funs[i,], N, N_developing))
   }
 }
 
