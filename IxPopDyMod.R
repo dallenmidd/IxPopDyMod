@@ -15,7 +15,7 @@ max_delay <- 300
 # read inputs 
 # weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
-weather <- tibble(tmean = seq(from = 20, to = 20, length.out = steps), j_day = seq(from = 1, to = steps))
+weather <- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = seq(from = 1, to = steps))
 # host_comm <- read_csv('inputs/host_comm.csv') #### DA Note: will have to think about how to handle this
 host_comm <- tibble(
   j_day = rep(1:steps, each=3), 
