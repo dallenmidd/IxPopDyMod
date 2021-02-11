@@ -440,8 +440,8 @@ out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>%
 
 # for checking whether model output has changed, a more
 # thorough alternative to visually inspecting the output graph
-# write_csv(out_N_df, 'inputs/output.csv')
-# prev_out_N_df <- read_csv('inputs/output.csv')
+# write_csv(out_N_df, 'outputs/output.csv')
+# prev_out_N_df <- read_csv('outputs/output.csv')
 # (out_N_df$pop == prev_out_N_df$pop) %>% unique()
 
 # graph population over time
