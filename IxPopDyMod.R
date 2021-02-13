@@ -273,7 +273,7 @@ gen_trans_matrix <- function(time, N, N_developing) {
       # OR, should our functions be parameterized in a way such that we never
       # run into this problem, and we throw an error or warning if we hit this case
       if ( (sum(trans_matrix[from_val,]) + get_transition_val(time, mort[m,], N, N_developing) > 1) && 
-           !(from_val %in% str_subset(life_stages, '(r.a)|([fd]..)')) ) {
+           !(from_val %in% str_subset(life_stages, '(r.a)|(f..)')) ) {
         print('unexpected transition probability values')
         print(trans_matrix[from_val,])
         print(get_transition_val(time, mort[m,], N, N_developing))

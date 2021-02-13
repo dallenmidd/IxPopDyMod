@@ -3,55 +3,55 @@ __e, h_l, expo_fun, 1, Ogden et al. 2004, temp, NA
 __e, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 eil, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 eul, m, constant_fun, 1, Ogden et al. 2005, NA, NA
-d_l, m, density_fun, 0, Ogden et al. 2005, host_den, [fd]..
-f_l, m, density_fun, 1, Ogden et al. 2005, host_den, [fd]..
+f_l, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
+a_l, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 eil, qin, expo_fun, 1, Ogden et al. 2005, temp, NA
 eul, qun, expo_fun, 1, Ogden et al. 2005, temp, NA
 ein, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 eun, m, constant_fun, 1, Ogden et al. 2005, NA, NA
-din, m, density_fun, 0, Ogden et al. 2005, host_den, [fd]..
-dun, m, density_fun, 0, Ogden et al. 2005, host_den, [fd]..
-fin, m, density_fun, 1, Ogden et al. 2005, host_den, [fd]..
-fun, m, density_fun, 1, Ogden et al. 2005, host_den, [fd]..
+fin, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
+fun, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
+ain, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
+aun, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 ein, qia, expo_fun, 1, Ogden et al. 2005, temp, NA
 eun, qua, expo_fun, 1, Ogden et al. 2005, temp, NA
-f_l, d_l, constant_fun, 1, Ogden et al. 2005, NA, NA
-fin, din, constant_fun, 1, Ogden et al. 2005, NA, NA
-fun, dun, constant_fun, 1, Ogden et al. 2005, NA, NA
+a_l, f_l, constant_fun, 1, Ogden et al. 2005, NA, NA
+ain, fin, constant_fun, 1, Ogden et al. 2005, NA, NA
+aun, fun, constant_fun, 1, Ogden et al. 2005, NA, NA
 h_l, q_l, constant_fun, 1, Daniels et al. 1996, NA, NA
 h_l, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 q_l, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-q_l, f_l, briere_fun, 0, Ogden et al. 2005, temp, NA
+q_l, a_l, briere_fun, 0, Ogden et al. 2005, temp, NA
 eua, rua, expo_fun, 1, Ogden et al. 2004, temp, NA
 eia, ria, expo_fun, 1, Ogden et al. 2004, temp, NA
 rua, __e, constant_fun, 0, Ogden et al. 2004, NA, NA
 ria, __e, constant_fun, 0, Ogden et al. 2004, NA, NA
 eua, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 eia, m, constant_fun, 1, Ogden et al. 2005, NA, NA
-fia, dia, constant_fun, 1, Ogden et al. 2005, NA, NA
-fua, dua, constant_fun, 1, Ogden et al. 2005, NA, NA
-fia, m, density_fun, 1, Ogden et al. 2005, host_den, [fd]..
-fua, m, density_fun, 1, Ogden et al. 2005, host_den, [fd]..
-dia, m, density_fun, 0, Ogden et al. 2005, host_den, [fd]..
-dua, m, density_fun, 0, Ogden et al. 2005, host_den, [fd]..
-qia, fia, briere_fun, 0, Ogden et al. 2005, temp, NA
+aia, fia, constant_fun, 1, Ogden et al. 2005, NA, NA
+aua, fua, constant_fun, 1, Ogden et al. 2005, NA, NA
+aia, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
+aua, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
+fia, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
+fua, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
+qia, aia, briere_fun, 0, Ogden et al. 2005, temp, NA
 qia, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-qin, fin, briere_fun, 0, Ogden et al. 2005, temp, NA
+qin, ain, briere_fun, 0, Ogden et al. 2005, temp, NA
 qin, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-qua, fua, briere_fun, 0, Ogden et al. 2005, temp, NA
+qua, aua, briere_fun, 0, Ogden et al. 2005, temp, NA
 qua, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-qun, fun, briere_fun, 0, Ogden et al. 2005, temp, NA
+qun, aun, briere_fun, 0, Ogden et al. 2005, temp, NA
 qun, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-q_l, f_l, feed_fun, 0, Dave theory, host_den, NA
-qun, fun, feed_fun, 0, Dave theory, host_den, NA
-qin, fin, feed_fun, 0, Dave theory, host_den, NA
-qua, fua, feed_fun, 0, Dave theory, host_den, NA
-qia, fia, feed_fun, 0, Dave theory, host_den, NA
-d_l, eul, engorge_fun, 0, NA, host_den, NA
-d_l, eil, engorge_fun, 0, NA, host_den, NA
-dun, eun, engorge_fun, 0, NA, host_den, NA
-dun, ein, engorge_fun, 0, NA, host_den, NA
-din, ein, engorge_fun, 0, NA, host_den, NA
-dua, eua, engorge_fun, 0, NA, host_den, NA
-dua, eia, engorge_fun, 0, NA, host_den, NA
-dia, eia, engorge_fun, 0, NA, host_den, NA
+q_l, a_l, feed_fun, 0, Dave theory, host_den, NA
+qun, aun, feed_fun, 0, Dave theory, host_den, NA
+qin, ain, feed_fun, 0, Dave theory, host_den, NA
+qua, aua, feed_fun, 0, Dave theory, host_den, NA
+qia, aia, feed_fun, 0, Dave theory, host_den, NA
+f_l, eul, engorge_fun, 0, NA, host_den, NA
+f_l, eil, engorge_fun, 0, NA, host_den, NA
+fun, eun, engorge_fun, 0, NA, host_den, NA
+fun, ein, engorge_fun, 0, NA, host_den, NA
+fin, ein, engorge_fun, 0, NA, host_den, NA
+fua, eua, engorge_fun, 0, NA, host_den, NA
+fua, eia, engorge_fun, 0, NA, host_den, NA
+fia, eia, engorge_fun, 0, NA, host_den, NA

@@ -20,27 +20,27 @@ from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
 ..n, ..n|[m], pref, squirrel, 1, NA, NA, Dave theory
 e.l, q.n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 __e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
-q.., f.., a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+q.., a.., a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
 e.n, q.a, a, NA, 6.265664e-4, NA, NA, Ogden et al. 2005
 e.a, r.a, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
 h_l, q_l, a, NA, 0.0476, NA, NA, Daniels et al. 1996
-f.a, d.a, a, NA, 0.111, NA, NA, Ogden et al. 2005
-f.n, d.n, a, NA, 0.25, NA, NA, Ogden et al. 2005
-f_l, d_l, a, NA, 0.5, NA, NA, Ogden et al. 2005
+a.a, f.a, a, NA, 0.111, NA, NA, Ogden et al. 2005
+a.n, f.n, a, NA, 0.25, NA, NA, Ogden et al. 2005
+a_l, f_l, a, NA, 0.5, NA, NA, Ogden et al. 2005
 e.n, q.a, b, NA, 1.21, NA, NA, Ogden et al. 2005
 e.a, r.a, b, NA, 1.42, NA, NA, Ogden et al. 2004
 ..e, h_l, b, NA, 2.27, NA, NA, Ogden et al. 2004
 e.l, q.n, b, NA, 2.55, NA, NA, Ogden et al. 2005
 .i., ..., from_infected, NA, 1, NA, NA, Dave theory
 .[^i]., ..., from_infected, NA, 0, NA, NA, Dave theory
-q.[ln], f.[ln], q, NA, 7e-4, NA, NA, Ogden et al. 2005
-q.a, f.a, q, NA, 0.0088, NA, NA, Ogden et al. 2005
-q.a, f.a, tmax, NA, 16, NA, NA, Ogden et al. 2005
-q_l, f_l, tmax, NA, 35, NA, NA, Ogden et al. 2005
-q.n, f.n, tmax, NA, 35, NA, NA, Ogden et al. 2005
-q.a, f.a, tmin, NA, 3, NA, NA, Ogden et al. 2005
-q_l, f_l, tmin, NA, 10, NA, NA, Ogden et al. 2005
-q.n, f.n, tmin, NA, 10, NA, NA, Ogden et al. 2005
+q.[ln], a.[ln], q, NA, 7e-4, NA, NA, Ogden et al. 2005
+q.a, a.a, q, NA, 0.0088, NA, NA, Ogden et al. 2005
+q.a, a.a, tmax, NA, 16, NA, NA, Ogden et al. 2005
+q_l, a_l, tmax, NA, 35, NA, NA, Ogden et al. 2005
+q.n, a.n, tmax, NA, 35, NA, NA, Ogden et al. 2005
+q.a, a.a, tmin, NA, 3, NA, NA, Ogden et al. 2005
+q_l, a_l, tmin, NA, 10, NA, NA, Ogden et al. 2005
+q.n, a.n, tmin, NA, 10, NA, NA, Ogden et al. 2005
 ..., .i., to_infected, NA, 1, NA, NA, Dave theory
 ..., .[^i]., to_infected, NA, 0, NA, NA, Dave theory
 ..e, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
@@ -49,9 +49,9 @@ e.n, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
 e.l, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
 [hq]_l, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
 q.[na], m, a, NA, 0.006, NA, NA, Ogden et al. 2005
-[fd]_l, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
-[fd].n, m, a, NA, 0.55, NA, NA, Ogden et al. 2005
-[fd].a, m, a, NA, 0.5, NA, NA, Ogden et al. 2005
-[fd].., m, b, NA, 0.049, NA, NA, Ogden et al. 2005
-[fd].., m, c, NA, 1.01, NA, NA, Ogden et al. 2005
+[af]_l, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
+[af].n, m, a, NA, 0.55, NA, NA, Ogden et al. 2005
+[af].a, m, a, NA, 0.5, NA, NA, Ogden et al. 2005
+[af].., m, b, NA, 0.049, NA, NA, Ogden et al. 2005
+[af].., m, c, NA, 1.01, NA, NA, Ogden et al. 2005
 r.a, __e, a, NA, 3000, NA, NA, Ogden et al. 2005
