@@ -244,12 +244,12 @@ gen_trans_matrix <- function(time, N, N_developing) {
   
   if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
-      from_val <- mort[m,]$from
+      from_stage <- mort[m,]$from
       
       # max(0, ...) ensures that we don't get a negative transition probability
-      # Otherwise, this could happen when (sum of the transition probabilities from from_val) + 
-      # (mortality from from_val) is greater than one. One effect is that any time that
-      # (sum of the transition probabilities from from_val) > 1, no ticks of from_val survive 
+      # Otherwise, this could happen when (sum of the transition probabilities from from_stage) + 
+      # (mortality from from_stage) is greater than one. One effect is that any time that
+      # (sum of the transition probabilities from from_stage) > 1, no ticks of from_stage survive 
       # to the next time step. The only time this should happen is when there is reproduction, 
       # in which case transition probability is > 1, or I suppose if there were a transition where
       # all (100%) of ticks advance to the next stage. So in turn, this assumes that ticks die after
@@ -257,7 +257,7 @@ gen_trans_matrix <- function(time, N, N_developing) {
       
       # The other question is the implications of this behavior for non-reproduction transitions. 
       # Transition probabilities should not be negative and max(0, ...) ensures that. However, what if
-      # for a non-reproduction transition, sum(trans_matrix[from_val,]) + mortality were greater than 1...
+      # for a non-reproduction transition, sum(trans_matrix[from_stage,]) + mortality were greater than 1...
       # Currently this is happening for (at least some of) the density dependent mortality transitions. This is 
       # because density dependent mortality is pretty high (roughly .5 to .8) compared to other mortality values.
       # If we interpret transition probabilities to mean what fraction of the population goes where, and the 
@@ -272,15 +272,15 @@ gen_trans_matrix <- function(time, N, N_developing) {
       
       # OR, should our functions be parameterized in a way such that we never
       # run into this problem, and we throw an error or warning if we hit this case
-      if ( (sum(trans_matrix[from_val,]) + get_transition_val(time, mort[m,], N, N_developing) > 1) && 
-           !(from_val %in% str_subset(life_stages, '(r.a)|(f..)')) ) {
+      if ( (sum(trans_matrix[from_stage,]) + get_transition_val(time, mort[m,], N, N_developing) > 1) && 
+           !(from_stage %in% str_subset(life_stages, '(r.a)|(f..)')) ) {
         print('unexpected transition probability values')
-        print(trans_matrix[from_val,])
+        print(trans_matrix[from_stage,])
         print(get_transition_val(time, mort[m,], N, N_developing))
       }
       
       # The max(0, 1 - ...) structure should ensure that survival is between 0 and 1
-      trans_matrix[from_val, from_val] <- max(0, 1 - sum(trans_matrix[from_val,]) - get_transition_val(time, mort[m,], N, N_developing))
+      trans_matrix[from_stage, from_stage] <- max(0, 1 - sum(trans_matrix[from_stage,]) - get_transition_val(time, mort[m,], N, N_developing))
     }
   }
   
