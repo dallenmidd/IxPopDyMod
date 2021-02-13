@@ -27,10 +27,14 @@ h_l, q_l, constant_fun, 1, Daniels et al. 1996, NA, 1, NA, NA
 h_l, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 q_l, m, constant_fun, 0, Ogden et al. 2005, NA, 1, NA, NA
 q_l, f_l, briere_fun, 0, Ogden et al. 2005, NA, 1, temp, NA
-eua, __e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
-eia, __e, expo_fun, 1, Ogden et al. 2004, NA, 3000, temp, NA
+
+eua, rua, expo_fun, 1, Ogden et al. 2004, NA, 1, temp, NA
+eia, ria, expo_fun, 1, Ogden et al. 2004, NA, 1, temp, NA
+rua, __e, constant_fun, 0, Ogden et al. 2004, NA, 1, NA, NA
+ria, __e, constant_fun, 0, Ogden et al. 2004, NA, 1, NA, NA
 eua, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 eia, m, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
+
 fia, dia, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 fua, dua, constant_fun, 1, Ogden et al. 2005, NA, 1, NA, NA
 fia, m, density_fun, 1, Ogden et al. 2005, NA, 1, host_den, [fd]..

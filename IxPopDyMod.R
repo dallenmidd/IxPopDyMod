@@ -5,7 +5,8 @@ library(tidyverse)
 
 
 # set constant steps, which ensures that model doesn't try to run for longer than there is input data
-steps <- 300
+# increased to see full cycle because with 15 degree temp, new eggs emerge around day 310
+steps <- 500
 
 # At each time step, how many time steps should we look into the future to see if any
 # ticks emerge from a time delay? This value is a somewhat arbitrarily high constant.
@@ -44,7 +45,7 @@ if (simple) {
 # set initial population
 initial_population <- runif(length(life_stages), 0, 0)
 names(initial_population) <- life_stages
-initial_population['eua'] <- 10 # start with only one cohort (adults)
+initial_population['rua'] <- 10 # start with only one cohort (adults)
 
 # functions to extract tick age, process, and infection status from life_stage name
 
@@ -232,12 +233,10 @@ gen_trans_matrix <- function(time, N, N_developing) {
       # so as expected model output population of feeding adults and all subsequent stages are lower
       # than previously.
       # Using NAs instead of zeros is a fix, but an alternative would be to not allow/handle taking
-      # the product of multiple transition rows, and instead combine functions (see the commented out)
-      # feed_fun() code above
+      # the product of multiple transition rows, and instead combine functions (see the commented out
+      # feed_fun() code above)
       trans_matrix[from, to] <- ifelse(is.na(trans_matrix[from, to]), 1, trans_matrix[from, to]) *
-        get_transition_val(time, transitions[t, ], N, N_developing) * transitions[t, ]$fecundity
-      # pretty printing of trans_matrix
-      # print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
+        get_transition_val(time, transitions[t, ], N, N_developing)
     }
   }
   
@@ -246,15 +245,51 @@ gen_trans_matrix <- function(time, N, N_developing) {
   if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
       from_val <- mort[m,]$from
-      # TODO temporary fix: fecundity is a multi-element vector if there are multiple (non-mort) 
-      # transitions for the same "from". I think these should be all have the same fecundity, 
-      # for now we'll just assume that is true and use the first one
-      fecundity <- transitions %>% filter(from == from_val, to != 'm') %>% pull(fecundity) %>% .[1]
-      trans_matrix[from_val, from_val] <- fecundity - sum(trans_matrix[from_val,]) - get_transition_val(time, mort[m,], N, N_developing)
+      
+      # max(0, ...) ensures that we don't get a negative transition probability
+      # Otherwise, this could happen when (sum of the transition probabilities from from_val) + 
+      # (mortality from from_val) is greater than one. One effect is that any time that
+      # (sum of the transition probabilities from from_val) > 1, no ticks of from_val survive 
+      # to the next time step. The only time this should happen is when there is reproduction, 
+      # in which case transition probability is > 1, or I suppose if there were a transition where
+      # all (100%) of ticks advance to the next stage. So in turn, this assumes that ticks die after
+      # laying eggs. Is this a safe assumption? I think so for I. scapularis, but for other spp?
+      
+      # The other question is the implications of this behavior for non-reproduction transitions. 
+      # Transition probabilities should not be negative and max(0, ...) ensures that. However, what if
+      # for a non-reproduction transition, sum(trans_matrix[from_val,]) + mortality were greater than 1...
+      # Currently this is happening for (at least some of) the density dependent mortality transitions. This is 
+      # because density dependent mortality is pretty high (roughly .5 to .8) compared to other mortality values.
+      # If we interpret transition probabilities to mean what fraction of the population goes where, and the 
+      # sum of transition probabilties is greater than 1 for a non-reproduction transition, that's a
+      # problem because the total population should not increase for a non-reproduction transition.
+      
+      # An example from some testing: trans probability from d_l to eil is 0.39, d_l to eul is 0.05. Density dep
+      # d_l mortality is 0.69. Sum of all these is (0.39 + 0.05 + 0.69) = 1.13. Currently, the code below
+      # will calculate the survival as max(0, 1 - sum(0.39 + 0.05) - 0.69) = 0. Interpretation: we "prioritize"
+      # transitions to other life stages, then calculate mortality. Is this an okay behavior, or should we apply
+      # mortality first, then calculate how the surviving population advances? 
+      
+      # OR, should our functions be parameterized in a way such that we never
+      # run into this problem, and we throw an error or warning if we hit this case
+      if ( (sum(trans_matrix[from_val,]) + get_transition_val(time, mort[m,], N, N_developing) > 1) && 
+           !(from_val %in% str_subset(life_stages, '(r.a)|([fd]..)')) ) {
+        print('unexpected transition probability values')
+        print(trans_matrix[from_val,])
+        print(get_transition_val(time, mort[m,], N, N_developing))
+      }
+      
+      # The max(0, 1 - ...) structure should ensure that survival is between 0 and 1
+      trans_matrix[from_val, from_val] <- max(0, 1 - sum(trans_matrix[from_val,]) - get_transition_val(time, mort[m,], N, N_developing))
     }
   }
   
   return(trans_matrix)
+}
+
+# pretty printing of trans_matrix
+print_trans_matrix <- function(trans_matrix) {
+  print(ifelse(trans_matrix == 0, ".", trans_matrix %>% as.character() %>% substr(0, 4)), quote = FALSE)
 }
 
 # based on the current time, delay_arr and N (population matrix), return a delay_arr for the next time step
@@ -311,9 +346,9 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
       }
       
       # number of ticks emerging from from_stage to to_stage at time + days_to_next is the number of ticks 
-      # that were already going to emerge then plus the current number of ticks in the from_stage * survival * fecundity
+      # that were already going to emerge then plus the current number of ticks in the from_stage * survival
       delay_arr[to_stage, from_stage, time + days_to_next] <- delay_arr[to_stage, from_stage, time + days_to_next] +
-        N[from_stage, time] * surv_to_next * trans[['fecundity']]
+        N[from_stage, time] * surv_to_next
     }
   }
   return(delay_arr)
