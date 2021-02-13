@@ -38,7 +38,6 @@ if (simple) {
   tick_params <- read_csv('inputs/tick_parameters.csv') %>% 
     arrange(host_spp) # sort so parameters are in same host_spp order for pairwise vector calculations
   tick_funs <- read_csv('inputs/tick_functions.csv')
-  #life_stages <- read_csv('inputs/tick_stages.csv')[[1]]
   life_stages <- tick_funs %>% pull(from) %>% unique()
 }
 
@@ -57,7 +56,6 @@ age <- function(life_stage) {
 
 # return current process of tick in life_stage
 process <- function(life_stage) {
-  #ifelse(str_length(life_stage) > 1,    substr(life_stage, 0, 1), '')
   ifelse(substr(life_stage, 0, 1) != '', substr(life_stage, 0, 1), '')
 }
 
@@ -130,30 +128,20 @@ v_sub <- function(v, sub_names) subset(v, names(v) %in% sub_names)
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
 briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
 constant_fun <- function(x, y, p) p['a']
-# constant_fun <- function(x, y, p) rep(p['a'], max_delay)
 binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 
+# An alternative version of feed_fun() that is the product of the binomial
+# and briere functions. In this new version, the function is the product of the 
+# briere_fun, which determines prob of active questing, and 
+# binomial_fun, which determines prob of host finding.
+# x is host_den for binomial_fun, y is temp for briere_fun
 feed_fun <- function(x, y, p) {
   binomial_fun(
     x = sum(x * v_sub(p, 'pref')),
     y = NULL,
     p = p
-  )}
-
-# An alternative version of feed_fun() that is the product of the binomial
-# and briere functions. If we implemented this, we wouldn't have to handle
-# taking the product of multiple transition functions to claculate a probability
-# in gen_trans_matrix. In this new version, the function is the product of the 
-# briere_fun, which determines prob of active questing, and 
-# binomial_fun, which determines prob of host finding
-# x is host_den for binomial_fun, y is temp for briere_fun
-# feed_fun <- function(x, y, p) {
-#   binomial_fun(
-#     x = sum(x * v_sub(p, 'pref')),
-#     y = NULL,
-#     p = p
-#   ) * briere_fun(y, NULL, p)
-# }
+  ) * briere_fun(y, NULL, p)
+}
 
 # x = host_den
 engorge_fun <- function(x, y, p) sum(ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
@@ -202,9 +190,9 @@ get_transition_val <- function(time, transition_row, N, N_developing, parameters
 # Myles note: I think all the transitions we're handling this way are questing -> feeding
 gen_trans_matrix <- function(time, N, N_developing) {
   
-  # initialize the transition matrix with NAs
+  # initialize the transition matrix with 0s
   n_life_stages <- length(life_stages)
-  trans_matrix <- matrix(NA, ncol = n_life_stages, nrow = n_life_stages, 
+  trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages, 
                          dimnames = list(life_stages, life_stages))
   
   transitions <- tick_funs %>% 
@@ -217,30 +205,12 @@ gen_trans_matrix <- function(time, N, N_developing) {
 
   if (nrow(transitions) > 0) {
     for (t in seq_len(nrow(transitions))) {
-      from <- transitions[t,]$from
-      to <- transitions[t,]$to
-      # If there are multiple lines in the tick_funs input for a given transition, we take the product
-      # of these probabilities. Currently, this applies to the questing to feeding transitions, which are 
-      # the product of P(active questing) and P(host finding). Not sure if we want to implement something
-      # similar for delay transition 
-      
-      # We initialize the trans_matrix with NA entries rather than zeros.
-      # Previously, we assumed that if a trans_matrix cell was 0, then it hadn't been modified.
-      # However, some functions can return 0 transition probabilities, which was happening 
-      # with the briere_fun since the temperature (20) was above tmax for adults (16). 
-      # In turn, the transition probability for questing to feeding adults was not 0 * feed_fun() = 0,
-      # but just feed_fun(). Now, with the current (20 degree) temp data, no adults reach feeding,
-      # so as expected model output population of feeding adults and all subsequent stages are lower
-      # than previously.
-      # Using NAs instead of zeros is a fix, but an alternative would be to not allow/handle taking
-      # the product of multiple transition rows, and instead combine functions (see the commented out
-      # feed_fun() code above)
-      trans_matrix[from, to] <- ifelse(is.na(trans_matrix[from, to]), 1, trans_matrix[from, to]) *
+      # now, each non-mortality (from, to) pair should have only one line in tick_funs
+      # we no longer take the product of multiple lines
+      trans_matrix[transitions[t,]$from, transitions[t,]$to] <- 
         get_transition_val(time, transitions[t, ], N, N_developing)
     }
   }
-  
-  trans_matrix <- ifelse(is.na(trans_matrix), 0, trans_matrix)
   
   if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
