@@ -1,9 +1,9 @@
-from, to, param_name, param_value, param_ci_low, param_ci_high, source
-e, l, a, 1, NA, NA, NA
-e, m, a, .01, NA, NA, NA
-l, n, a, 0.01, NA, NA, NA
-l, m, a, .05, NA, NA, NA
-n, a, a, 0.1, NA, NA, NA
-n, m, a, .1, NA, NA, NA
-a, e, a, 1, NA, NA, NA
-a, m, a, .1, NA, NA, NA
+from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
+__e, __l, a, NA, 1, NA, NA, NA
+__e, m, a, NA, .01, NA, NA, NA
+__l, __n, a, NA, 0.01, NA, NA, NA
+__l, m, a, NA, .05, NA, NA, NA
+__n, __a, a, NA, 0.1, NA, NA, NA
+__n, m, a, NA, .1, NA, NA, NA
+__a, __e, a, NA, 1, NA, NA, NA
+__a, m, a, NA, .1, NA, NA, NA
