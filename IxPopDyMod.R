@@ -224,6 +224,7 @@ gen_trans_matrix <- function(time, N, N_developing) {
       # in which case transition probability is > 1, or I suppose if there were a transition where
       # all (100%) of ticks advance to the next stage. So in turn, this assumes that ticks die after
       # laying eggs. Is this a safe assumption? I think so for I. scapularis, but for other spp?
+      # DA Note -- this is true for all ticks, they are all semelparous.
       
       # The other question is the implications of this behavior for non-reproduction transitions. 
       # Transition probabilities should not be negative and max(0, ...) ensures that. However, what if
@@ -239,6 +240,10 @@ gen_trans_matrix <- function(time, N, N_developing) {
       # will calculate the survival as max(0, 1 - sum(0.39 + 0.05) - 0.69) = 0. Interpretation: we "prioritize"
       # transitions to other life stages, then calculate mortality. Is this an okay behavior, or should we apply
       # mortality first, then calculate how the surviving population advances? 
+      # DA NOTE: hmm, yikes! Let me think about this. but it seems to me like something funky is happening like we
+      # are some how double counting mortality, since there is no where for a d_l tick to go except eil or eul
+      # So if we set d_l -> eil = 0.39 and d_l -> eul -> 0.05, then we have to mean 1-(0.39+0.05) die, if we then
+      # add MORE mortality on top of that it seems like double counting. 
       
       # OR, should our functions be parameterized in a way such that we never
       # run into this problem, and we throw an error or warning if we hit this case
@@ -352,7 +357,7 @@ run <- function(steps, initial_population) {
   
   # at each time step:
   # (1) generate a new trans_matrix based on conditions at "time"
-  # (2) update the delay_mat based on conditions at "time" 
+  # (2) update the delay_arr based on conditions at "time" 
   # (3) update the population matrix "N" for "time + 1"
   
   # at each time step
