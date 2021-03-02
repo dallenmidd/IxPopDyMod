@@ -17,6 +17,12 @@ max_delay <- 300
 # weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
 weather <- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = seq(from = 1, to = steps))
+
+# non constant temp (sine wave approx Midd temp)
+# annualtemp <- 15*sin(2*pi/365*(x-110)) +5
+# repeatabunch <- rep(annualtemp,100)
+# weather <- tibble(tmean = repeatabunch[1:steps], j_day = seq(from = 1, to = steps))
+
 # host_comm <- read_csv('inputs/host_comm.csv') #### DA Note: will have to think about how to handle this
 host_comm <- tibble(
   j_day = rep(1:steps, each=3), 
@@ -28,11 +34,11 @@ n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
 
 
 # option to run on simple inputs for testing
-simple <- FALSE
+simple <- TRUE
 
 if (simple) {
-  tick_params <- read_csv('inputs/tick_parameters_simple_stable_delay2.csv') # %>% arrange(host_spp)
-  tick_funs <- read_csv('inputs/tick_functions_simple_delay.csv')
+  tick_params <- read_csv('inputs/2021-03-02_Dave_test/tick_parameters.csv')  %>% arrange(host_spp)
+  tick_funs <- read_csv('inputs/2021-03-02_Dave_test/tick_functions.csv')
   life_stages <- tick_funs %>% pull(from) %>% unique()
 } else {
   tick_params <- read_csv('inputs/tick_parameters.csv') %>% 
@@ -44,7 +50,9 @@ if (simple) {
 # set initial population
 initial_population <- runif(length(life_stages), 0, 0)
 names(initial_population) <- life_stages
-initial_population['rua'] <- 10 # start with only one cohort (adults)
+# initial_population['rua'] <- 10 # start with only one cohort (adults)
+initial_population['r_a'] <- 10 # start with only one cohort (adults)
+
 
 # functions to extract tick age, process, and infection status from life_stage name
 
@@ -271,6 +279,7 @@ print_trans_matrix <- function(trans_matrix) {
 update_delay_arr <- function(time, delay_arr, N, N_developing) {
   
   # select all delay transition functions, including mortality
+  # DA NOTE --- Why are mortality functions coded as delay???
   transitions <- tick_funs %>% filter(delay == 1)
   
   # loop through these transitions by from_stage 
