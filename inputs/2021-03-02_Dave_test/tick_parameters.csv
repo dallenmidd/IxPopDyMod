@@ -1,7 +1,7 @@
 from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
 ..., m, a, NA, 0.01, NA, NA, NA
-__e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
-__e, h_l, b, NA, 2.27, NA, NA, Ogden et al. 2004
+__e, q_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
+__e, q_l, b, NA, 2.27, NA, NA, Ogden et al. 2004
 e_l, q_n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 e_l, q_n, b, NA, 2.55, NA, NA, Ogden et al. 2005
 e_n, q_a, a, NA, 6.265664e-4, NA, NA, Ogden et al. 2005

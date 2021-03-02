@@ -418,8 +418,8 @@ test_transitions <- function() {
   rownames(N) <- life_stages
   
   # select which functions to test
-  funs <- tick_funs %>%
-    filter(transition_fun == 'density_fun')
+  funs <- tick_funs # %>%
+  #  filter(transition_fun == 'density_fun')
   
   # loop through all the transition functions and calculate transition probabilities
   for (i in 1:nrow(funs)) {
