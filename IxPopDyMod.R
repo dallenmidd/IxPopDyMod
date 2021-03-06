@@ -3,7 +3,6 @@
 
 library(tidyverse)
 
-
 # set constant steps, which ensures that model doesn't try to run for longer than there is input data
 # increased to see full cycle because with 15 degree temp, new eggs emerge around day 310
 steps <- 500
@@ -34,7 +33,7 @@ n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
 
 
 # option to run on simple inputs for testing
-simple <- TRUE
+simple <- FALSE
 
 if (simple) {
   tick_params <- read_csv('inputs/2021-03-02_Dave_test/tick_parameters.csv')  %>% arrange(host_spp)
@@ -50,11 +49,15 @@ if (simple) {
 # set initial population
 initial_population <- runif(length(life_stages), 0, 0)
 names(initial_population) <- life_stages
-# initial_population['rua'] <- 10 # start with only one cohort (adults)
-initial_population['r_a'] <- 10 # start with only one cohort (adults)
+if (simple) {
+  initial_population['r_a'] <- 10 # start with only one cohort (adults)
+} else {
+  initial_population['rua'] <- 10 # start with only one cohort (adults)  
+}
 
 
 # functions to extract tick age, process, and infection status from life_stage name
+# currently these are just used for graphing
 
 # return age of tick in life_stage
 # e.g. age("fl") = "l"
@@ -224,16 +227,6 @@ gen_trans_matrix <- function(time, N, N_developing) {
     for (m in seq_len(nrow(mort))) {
       from_stage <- mort[m,]$from
       
-      # max(0, ...) ensures that we don't get a negative transition probability
-      # Otherwise, this could happen when (sum of the transition probabilities from from_stage) + 
-      # (mortality from from_stage) is greater than one. One effect is that any time that
-      # (sum of the transition probabilities from from_stage) > 1, no ticks of from_stage survive 
-      # to the next time step. The only time this should happen is when there is reproduction, 
-      # in which case transition probability is > 1, or I suppose if there were a transition where
-      # all (100%) of ticks advance to the next stage. So in turn, this assumes that ticks die after
-      # laying eggs. Is this a safe assumption? I think so for I. scapularis, but for other spp?
-      # DA Note -- this is true for all ticks, they are all semelparous.
-      
       # The other question is the implications of this behavior for non-reproduction transitions. 
       # Transition probabilities should not be negative and max(0, ...) ensures that. However, what if
       # for a non-reproduction transition, sum(trans_matrix[from_stage,]) + mortality were greater than 1...
@@ -253,17 +246,35 @@ gen_trans_matrix <- function(time, N, N_developing) {
       # So if we set d_l -> eil = 0.39 and d_l -> eul -> 0.05, then we have to mean 1-(0.39+0.05) die, if we then
       # add MORE mortality on top of that it seems like double counting. 
       
-      # OR, should our functions be parameterized in a way such that we never
-      # run into this problem, and we throw an error or warning if we hit this case
-      if ( (sum(trans_matrix[from_stage,]) + get_transition_val(time, mort[m,], N, N_developing) > 1) && 
-           !(from_stage %in% str_subset(life_stages, '(r.a)|(f..)')) ) {
-        print('unexpected transition probability values')
-        print(trans_matrix[from_stage,])
-        print(get_transition_val(time, mort[m,], N, N_developing))
+      mortality <- get_transition_val(time, mort[m,], N, N_developing) 
+      trans_prob_sum <- sum(trans_matrix[from_stage,], mortality)
+      
+      # sum of transition probabilities plus mortality should not exceed 1
+      # unless we're coming from a reproductive stage
+      if (trans_prob_sum > 1 && !str_detect(from_stage, 'r.a')) {
+        
+        # TODO, uncomment this error message once we've fixed dens dep mort
+        # stop('transition probability from ', from_stage, ' = ', trans_prob_sum, ', but should be <= 1')
+        
+        # TODO for now, we're just normalizing and not warning for dens dep transitions because it prints a lot,
+        # so we're just checking for unexpected cases where trans_prob_sum > 1
+        if (!str_detect(from_stage, 'f..')) {
+          print(paste('WARNING: transition probability from ', from_stage, ' = ', trans_prob_sum, 
+                      ', but should be <= 1, so normalizing by trans_prob_sum'), sep = '')
+        }
+        
+        # normalize transitions  
+        trans_matrix[from_stage,] <- trans_matrix[from_stage,] / trans_prob_sum
+        
+        # normalize mortality to calculate survival
+        mortality <- mortality / trans_prob_sum
       }
       
-      # The max(0, 1 - ...) structure should ensure that survival is between 0 and 1
-      trans_matrix[from_stage, from_stage] <- max(0, 1 - sum(trans_matrix[from_stage,]) - get_transition_val(time, mort[m,], N, N_developing))
+      # The max(0, 1- ...) structure should ensure that survival is between 0 and 1
+      # This line also ensures that when a reproductive tick lays (multiple) eggs, the
+      # reproductive tick will not survive to the next stage. This is the desired behavior because
+      # all ticks are semelparous.
+      trans_matrix[from_stage, from_stage] <- max(0, 1 - sum(trans_matrix[from_stage,]) - mortality)
     }
   }
   
