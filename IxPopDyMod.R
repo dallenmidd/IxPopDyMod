@@ -99,7 +99,8 @@ get_host_den <- function(time) {
     pull(host_den)
 }
 
-# Return a vector of a predictor at time time. The vector's length is based on whether the transition is_delay.
+# Return a vector of a predictor at time time. 
+# The vector's length is based on whether the transition is_delay.
 get_pred <- function(time, pred, is_delay, N, N_developing) {
   
   # if is_delay, we want a long vector so the cumsum will reach 1
@@ -137,7 +138,8 @@ v_sub <- function(v, sub_names) subset(v, names(v) %in% sub_names)
 ## DA Note: this might want to be moved to a new file, maybe part of input?
 ## DA Note: in the simple example can we show a simpiler verison of a host comm?
 expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
-briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) # https://doi.org/10.7554/eLife.58511
+briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) 
+# https://doi.org/10.7554/eLife.58511
 constant_fun <- function(x, y, p) p['a']
 binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 
@@ -155,14 +157,17 @@ feed_fun <- function(x, y, p) {
 }
 
 # x = host_den
-engorge_fun <- function(x, y, p) sum(ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
-                                       (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref')))))
+engorge_fun <- function(x, y, p) sum(
+  ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
+    (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref')))))
 
 
 # density dependent mortality
 # x = host_den, y = number of feeding ticks
-density_fun <- function(x, y, p) sum((v_sub(p, 'a') + (v_sub(p, 'b') * log((v_sub(p, 'c') + y * v_sub(p, 'pref') * x / sum(v_sub(p, 'pref') * x)) / x))) * 
-                                                                                            v_sub(p, 'pref') * x / sum(v_sub(p, 'pref') * x))
+density_fun <- function(x, y, p)
+  sum((v_sub(p, 'a') + (v_sub(p, 'b') * log((v_sub(p, 'c') + y * v_sub(p, 'pref') *
+                                               x / sum(v_sub(p, 'pref') * x)) / x))) *
+    v_sub(p, 'pref') * x / sum(v_sub(p, 'pref') * x))
 
 # 03
 # calculate individual transition probabilities for advancing to consecutive life stage
@@ -342,7 +347,8 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
       
       # number of ticks emerging from from_stage to to_stage at time + days_to_next is the number of ticks 
       # that were already going to emerge then plus the current number of ticks in the from_stage * survival
-      delay_arr[to_stage, from_stage, time + days_to_next] <- delay_arr[to_stage, from_stage, time + days_to_next] +
+      delay_arr[to_stage, from_stage, time + days_to_next] <- 
+        delay_arr[to_stage, from_stage, time + days_to_next] +
         N[from_stage, time] * surv_to_next
     }
   }
