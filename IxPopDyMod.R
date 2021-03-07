@@ -445,6 +445,28 @@ test_transitions <- function() {
   }
 }
 
+# test to ensure that there are no "dead-ends" in life cycle 
+# based on all the non-mortality transitions
+{
+  # check if all life_stages are in from and to in tick_funs
+  all_from <- tick_funs %>% pull(from) %>% unique() %>% sort()
+  all_to <- tick_funs %>% filter(to != 'm') %>% pull(to) %>% unique() %>% sort()
+  if (!all(all_from == all_to)) {
+    stop('from and to stages in tick_funs do not match')
+  } else {
+    print('all stages represented in from and to in transitions')
+  }
+  
+  # think of all transitions as edges between two nodes (from, to)
+  # check if the graph has a cycle (trail to itself) from each life stage
+  # i.e., for each life stage, can I get back to that life_stage
+  # TODO for now, just inspecting this visually
+  g <- graph_from_data_frame(tick_funs %>% select(from, to) %>% filter(to != 'm'))
+  plot(g)
+}
+
+
+
 
 # run the model and extract the output population matrix and delay_matrix
 out <- run(steps, initial_population)
