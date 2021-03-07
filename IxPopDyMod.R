@@ -2,6 +2,7 @@
 ## Dave Allen and Myles Stokowski
 
 library(tidyverse)
+library(igraph)
 
 # set constant steps, which ensures that model doesn't try to run for longer than there is input data
 # increased to see full cycle because with 15 degree temp, new eggs emerge around day 310
@@ -131,43 +132,27 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
   }
 }
 
-# vector subset: return a subset of named vector v where the names are in sub_names
-v_sub <- function(v, sub_names) subset(v, names(v) %in% sub_names)
-
 # 02 functional forms for transition probabilities
 ## DA Note: this might want to be moved to a new file, maybe part of input?
 ## DA Note: in the simple example can we show a simpiler verison of a host comm?
-expo_fun <- function(x, y, p) ifelse(x>0,p['a']*x^p['b'],0)
-briere_fun <- function(x, y, p) ifelse(x>p['tmin'] & x<p['tmax'],p['q']*x*(x-p['tmin'])*sqrt(p['tmax']-x),0) 
-# https://doi.org/10.7554/eLife.58511
-constant_fun <- function(x, y, p) p['a']
-binomial_fun <- function(x, y, p) 1-(1-p['a'])^x
 
-# An alternative version of feed_fun() that is the product of the binomial
-# and briere functions. In this new version, the function is the product of the 
-# briere_fun, which determines prob of active questing, and 
-# binomial_fun, which determines prob of host finding.
-# x is host_den for binomial_fun, y is temp for briere_fun
-feed_fun <- function(x, y, p) {
-  binomial_fun(
-    x = sum(x * v_sub(p, 'pref')),
-    y = NULL,
-    p = p
-  ) * briere_fun(y, NULL, p)
-}
+expo_fun <- function(x, y, a, b) ifelse(x>0, a*x^b, 0)
+constant_fun <- function(x, y, a) a
+
+# product of binomial and briere functions
+feed_fun <- function(x, y, a, pref, q, tmin, tmax)
+  (1 - (1-a)^(sum(x * pref))) * ifelse(y>tmin & y<tmax, q*y*(y-tmin)*sqrt(tmax-y), 0)
 
 # x = host_den
-engorge_fun <- function(x, y, p) sum(
-  ifelse(rep(p['from_infected'], n_host_spp), 1, abs(ifelse(p['to_infected'], 0, 1) - v_sub(p, 'host_rc'))) * 
-    (v_sub(p, 'feed_success') * ((x * v_sub(p, 'pref')) / sum(x * v_sub(p, 'pref')))))
+engorge_fun <- function(x, y, from_infected, to_infected, host_rc, feed_success, pref) sum(
+  ifelse(rep(from_infected, n_host_spp), 1, abs(ifelse(to_infected, 0, 1) - host_rc)) * 
+    feed_success * ((x * pref) / sum(x * pref)))
 
 
 # density dependent mortality
 # x = host_den, y = number of feeding ticks
-density_fun <- function(x, y, p)
-  sum((v_sub(p, 'a') + (v_sub(p, 'b') * log((v_sub(p, 'c') + y * v_sub(p, 'pref') *
-                                               x / sum(v_sub(p, 'pref') * x)) / x))) *
-    v_sub(p, 'pref') * x / sum(v_sub(p, 'pref') * x))
+density_fun <- function(x, y, a, b, c, pref)
+  sum((a + (b * log((c + y * pref * x / sum(pref * x)) / x))) * pref * x / sum(pref * x))
 
 # 03
 # calculate individual transition probabilities for advancing to consecutive life stage
@@ -192,9 +177,18 @@ get_transition_val <- function(time, transition_row, N, N_developing, parameters
   # that are being grabbed for each transition via pattern matching
   # print(params)
   
-  f(x = get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing), 
-    y = get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing),
-    p = params) %>% unname()
+  # Collapse params from a named vector into a list of vectors by param name
+  # We do this so that params like 'pref' or 'host_rc' that are dependent on host_spp
+  # and have multiple values can be passed as a single argument to the transition function 
+  params <- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  # call f with the predictors and parameters
+  # this method allows the 'params' list to be used as named arguments for f
+  do.call(f, as.list(c(list(pred1, pred2), params)))
+  
   # TODO: currently engorge_fun() uses parameters to handle infection, which is redundant bc that info 
   # is in the from and to life_stage strings. We could pass the from and to strings to f(), so that
   # engorge_fun() could use infected() to determine from_infected and to_infected
@@ -462,8 +456,8 @@ test_transitions <- function() {
   rownames(N) <- life_stages
   
   # select which functions to test
-  funs <- tick_funs # %>%
-  #  filter(transition_fun == 'density_fun')
+  funs <- tick_funs #%>%
+   # filter(transition_fun == 'density_fun')
   
   transition_vals <- c()
   
@@ -479,7 +473,7 @@ test_transitions <- function() {
 
 # test to ensure that there are no "dead-ends" in life cycle 
 # based on all the non-mortality transitions
-{
+test_lifecycles <- function() {
   # check if all life_stages are in from and to in tick_funs
   all_from <- tick_funs %>% pull(from) %>% unique() %>% sort()
   all_to <- tick_funs %>% filter(to != 'm') %>% pull(to) %>% unique() %>% sort()
