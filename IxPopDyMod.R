@@ -200,6 +200,33 @@ get_transition_val <- function(time, transition_row, N, N_developing, parameters
   # engorge_fun() could use infected() to determine from_infected and to_infected
 }
 
+# print the parameters that are being grabbed through pattern matching and the name 
+# of the function -- used for debugging, determining what extra parameters are being grabbed
+print_params <- function(transition_row) {
+  
+  parameters <- tick_params
+  
+  params <- parameters %>% 
+    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
+    pull(param_value)
+  
+  names(params) <- parameters %>%
+    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
+    pull(param_name)
+  
+  print(paste(transition_row[['transition_fun']], 'from', transition_row[['from']], 'to', transition_row[['to']]))
+  print(params)
+}
+
+print_all_params <- function() {
+  funs <- tick_funs %>% 
+    arrange(transition_fun)
+
+  for (i in 1:nrow(funs)) {
+    print_params(funs[i,])
+  }
+}
+
 # 04
 # at each step, we generate a new transition matrix whose transition probabilities
 # are based on the input data (weather, host_community) at that time 
@@ -438,11 +465,16 @@ test_transitions <- function() {
   funs <- tick_funs # %>%
   #  filter(transition_fun == 'density_fun')
   
+  transition_vals <- c()
+  
   # loop through all the transition functions and calculate transition probabilities
   for (i in 1:nrow(funs)) {
-    print(paste(funs[[i, 'from']], funs[[i, 'to']], funs[[i, 'transition_fun']]))
-    print(get_transition_val(1, funs[i,], N, N_developing))
+    # print(paste(funs[[i, 'from']], funs[[i, 'to']], funs[[i, 'transition_fun']]))
+    # print(get_transition_val(1, funs[i,], N, N_developing))
+    transition_vals <- c(transition_vals, get_transition_val(1, funs[i,], N, N_developing))
   }
+  
+  transition_vals
 }
 
 # test to ensure that there are no "dead-ends" in life cycle 
