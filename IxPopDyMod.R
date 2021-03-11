@@ -140,13 +140,20 @@ expo_fun <- function(x, y, a, b) ifelse(x>0, a*x^b, 0)
 constant_fun <- function(x, y, a) a
 
 # product of binomial and briere functions
+# (prob of finding a host) * (prob of active questing)
 feed_fun <- function(x, y, a, pref, q, tmin, tmax)
   (1 - (1-a)^(sum(x * pref))) * ifelse(y>tmin & y<tmax, q*y*(y-tmin)*sqrt(tmax-y), 0)
 
-# x = host_den
-engorge_fun <- function(x, y, from_infected, to_infected, host_rc, feed_success, pref) sum(
-  ifelse(rep(from_infected, n_host_spp), 1, abs(ifelse(to_infected, 0, 1) - host_rc)) * 
-    feed_success * ((x * pref) / sum(x * pref)))
+# Return the probability that a feeding tick becomes infected or uninfected engorged
+# Since density dependent mortality is subtracted later, in this function we assume
+# that all feeding ticks feed successfully and become engorged
+engorge_fun <- function(x, y, from_infected, to_infected, host_rc, pref)
+  sum(ifelse(rep(from_infected, n_host_spp), 
+             1, # stay infected
+             (ifelse(rep(to_infected, n_host_spp), 
+                     host_rc, # become infected
+                     1 - host_rc))) * # stay uninfected
+        (x * pref) / sum(x * pref)) # chance a tick is feeding on each host type
 
 
 # density dependent mortality

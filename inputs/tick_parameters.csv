@@ -1,5 +1,4 @@
 from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
-f.., e.., feed_success, deer, 0.49, NA, NA, Dave theory
 f.., e.., host_rc, deer, 0.046, NA, NA, Dave theory
 [fq].l, [ae].l, pref, deer, 0.25, NA, NA, Dave theory
 [fq].n, [ae].n, pref, deer, 0.25, NA, NA, Dave theory
@@ -7,9 +6,6 @@ f.., e.., host_rc, deer, 0.046, NA, NA, Dave theory
 [fa].l, m, pref, deer, 0.25, NA, NA, Dave theory
 [fa].n, m, pref, deer, 0.25, NA, NA, Dave theory
 [fa].a, m, pref, deer, 1, NA, NA, Dave theory
-f.a, e.a, feed_success, mouse, 0, NA, NA, Dave theory
-f.l, e.l, feed_success, mouse, 0.49, NA, NA, Dave theory
-f.n, e.n, feed_success, mouse, 0.49, NA, NA, Dave theory
 f.., e.., host_rc, mouse, 0.92, NA, NA, Dave theory
 [fq].a, [ae].a, pref, mouse, 0, NA, NA, Dave theory
 [fq].l, [ae].l, pref, mouse, 1, NA, NA, Dave theory
@@ -17,9 +13,6 @@ f.., e.., host_rc, mouse, 0.92, NA, NA, Dave theory
 [fa].a, m, pref, mouse, 0, NA, NA, Dave theory
 [fa].l, m, pref, mouse, 1, NA, NA, Dave theory
 [fa].n, m, pref, mouse, 1, NA, NA, Dave theory
-f.a, e.a, feed_success, squirrel, 0, NA, NA, Dave theory
-f.l, e.l, feed_success, squirrel, 0.17, NA, NA, Dave theory
-f.n, e.n, feed_success, squirrel, 0.17, NA, NA, Dave theory
 f.., e.., host_rc, squirrel, 0.147, NA, NA, Dave theory
 [fq].a, [ae].a, pref, squirrel, 0, NA, NA, Dave theory
 [fq].l, [ae].l, pref, squirrel, 0.75, NA, NA, Dave theory
