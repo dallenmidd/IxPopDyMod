@@ -3,23 +3,23 @@ f.., e.., host_rc, deer, 0.046, NA, NA, Dave theory
 [fq].l, [ae].l, pref, deer, 0.25, NA, NA, Dave theory
 [fq].n, [ae].n, pref, deer, 0.25, NA, NA, Dave theory
 [fq].a, [ae].a, pref, deer, 1, NA, NA, Dave theory
-[fa].l, m, pref, deer, 0.25, NA, NA, Dave theory
-[fa].n, m, pref, deer, 0.25, NA, NA, Dave theory
-[fa].a, m, pref, deer, 1, NA, NA, Dave theory
+f.l, m, pref, deer, 0.25, NA, NA, Dave theory
+f.n, m, pref, deer, 0.25, NA, NA, Dave theory
+f.a, m, pref, deer, 1, NA, NA, Dave theory
 f.., e.., host_rc, mouse, 0.92, NA, NA, Dave theory
 [fq].a, [ae].a, pref, mouse, 0, NA, NA, Dave theory
 [fq].l, [ae].l, pref, mouse, 1, NA, NA, Dave theory
 [fq].n, [ae].n, pref, mouse, 1, NA, NA, Dave theory
-[fa].a, m, pref, mouse, 0, NA, NA, Dave theory
-[fa].l, m, pref, mouse, 1, NA, NA, Dave theory
-[fa].n, m, pref, mouse, 1, NA, NA, Dave theory
+f.a, m, pref, mouse, 0, NA, NA, Dave theory
+f.l, m, pref, mouse, 1, NA, NA, Dave theory
+f.n, m, pref, mouse, 1, NA, NA, Dave theory
 f.., e.., host_rc, squirrel, 0.147, NA, NA, Dave theory
 [fq].a, [ae].a, pref, squirrel, 0, NA, NA, Dave theory
 [fq].l, [ae].l, pref, squirrel, 0.75, NA, NA, Dave theory
 [fq].n, [ae].n, pref, squirrel, 1, NA, NA, Dave theory
-[fa].a, m, pref, squirrel, 0, NA, NA, Dave theory
-[fa].l, m, pref, squirrel, 0.75, NA, NA, Dave theory
-[fa].n, m, pref, squirrel, 1, NA, NA, Dave theory
+f.a, m, pref, squirrel, 0, NA, NA, Dave theory
+f.l, m, pref, squirrel, 0.75, NA, NA, Dave theory
+f.n, m, pref, squirrel, 1, NA, NA, Dave theory
 e.l, q.n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 __e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
 q.., a.., a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
@@ -51,9 +51,9 @@ e.n, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
 e.l, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
 [hq]_l, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
 q.[na], m, a, NA, 0.006, NA, NA, Ogden et al. 2005
-[af]_l, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
-[af].n, m, a, NA, 0.55, NA, NA, Ogden et al. 2005
-[af].a, m, a, NA, 0.5, NA, NA, Ogden et al. 2005
-[af].., m, b, NA, 0.049, NA, NA, Ogden et al. 2005
-[af].., m, c, NA, 1.01, NA, NA, Ogden et al. 2005
+f_l, m, a, NA, 0.65, NA, NA, Ogden et al. 2005
+f.n, m, a, NA, 0.55, NA, NA, Ogden et al. 2005
+f.a, m, a, NA, 0.5, NA, NA, Ogden et al. 2005
+f.., m, b, NA, 0.049, NA, NA, Ogden et al. 2005
+f.., m, c, NA, 1.01, NA, NA, Ogden et al. 2005
 r.a, __e, a, NA, 3000, NA, NA, Ogden et al. 2005

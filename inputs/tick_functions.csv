@@ -4,15 +4,12 @@ __e, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 eil, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 eul, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 f_l, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
-a_l, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 eil, qin, expo_fun, 1, Ogden et al. 2005, temp, NA
 eul, qun, expo_fun, 1, Ogden et al. 2005, temp, NA
 ein, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 eun, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 fin, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
 fun, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
-ain, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
-aun, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 ein, qia, expo_fun, 1, Ogden et al. 2005, temp, NA
 eun, qua, expo_fun, 1, Ogden et al. 2005, temp, NA
 a_l, f_l, constant_fun, 1, Ogden et al. 2005, NA, NA
@@ -29,8 +26,6 @@ eua, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 eia, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 aia, fia, constant_fun, 1, Ogden et al. 2005, NA, NA
 aua, fua, constant_fun, 1, Ogden et al. 2005, NA, NA
-aia, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
-aua, m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 fia, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
 fua, m, density_fun, 0, Ogden et al. 2005, host_den, [af]..
 qia, m, constant_fun, 0, Ogden et al. 2005, NA, NA
