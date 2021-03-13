@@ -1,7 +1,11 @@
 ## Ixodes population dynamics model
 ## Dave Allen and Myles Stokowski
 
-library(tidyverse)
+library(tibble)
+library(readr)
+library(magrittr)
+library(dplyr)
+library(stringr)
 library(igraph)
 
 # set constant steps, which ensures that model doesn't try to run for longer than there is input data
