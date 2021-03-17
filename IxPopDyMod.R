@@ -42,13 +42,13 @@ simple <- FALSE
 
 if (simple) {
   tick_params <- read_csv('inputs/2021-03-02_Dave_test/tick_parameters.csv')  %>% arrange(host_spp)
-  tick_funs <- read_csv('inputs/2021-03-02_Dave_test/tick_functions.csv')
-  life_stages <- tick_funs %>% pull(from) %>% unique()
+  tick_transitions <- read_csv('inputs/2021-03-02_Dave_test/tick_transitions.csv')
+  life_stages <- tick_transitions %>% pull(from) %>% unique()
 } else {
   tick_params <- read_csv('inputs/tick_parameters.csv') %>% 
     arrange(host_spp) # sort so parameters are in same host_spp order for pairwise vector calculations
-  tick_funs <- read_csv('inputs/tick_functions.csv')
-  life_stages <- tick_funs %>% pull(from) %>% unique()
+  tick_transitions <- read_csv('inputs/tick_transitions.csv')
+  life_stages <- tick_transitions %>% pull(from) %>% unique()
 }
 
 # set initial population
@@ -171,7 +171,7 @@ density_fun <- function(x, y, a, b, c, pref)
 # This generic function will pull out the functional form and parameters needed to make the transition function, 
 # then evaluate it using supplied predictors (pred1, pred2) like temperature or host density
 # This approach takes an entire transition_row, since there can be multiple rows with the same 'from' and 'to'
-# transition_row: a row from the tick_funs tibble
+# transition_row: a row from the tick_transitions tibble
 get_transition_val <- function(time, transition_row, N, N_developing, parameters = tick_params) {
   
   f <- transition_row[['transition_fun']] %>% get()
@@ -224,7 +224,7 @@ print_params <- function(transition_row) {
 }
 
 print_all_params <- function() {
-  funs <- tick_funs %>% 
+  funs <- tick_transitions %>% 
     arrange(transition_fun)
   
   for (i in 1:nrow(funs)) {
@@ -243,17 +243,17 @@ gen_trans_matrix <- function(time, N, N_developing) {
   trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages, 
                          dimnames = list(life_stages, life_stages))
   
-  transitions <- tick_funs %>% 
+  transitions <- tick_transitions %>% 
     filter(delay == 0,
            to %in% life_stages)  # exclude mortality
   
-  mort <- tick_funs %>%
+  mort <- tick_transitions %>%
     filter(delay == 0, 
            to == 'm')
   
   if (nrow(transitions) > 0) {
     for (t in seq_len(nrow(transitions))) {
-      # now, each non-mortality (from, to) pair should have only one line in tick_funs
+      # now, each non-mortality (from, to) pair should have only one line in tick_transitions
       # we no longer take the product of multiple lines
       trans_matrix[transitions[t,]$from, transitions[t,]$to] <- 
         get_transition_val(time, transitions[t, ], N, N_developing)
@@ -328,7 +328,7 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
   
   # select all delay transition functions, including mortality
   # DA NOTE --- Why are mortality functions coded as delay???
-  transitions <- tick_funs %>% filter(delay == 1)
+  transitions <- tick_transitions %>% filter(delay == 1)
   
   # loop through these transitions by from_stage 
   for (from_stage in transitions %>% pull(from) %>% unique()) {
@@ -475,7 +475,7 @@ test_transitions <- function() {
   rownames(N) <- life_stages
   
   # select which functions to test
-  funs <- tick_funs #%>%
+  funs <- tick_transitions #%>%
     #filter(transition_fun == 'density_fun')
   
   transition_vals <- c()
@@ -493,11 +493,11 @@ test_transitions <- function() {
 # test to ensure that there are no "dead-ends" in life cycle 
 # based on all the non-mortality transitions
 test_lifecycles <- function() {
-  # check if all life_stages are in from and to in tick_funs
-  all_from <- tick_funs %>% pull(from) %>% unique() %>% sort()
-  all_to <- tick_funs %>% filter(to != 'm') %>% pull(to) %>% unique() %>% sort()
+  # check if all life_stages are in from and to in tick_transitions
+  all_from <- tick_transitions %>% pull(from) %>% unique() %>% sort()
+  all_to <- tick_transitions %>% filter(to != 'm') %>% pull(to) %>% unique() %>% sort()
   if (!all(all_from == all_to)) {
-    stop('from and to stages in tick_funs do not match')
+    stop('from and to stages in tick_transitions do not match')
   } else {
     print('all stages represented in from and to in transitions')
   }
@@ -506,7 +506,7 @@ test_lifecycles <- function() {
   # check if the graph has a cycle (trail to itself) from each life stage
   # i.e., for each life stage, can I get back to that life_stage
   # TODO for now, just inspecting this visually
-  g <- graph_from_data_frame(tick_funs %>% select(from, to) %>% filter(to != 'm'))
+  g <- graph_from_data_frame(tick_transitions %>% select(from, to) %>% filter(to != 'm'))
   plot(g)
 }
 
