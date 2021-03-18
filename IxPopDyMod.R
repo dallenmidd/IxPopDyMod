@@ -291,22 +291,7 @@ gen_trans_matrix <- function(time, N, N_developing) {
       # sum of transition probabilities plus mortality should not exceed 1
       # unless we're coming from a reproductive stage
       if (trans_prob_sum > 1 && !str_detect(from_stage, 'r.a')) {
-        
-        # TODO, uncomment this error message once we've fixed dens dep mort
-        # stop('transition probability from ', from_stage, ' = ', trans_prob_sum, ', but should be <= 1')
-        
-        # TODO for now, we're just normalizing and not warning for dens dep transitions because it prints a lot,
-        # so we're just checking for unexpected cases where trans_prob_sum > 1
-        if (!str_detect(from_stage, 'f..')) {
-          print(paste('WARNING: transition probability from ', from_stage, ' = ', trans_prob_sum, 
-                      ', but should be <= 1, so normalizing by trans_prob_sum'), sep = '')
-        }
-        
-        # normalize transitions  
-        trans_matrix[from_stage,] <- trans_matrix[from_stage,] / trans_prob_sum
-        
-        # normalize mortality to calculate survival
-        mortality <- mortality / trans_prob_sum
+        stop('transition probability from ', from_stage, ' = ', trans_prob_sum, ', but should be <= 1')
       }
       
       # The max(0, 1- ...) structure should ensure that survival is between 0 and 1
