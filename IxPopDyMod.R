@@ -7,6 +7,7 @@ library(magrittr)
 library(dplyr)
 library(stringr)
 library(tidyr)
+library(ggplot2)
 library(igraph)
 
 # set constant steps, which ensures that model doesn't try to run for longer than there is input data
