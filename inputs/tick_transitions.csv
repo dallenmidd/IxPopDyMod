@@ -32,14 +32,14 @@ qun, aun, feed_fun, 0, Dave theory, host_den, temp
 qin, ain, feed_fun, 0, Dave theory, host_den, temp
 qua, aua, feed_fun, 0, Dave theory, host_den, temp
 qia, aia, feed_fun, 0, Dave theory, host_den, temp
-f_l, eul, engorge_fun, 0, NA, host_den, NA
-f_l, eil, engorge_fun, 0, NA, host_den, NA
-fun, eun, engorge_fun, 0, NA, host_den, NA
-fun, ein, engorge_fun, 0, NA, host_den, NA
-fin, ein, engorge_fun, 0, NA, host_den, NA
-fua, eua, engorge_fun, 0, NA, host_den, NA
-fua, eia, engorge_fun, 0, NA, host_den, NA
-fia, eia, engorge_fun, 0, NA, host_den, NA
+f_l, eul, infect_fun, 0, NA, host_den, NA
+f_l, eil, infect_fun, 0, NA, host_den, NA
+fun, eun, infect_fun, 0, NA, host_den, NA
+fun, ein, infect_fun, 0, NA, host_den, NA
+fin, ein, infect_fun, 0, NA, host_den, NA
+fua, eua, infect_fun, 0, NA, host_den, NA
+fua, eia, infect_fun, 0, NA, host_den, NA
+fia, eia, infect_fun, 0, NA, host_den, NA
 a_l, per_capita_m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 ain, per_capita_m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 aun, per_capita_m, density_fun, 1, Ogden et al. 2005, host_den, [af]..

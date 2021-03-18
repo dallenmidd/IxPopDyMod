@@ -153,7 +153,7 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax)
 # Return the probability that a feeding tick becomes infected or uninfected engorged
 # Since density dependent mortality is subtracted later, in this function we assume
 # that all feeding ticks feed successfully and become engorged
-engorge_fun <- function(x, y, from_infected, to_infected, host_rc, pref)
+infect_fun <- function(x, y, from_infected, to_infected, host_rc, pref)
   sum(ifelse(rep(from_infected, n_host_spp),
              1, # stay infected
              (ifelse(rep(to_infected, n_host_spp),
@@ -202,9 +202,9 @@ get_transition_val <- function(time, transition_row, N, N_developing, parameters
   # this method allows the 'params' list to be used as named arguments for f
   do.call(f, as.list(c(list(pred1, pred2), params)))
   
-  # TODO: currently engorge_fun() uses parameters to handle infection, which is redundant bc that info 
+  # TODO: currently infect_fun() uses parameters to handle infection, which is redundant bc that info 
   # is in the from and to life_stage strings. We could pass the from and to strings to f(), so that
-  # engorge_fun() could use infected() to determine from_infected and to_infected
+  # infect_fun() could use infected() to determine from_infected and to_infected
 }
 
 # print the parameters that are being grabbed through pattern matching and the name 
