@@ -6,6 +6,8 @@ library(readr)
 library(magrittr)
 library(dplyr)
 library(stringr)
+library(tidyr)
+library(ggplot2)
 library(igraph)
 
 # set constant steps, which ensures that model doesn't try to run for longer than there is input data
@@ -249,7 +251,7 @@ gen_trans_matrix <- function(time, N, N_developing) {
   
   mort <- tick_transitions %>%
     filter(delay == 0, 
-           to == 'm')
+           !(to %in% life_stages))
   
   if (nrow(transitions) > 0) {
     for (t in seq_len(nrow(transitions))) {
@@ -334,15 +336,15 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
   for (from_stage in transitions %>% pull(from) %>% unique()) {
     
     # for a given delay transition, every "from" stage has a unique "to" stage
-    trans <- transitions %>% filter(from == from_stage, to != 'm')
+    trans <- transitions %>% filter(from == from_stage, to %in% life_stages)
     to_stage <- trans[['to']]
     
     # daily probability of transitioning to the next stage
     val <- get_transition_val(time, trans, N, N_developing)
     
-    # daily mortality during the delayed transition
+    # daily or per capita mortality during the delayed transition
     # each "from" stage has either 1 or 0 corresponding mortality transitions
-    mort_tibble <- transitions %>% filter(from == from_stage, to == 'm')
+    mort_tibble <- transitions %>% filter(from == from_stage, !(to %in% life_stages))
     if(nrow(mort_tibble) == 1) {
       mort <- get_transition_val(time, mort_tibble[1,], N, N_developing)    
     } else if (nrow(mort_tibble) == 0) {
@@ -379,6 +381,10 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
         # then elementwise subtract (1 - each element) to get vector of daily survival rate,
         # and take product to get the overall survival rate throughout the delay
         surv_to_next <- prod(1 - mort[1:days_to_next])
+        
+      } else if (nrow(mort_tibble) == 1 && mort_tibble['to'] == 'per_capita_m') {
+        # Apply per capita mortality once during transition, rather than every day
+        surv_to_next <- 1 - mort
         
       } else {
         # Constant mortality
@@ -495,7 +501,7 @@ test_transitions <- function() {
 test_lifecycles <- function() {
   # check if all life_stages are in from and to in tick_transitions
   all_from <- tick_transitions %>% pull(from) %>% unique() %>% sort()
-  all_to <- tick_transitions %>% filter(to != 'm') %>% pull(to) %>% unique() %>% sort()
+  all_to <- tick_transitions %>% filter(to %in% life_stages) %>% pull(to) %>% unique() %>% sort()
   if (!all(all_from == all_to)) {
     stop('from and to stages in tick_transitions do not match')
   } else {
@@ -506,7 +512,7 @@ test_lifecycles <- function() {
   # check if the graph has a cycle (trail to itself) from each life stage
   # i.e., for each life stage, can I get back to that life_stage
   # TODO for now, just inspecting this visually
-  g <- graph_from_data_frame(tick_transitions %>% select(from, to) %>% filter(to != 'm'))
+  g <- graph_from_data_frame(tick_transitions %>% select(from, to) %>% filter(to %in% life_stages))
   plot(g)
 }
 
