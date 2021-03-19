@@ -33,7 +33,7 @@ weather <- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = s
 host_comm <- tibble(
   j_day = rep(1:steps, each=3), 
   host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
-  host_den = rep(c(100, 8, 10), steps)) %>%
+  host_den = rep(c(100, 8, 8), steps)) %>%
   # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %>% 
   arrange(j_day, host_spp)
 n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
@@ -551,5 +551,13 @@ ggplot(out_N_df, aes(x = day, y = pop, color = process, shape = age_group, group
   scale_y_log10(limits = c(-1, 1e+05), breaks = c(10, 100, 1000, 10000, 100000, 1000000)) +
   geom_hline(yintercept = 1000)
 
-
+# just see roughly whether population is increasing or decreasing
+out_N_df %>% 
+  filter(age_group == 'a') %>% 
+  group_by(day) %>% 
+  summarise(tot = sum(pop)) %>% 
+  mutate(lambda = tot/lag(tot)) %>% 
+  filter(is.finite(lambda) ) %>% 
+  ggplot(aes(day,lambda)) + 
+  geom_path()
 
