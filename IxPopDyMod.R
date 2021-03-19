@@ -33,7 +33,7 @@ weather <- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = s
 host_comm <- tibble(
   j_day = rep(1:steps, each=3), 
   host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
-  host_den = rep(c(40, 8, 0.25), steps)) %>%
+  host_den = rep(c(100, 8, 10), steps)) %>%
   # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %>% 
   arrange(j_day, host_spp)
 n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
@@ -43,8 +43,8 @@ n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
 simple <- FALSE
 
 if (simple) {
-  tick_params <- read_csv('inputs/2021-03-02_Dave_test/tick_parameters.csv')  %>% arrange(host_spp)
-  tick_transitions <- read_csv('inputs/2021-03-02_Dave_test/tick_transitions.csv')
+  tick_params <- read_csv('inputs/2021-03-19_Dave_test/tick_parameters.csv')  %>% arrange(host_spp)
+  tick_transitions <- read_csv('inputs/2021-03-19_Dave_test/tick_transitions.csv')
   life_stages <- tick_transitions %>% pull(from) %>% unique()
 } else {
   tick_params <- read_csv('inputs/tick_parameters.csv') %>% 
@@ -144,6 +144,10 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
 
 expo_fun <- function(x, y, a, b) ifelse(x>0, a*x^b, 0)
 constant_fun <- function(x, y, a) a
+
+# first part is chance they find a host and second part is success of feeding on them
+find_n_feed <- function(x, y, a, pref, feed_success)
+  (1 - (1-a)^(sum(x * pref)/sum(pref))) *   sum(x * pref * feed_success/sum(x*pref))
 
 # product of binomial and briere functions
 # (prob of finding a host) * (prob of active questing)
