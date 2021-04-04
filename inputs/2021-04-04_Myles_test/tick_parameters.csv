@@ -13,13 +13,6 @@ f.., e.., host_rc, mouse, 0.92, NA, NA, Dave theory
 a.a, per_capita_m, pref, mouse, 0, NA, NA, Dave theory
 a.l, per_capita_m, pref, mouse, 1, NA, NA, Dave theory
 a.n, per_capita_m, pref, mouse, 1, NA, NA, Dave theory
-f.., e.., host_rc, squirrel, 0.147, NA, NA, Dave theory
-[fq].a, [ae].a, pref, squirrel, 0, NA, NA, Dave theory
-[fq].l, [ae].l, pref, squirrel, 0.75, NA, NA, Dave theory
-[fq].n, [ae].n, pref, squirrel, 1, NA, NA, Dave theory
-a.a, per_capita_m, pref, squirrel, 0, NA, NA, Dave theory
-a.l, per_capita_m, pref, squirrel, 0.75, NA, NA, Dave theory
-a.n, per_capita_m, pref, squirrel, 1, NA, NA, Dave theory
 e.l, q.n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 __e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
 q.., a.., a, NA, 4e-4, NA, NA, daily chance a tick finds one given host

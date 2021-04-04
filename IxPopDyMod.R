@@ -40,6 +40,14 @@ host_comm <- tibble(
   host_den = rep(c(100, 8, 8), steps)) %>%
   # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %>% 
   arrange(j_day, host_spp)
+
+# Ogden host community
+host_comm <- tibble(
+  j_day = rep(1:steps, each=2),
+  host_spp = rep(c('rodent', 'deer'), steps),
+  host_den = rep(c(200, 20), steps)) %>% 
+  arrange(j_day, host_spp)
+
 n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
 
 
