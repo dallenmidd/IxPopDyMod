@@ -1,0 +1,59 @@
+from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
+f.., e.., host_rc, deer, 0.046, NA, NA, Dave theory
+[fq].l, [ae].l, pref, deer, 0.25, NA, NA, Dave theory
+[fq].n, [ae].n, pref, deer, 0.25, NA, NA, Dave theory
+[fq].a, [ae].a, pref, deer, 1, NA, NA, Dave theory
+a.l, per_capita_m, pref, deer, 0.25, NA, NA, Dave theory
+a.n, per_capita_m, pref, deer, 0.25, NA, NA, Dave theory
+a.a, per_capita_m, pref, deer, 1, NA, NA, Dave theory
+f.., e.., host_rc, mouse, 0.92, NA, NA, Dave theory
+[fq].a, [ae].a, pref, mouse, 0, NA, NA, Dave theory
+[fq].l, [ae].l, pref, mouse, 1, NA, NA, Dave theory
+[fq].n, [ae].n, pref, mouse, 1, NA, NA, Dave theory
+a.a, per_capita_m, pref, mouse, 0, NA, NA, Dave theory
+a.l, per_capita_m, pref, mouse, 1, NA, NA, Dave theory
+a.n, per_capita_m, pref, mouse, 1, NA, NA, Dave theory
+f.., e.., host_rc, squirrel, 0.147, NA, NA, Dave theory
+[fq].a, [ae].a, pref, squirrel, 0, NA, NA, Dave theory
+[fq].l, [ae].l, pref, squirrel, 0.75, NA, NA, Dave theory
+[fq].n, [ae].n, pref, squirrel, 1, NA, NA, Dave theory
+a.a, per_capita_m, pref, squirrel, 0, NA, NA, Dave theory
+a.l, per_capita_m, pref, squirrel, 0.75, NA, NA, Dave theory
+a.n, per_capita_m, pref, squirrel, 1, NA, NA, Dave theory
+e.l, q.n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
+__e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
+q.., a.., a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+e.n, q.a, a, NA, 6.265664e-4, NA, NA, Ogden et al. 2005
+e.a, r.a, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
+h_l, q_l, a, NA, 0.0476, NA, NA, Daniels et al. 1996
+a.a, f.a, a, NA, 0.111, NA, NA, Ogden et al. 2005
+a.n, f.n, a, NA, 0.25, NA, NA, Ogden et al. 2005
+a_l, f_l, a, NA, 0.5, NA, NA, Ogden et al. 2005
+e.n, q.a, b, NA, 1.21, NA, NA, Ogden et al. 2005
+e.a, r.a, b, NA, 1.42, NA, NA, Ogden et al. 2004
+..e, h_l, b, NA, 2.27, NA, NA, Ogden et al. 2004
+e.l, q.n, b, NA, 2.55, NA, NA, Ogden et al. 2005
+fi., e.., from_infected, NA, 1, NA, NA, Dave theory
+f[^i]., e.., from_infected, NA, 0, NA, NA, Dave theory
+q.[ln], a.[ln], q, NA, 7e-4, NA, NA, Ogden et al. 2005
+q.a, a.a, q, NA, 0.0088, NA, NA, Ogden et al. 2005
+q.a, a.a, tmax, NA, 16, NA, NA, Ogden et al. 2005
+q_l, a_l, tmax, NA, 35, NA, NA, Ogden et al. 2005
+q.n, a.n, tmax, NA, 35, NA, NA, Ogden et al. 2005
+q.a, a.a, tmin, NA, 3, NA, NA, Ogden et al. 2005
+q_l, a_l, tmin, NA, 10, NA, NA, Ogden et al. 2005
+q.n, a.n, tmin, NA, 10, NA, NA, Ogden et al. 2005
+f.., ei., to_infected, NA, 1, NA, NA, Dave theory
+f.., e[^i]., to_infected, NA, 0, NA, NA, Dave theory
+..e, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+[er].a, m, a, NA, 1e-4, NA, NA, Ogden et al. 2005
+e.n, m, a, NA, 0.002, NA, NA, Ogden et al. 2005
+e.l, m, a, NA, 0.003, NA, NA, Ogden et al. 2005
+[hq]_l, m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+q.[na], m, a, NA, 0.006, NA, NA, Ogden et al. 2005
+a_l, per_capita_m, a, NA, 0.65, NA, NA, Ogden et al. 2005
+a.n, per_capita_m, a, NA, 0.55, NA, NA, Ogden et al. 2005
+a.a, per_capita_m, a, NA, 0.5, NA, NA, Ogden et al. 2005
+a.., per_capita_m, b, NA, 0.049, NA, NA, Ogden et al. 2005
+a.., per_capita_m, c, NA, 1.01, NA, NA, Ogden et al. 2005
+r.a, __e, a, NA, 3000, NA, NA, Ogden et al. 2005
