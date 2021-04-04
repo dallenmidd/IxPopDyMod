@@ -66,6 +66,11 @@ if (simple) {
   initial_population['rua'] <- 10 # start with only one cohort (adults)  
 }
 
+# inspect test results before running
+print_all_params()
+test_transitions()
+test_lifecycles()
+
 # run the model and extract the output population matrix and delay_matrix
 out <- run(steps, initial_population)
 out_N <- out[[1]]

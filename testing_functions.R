@@ -52,12 +52,12 @@ test_transitions <- function() {
   
   # loop through all the transition functions and calculate transition probabilities
   for (i in 1:nrow(funs)) {
-    # print(paste(funs[[i, 'from']], funs[[i, 'to']], funs[[i, 'transition_fun']]))
-    # print(get_transition_val(1, funs[i,], N, N_developing))
-    transition_vals <- c(transition_vals, get_transition_val(1, funs[i,], N, N_developing))
+    print(paste(funs[[i, 'from']], funs[[i, 'to']], funs[[i, 'transition_fun']]))
+    print(get_transition_val(1, funs[i,], N, N_developing))
+    # transition_vals <- c(transition_vals, get_transition_val(1, funs[i,], N, N_developing))
   }
   
-  transition_vals
+  # transition_vals
 }
 
 # test to ensure that there are no "dead-ends" in life cycle 
