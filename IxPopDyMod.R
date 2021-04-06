@@ -52,11 +52,11 @@ n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
 
 
 # option to run on simple inputs for testing
-simple <- FALSE
+simple <- TRUE
 
 if (simple) {
-  tick_params <- read_csv('inputs/2021-03-19_Dave_test/tick_parameters.csv')  %>% arrange(host_spp)
-  tick_transitions <- read_csv('inputs/2021-03-19_Dave_test/tick_transitions.csv')
+  tick_params <- read_csv('inputs/2021-04-04_Myles_test/tick_parameters.csv')  %>% arrange(host_spp)
+  tick_transitions <- read_csv('inputs/2021-04-04_Myles_test/tick_transitions.csv')
   life_stages <- tick_transitions %>% pull(from) %>% unique()
 } else {
   tick_params <- read_csv('inputs/tick_parameters.csv') %>% 
@@ -66,10 +66,11 @@ if (simple) {
 }
 
 # set initial population
-initial_population <- runif(length(life_stages), 0, 0)
+initial_population <- rep(0, length(life_stages))
 names(initial_population) <- life_stages
 if (simple) {
-  initial_population['r_a'] <- 10 # start with only one cohort (adults)
+  # initial_population['r_a'] <- 10 # start with only one cohort (adults)
+  initial_population['q_a'] <- 10000 # Ogden initial population
 } else {
   initial_population['rua'] <- 10 # start with only one cohort (adults)  
 }
