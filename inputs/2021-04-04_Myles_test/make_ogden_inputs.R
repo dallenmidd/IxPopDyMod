@@ -1,8 +1,15 @@
 # quick script for getting the monthly temperature data from Ogden 2005
 # to daily intervals based on the (variable) number of days in each month
 
+# also includes quick calculations for determining daily probability of host finding
+# using Ogden's approach
+
 library(tidyverse)
 library(lubridate)
+
+#########################
+# weather data
+#########################
 
 # I first digitized Figure 2 from Ogden et al. 2005
 # data are mean monthly normal temperature in degrees C
@@ -41,4 +48,23 @@ ggplot(ogden_weather, aes(j_day, tmean)) + geom_line()
 
 
 write_csv(ogden_weather, 'inputs/2021-04-04_Myles_test/ogden_weather.csv')
+
+###############################
+# host finding probability
+###############################
+
+# p_w = prob tick finds host in a week
+# p_d = prob tick finds host in a day
+# p_w = 1 - (1 - p_d) ^ 7
+
+# larvae and nymphs
+p_w <- .0089 * 200 ^ .515
+p_d <- 1 - ((1 - p_w) ^ (1/7))
+# p_d = 0.02071142
+
+# adults
+p_w <- .06 * 20 ^ .515
+p_d <- 1 - ((1 - p_w) ^ (1/7))
+# p_d = 0.04597015
+
 

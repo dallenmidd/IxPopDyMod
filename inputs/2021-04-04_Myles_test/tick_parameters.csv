@@ -1,19 +1,14 @@
 from, to, param_name, host_spp, param_value, param_ci_low, param_ci_high, source
-q.l, a.l, pref, deer, 0, NA, NA, Dave theory
-q.n, a.n, pref, deer, 0, NA, NA, Dave theory
-q.a, a.a, pref, deer, 1, NA, NA, Dave theory
 a.l, per_capita_m, pref, deer, 0, NA, NA, Dave theory
 a.n, per_capita_m, pref, deer, 0, NA, NA, Dave theory
 a.a, per_capita_m, pref, deer, 1, NA, NA, Dave theory
-q.a, a.a, pref, mouse, 0, NA, NA, Dave theory
-q.l, a.l, pref, mouse, 1, NA, NA, Dave theory
-q.n, a.n, pref, mouse, 1, NA, NA, Dave theory
 a.a, per_capita_m, pref, mouse, 0, NA, NA, Dave theory
 a.l, per_capita_m, pref, mouse, 1, NA, NA, Dave theory
 a.n, per_capita_m, pref, mouse, 1, NA, NA, Dave theory
 e.l, q.n, a, NA, 9.883278e-6, NA, NA, Ogden et al. 2005
 __e, h_l, a, NA, 2.92e-5, NA, NA, Ogden et al. 2004
-q.., a.., a, NA, 4e-4, NA, NA, daily chance a tick finds one given host
+q_[ln], a_[ln], a, NA, 0.0207, NA, NA, daily chance a tick finds one given host
+q_a, a_a, a, NA, 0.0459, NA, NA, daily chance a tick finds one given host
 e.n, q.a, a, NA, 6.265664e-4, NA, NA, Ogden et al. 2005
 e.a, r.a, a, NA, 7.692308e-4, NA, NA, Ogden et al. 2004
 h_l, q_l, a, NA, 0.0476, NA, NA, Daniels et al. 1996

@@ -16,6 +16,10 @@ find_n_feed <- function(x, y, a, pref, feed_success)
 feed_fun <- function(x, y, a, pref, q, tmin, tmax)
   (1 - (1-a)^(sum(x * pref))) * ifelse(y>tmin & y<tmax, q*y*(y-tmin)*sqrt(tmax-y), 0)
 
+# (const prob of finding a host) * (prob of active questing)
+ogden_feed_fun <- function(x, y, a, q, tmin, tmax)
+  a * ifelse(x>tmin & x<tmax, q*x*(x-tmin)*sqrt(tmax-x), 0)
+
 # Return the probability that a feeding tick becomes infected or uninfected engorged
 # Since density dependent mortality is subtracted later, in this function we assume
 # that all feeding ticks feed successfully and become engorged

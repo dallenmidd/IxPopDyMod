@@ -16,9 +16,9 @@ e_a, m, constant_fun, 1, Ogden et al. 2005, NA, NA
 a_a, e_a, constant_fun, 1, Ogden et al. 2005, NA, NA
 q_a, m, constant_fun, 0, Ogden et al. 2005, NA, NA
 q_n, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-q_l, a_l, feed_fun, 0, Dave theory, host_den, temp
-q_n, a_n, feed_fun, 0, Dave theory, host_den, temp
-q_a, a_a, feed_fun, 0, Dave theory, host_den, temp
+q_l, a_l, ogden_feed_fun, 0, Dave theory, temp, NA
+q_n, a_n, ogden_feed_fun, 0, Dave theory, temp, NA
+q_a, a_a, ogden_feed_fun, 0, Dave theory, temp, NA
 a_l, per_capita_m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 a_n, per_capita_m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
 a_a, per_capita_m, density_fun, 1, Ogden et al. 2005, host_den, [af]..
