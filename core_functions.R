@@ -58,18 +58,9 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
   } else if (pred == "vpd") {
     return(get_vpd(time))
   } else if (pred == "host_den") {
-    return(get_host_den(time[1])) 
-    # Density dependent mortality for delay transitions was breaking because of unintended
-    # consequences of operations on vectors of various lengths. As a fix, we always return 
-    # a vector of length n_host_spp. This is probably fine because the temporal resolution 
-    # for host community data is likely to be low enough that it's fine to repeat the same
-    # value. Additionally, it's more consistent because we employ a similar strategy for 
-    # the N predictor, where we always return a single value, the feeding tick population size 
-    # at the current step (not a vector of feeding tick population size over time)
+    return(get_host_den(time[1])) # length == n_host_spp
   } else if (any(str_detect(life_stages, pred))) {
-    # unlike the other predictors which are length == max_delay + 1, 
-    # this will always be a vector of length == 1
-    return(sum((N + N_developing)[str_subset(life_stages, pred), time[1]]))
+    return(sum((N + N_developing)[str_subset(life_stages, pred), time[1]])) # length == 1
   } else {
     print("error: couldn't match pred")
   }
@@ -94,10 +85,6 @@ get_transition_val <- function(time, transition_row, N, N_developing, parameters
     filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
     pull(param_name)
   
-  # useful for debugging with test_transitions(), for seeing the parameters
-  # that are being grabbed for each transition via pattern matching
-  # print(params)
-  
   # Collapse params from a named vector into a list of vectors by param name
   # We do this so that params like 'pref' or 'host_rc' that are dependent on host_spp
   # and have multiple values can be passed as a single argument to the transition function 
@@ -109,16 +96,11 @@ get_transition_val <- function(time, transition_row, N, N_developing, parameters
   # call f with the predictors and parameters
   # this method allows the 'params' list to be used as named arguments for f
   do.call(f, as.list(c(list(pred1, pred2), params)))
-  
-  # TODO: currently infect_fun() uses parameters to handle infection, which is redundant bc that info 
-  # is in the from and to life_stage strings. We could pass the from and to strings to f(), so that
-  # infect_fun() could use infected() to determine from_infected and to_infected
 }
 
 # 04
 # at each step, we generate a new transition matrix whose transition probabilities
 # are based on the input data (weather, host_community) at that time 
-# Myles note: I think all the transitions we're handling this way are questing -> feeding
 gen_trans_matrix <- function(time, N, N_developing) {
   
   # initialize the transition matrix with 0s
@@ -136,8 +118,6 @@ gen_trans_matrix <- function(time, N, N_developing) {
   
   if (nrow(transitions) > 0) {
     for (t in seq_len(nrow(transitions))) {
-      # now, each non-mortality (from, to) pair should have only one line in tick_transitions
-      # we no longer take the product of multiple lines
       trans_matrix[transitions[t,]$from, transitions[t,]$to] <- 
         get_transition_val(time, transitions[t, ], N, N_developing)
     }
@@ -146,25 +126,6 @@ gen_trans_matrix <- function(time, N, N_developing) {
   if (nrow(mort) > 0) {
     for (m in seq_len(nrow(mort))) {
       from_stage <- mort[m,]$from
-      
-      # The other question is the implications of this behavior for non-reproduction transitions. 
-      # Transition probabilities should not be negative and max(0, ...) ensures that. However, what if
-      # for a non-reproduction transition, sum(trans_matrix[from_stage,]) + mortality were greater than 1...
-      # Currently this is happening for (at least some of) the density dependent mortality transitions. This is 
-      # because density dependent mortality is pretty high (roughly .5 to .8) compared to other mortality values.
-      # If we interpret transition probabilities to mean what fraction of the population goes where, and the 
-      # sum of transition probabilties is greater than 1 for a non-reproduction transition, that's a
-      # problem because the total population should not increase for a non-reproduction transition.
-      
-      # An example from some testing: trans probability from d_l to eil is 0.39, d_l to eul is 0.05. Density dep
-      # d_l mortality is 0.69. Sum of all these is (0.39 + 0.05 + 0.69) = 1.13. Currently, the code below
-      # will calculate the survival as max(0, 1 - sum(0.39 + 0.05) - 0.69) = 0. Interpretation: we "prioritize"
-      # transitions to other life stages, then calculate mortality. Is this an okay behavior, or should we apply
-      # mortality first, then calculate how the surviving population advances? 
-      # DA NOTE: hmm, yikes! Let me think about this. but it seems to me like something funky is happening like we
-      # are some how double counting mortality, since there is no where for a d_l tick to go except eil or eul
-      # So if we set d_l -> eil = 0.39 and d_l -> eul -> 0.05, then we have to mean 1-(0.39+0.05) die, if we then
-      # add MORE mortality on top of that it seems like double counting. 
       
       mortality <- get_transition_val(time, mort[m,], N, N_developing) 
       trans_prob_sum <- sum(trans_matrix[from_stage,], mortality)
@@ -191,7 +152,6 @@ gen_trans_matrix <- function(time, N, N_developing) {
 update_delay_arr <- function(time, delay_arr, N, N_developing) {
   
   # select all delay transition functions, including mortality
-  # DA NOTE --- Why are mortality functions coded as delay???
   transitions <- tick_transitions %>% filter(delay == 1)
   
   # loop through these transitions by from_stage 
@@ -272,12 +232,6 @@ run <- function(steps, initial_population) {
                      dimnames = list(life_stages, life_stages, NULL),
                      data = 0)
   
-  
-  # host community array, hard coding three tick life stages
-  # this keeps track of the number of ticks of each life stage on the average host of each host spp on each day
-  # hc_array <- array(dim = c(3, n_host_spp, steps + max_delay), 
-  #                   data = 0, 
-  #                   dimnames = list(c('l','n','a'), host_comm %>% pull(host_spp) %>% unique(), NULL)) 
   
   # intialize a population matrix with initial_population
   N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
