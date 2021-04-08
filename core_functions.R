@@ -25,9 +25,7 @@ infected <- function(life_stage) {
 
 # extract temperature from input data at time time 
 get_temp <- function(time) {
-  weather %>%
-    filter(j_day %in% time) %>%
-    pull(tmean)
+  weather[which(weather$j_day %in% time), ]$tmean
 }
 
 # extract vapour-pressure deficit from input data at time time 
@@ -38,9 +36,7 @@ get_vpd <- function(time) {
 } 
 
 get_host_den <- function(time) {
-  host_comm %>%
-    filter(j_day %in% time) %>%
-    pull(host_den)
+  host_comm[which(host_comm$j_day %in% time), ]$host_den
 }
 
 # Return a vector of a predictor at time time. 

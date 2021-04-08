@@ -1,0 +1,90 @@
+---
+title: "benchmarking"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## get_temp
+When profiling `run()` (see `profile1.Rprofvis`), it was evident that most of the model run time was in `update_delay_arr()` and `gen_trans_matrix()`. Following the hierarchy of calls, both of these functions call `get_transition_val()` which calls `get_pred()` which calls `get_temp()` and/or `get_host_den()`. Across the board in all these functions, the pipe operator was a top (2nd if not 1st) use of time and memory. I was really surprised to see this, but I found a few threads like this [one](https://stackoverflow.com/questions/35933272/why-is-using-dplyr-pipe-slower-than-an-equivalent-non-pipe-expression-for/35935105), which cites "the oft-quoted recommendation that pipes are okay on the command line where your brain thinks in chains, but not in functions that might be time-critical."
+
+Many functions in `core_functions.R` are called MANY times, and do little work on each iteration. For example, I think `get_pred()` gets called twice for each transition at each time step... So the takeaway is that speeding up these functions could lead to significant performance improvements, hopefully without compromising readability too much. Based on the recommendation above, this will likely involve removing pipes from functions that are called many times.
+
+I'll start with `get_temp()`, because it's small and easy to refactor. 
+
+```{r get_temp}
+library(tidyverse)
+library(bench)
+
+weather <- tibble(tmean = runif(100, 10, 20), j_day = 1:100)
+
+
+# original function
+get_temp <- function(time) {
+  weather %>%
+    filter(j_day %in% time) %>%
+    pull(tmean)
+}
+
+get_temp2 <- function(time) {
+  pull(filter(weather, j_day %in% time), tmean)
+}
+
+get_temp3 <- function(time) {
+  filter(weather, j_day %in% time)$tmean
+}
+
+get_temp4 <- function(time) {
+  weather[weather$j_day %in% time, ]$tmean
+}
+
+get_temp5 <- function(time) {
+  weather[which(weather$j_day %in% time), ]$tmean
+}
+
+# temperature for days 1 to 10
+t <- seq(1, 10)
+
+bnch <- mark(get_temp(t), get_temp2(t), get_temp3(t), get_temp4(t), get_temp5(t))
+bnch
+
+```
+
+### Takeaway
+`get_temp5()` appears to be the fastest (over 30x faster than original) and use least memory. A similar optimization should also work for `get_host_den()`.
+
+```{r get_host_den}
+
+steps <- 100
+
+# sample host community data
+host_comm <- tibble(
+  j_day = rep(1:steps, each=2),
+  host_spp = rep(c('rodent', 'deer'), steps),
+  host_den = rep(c(200, 20), steps)) %>% 
+  arrange(j_day, host_spp)
+
+# original 
+get_host_den <- function(time) {
+  host_comm %>%
+    filter(j_day %in% time) %>%
+    pull(host_den)
+}
+
+get_host_den2 <- function(time) {
+  host_comm[which(host_comm$j_day %in% time), ]$host_den
+}
+
+bnch <- mark(get_host_den(t), get_host_den2(t))
+bnch
+
+```
+
+As expected, the same approach, `get_host_den2()`, is also much faster than the original.
+
+## whole model
+
+Now, the question is, how do these changes impact the total runtime of the model. I ran the model with the Ogden inputs for 500 steps, before and after switching to the faster versions of `get_host_den()` and `get_temp()`. Total runtime went down from about 60 seconds to 48 seconds. Memory usage was pretty much the same. Also, the relative time spent in the two updated functions decreased a lot, so I'm pretty confident this had the desired effect. 
+
