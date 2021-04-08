@@ -26,7 +26,9 @@ max_delay <- 300
 # read inputs 
 # weather <- read_csv('inputs/weather.csv')
 # constant temperature for testing
-weather <- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = seq(from = 1, to = steps))
+# weather <- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = seq(from = 1, to = steps))
+# ogden weather 
+weather <- read_csv('inputs/2021-04-04_Myles_test/ogden_weather.csv')
 
 # non constant temp (sine wave approx Midd temp)
 # annualtemp <- 15*sin(2*pi/365*(x-110)) +5
