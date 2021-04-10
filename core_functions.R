@@ -71,28 +71,28 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
 # transition_row: a row from the tick_transitions tibble
 get_transition_val <- function(time, transition_row, N, N_developing, parameters = tick_params) {
   
-  f <- transition_row[['transition_fun']] %>% get()
+  f <- get(transition_row[['transition_fun']])
   
-  params <- parameters %>% 
-    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
-    pull(param_value)
+  params_tbl <- filter(parameters, 
+                       str_detect(transition_row[['from']], from), 
+                       str_detect(transition_row[['to']], to))
   
-  names(params) <- parameters %>%
-    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
-    pull(param_name)
+  params <- params_tbl$param_value
+  names(params) <- params_tbl$param_name
   
   # Collapse params from a named vector into a list of vectors by param name
   # We do this so that params like 'pref' or 'host_rc' that are dependent on host_spp
   # and have multiple values can be passed as a single argument to the transition function 
-  params <- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  params <- split(unname(params), names(params))
   
   pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
   pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
   
   # call f with the predictors and parameters
   # this method allows the 'params' list to be used as named arguments for f
-  do.call(f, as.list(c(list(pred1, pred2), params)))
+  do.call(f, c(list(pred1, pred2), params))
 }
+
 
 # 04
 # at each step, we generate a new transition matrix whose transition probabilities

@@ -416,11 +416,11 @@ bnch</code></pre>
 <pre><code>## # A tibble: 5 x 6
 ##   expression        min   median `itr/sec` mem_alloc `gc/sec`
 ##   &lt;bch:expr&gt;   &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 get_temp(t)   835.7µs   1.54ms      534.  298.73KB    14.8 
-## 2 get_temp2(t)  658.4µs   1.19ms      719.    4.72KB    11.1 
-## 3 get_temp3(t)  122.1µs 167.04µs     4541.     9.7KB     4.08
-## 4 get_temp4(t)   26.1µs  34.39µs    24524.   57.38KB     9.81
-## 5 get_temp5(t)   24.7µs  32.71µs    24758.    1.76KB     7.43</code></pre>
+## 1 get_temp(t)   855.7µs   1.06ms      690.  298.73KB    19.1 
+## 2 get_temp2(t)  682.5µs 852.96µs      896.    4.72KB    14.8 
+## 3 get_temp3(t)  145.6µs 208.91µs     3029.     9.7KB     4.10
+## 4 get_temp4(t)   33.6µs  45.15µs    14130.   57.38KB     4.17
+## 5 get_temp5(t)   27.2µs  32.04µs    26235.    1.76KB     7.87</code></pre>
 <div id="takeaway" class="section level3">
 <h3>Takeaway</h3>
 <p><code>get_temp5()</code> appears to be the fastest (over 30x faster than original) and use least memory. A similar optimization should also work for <code>get_host_den()</code>.</p>
@@ -449,10 +449,184 @@ bnch</code></pre>
 <pre><code>## # A tibble: 2 x 6
 ##   expression            min   median `itr/sec` mem_alloc `gc/sec`
 ##   &lt;bch:expr&gt;       &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 get_host_den(t)   617.4µs  819.6µs     1045.    6.97KB     6.23
-## 2 get_host_den2(t)   26.7µs   34.1µs    26645.    3.73KB    10.7</code></pre>
-<p>As expected, the same approach (<code>get_host_den2()</code>) is much faster.</p>
+## 1 get_host_den(t)     692µs  963.6µs      771.    6.97KB     6.39
+## 2 get_host_den2(t)     29µs   40.4µs    17545.    3.73KB     6.54</code></pre>
+<p>As expected, the same approach, <code>get_host_den2()</code>, is also much faster than the original.</p>
 </div>
+</div>
+<div id="whole-model" class="section level2">
+<h2>whole model</h2>
+<p>Now, the question is, how do these changes impact the total runtime of the model. I ran the model with the Ogden inputs for 500 steps, before and after switching to the faster versions of <code>get_host_den()</code> and <code>get_temp()</code>. Total runtime went down from about 60 seconds to 48 seconds. Memory usage was pretty much the same. Also, the relative time spent in the two updated functions decreased a lot, so I’m pretty confident this had the desired effect.</p>
+</div>
+<div id="get_transition_val" class="section level2">
+<h2>get_transition_val()</h2>
+<pre class="r"><code>library(tidyverse)
+library(bench)
+source('../user_defined_functions.R')
+source('../core_functions.R')
+steps &lt;- 300
+tick_transitions &lt;- read_csv('../inputs/tick_transitions.csv')</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   from = col_character(),
+##   to = col_character(),
+##   transition_fun = col_character(),
+##   delay = col_double(),
+##   source = col_character(),
+##   pred1 = col_character(),
+##   pred2 = col_character()
+## )</code></pre>
+<pre class="r"><code>transition_row &lt;- tick_transitions[34,] # pick a transition row that involves host community
+life_stages &lt;- tick_transitions %&gt;% pull(from) %&gt;% unique()
+tick_params &lt;- read_csv('../inputs/tick_parameters.csv') %&gt;% arrange(host_spp)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   from = col_character(),
+##   to = col_character(),
+##   param_name = col_character(),
+##   host_spp = col_character(),
+##   param_value = col_double(),
+##   param_ci_low = col_logical(),
+##   param_ci_high = col_logical(),
+##   source = col_character()
+## )</code></pre>
+<pre class="r"><code>host_comm &lt;- tibble(
+  j_day = rep(1:steps, each=3), 
+  host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
+  host_den = rep(c(100, 8, 8), steps)) %&gt;%
+  # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %&gt;% 
+  arrange(j_day, host_spp)
+n_host_spp &lt;- host_comm %&gt;% pull(host_spp) %&gt;% unique() %&gt;% length()
+time &lt;- 1
+N &lt;- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+N[,1] &lt;- 10 
+rownames(N) &lt;- life_stages
+N_developing &lt;- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+rownames(N) &lt;- life_stages
+
+get_transition_val &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- transition_row[['transition_fun']] %&gt;% get()
+  
+  params &lt;- parameters %&gt;% 
+    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %&gt;%
+    pull(param_value)
+  
+  names(params) &lt;- parameters %&gt;%
+    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %&gt;%
+    pull(param_name)
+  
+  params &lt;- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, as.list(c(list(pred1, pred2), params)))
+}
+
+# removing pipes
+get_transition_val2 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  params &lt;- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_value
+
+  names(params) &lt;- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_name
+  
+  params &lt;- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, as.list(c(list(pred1, pred2), params)))
+}
+
+# removing redundant as.list 
+get_transition_val3 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  params &lt;- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_value
+
+  names(params) &lt;- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_name
+  
+  params &lt;- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# split instead of tapply
+get_transition_val4 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  params &lt;- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_value
+
+  names(params) &lt;- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_name
+  
+  params &lt;- split(unname(params), names(params))
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+get_transition_val5 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  params_tbl &lt;- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))
+  
+  params &lt;- params_tbl$param_value
+  names(params) &lt;- params_tbl$param_name
+
+  params &lt;- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+
+bnch &lt;- mark(get_transition_val(time, transition_row, N, N_developing),
+             get_transition_val2(time, transition_row, N, N_developing),
+             get_transition_val3(time, transition_row, N, N_developing),
+             get_transition_val4(time, transition_row, N, N_developing),
+             get_transition_val5(time, transition_row, N, N_developing),
+             iterations = 1000)
+bnch</code></pre>
+<pre><code>## # A tibble: 5 x 6
+##   expression                                                    min median
+##   &lt;bch:expr&gt;                                                 &lt;bch:&gt; &lt;bch:&gt;
+## 1 get_transition_val(time, transition_row, N, N_developing)  3.23ms 4.77ms
+## 2 get_transition_val2(time, transition_row, N, N_developing) 1.81ms 2.49ms
+## 3 get_transition_val3(time, transition_row, N, N_developing) 1.88ms 2.53ms
+## 4 get_transition_val4(time, transition_row, N, N_developing) 1.71ms  3.1ms
+## 5 get_transition_val5(time, transition_row, N, N_developing) 1.13ms 1.51ms
+## # … with 3 more variables: `itr/sec` &lt;dbl&gt;, mem_alloc &lt;bch:byt&gt;, `gc/sec` &lt;dbl&gt;</code></pre>
+</div>
+<div id="takeaway-1" class="section level2">
+<h2>takeaway</h2>
+<p>Speed of the <code>get_transition_val</code> versions 2, 3, and 4 are comparable, 2 seems to use a bit more memory. We’ll use 4 because I think it’s a bit more readable.</p>
 </div>
 
 

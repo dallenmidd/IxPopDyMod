@@ -88,3 +88,168 @@ As expected, the same approach, `get_host_den2()`, is also much faster than the 
 
 Now, the question is, how do these changes impact the total runtime of the model. I ran the model with the Ogden inputs for 500 steps, before and after switching to the faster versions of `get_host_den()` and `get_temp()`. Total runtime went down from about 60 seconds to 48 seconds. Memory usage was pretty much the same. Also, the relative time spent in the two updated functions decreased a lot, so I'm pretty confident this had the desired effect. 
 
+## get_transition_val()
+
+
+``` {r get_transition_val}
+library(tidyverse)
+library(bench)
+source('../user_defined_functions.R')
+source('../core_functions.R')
+steps <- 300
+tick_transitions <- read_csv('../inputs/tick_transitions.csv')
+transition_row <- tick_transitions[34,] # pick a transition row that involves host community
+life_stages <- tick_transitions %>% pull(from) %>% unique()
+tick_params <- read_csv('../inputs/tick_parameters.csv') %>% arrange(host_spp)
+host_comm <- tibble(
+  j_day = rep(1:steps, each=3), 
+  host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
+  host_den = rep(c(100, 8, 8), steps)) %>%
+  # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %>% 
+  arrange(j_day, host_spp)
+n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
+time <- 1
+N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+N[,1] <- 10 
+rownames(N) <- life_stages
+N_developing <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+rownames(N) <- life_stages
+
+get_transition_val <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- transition_row[['transition_fun']] %>% get()
+  
+  params <- parameters %>% 
+    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
+    pull(param_value)
+  
+  names(params) <- parameters %>%
+    filter(str_detect(transition_row[['from']], from), str_detect(transition_row[['to']], to)) %>%
+    pull(param_name)
+  
+  params <- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, as.list(c(list(pred1, pred2), params)))
+}
+
+# removing pipes
+get_transition_val2 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  params <- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_value
+
+  names(params) <- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_name
+  
+  params <- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, as.list(c(list(pred1, pred2), params)))
+}
+
+# removing redundant as.list 
+get_transition_val3 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  params <- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_value
+
+  names(params) <- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_name
+  
+  params <- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# split instead of tapply
+get_transition_val4 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  params <- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_value
+
+  names(params) <- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))$param_name
+  
+  params <- split(unname(params), names(params))
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# filter once, tapply
+get_transition_val5 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  params_tbl <- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))
+  
+  params <- params_tbl$param_value
+  names(params) <- params_tbl$param_name
+
+  params <- tapply(unname(params), rep(names(params), lengths(params)), FUN = c)
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# filter once, split
+get_transition_val6 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  params_tbl <- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))
+  
+  params <- params_tbl$param_value
+  names(params) <- params_tbl$param_name
+
+  params <- split(unname(params), names(params))
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+
+bnch <- mark(get_transition_val(time, transition_row, N, N_developing),
+             get_transition_val2(time, transition_row, N, N_developing),
+             get_transition_val3(time, transition_row, N, N_developing),
+             get_transition_val4(time, transition_row, N, N_developing),
+             get_transition_val5(time, transition_row, N, N_developing),
+             get_transition_val6(time, transition_row, N, N_developing),
+             iterations = 1000)
+bnch
+  
+
+```
+
+## takeaway
+Speed of the `get_transition_val` versions 2, 3, and 4 are comparable, 2 seems to use a bit more memory. 5 and 6 are even faster - they call `filter` only once, and according to profiling `filter` is currently one of the major bottlenecks in general in the model. We'll use 6 which I think is slightly more readable.
