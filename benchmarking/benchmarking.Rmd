@@ -253,3 +253,204 @@ bnch
 
 ## takeaway
 Speed of the `get_transition_val` versions 2, 3, and 4 are comparable, 2 seems to use a bit more memory. 5 and 6 are even faster - they call `filter` only once, and according to profiling `filter` is currently one of the major bottlenecks in general in the model. We'll use 6 which I think is slightly more readable.
+
+
+# update_delay_arr 
+```{r update_delay_arr}
+
+library(tidyverse)
+library(bench)
+source('../core_functions.R')
+source('../user_defined_functions.R')
+
+max_delay <- 300
+steps <- 500
+
+tick_params <- read_csv('../inputs/tick_parameters.csv') %>% 
+  arrange(host_spp) 
+tick_transitions <- read_csv('../inputs/tick_transitions.csv')
+life_stages <- tick_transitions %>% pull(from) %>% unique()
+
+weather <- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = seq(from = 1, to = steps))
+host_comm <- tibble(
+  j_day = rep(1:steps, each=3), 
+  host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
+  host_den = rep(c(100, 8, 8), steps)) %>%
+  # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %>% 
+  arrange(j_day, host_spp)
+
+n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
+time <- 1
+N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+N[,1] <- 10 
+rownames(N) <- life_stages
+N_developing <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+rownames(N) <- life_stages
+
+delay_arr <- array(dim = c(length(life_stages), length(life_stages), steps + max_delay),
+                   dimnames = list(life_stages, life_stages, NULL),
+                   data = 0)
+
+update_delay_arr <- function(time, delay_arr, N, N_developing) {
+  
+  # select all delay transition functions, including mortality
+  transitions <- tick_transitions %>% filter(delay == 1)
+
+  # loop through these transitions by from_stage 
+  for (from_stage in transitions %>% pull(from) %>% unique()) {
+    
+    # for a given delay transition, every "from" stage has a unique "to" stage
+    trans <- transitions %>% filter(from == from_stage, to %in% life_stages)
+    to_stage <- trans[['to']]
+    
+    # daily probability of transitioning to the next stage
+    val <- get_transition_val(time, trans, N, N_developing)
+    
+    # daily or per capita mortality during the delayed transition
+    # each "from" stage has either 1 or 0 corresponding mortality transitions
+    mort_tibble <- transitions %>% filter(from == from_stage, !(to %in% life_stages))
+    if(nrow(mort_tibble) == 1) {
+      mort <- get_transition_val(time, mort_tibble[1,], N, N_developing)    
+    } else if (nrow(mort_tibble) == 0) {
+      mort <- 0 
+    } else {
+      stop(nrow(mort_tibble), ' mortality transitions found from a single stage, should be 1 or 0')
+    }
+    
+    # Constant functions (for a fixed delay transition) return a single value
+    # We increase the length so that we can do a cumsum over the vector
+    # We add 1 for consistency with output vector length from non-constant fxns,
+    # which is determined by time:(time + max_delay) in get_pred()
+    if (length(val) == 1) val <- rep(val, max_delay + 1)
+    
+    days <- cumsum(val) >= 1
+    
+    if (any(days)) {
+      
+      # delay duration is the number of days until the first day when the sum
+      # of the daily probabilities >= 1
+      days_to_next <- min(which(days))
+      
+      if (length(mort) > 1) {
+        # Non-constant mortality
+        # We might ultimately want density_fun() to return a vector of length > 1,
+        # where the value for each day is calculated based on that day's feeding tick population
+        # But currently, all mortality transitions are either constant_fun() or density_fun(), 
+        # both of which return a vector of length 1, so we shouldn't ever get to this case.
+        print('non-constant mortality')
+        
+        # in this case, mort is a vector of length max_delay?
+        # we susbet it for the duration of the delay
+        # then elementwise subtract (1 - each element) to get vector of daily survival rate,
+        # and take product to get the overall survival rate throughout the delay
+        surv_to_next <- prod(1 - mort[1:days_to_next])
+        
+      } else if (nrow(mort_tibble) == 1 && mort_tibble['to'] == 'per_capita_m') {
+        # Apply per capita mortality once during transition, rather than every day
+        surv_to_next <- 1 - mort
+        
+      } else {
+        # Constant mortality
+        surv_to_next <- (1 - mort) ^ days_to_next
+      }
+      
+      # number of ticks emerging from from_stage to to_stage at time + days_to_next is the number of ticks 
+      # that were already going to emerge then plus the current number of ticks in the from_stage * survival
+      delay_arr[to_stage, from_stage, time + days_to_next] <- 
+        delay_arr[to_stage, from_stage, time + days_to_next] +
+        N[from_stage, time] * surv_to_next
+    }
+  }
+  return(delay_arr)
+}
+
+update_delay_arr2 <- function(time, delay_arr, N, N_developing) {
+  
+  # select all delay transition functions, including mortality
+  transitions <- filter(tick_transitions, delay == 1)
+
+  # loop through these transitions by from_stage 
+  from_stages <- unique(pull(transitions, from))
+  for (from_stage in from_stages) {
+    
+    # for a given delay transition, every "from" stage has a unique "to" stage
+    trans <- filter(transitions,
+                    from == from_stage,
+                    to %in% life_stages)
+    to_stage <- trans[['to']]
+    
+    # daily probability of transitioning to the next stage
+    val <- get_transition_val(time, trans, N, N_developing)
+    
+    # daily or per capita mortality during the delayed transition
+    # each "from" stage has either 1 or 0 corresponding mortality transitions
+    mort_tibble <- filter(transitions, 
+                          from == from_stage, 
+                          !(to %in% life_stages))
+    if(nrow(mort_tibble) == 1) {
+      mort <- get_transition_val(time, mort_tibble[1,], N, N_developing)    
+    } else if (nrow(mort_tibble) == 0) {
+      mort <- 0 
+    } else {
+      stop(nrow(mort_tibble), ' mortality transitions found from a single stage, should be 1 or 0')
+    }
+    
+    # Constant functions (for a fixed delay transition) return a single value
+    # We increase the length so that we can do a cumsum over the vector
+    # We add 1 for consistency with output vector length from non-constant fxns,
+    # which is determined by time:(time + max_delay) in get_pred()
+    if (length(val) == 1) val <- rep(val, max_delay + 1)
+    
+    days <- cumsum(val) >= 1
+    
+    if (any(days)) {
+      
+      # delay duration is the number of days until the first day when the sum
+      # of the daily probabilities >= 1
+      days_to_next <- min(which(days))
+      
+      if (length(mort) > 1) {
+        # Non-constant mortality
+        # We might ultimately want density_fun() to return a vector of length > 1,
+        # where the value for each day is calculated based on that day's feeding tick population
+        # But currently, all mortality transitions are either constant_fun() or density_fun(), 
+        # both of which return a vector of length 1, so we shouldn't ever get to this case.
+        print('non-constant mortality')
+        
+        # in this case, mort is a vector of length max_delay?
+        # we susbet it for the duration of the delay
+        # then elementwise subtract (1 - each element) to get vector of daily survival rate,
+        # and take product to get the overall survival rate throughout the delay
+        surv_to_next <- prod(1 - mort[1:days_to_next])
+        
+      } else if (nrow(mort_tibble) == 1 && mort_tibble['to'] == 'per_capita_m') {
+        # Apply per capita mortality once during transition, rather than every day
+        surv_to_next <- 1 - mort
+        
+      } else {
+        # Constant mortality
+        surv_to_next <- (1 - mort) ^ days_to_next
+      }
+      
+      # number of ticks emerging from from_stage to to_stage at time + days_to_next is the number of ticks 
+      # that were already going to emerge then plus the current number of ticks in the from_stage * survival
+      delay_arr[to_stage, from_stage, time + days_to_next] <- 
+        delay_arr[to_stage, from_stage, time + days_to_next] +
+        N[from_stage, time] * surv_to_next
+    }
+  }
+  return(delay_arr)
+}
+
+
+
+
+mark(update_delay_arr(time, delay_arr, N, N_developing),
+     update_delay_arr2(time, delay_arr, N, N_developing),
+     iterations = 200)
+
+```
+
+## takeaway
+Removing the pipes in `update_delay_arr` has a minimal effect on performance, I suspect this is because the function is doing a large amount of work (vs something like `get_temp`), and the pipe is trivial in comparison. I see no other obvious opportunities to increase performance in `update_delay_arr`, so I'll stick with the original version.
+

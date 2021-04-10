@@ -416,11 +416,11 @@ bnch</code></pre>
 <pre><code>## # A tibble: 5 x 6
 ##   expression        min   median `itr/sec` mem_alloc `gc/sec`
 ##   &lt;bch:expr&gt;   &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 get_temp(t)   855.7µs   1.06ms      690.  298.73KB    19.1 
-## 2 get_temp2(t)  682.5µs 852.96µs      896.    4.72KB    14.8 
-## 3 get_temp3(t)  145.6µs 208.91µs     3029.     9.7KB     4.10
-## 4 get_temp4(t)   33.6µs  45.15µs    14130.   57.38KB     4.17
-## 5 get_temp5(t)   27.2µs  32.04µs    26235.    1.76KB     7.87</code></pre>
+## 1 get_temp(t)   813.9µs   1.06ms      742.  298.73KB    19.9 
+## 2 get_temp2(t)  672.4µs 996.55µs      769.    4.72KB    17.9 
+## 3 get_temp3(t)  149.9µs 282.84µs     2003.     9.7KB     2.02
+## 4 get_temp4(t)   32.4µs  40.84µs    16749.   57.38KB     4.17
+## 5 get_temp5(t)   29.3µs  37.21µs    18619.    1.76KB     6.36</code></pre>
 <div id="takeaway" class="section level3">
 <h3>Takeaway</h3>
 <p><code>get_temp5()</code> appears to be the fastest (over 30x faster than original) and use least memory. A similar optimization should also work for <code>get_host_den()</code>.</p>
@@ -449,8 +449,8 @@ bnch</code></pre>
 <pre><code>## # A tibble: 2 x 6
 ##   expression            min   median `itr/sec` mem_alloc `gc/sec`
 ##   &lt;bch:expr&gt;       &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 get_host_den(t)     692µs  963.6µs      771.    6.97KB     6.39
-## 2 get_host_den2(t)     29µs   40.4µs    17545.    3.73KB     6.54</code></pre>
+## 1 get_host_den(t)   738.3µs   1.01ms      777.    6.97KB     6.51
+## 2 get_host_den2(t)   29.7µs  36.23µs    24104.    3.73KB     7.23</code></pre>
 <p>As expected, the same approach, <code>get_host_den2()</code>, is also much faster than the original.</p>
 </div>
 </div>
@@ -587,6 +587,7 @@ get_transition_val4 &lt;- function(time, transition_row, N, N_developing, parame
   do.call(f, c(list(pred1, pred2), params))
 }
 
+# filter once, tapply
 get_transition_val5 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
   
   f &lt;- get(transition_row[['transition_fun']])
@@ -606,27 +607,273 @@ get_transition_val5 &lt;- function(time, transition_row, N, N_developing, parame
   do.call(f, c(list(pred1, pred2), params))
 }
 
+# filter once, split
+get_transition_val6 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  params_tbl &lt;- filter(parameters, 
+                   str_detect(transition_row[['from']], from), 
+                   str_detect(transition_row[['to']], to))
+  
+  params &lt;- params_tbl$param_value
+  names(params) &lt;- params_tbl$param_name
+
+  params &lt;- split(unname(params), names(params))
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
 
 bnch &lt;- mark(get_transition_val(time, transition_row, N, N_developing),
              get_transition_val2(time, transition_row, N, N_developing),
              get_transition_val3(time, transition_row, N, N_developing),
              get_transition_val4(time, transition_row, N, N_developing),
              get_transition_val5(time, transition_row, N, N_developing),
+             get_transition_val6(time, transition_row, N, N_developing),
              iterations = 1000)
 bnch</code></pre>
-<pre><code>## # A tibble: 5 x 6
+<pre><code>## # A tibble: 6 x 6
 ##   expression                                                    min median
 ##   &lt;bch:expr&gt;                                                 &lt;bch:&gt; &lt;bch:&gt;
-## 1 get_transition_val(time, transition_row, N, N_developing)  3.23ms 4.77ms
-## 2 get_transition_val2(time, transition_row, N, N_developing) 1.81ms 2.49ms
-## 3 get_transition_val3(time, transition_row, N, N_developing) 1.88ms 2.53ms
-## 4 get_transition_val4(time, transition_row, N, N_developing) 1.71ms  3.1ms
-## 5 get_transition_val5(time, transition_row, N, N_developing) 1.13ms 1.51ms
+## 1 get_transition_val(time, transition_row, N, N_developing)  3.32ms 4.68ms
+## 2 get_transition_val2(time, transition_row, N, N_developing)  1.9ms 2.57ms
+## 3 get_transition_val3(time, transition_row, N, N_developing) 1.92ms 2.46ms
+## 4 get_transition_val4(time, transition_row, N, N_developing) 1.81ms 2.45ms
+## 5 get_transition_val5(time, transition_row, N, N_developing) 1.11ms 1.66ms
+## 6 get_transition_val6(time, transition_row, N, N_developing) 1.08ms 1.53ms
 ## # … with 3 more variables: `itr/sec` &lt;dbl&gt;, mem_alloc &lt;bch:byt&gt;, `gc/sec` &lt;dbl&gt;</code></pre>
 </div>
 <div id="takeaway-1" class="section level2">
 <h2>takeaway</h2>
-<p>Speed of the <code>get_transition_val</code> versions 2, 3, and 4 are comparable, 2 seems to use a bit more memory. We’ll use 4 because I think it’s a bit more readable.</p>
+<p>Speed of the <code>get_transition_val</code> versions 2, 3, and 4 are comparable, 2 seems to use a bit more memory. 5 and 6 are even faster - they call <code>filter</code> only once, and according to profiling <code>filter</code> is currently one of the major bottlenecks in general in the model. We’ll use 6 which I think is slightly more readable.</p>
+</div>
+<div id="update_delay_arr" class="section level1">
+<h1>update_delay_arr</h1>
+<pre class="r"><code>library(tidyverse)
+library(bench)
+source('../core_functions.R')
+source('../user_defined_functions.R')
+
+max_delay &lt;- 300
+steps &lt;- 500
+
+tick_params &lt;- read_csv('../inputs/tick_parameters.csv') %&gt;% 
+  arrange(host_spp) </code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   from = col_character(),
+##   to = col_character(),
+##   param_name = col_character(),
+##   host_spp = col_character(),
+##   param_value = col_double(),
+##   param_ci_low = col_logical(),
+##   param_ci_high = col_logical(),
+##   source = col_character()
+## )</code></pre>
+<pre class="r"><code>tick_transitions &lt;- read_csv('../inputs/tick_transitions.csv')</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   from = col_character(),
+##   to = col_character(),
+##   transition_fun = col_character(),
+##   delay = col_double(),
+##   source = col_character(),
+##   pred1 = col_character(),
+##   pred2 = col_character()
+## )</code></pre>
+<pre class="r"><code>life_stages &lt;- tick_transitions %&gt;% pull(from) %&gt;% unique()
+
+weather &lt;- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = seq(from = 1, to = steps))
+host_comm &lt;- tibble(
+  j_day = rep(1:steps, each=3), 
+  host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
+  host_den = rep(c(100, 8, 8), steps)) %&gt;%
+  # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %&gt;% 
+  arrange(j_day, host_spp)
+
+n_host_spp &lt;- host_comm %&gt;% pull(host_spp) %&gt;% unique() %&gt;% length()
+time &lt;- 1
+N &lt;- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+N[,1] &lt;- 10 
+rownames(N) &lt;- life_stages
+N_developing &lt;- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+rownames(N) &lt;- life_stages
+
+delay_arr &lt;- array(dim = c(length(life_stages), length(life_stages), steps + max_delay),
+                   dimnames = list(life_stages, life_stages, NULL),
+                   data = 0)
+
+update_delay_arr &lt;- function(time, delay_arr, N, N_developing) {
+  
+  # select all delay transition functions, including mortality
+  transitions &lt;- tick_transitions %&gt;% filter(delay == 1)
+
+  # loop through these transitions by from_stage 
+  for (from_stage in transitions %&gt;% pull(from) %&gt;% unique()) {
+    
+    # for a given delay transition, every &quot;from&quot; stage has a unique &quot;to&quot; stage
+    trans &lt;- transitions %&gt;% filter(from == from_stage, to %in% life_stages)
+    to_stage &lt;- trans[['to']]
+    
+    # daily probability of transitioning to the next stage
+    val &lt;- get_transition_val(time, trans, N, N_developing)
+    
+    # daily or per capita mortality during the delayed transition
+    # each &quot;from&quot; stage has either 1 or 0 corresponding mortality transitions
+    mort_tibble &lt;- transitions %&gt;% filter(from == from_stage, !(to %in% life_stages))
+    if(nrow(mort_tibble) == 1) {
+      mort &lt;- get_transition_val(time, mort_tibble[1,], N, N_developing)    
+    } else if (nrow(mort_tibble) == 0) {
+      mort &lt;- 0 
+    } else {
+      stop(nrow(mort_tibble), ' mortality transitions found from a single stage, should be 1 or 0')
+    }
+    
+    # Constant functions (for a fixed delay transition) return a single value
+    # We increase the length so that we can do a cumsum over the vector
+    # We add 1 for consistency with output vector length from non-constant fxns,
+    # which is determined by time:(time + max_delay) in get_pred()
+    if (length(val) == 1) val &lt;- rep(val, max_delay + 1)
+    
+    days &lt;- cumsum(val) &gt;= 1
+    
+    if (any(days)) {
+      
+      # delay duration is the number of days until the first day when the sum
+      # of the daily probabilities &gt;= 1
+      days_to_next &lt;- min(which(days))
+      
+      if (length(mort) &gt; 1) {
+        # Non-constant mortality
+        # We might ultimately want density_fun() to return a vector of length &gt; 1,
+        # where the value for each day is calculated based on that day's feeding tick population
+        # But currently, all mortality transitions are either constant_fun() or density_fun(), 
+        # both of which return a vector of length 1, so we shouldn't ever get to this case.
+        print('non-constant mortality')
+        
+        # in this case, mort is a vector of length max_delay?
+        # we susbet it for the duration of the delay
+        # then elementwise subtract (1 - each element) to get vector of daily survival rate,
+        # and take product to get the overall survival rate throughout the delay
+        surv_to_next &lt;- prod(1 - mort[1:days_to_next])
+        
+      } else if (nrow(mort_tibble) == 1 &amp;&amp; mort_tibble['to'] == 'per_capita_m') {
+        # Apply per capita mortality once during transition, rather than every day
+        surv_to_next &lt;- 1 - mort
+        
+      } else {
+        # Constant mortality
+        surv_to_next &lt;- (1 - mort) ^ days_to_next
+      }
+      
+      # number of ticks emerging from from_stage to to_stage at time + days_to_next is the number of ticks 
+      # that were already going to emerge then plus the current number of ticks in the from_stage * survival
+      delay_arr[to_stage, from_stage, time + days_to_next] &lt;- 
+        delay_arr[to_stage, from_stage, time + days_to_next] +
+        N[from_stage, time] * surv_to_next
+    }
+  }
+  return(delay_arr)
+}
+
+update_delay_arr2 &lt;- function(time, delay_arr, N, N_developing) {
+  
+  # select all delay transition functions, including mortality
+  transitions &lt;- filter(tick_transitions, delay == 1)
+
+  # loop through these transitions by from_stage 
+  from_stages &lt;- unique(pull(transitions, from))
+  for (from_stage in from_stages) {
+    
+    # for a given delay transition, every &quot;from&quot; stage has a unique &quot;to&quot; stage
+    trans &lt;- filter(transitions,
+                    from == from_stage,
+                    to %in% life_stages)
+    to_stage &lt;- trans[['to']]
+    
+    # daily probability of transitioning to the next stage
+    val &lt;- get_transition_val(time, trans, N, N_developing)
+    
+    # daily or per capita mortality during the delayed transition
+    # each &quot;from&quot; stage has either 1 or 0 corresponding mortality transitions
+    mort_tibble &lt;- filter(transitions, 
+                          from == from_stage, 
+                          !(to %in% life_stages))
+    if(nrow(mort_tibble) == 1) {
+      mort &lt;- get_transition_val(time, mort_tibble[1,], N, N_developing)    
+    } else if (nrow(mort_tibble) == 0) {
+      mort &lt;- 0 
+    } else {
+      stop(nrow(mort_tibble), ' mortality transitions found from a single stage, should be 1 or 0')
+    }
+    
+    # Constant functions (for a fixed delay transition) return a single value
+    # We increase the length so that we can do a cumsum over the vector
+    # We add 1 for consistency with output vector length from non-constant fxns,
+    # which is determined by time:(time + max_delay) in get_pred()
+    if (length(val) == 1) val &lt;- rep(val, max_delay + 1)
+    
+    days &lt;- cumsum(val) &gt;= 1
+    
+    if (any(days)) {
+      
+      # delay duration is the number of days until the first day when the sum
+      # of the daily probabilities &gt;= 1
+      days_to_next &lt;- min(which(days))
+      
+      if (length(mort) &gt; 1) {
+        # Non-constant mortality
+        # We might ultimately want density_fun() to return a vector of length &gt; 1,
+        # where the value for each day is calculated based on that day's feeding tick population
+        # But currently, all mortality transitions are either constant_fun() or density_fun(), 
+        # both of which return a vector of length 1, so we shouldn't ever get to this case.
+        print('non-constant mortality')
+        
+        # in this case, mort is a vector of length max_delay?
+        # we susbet it for the duration of the delay
+        # then elementwise subtract (1 - each element) to get vector of daily survival rate,
+        # and take product to get the overall survival rate throughout the delay
+        surv_to_next &lt;- prod(1 - mort[1:days_to_next])
+        
+      } else if (nrow(mort_tibble) == 1 &amp;&amp; mort_tibble['to'] == 'per_capita_m') {
+        # Apply per capita mortality once during transition, rather than every day
+        surv_to_next &lt;- 1 - mort
+        
+      } else {
+        # Constant mortality
+        surv_to_next &lt;- (1 - mort) ^ days_to_next
+      }
+      
+      # number of ticks emerging from from_stage to to_stage at time + days_to_next is the number of ticks 
+      # that were already going to emerge then plus the current number of ticks in the from_stage * survival
+      delay_arr[to_stage, from_stage, time + days_to_next] &lt;- 
+        delay_arr[to_stage, from_stage, time + days_to_next] +
+        N[from_stage, time] * surv_to_next
+    }
+  }
+  return(delay_arr)
+}
+
+
+
+
+mark(update_delay_arr(time, delay_arr, N, N_developing),
+     update_delay_arr2(time, delay_arr, N, N_developing),
+     iterations = 200)</code></pre>
+<pre><code>## # A tibble: 2 x 6
+##   expression                                             min median `itr/sec`
+##   &lt;bch:expr&gt;                                          &lt;bch:&gt; &lt;bch:&gt;     &lt;dbl&gt;
+## 1 update_delay_arr(time, delay_arr, N, N_developing)  45.3ms 65.2ms      14.3
+## 2 update_delay_arr2(time, delay_arr, N, N_developing) 41.3ms 54.1ms      18.7
+## # … with 2 more variables: mem_alloc &lt;bch:byt&gt;, `gc/sec` &lt;dbl&gt;</code></pre>
+<div id="takeaway-2" class="section level2">
+<h2>takeaway</h2>
+<p>Removing the pipes in <code>update_delay_arr</code> has a minimal effect on performance, I suspect this is because the function is doing a large amount of work (vs something like <code>get_temp</code>), and the pipe is trivial in comparison. I see no other obvious opportunities to increase performance in <code>update_delay_arr</code>, so I’ll stick with the original version.</p>
+</div>
 </div>
 
 
