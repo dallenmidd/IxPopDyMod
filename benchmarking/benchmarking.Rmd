@@ -52,7 +52,7 @@ bnch
 
 ```
 
-### Takeaway
+### takeaway
 `get_temp5()` appears to be the fastest (over 30x faster than original) and use least memory. A similar optimization should also work for `get_host_den()`.
 
 ```{r get_host_den}
@@ -84,7 +84,7 @@ bnch
 
 As expected, the same approach, `get_host_den2()`, is also much faster than the original.
 
-## whole model
+## whole model implications
 
 Now, the question is, how do these changes impact the total runtime of the model. I ran the model with the Ogden inputs for 500 steps, before and after switching to the faster versions of `get_host_den()` and `get_temp()`. Total runtime went down from about 60 seconds to 48 seconds. Memory usage was pretty much the same. Also, the relative time spent in the two updated functions decreased a lot, so I'm pretty confident this had the desired effect. 
 
@@ -251,11 +251,11 @@ bnch
 
 ```
 
-## takeaway
+### takeaway
 Speed of the `get_transition_val` versions 2, 3, and 4 are comparable, 2 seems to use a bit more memory. 5 and 6 are even faster - they call `filter` only once, and according to profiling `filter` is currently one of the major bottlenecks in general in the model. We'll use 6 which I think is slightly more readable.
 
 
-# update_delay_arr 
+## update_delay_arr 
 ```{r update_delay_arr}
 
 library(tidyverse)
@@ -451,6 +451,24 @@ mark(update_delay_arr(time, delay_arr, N, N_developing),
 
 ```
 
-## takeaway
+### takeaway
 Removing the pipes in `update_delay_arr` has a minimal effect on performance, I suspect this is because the function is doing a large amount of work (vs something like `get_temp`), and the pipe is trivial in comparison. I see no other obvious opportunities to increase performance in `update_delay_arr`, so I'll stick with the original version.
 
+## apply in run()
+Based on profiling, it seems like the call to `apply` in the `run` function is slow. I'm going to isolate that and see if there's a faster alternative.
+
+```{r apply}
+life_stages <- c('e', 'l', 'n', 'a')
+steps <- 500
+max_delay <- 300
+
+delay_arr <- array(dim = c(length(life_stages), length(life_stages), steps + max_delay),
+                   dimnames = list(life_stages, life_stages, NULL),
+                   data = runif(length(life_stages) * length(life_stages) * (steps + max_delay)))
+
+f1 <- function(delay_arr) apply(delay_arr, 3, rowSums)
+
+```
+
+### takeaway 
+I'm having trouble figuring out other ways to accomplish this summing functionality, let alone a faster alternative. Going to leave it as is for now. At this point, I suspect the low hanging fruit for optimization has been handled, and it may be increasingly tricky to speed things up significantly. My very rough assessment based on profiling is that run time has been cut in half at least. Model runtime for 500 steps with the Ogden inputs went from about 60 seconds before any benchmarking to about 24 seconds now.
