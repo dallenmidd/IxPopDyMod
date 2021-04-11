@@ -416,13 +416,13 @@ bnch</code></pre>
 <pre><code>## # A tibble: 5 x 6
 ##   expression        min   median `itr/sec` mem_alloc `gc/sec`
 ##   &lt;bch:expr&gt;   &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 get_temp(t)   813.9µs   1.06ms      742.  298.73KB    19.9 
-## 2 get_temp2(t)  672.4µs 996.55µs      769.    4.72KB    17.9 
-## 3 get_temp3(t)  149.9µs 282.84µs     2003.     9.7KB     2.02
-## 4 get_temp4(t)   32.4µs  40.84µs    16749.   57.38KB     4.17
-## 5 get_temp5(t)   29.3µs  37.21µs    18619.    1.76KB     6.36</code></pre>
+## 1 get_temp(t)   826.8µs   1.93ms      350.  298.73KB    10.1 
+## 2 get_temp2(t)  677.5µs   1.42ms      481.    4.72KB    11.0 
+## 3 get_temp3(t)  142.2µs 175.76µs     3066.     9.7KB    14.6 
+## 4 get_temp4(t)   33.5µs  63.79µs     6111.   57.38KB     2.07
+## 5 get_temp5(t)   28.5µs  35.48µs    18342.    1.76KB     4.12</code></pre>
 <div id="takeaway" class="section level3">
-<h3>Takeaway</h3>
+<h3>takeaway</h3>
 <p><code>get_temp5()</code> appears to be the fastest (over 30x faster than original) and use least memory. A similar optimization should also work for <code>get_host_den()</code>.</p>
 <pre class="r"><code>steps &lt;- 100
 
@@ -449,13 +449,13 @@ bnch</code></pre>
 <pre><code>## # A tibble: 2 x 6
 ##   expression            min   median `itr/sec` mem_alloc `gc/sec`
 ##   &lt;bch:expr&gt;       &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 get_host_den(t)   738.3µs   1.01ms      777.    6.97KB     6.51
-## 2 get_host_den2(t)   29.7µs  36.23µs    24104.    3.73KB     7.23</code></pre>
+## 1 get_host_den(t)   685.3µs  857.5µs      924.    6.97KB     4.12
+## 2 get_host_den2(t)   29.5µs   35.6µs    24279.    3.73KB     9.72</code></pre>
 <p>As expected, the same approach, <code>get_host_den2()</code>, is also much faster than the original.</p>
 </div>
 </div>
-<div id="whole-model" class="section level2">
-<h2>whole model</h2>
+<div id="whole-model-implications" class="section level2">
+<h2>whole model implications</h2>
 <p>Now, the question is, how do these changes impact the total runtime of the model. I ran the model with the Ogden inputs for 500 steps, before and after switching to the faster versions of <code>get_host_den()</code> and <code>get_temp()</code>. Total runtime went down from about 60 seconds to 48 seconds. Memory usage was pretty much the same. Also, the relative time spent in the two updated functions decreased a lot, so I’m pretty confident this had the desired effect.</p>
 </div>
 <div id="get_transition_val" class="section level2">
@@ -627,6 +627,85 @@ get_transition_val6 &lt;- function(time, transition_row, N, N_developing, parame
   do.call(f, c(list(pred1, pred2), params))
 }
 
+# [] instead of filter
+get_transition_val7 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  params_tbl &lt;- parameters[intersect(str_which(transition_row[['from']], parameters$from),
+                           str_which(transition_row[['to']], parameters$to)), ]
+  
+  params &lt;- params_tbl$param_value
+  names(params) &lt;- params_tbl$param_name
+
+  params &lt;- split(unname(params), names(params))
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# call str_which once
+get_transition_val8 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  params_tbl &lt;- parameters[str_which(paste0(transition_row[['from']], transition_row[['to']]),
+                                     paste0(parameters$from, parameters$to)), ]
+  
+  params &lt;- params_tbl$param_value
+  names(params) &lt;- params_tbl$param_name
+
+  params &lt;- split(unname(params), names(params))
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# paste outside str_which 
+get_transition_val9 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  string &lt;- paste0(transition_row[['from']], transition_row[['to']])
+  patterns &lt;- paste0(parameters$from, parameters$to)
+  
+  params_tbl &lt;- parameters[str_which(string, patterns), ]
+  
+  params &lt;- params_tbl$param_value
+  names(params) &lt;- params_tbl$param_name
+
+  params &lt;- split(unname(params), names(params))
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# different naming strategy
+get_transition_val10 &lt;- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f &lt;- get(transition_row[['transition_fun']])
+  
+  string &lt;- paste0(transition_row[['from']], transition_row[['to']])
+  patterns &lt;- paste0(parameters$from, parameters$to)
+  
+  params_tbl &lt;- parameters[str_which(string, patterns), ]
+  
+  params &lt;- structure(params_tbl$param_value, names = params_tbl$param_name)
+  
+  params &lt;- split(unname(params), names(params))
+  
+  pred1 &lt;- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 &lt;- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
 
 bnch &lt;- mark(get_transition_val(time, transition_row, N, N_developing),
              get_transition_val2(time, transition_row, N, N_developing),
@@ -634,25 +713,34 @@ bnch &lt;- mark(get_transition_val(time, transition_row, N, N_developing),
              get_transition_val4(time, transition_row, N, N_developing),
              get_transition_val5(time, transition_row, N, N_developing),
              get_transition_val6(time, transition_row, N, N_developing),
+             get_transition_val7(time, transition_row, N, N_developing),
+             get_transition_val8(time, transition_row, N, N_developing),
+             get_transition_val9(time, transition_row, N, N_developing),
+             get_transition_val10(time, transition_row, N, N_developing),
              iterations = 1000)
 bnch</code></pre>
-<pre><code>## # A tibble: 6 x 6
-##   expression                                                    min median
-##   &lt;bch:expr&gt;                                                 &lt;bch:&gt; &lt;bch:&gt;
-## 1 get_transition_val(time, transition_row, N, N_developing)  3.32ms 4.68ms
-## 2 get_transition_val2(time, transition_row, N, N_developing)  1.9ms 2.57ms
-## 3 get_transition_val3(time, transition_row, N, N_developing) 1.92ms 2.46ms
-## 4 get_transition_val4(time, transition_row, N, N_developing) 1.81ms 2.45ms
-## 5 get_transition_val5(time, transition_row, N, N_developing) 1.11ms 1.66ms
-## 6 get_transition_val6(time, transition_row, N, N_developing) 1.08ms 1.53ms
+<pre><code>## # A tibble: 10 x 6
+##    expression                                                       min   median
+##    &lt;bch:expr&gt;                                                  &lt;bch:tm&gt; &lt;bch:tm&gt;
+##  1 get_transition_val(time, transition_row, N, N_developing)     3.32ms   5.07ms
+##  2 get_transition_val2(time, transition_row, N, N_developing)    1.83ms   2.95ms
+##  3 get_transition_val3(time, transition_row, N, N_developing)     1.8ms   2.33ms
+##  4 get_transition_val4(time, transition_row, N, N_developing)    1.76ms   2.54ms
+##  5 get_transition_val5(time, transition_row, N, N_developing)    1.16ms   3.25ms
+##  6 get_transition_val6(time, transition_row, N, N_developing)    1.06ms   1.72ms
+##  7 get_transition_val7(time, transition_row, N, N_developing)  828.78µs   1.24ms
+##  8 get_transition_val8(time, transition_row, N, N_developing)  620.92µs   1.26ms
+##  9 get_transition_val9(time, transition_row, N, N_developing)  575.48µs 846.88µs
+## 10 get_transition_val10(time, transition_row, N, N_developing) 579.03µs 752.24µs
 ## # … with 3 more variables: `itr/sec` &lt;dbl&gt;, mem_alloc &lt;bch:byt&gt;, `gc/sec` &lt;dbl&gt;</code></pre>
-</div>
-<div id="takeaway-1" class="section level2">
-<h2>takeaway</h2>
+<div id="takeaway-1" class="section level3">
+<h3>takeaway</h3>
 <p>Speed of the <code>get_transition_val</code> versions 2, 3, and 4 are comparable, 2 seems to use a bit more memory. 5 and 6 are even faster - they call <code>filter</code> only once, and according to profiling <code>filter</code> is currently one of the major bottlenecks in general in the model. We’ll use 6 which I think is slightly more readable.</p>
+<p>Update: subsetting with [] rather than filter, and using str_which once rather than str_detect twice improve runtime significantly, nearly cutting it in half again. 8-10 are all pretty interchangable, we’ll use 9.</p>
 </div>
-<div id="update_delay_arr" class="section level1">
-<h1>update_delay_arr</h1>
+</div>
+<div id="update_delay_arr" class="section level2">
+<h2>update_delay_arr</h2>
 <pre class="r"><code>library(tidyverse)
 library(bench)
 source('../core_functions.R')
@@ -867,12 +955,29 @@ mark(update_delay_arr(time, delay_arr, N, N_developing),
 <pre><code>## # A tibble: 2 x 6
 ##   expression                                             min median `itr/sec`
 ##   &lt;bch:expr&gt;                                          &lt;bch:&gt; &lt;bch:&gt;     &lt;dbl&gt;
-## 1 update_delay_arr(time, delay_arr, N, N_developing)  45.3ms 65.2ms      14.3
-## 2 update_delay_arr2(time, delay_arr, N, N_developing) 41.3ms 54.1ms      18.7
+## 1 update_delay_arr(time, delay_arr, N, N_developing)  33.1ms 46.5ms      20.2
+## 2 update_delay_arr2(time, delay_arr, N, N_developing) 29.6ms 42.8ms      21.7
 ## # … with 2 more variables: mem_alloc &lt;bch:byt&gt;, `gc/sec` &lt;dbl&gt;</code></pre>
-<div id="takeaway-2" class="section level2">
-<h2>takeaway</h2>
+<div id="takeaway-2" class="section level3">
+<h3>takeaway</h3>
 <p>Removing the pipes in <code>update_delay_arr</code> has a minimal effect on performance, I suspect this is because the function is doing a large amount of work (vs something like <code>get_temp</code>), and the pipe is trivial in comparison. I see no other obvious opportunities to increase performance in <code>update_delay_arr</code>, so I’ll stick with the original version.</p>
+</div>
+</div>
+<div id="apply-in-run" class="section level2">
+<h2>apply in run()</h2>
+<p>Based on profiling, it seems like the call to <code>apply</code> in the <code>run</code> function is slow. I’m going to isolate that and see if there’s a faster alternative.</p>
+<pre class="r"><code>life_stages &lt;- c('e', 'l', 'n', 'a')
+steps &lt;- 500
+max_delay &lt;- 300
+
+delay_arr &lt;- array(dim = c(length(life_stages), length(life_stages), steps + max_delay),
+                   dimnames = list(life_stages, life_stages, NULL),
+                   data = runif(length(life_stages) * length(life_stages) * (steps + max_delay)))
+
+f1 &lt;- function(delay_arr) apply(delay_arr, 3, rowSums)</code></pre>
+<div id="takeaway-3" class="section level3">
+<h3>takeaway</h3>
+<p>I’m having trouble figuring out other ways to accomplish this summing functionality, let alone a faster alternative. Going to leave it as is for now. At this point, I suspect the low hanging fruit for optimization has been handled, and it may be increasingly tricky to speed things up significantly. My very rough assessment based on profiling is that run time has been cut in half at least. Model runtime for 500 steps with the Ogden inputs went from about 60 seconds before any benchmarking to about 24 seconds now.</p>
 </div>
 </div>
 

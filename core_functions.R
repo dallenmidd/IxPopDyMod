@@ -73,9 +73,10 @@ get_transition_val <- function(time, transition_row, N, N_developing, parameters
   
   f <- get(transition_row[['transition_fun']])
   
-  params_tbl <- filter(parameters, 
-                       str_detect(transition_row[['from']], from), 
-                       str_detect(transition_row[['to']], to))
+  string <- paste0(transition_row[['from']], transition_row[['to']])
+  patterns <- paste0(parameters$from, parameters$to)
+  
+  params_tbl <- parameters[str_which(string, patterns), ]
   
   params <- params_tbl$param_value
   names(params) <- params_tbl$param_name

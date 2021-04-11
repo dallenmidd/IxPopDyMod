@@ -238,6 +238,85 @@ get_transition_val6 <- function(time, transition_row, N, N_developing, parameter
   do.call(f, c(list(pred1, pred2), params))
 }
 
+# [] instead of filter
+get_transition_val7 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  params_tbl <- parameters[intersect(str_which(transition_row[['from']], parameters$from),
+                           str_which(transition_row[['to']], parameters$to)), ]
+  
+  params <- params_tbl$param_value
+  names(params) <- params_tbl$param_name
+
+  params <- split(unname(params), names(params))
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# call str_which once
+get_transition_val8 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  params_tbl <- parameters[str_which(paste0(transition_row[['from']], transition_row[['to']]),
+                                     paste0(parameters$from, parameters$to)), ]
+  
+  params <- params_tbl$param_value
+  names(params) <- params_tbl$param_name
+
+  params <- split(unname(params), names(params))
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# paste outside str_which 
+get_transition_val9 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  string <- paste0(transition_row[['from']], transition_row[['to']])
+  patterns <- paste0(parameters$from, parameters$to)
+  
+  params_tbl <- parameters[str_which(string, patterns), ]
+  
+  params <- params_tbl$param_value
+  names(params) <- params_tbl$param_name
+
+  params <- split(unname(params), names(params))
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+# different naming strategy
+get_transition_val10 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  string <- paste0(transition_row[['from']], transition_row[['to']])
+  patterns <- paste0(parameters$from, parameters$to)
+  
+  params_tbl <- parameters[str_which(string, patterns), ]
+  
+  params <- structure(params_tbl$param_value, names = params_tbl$param_name)
+  
+  params <- split(unname(params), names(params))
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
 
 bnch <- mark(get_transition_val(time, transition_row, N, N_developing),
              get_transition_val2(time, transition_row, N, N_developing),
@@ -245,14 +324,19 @@ bnch <- mark(get_transition_val(time, transition_row, N, N_developing),
              get_transition_val4(time, transition_row, N, N_developing),
              get_transition_val5(time, transition_row, N, N_developing),
              get_transition_val6(time, transition_row, N, N_developing),
+             get_transition_val7(time, transition_row, N, N_developing),
+             get_transition_val8(time, transition_row, N, N_developing),
+             get_transition_val9(time, transition_row, N, N_developing),
+             get_transition_val10(time, transition_row, N, N_developing),
              iterations = 1000)
 bnch
-  
 
 ```
 
 ### takeaway
 Speed of the `get_transition_val` versions 2, 3, and 4 are comparable, 2 seems to use a bit more memory. 5 and 6 are even faster - they call `filter` only once, and according to profiling `filter` is currently one of the major bottlenecks in general in the model. We'll use 6 which I think is slightly more readable.
+
+Update: subsetting with [] rather than filter, and using str_which once rather than str_detect twice improve runtime significantly, nearly cutting it in half again. 8-10 are all pretty interchangable, we'll use 9.
 
 
 ## update_delay_arr 
