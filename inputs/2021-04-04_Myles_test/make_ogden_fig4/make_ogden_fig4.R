@@ -39,4 +39,4 @@ fig4c <- df %>%
   geom_point() + 
   geom_line()
 
-gridExtra::grid.arrange(fig4a, fig4b, fig4c)
+fig4 <- gridExtra::grid.arrange(fig4a, fig4b, fig4c)
