@@ -16,7 +16,7 @@ source("testing_functions.R")
 
 # set constant steps, which ensures that model doesn't try to run for longer than there is input data
 # increased to see full cycle because with 15 degree temp, new eggs emerge around day 310
-steps <- 500
+steps <- 3500
 
 # At each time step, how many time steps should we look into the future to see if any
 # ticks emerge from a time delay? This value is a somewhat arbitrarily high constant.
@@ -36,18 +36,18 @@ weather <- read_csv('inputs/2021-04-04_Myles_test/ogden_weather.csv')
 # weather <- tibble(tmean = repeatabunch[1:steps], j_day = seq(from = 1, to = steps))
 
 # host_comm <- read_csv('inputs/host_comm.csv') #### DA Note: will have to think about how to handle this
-host_comm <- tibble(
-  j_day = rep(1:steps, each=3), 
-  host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
-  host_den = rep(c(100, 8, 8), steps)) %>%
-  # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %>% 
-  arrange(j_day, host_spp)
+# host_comm <- tibble(
+#   j_day = rep(1:steps, each=3), 
+#   host_spp = rep(c('mouse', 'squirrel', 'deer'), steps), 
+#   host_den = rep(c(100, 8, 8), steps)) %>%
+#   # host_den = runif(steps * 3, .75, 1.25) * rep(c(40, 8, 0.25), steps)) %>% 
+#   arrange(j_day, host_spp)
 
 # Ogden host community
 host_comm <- tibble(
   j_day = rep(1:steps, each=2),
   host_spp = rep(c('rodent', 'deer'), steps),
-  host_den = rep(c(200, 20), steps)) %>% 
+  host_den = rep(c(200, 20), steps)) %>%
   arrange(j_day, host_spp)
 
 n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
@@ -112,7 +112,7 @@ out_N_df <- out_N %>% t() %>% as.data.frame() %>% mutate(day = row_number()) %>%
 
 # for checking whether model output has changed, a more
 # thorough alternative to visually inspecting the output graph
-# write_csv(out_N_df, 'outputs/output.csv')
+# write_csv(out_N_df, 'outputs/ogden_output.csv')
 # prev_out_N_df <- read_csv('outputs/output.csv')
 # (out_N_df$pop == prev_out_N_df$pop) %>% unique()
 
