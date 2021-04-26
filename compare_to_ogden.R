@@ -43,6 +43,7 @@ merged4c <- merged %>%
 
 grid.arrange(merged4a, merged4b, merged4c)
 
+# OLD INTERPRETATION
 # Comparing our results to Ogden, increase in questing larvae is 
 # faster and decrease is slower, but I think that is because of how 
 # we define questing ticks -- as ticks that are ready to quest 
@@ -58,6 +59,7 @@ grid.arrange(merged4a, merged4b, merged4c)
 # probability of questing (questing in our model just means
 # has emerged from development and will quest if the weather is right).
 
+# UPDATED INTERPRETATION
 # Having changed to looking at attached rather than questing ticks, 
 # we're getting a really close fit with Ogden's model. However, this is still
 # scaled by an arbitrary contant just to see phenology - the absolute numbers 
