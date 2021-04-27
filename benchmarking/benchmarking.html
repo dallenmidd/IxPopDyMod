@@ -416,11 +416,11 @@ bnch</code></pre>
 <pre><code>## # A tibble: 5 x 6
 ##   expression        min   median `itr/sec` mem_alloc `gc/sec`
 ##   &lt;bch:expr&gt;   &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 get_temp(t)   826.8µs   1.93ms      350.  298.73KB    10.1 
-## 2 get_temp2(t)  677.5µs   1.42ms      481.    4.72KB    11.0 
-## 3 get_temp3(t)  142.2µs 175.76µs     3066.     9.7KB    14.6 
-## 4 get_temp4(t)   33.5µs  63.79µs     6111.   57.38KB     2.07
-## 5 get_temp5(t)   28.5µs  35.48µs    18342.    1.76KB     4.12</code></pre>
+## 1 get_temp(t)   888.1µs   2.43ms      333.  298.73KB    10.3 
+## 2 get_temp2(t)  703.4µs   1.47ms      502.    4.72KB    11.1 
+## 3 get_temp3(t)  149.8µs 218.73µs     2627.     9.7KB    11.0 
+## 4 get_temp4(t)   34.1µs  51.14µs    14079.   57.38KB     5.00
+## 5 get_temp5(t)   30.7µs  38.12µs    19023.    1.76KB     6.37</code></pre>
 <div id="takeaway" class="section level3">
 <h3>takeaway</h3>
 <p><code>get_temp5()</code> appears to be the fastest (over 30x faster than original) and use least memory. A similar optimization should also work for <code>get_host_den()</code>.</p>
@@ -449,8 +449,8 @@ bnch</code></pre>
 <pre><code>## # A tibble: 2 x 6
 ##   expression            min   median `itr/sec` mem_alloc `gc/sec`
 ##   &lt;bch:expr&gt;       &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-## 1 get_host_den(t)   685.3µs  857.5µs      924.    6.97KB     4.12
-## 2 get_host_den2(t)   29.5µs   35.6µs    24279.    3.73KB     9.72</code></pre>
+## 1 get_host_den(t)   813.2µs   1.36ms      646.    6.97KB     4.12
+## 2 get_host_den2(t)   25.7µs  41.65µs    18652.    3.73KB     8.63</code></pre>
 <p>As expected, the same approach, <code>get_host_den2()</code>, is also much faster than the original.</p>
 </div>
 </div>
@@ -722,16 +722,16 @@ bnch</code></pre>
 <pre><code>## # A tibble: 10 x 6
 ##    expression                                                       min   median
 ##    &lt;bch:expr&gt;                                                  &lt;bch:tm&gt; &lt;bch:tm&gt;
-##  1 get_transition_val(time, transition_row, N, N_developing)     3.32ms   5.07ms
-##  2 get_transition_val2(time, transition_row, N, N_developing)    1.83ms   2.95ms
-##  3 get_transition_val3(time, transition_row, N, N_developing)     1.8ms   2.33ms
-##  4 get_transition_val4(time, transition_row, N, N_developing)    1.76ms   2.54ms
-##  5 get_transition_val5(time, transition_row, N, N_developing)    1.16ms   3.25ms
-##  6 get_transition_val6(time, transition_row, N, N_developing)    1.06ms   1.72ms
-##  7 get_transition_val7(time, transition_row, N, N_developing)  828.78µs   1.24ms
-##  8 get_transition_val8(time, transition_row, N, N_developing)  620.92µs   1.26ms
-##  9 get_transition_val9(time, transition_row, N, N_developing)  575.48µs 846.88µs
-## 10 get_transition_val10(time, transition_row, N, N_developing) 579.03µs 752.24µs
+##  1 get_transition_val(time, transition_row, N, N_developing)     3.51ms   5.53ms
+##  2 get_transition_val2(time, transition_row, N, N_developing)    2.13ms   3.09ms
+##  3 get_transition_val3(time, transition_row, N, N_developing)    2.11ms   2.96ms
+##  4 get_transition_val4(time, transition_row, N, N_developing)    2.05ms   2.85ms
+##  5 get_transition_val5(time, transition_row, N, N_developing)    1.18ms   1.63ms
+##  6 get_transition_val6(time, transition_row, N, N_developing)    1.11ms   1.52ms
+##  7 get_transition_val7(time, transition_row, N, N_developing)  877.89µs   1.21ms
+##  8 get_transition_val8(time, transition_row, N, N_developing)  613.48µs 820.06µs
+##  9 get_transition_val9(time, transition_row, N, N_developing)  599.15µs  806.6µs
+## 10 get_transition_val10(time, transition_row, N, N_developing) 638.56µs 848.26µs
 ## # … with 3 more variables: `itr/sec` &lt;dbl&gt;, mem_alloc &lt;bch:byt&gt;, `gc/sec` &lt;dbl&gt;</code></pre>
 <div id="takeaway-1" class="section level3">
 <h3>takeaway</h3>
@@ -947,16 +947,98 @@ update_delay_arr2 &lt;- function(time, delay_arr, N, N_developing) {
 }
 
 
+# use [ rather than filter for subsetting
+update_delay_arr3 &lt;- function(time, delay_arr, N, N_developing) {
+  
+  # select all delay transition functions, including mortality
+  transitions &lt;- tick_transitions[tick_transitions$delay == 1, ]
+
+  # loop through these transitions by from_stage 
+  from_stages &lt;- unique(pull(transitions, from))
+  for (from_stage in from_stages) {
+    
+    # for a given delay transition, every &quot;from&quot; stage has a unique &quot;to&quot; stage
+    trans &lt;- transitions[transitions$from == from_stage &amp;
+                           transitions$to %in% life_stages, ]
+    
+    to_stage &lt;- trans[['to']]
+    
+    # daily probability of transitioning to the next stage
+    val &lt;- get_transition_val(time, trans, N, N_developing)
+    
+    # daily or per capita mortality during the delayed transition
+    # each &quot;from&quot; stage has either 1 or 0 corresponding mortality transitions
+    
+    mort_tibble &lt;- transitions[transitions$from == from_stage &amp;
+                                 !(transitions$to %in% life_stages), ]
+    
+    if(nrow(mort_tibble) == 1) {
+      mort &lt;- get_transition_val(time, mort_tibble[1,], N, N_developing)    
+    } else if (nrow(mort_tibble) == 0) {
+      mort &lt;- 0 
+    } else {
+      stop(nrow(mort_tibble), ' mortality transitions found from a single stage, should be 1 or 0')
+    }
+    
+    # Constant functions (for a fixed delay transition) return a single value
+    # We increase the length so that we can do a cumsum over the vector
+    # We add 1 for consistency with output vector length from non-constant fxns,
+    # which is determined by time:(time + max_delay) in get_pred()
+    if (length(val) == 1) val &lt;- rep(val, max_delay + 1)
+    
+    days &lt;- cumsum(val) &gt;= 1
+    
+    if (any(days)) {
+      
+      # delay duration is the number of days until the first day when the sum
+      # of the daily probabilities &gt;= 1
+      days_to_next &lt;- min(which(days))
+      
+      if (length(mort) &gt; 1) {
+        # Non-constant mortality
+        # We might ultimately want density_fun() to return a vector of length &gt; 1,
+        # where the value for each day is calculated based on that day's feeding tick population
+        # But currently, all mortality transitions are either constant_fun() or density_fun(), 
+        # both of which return a vector of length 1, so we shouldn't ever get to this case.
+        print('non-constant mortality')
+        
+        # in this case, mort is a vector of length max_delay?
+        # we susbet it for the duration of the delay
+        # then elementwise subtract (1 - each element) to get vector of daily survival rate,
+        # and take product to get the overall survival rate throughout the delay
+        surv_to_next &lt;- prod(1 - mort[1:days_to_next])
+        
+      } else if (nrow(mort_tibble) == 1 &amp;&amp; mort_tibble['to'] == 'per_capita_m') {
+        # Apply per capita mortality once during transition, rather than every day
+        surv_to_next &lt;- 1 - mort
+        
+      } else {
+        # Constant mortality
+        surv_to_next &lt;- (1 - mort) ^ days_to_next
+      }
+      
+      # number of ticks emerging from from_stage to to_stage at time + days_to_next is the number of ticks 
+      # that were already going to emerge then plus the current number of ticks in the from_stage * survival
+      delay_arr[to_stage, from_stage, time + days_to_next] &lt;- 
+        delay_arr[to_stage, from_stage, time + days_to_next] +
+        N[from_stage, time] * surv_to_next
+    }
+  }
+  return(delay_arr)
+}
+
 
 
 mark(update_delay_arr(time, delay_arr, N, N_developing),
      update_delay_arr2(time, delay_arr, N, N_developing),
+     update_delay_arr3(time, delay_arr, N, N_developing),
      iterations = 200)</code></pre>
-<pre><code>## # A tibble: 2 x 6
+<pre><code>## # A tibble: 3 x 6
 ##   expression                                             min median `itr/sec`
 ##   &lt;bch:expr&gt;                                          &lt;bch:&gt; &lt;bch:&gt;     &lt;dbl&gt;
-## 1 update_delay_arr(time, delay_arr, N, N_developing)  33.1ms 46.5ms      20.2
-## 2 update_delay_arr2(time, delay_arr, N, N_developing) 29.6ms 42.8ms      21.7
+## 1 update_delay_arr(time, delay_arr, N, N_developing)  38.3ms   49ms      20.1
+## 2 update_delay_arr2(time, delay_arr, N, N_developing) 36.4ms 52.2ms      18.2
+## 3 update_delay_arr3(time, delay_arr, N, N_developing) 26.1ms 38.4ms      23.1
 ## # … with 2 more variables: mem_alloc &lt;bch:byt&gt;, `gc/sec` &lt;dbl&gt;</code></pre>
 <div id="takeaway-2" class="section level3">
 <h3>takeaway</h3>

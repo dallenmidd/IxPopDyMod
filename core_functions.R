@@ -149,13 +149,16 @@ gen_trans_matrix <- function(time, N, N_developing) {
 update_delay_arr <- function(time, delay_arr, N, N_developing) {
   
   # select all delay transition functions, including mortality
-  transitions <- tick_transitions %>% filter(delay == 1)
+  transitions <- tick_transitions[tick_transitions$delay == 1, ]
   
   # loop through these transitions by from_stage 
-  for (from_stage in transitions %>% pull(from) %>% unique()) {
+  from_stages <- unique(pull(transitions, from))
+  for (from_stage in from_stages) {
     
     # for a given delay transition, every "from" stage has a unique "to" stage
-    trans <- transitions %>% filter(from == from_stage, to %in% life_stages)
+    trans <- transitions[transitions$from == from_stage &
+                           transitions$to %in% life_stages, ]
+    
     to_stage <- trans[['to']]
     
     # daily probability of transitioning to the next stage
@@ -163,7 +166,10 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
     
     # daily or per capita mortality during the delayed transition
     # each "from" stage has either 1 or 0 corresponding mortality transitions
-    mort_tibble <- transitions %>% filter(from == from_stage, !(to %in% life_stages))
+    
+    mort_tibble <- transitions[transitions$from == from_stage &
+                                 !(transitions$to %in% life_stages), ]
+    
     if(nrow(mort_tibble) == 1) {
       mort <- get_transition_val(time, mort_tibble[1,], N, N_developing)    
     } else if (nrow(mort_tibble) == 0) {
@@ -171,7 +177,6 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
     } else {
       stop(nrow(mort_tibble), ' mortality transitions found from a single stage, should be 1 or 0')
     }
-    
     
     # Constant functions (for a fixed delay transition) return a single value
     # We increase the length so that we can do a cumsum over the vector
