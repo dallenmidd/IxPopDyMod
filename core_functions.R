@@ -69,29 +69,18 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
 # then evaluate it using supplied predictors (pred1, pred2) like temperature or host density
 # This approach takes an entire transition_row, since there can be multiple rows with the same 'from' and 'to'
 # transition_row: a row from the tick_transitions tibble
-get_transition_val <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+get_transition_val <- function(time, transition_row_with_parameters, N, N_developing) {
   
-  f <- get(transition_row[['transition_fun']])
+  f <- get(transition_row_with_parameters[['transition_fun']])
   
-  string <- paste0(transition_row[['from']], transition_row[['to']])
-  patterns <- paste0(parameters$from, parameters$to)
+  params <- transition_row_with_parameters[['params_list']]
   
-  params_tbl <- parameters[str_which(string, patterns), ]
+  pred1 <- get_pred(time, transition_row_with_parameters[['pred1']], 
+                    transition_row_with_parameters[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row_with_parameters[['pred2']], 
+                    transition_row_with_parameters[['delay']], N, N_developing)
   
-  params <- params_tbl$param_value
-  names(params) <- params_tbl$param_name
-  
-  # Collapse params from a named vector into a list of vectors by param name
-  # We do this so that params like 'pref' or 'host_rc' that are dependent on host_spp
-  # and have multiple values can be passed as a single argument to the transition function 
-  params <- split(unname(params), names(params))
-  
-  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
-  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
-  
-  # call f with the predictors and parameters
-  # this method allows the 'params' list to be used as named arguments for f
-  do.call(f, c(list(pred1, pred2), params))
+  do.call(f, c(list(pred1, pred2), params[[1]]))
 }
 
 
@@ -225,8 +214,44 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
   return(delay_arr)
 }
 
+# return list of parameters for a given transition_row
+get_params <- function(from, to, parameters = tick_params) {
+  
+  string <- paste0(from, to)
+  patterns <- paste0(parameters$from, parameters$to)
+  
+  params_tbl <- parameters[str_which(string, patterns), ]
+  
+  params <- params_tbl$param_value
+  names(params) <- params_tbl$param_name
+  params <- split(unname(params), names(params))
+  
+  params
+}
+
+# return a new tick_transitions tibble with a column, params_list
+# that is a named list of the parameters for each transition
+add_params_list <- function(tick_transitions, parameters = tick_params) {
+  
+  # TODO should be a vectorized approach
+  params_list <- list()
+  
+  for (i in 1:nrow(tick_transitions)) {
+    p <- get_params(tick_transitions[[i,'from']], tick_transitions[[i, 'to']])
+    params_list[[i]] <- p
+  }
+  
+  mutate(tick_transitions, params_list = params_list)
+}
+
+
 # 05 iteratively run model for steps iterations, starting with initial_population
 run <- function(steps, initial_population) {
+  
+  # update the tick transitions global variable by adding parameters 
+  # for each transition
+  # TODO would be better not to update a global variable
+  tick_transitions <<- add_params_list(tick_transitions)
   
   # initialize a delay array of all zeros
   # dimensions: to, from, time

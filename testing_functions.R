@@ -36,6 +36,7 @@ print_trans_matrix <- function(trans_matrix) {
 # problematic when the model breaks 
 test_transitions <- function() {
   
+  
   # initialize a population matrix with 10 of each tick life_stage on day 1
   N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
   N[,1] <- 10 
@@ -45,7 +46,7 @@ test_transitions <- function() {
   rownames(N) <- life_stages
   
   # select which functions to test
-  funs <- tick_transitions #%>%
+  funs <- add_params_list(tick_transitions)
   #filter(transition_fun == 'density_fun')
   
   transition_vals <- c()

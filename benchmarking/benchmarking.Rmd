@@ -637,3 +637,93 @@ f1 <- function(delay_arr) apply(delay_arr, 3, rowSums)
 
 ### takeaway 
 I'm having trouble figuring out other ways to accomplish this summing functionality, let alone a faster alternative. Going to leave it as is for now. At this point, I suspect the low hanging fruit for optimization has been handled, and it may be increasingly tricky to speed things up significantly. My very rough assessment based on profiling is that run time has been cut in half at least. Model runtime for 500 steps with the Ogden inputs went from about 60 seconds before any benchmarking to about 24 seconds now.
+
+
+
+## grab parameters once (rather than every call to get_transition_vals)
+``` {r grab parameters once}
+# return list of parameters for a given transition_row
+get_params <- function(from, to, parameters = tick_params) {
+  
+  string <- paste0(from, to)
+  patterns <- paste0(parameters$from, parameters$to)
+  
+  params_tbl <- parameters[str_which(string, patterns), ]
+  
+  params <- params_tbl$param_value
+  names(params) <- params_tbl$param_name
+  params <- split(unname(params), names(params))
+  
+  params
+}
+
+# return a new tick_transitions tibble with a column, params_list
+# that is a named list of the parameters for each transition
+add_params_list <- function(tick_transitions, parameters = tick_params) {
+
+  # TODO should be a vectorized approach
+  params_list <- list()
+
+    for (i in 1:nrow(tick_transitions)) {
+    p <- get_params(tick_transitions[[i,'from']], tick_transitions[[i, 'to']])
+    params_list[[i]] <- p
+  }
+  
+  mutate(tick_transitions, params_list = params_list)
+}
+
+tick_transitions2 <- add_params_list(tick_transitions)
+
+# copied from above, just to ensure using correct version
+get_transition_val10 <- function(time, transition_row, N, N_developing, parameters = tick_params) {
+  
+  f <- get(transition_row[['transition_fun']])
+  
+  string <- paste0(transition_row[['from']], transition_row[['to']])
+  patterns <- paste0(parameters$from, parameters$to)
+  
+  params_tbl <- parameters[str_which(string, patterns), ]
+  
+  params <- structure(params_tbl$param_value, names = params_tbl$param_name)
+  
+  params <- split(unname(params), names(params))
+  
+  pred1 <- get_pred(time, transition_row[['pred1']], transition_row[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row[['pred2']], transition_row[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params))
+}
+
+get_transition_val11 <- function(time, transition_row_with_parameters, N, N_developing) {
+  
+  f <- get(transition_row_with_parameters[['transition_fun']])
+  
+  params <- transition_row_with_parameters[['params_list']]
+  
+  pred1 <- get_pred(time, transition_row_with_parameters[['pred1']], 
+                          transition_row_with_parameters[['delay']], N, N_developing)
+  pred2 <- get_pred(time, transition_row_with_parameters[['pred2']], 
+                          transition_row_with_parameters[['delay']], N, N_developing)
+  
+  do.call(f, c(list(pred1, pred2), params[[1]]))
+}
+
+mark(get_transition_val10(1, tick_transitions[1,], N, N_developing),
+     get_transition_val11(1, tick_transitions2[1,], N, N_developing))
+
+```
+
+### Takeaways 
+This sped things up a lot for short model runs, e.g. runtime using Ogden inputs for 300 steps decreased by about 40% after this change. This is because filtering the parameter tibble using the [ operator was taking a lot of time. Since the parameters don't change during a model run, we can extract this functionality and do this just once, and add the parameters as a list to each transition row. 
+
+However, the increase in speed is fairly minor, about 15% when the model is run using the Ogden inputs for 3500 steps. See `before/after_separate_single_parameter_grab_optimization.Rprofvis` for details. It seems like as the model runtime grows, the `apply()` call in the run function becomes increasingly dominant/slow. This suggests that performing operations (`rowSums()` and any other processing `apply()` does) on bigger matrices is slower... so figuring out a more efficient alternative to `apply()` would be particularly important for speeding up the runtime of the model for longer time periods.
+
+
+
+
+
+
+
+
+
+
