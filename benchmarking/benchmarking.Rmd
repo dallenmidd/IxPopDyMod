@@ -720,10 +720,45 @@ However, the increase in speed is fairly minor, about 15% when the model is run 
 
 
 
+## apply in run() attempt 2
+The main goal now is to better understand the transformation we are doing to the delay_arr in the run funciton, and how they can be optimized.
+
+```{r apply attempt 2}
+
+library(bench)
+library(tidyverse)
+
+life_stages <- c('l', 'a')
+steps <- 2
+max_delay <- 1
+
+# dimensions are to_stage, from_stage, time
+delay_arr <- array(dim = c(length(life_stages), length(life_stages), steps + max_delay),
+                   dimnames = list(str_c("from_", life_stages), str_c("to_", life_stages), NULL),
+                   # data = runif(length(life_stages) * length(life_stages) * (steps + max_delay)))
+                   data = (1 : (length(life_stages) * length(life_stages) * (steps + max_delay))))
 
 
+old_delay_arr <- aperm(delay_arr, c(2,1,3))
 
 
+# sum across from_stage dimension to get a matrix with dims (to_stage, time)
+f1 <- function(old_delay_arr) apply(old_delay_arr, 3, rowSums)
+f2 <- function(old_delay_arr) apply(old_delay_arr, c(1,3), sum)
+f3 <- function(delay_arr) colSums(delay_arr)
+
+mark(f1(old_delay_arr),
+     f2(old_delay_arr),
+     f3(delay_arr),
+     iterations = 100000)
+
+
+```
+
+### takeaway
+Switching the from and to dimensions of the delay_arr allows using colSums for a much faster approach to reducing the 3d array to a 2d matrix. 
+
+After implementing this change (switching the array dimensions) in the code (`core_functions.R`), I ran the model with the Ogden inputs for 3500 steps. I double checked that the model output did not change.  The biggest takeaway is that runtime dropped by about 70%, from about 230 to 73 seconds. The profiling results are in `after_reshaping_delay_arr.Rprofvis`. Compare this to `after_single_parameter_grab_optimization.Rprofvis` to see more details on the change in performance. 
 
 
 
