@@ -39,6 +39,10 @@ get_host_den <- function(time) {
   host_comm[which(host_comm$j_day %in% time), ]$host_den
 }
 
+get_tick_den <- function(time, N, N_developing, pred) {
+  sum((N + N_developing)[str_which(life_stages, pred), time])
+}
+
 # Return a vector of a predictor at time time. 
 # The vector's length is based on whether the transition is_delay.
 get_pred <- function(time, pred, is_delay, N, N_developing) {
@@ -56,7 +60,7 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
   } else if (pred == "host_den") {
     return(get_host_den(time[1])) # length == n_host_spp
   } else if (any(str_detect(life_stages, pred))) {
-    return(sum((N + N_developing)[str_subset(life_stages, pred), time[1]])) # length == 1
+    return(get_tick_den(time[1], N, N_developing, pred)) # length == 1
   } else {
     print("error: couldn't match pred")
   }
