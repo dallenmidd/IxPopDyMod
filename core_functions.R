@@ -314,3 +314,23 @@ run <- function(steps, initial_population) {
   # we return them here after running "steps" times
   return(list(N, N_developing, delay_mat))
 }
+
+# convert the output to a nicely formatted tibble
+output_to_df <- function(out) {
+  
+  out_N <- out[[1]]
+  out_N_developing <- out[[2]]
+  out_N <- out_N + out_N_developing
+  
+  out_N_df <- 
+    out_N %>% 
+    t() %>% 
+    as.data.frame() %>% 
+    mutate(day = row_number()) %>% 
+    pivot_longer(-c(day), names_to = 'stage', values_to = 'pop') %>%
+    mutate(age_group = age(stage),
+           process = process(stage),
+           infected = infected(stage))
+  
+  out_N_df
+}
