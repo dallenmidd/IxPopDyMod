@@ -28,7 +28,7 @@ max_delay <- 300
 # constant temperature for testing
 # weather <- tibble(tmean = seq(from = 15, to = 15, length.out = steps), j_day = seq(from = 1, to = steps))
 # ogden weather 
-weather <- read_csv('inputs/2021-04-04_Myles_test/ogden_weather.csv')
+weather <- read_csv('inputs/2021-04-04_Ogden/ogden_weather.csv')
 
 # non constant temp (sine wave approx Midd temp)
 # annualtemp <- 15*sin(2*pi/365*(x-110)) +5
@@ -57,8 +57,8 @@ n_host_spp <- host_comm %>% pull(host_spp) %>% unique() %>% length()
 simple <- TRUE
 
 if (simple) {
-  tick_params <- read_csv('inputs/2021-04-04_Myles_test/tick_parameters.csv')  %>% arrange(host_spp)
-  tick_transitions <- read_csv('inputs/2021-04-04_Myles_test/tick_transitions.csv')
+  tick_params <- read_csv('inputs/2021-04-04_Ogden/tick_parameters.csv')  %>% arrange(host_spp)
+  tick_transitions <- read_csv('inputs/2021-04-04_Ogden/tick_transitions.csv')
   life_stages <- tick_transitions %>% pull(from) %>% unique()
 } else {
   tick_params <- read_csv('inputs/tick_parameters.csv') %>% 

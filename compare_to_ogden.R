@@ -3,7 +3,7 @@
 
 library(tidyverse)
 library(gridExtra)
-source('inputs/2021-04-04_Myles_test/make_ogden_fig4/make_ogden_fig4.R')
+source('inputs/2021-04-04_Ogden/make_ogden_fig4/make_ogden_fig4.R')
 out_N_df <- read_csv('outputs/ogden_output.csv')
 
 questing <- out_N_df %>% 

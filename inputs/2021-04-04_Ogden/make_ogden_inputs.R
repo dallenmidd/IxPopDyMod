@@ -14,7 +14,7 @@ library(lubridate)
 # I first digitized Figure 2 from Ogden et al. 2005
 # data are mean monthly normal temperature in degrees C
 fig2 <-  read_csv(
-  'inputs/2021-04-04_Myles_test/Ogden_2005_fig2_digitzed.csv',
+  'inputs/2021-04-04_Ogden/Ogden_2005_fig2_digitzed.csv',
   col_names = c('month_str', 'tmean')) %>% 
   mutate(
     date = ymd(paste("1990", seq(1, 12), "01", sep = "-")),
@@ -47,7 +47,7 @@ ogden_weather <- tibble(
 ggplot(ogden_weather, aes(j_day, tmean)) + geom_line()
 
 
-write_csv(ogden_weather, 'inputs/2021-04-04_Myles_test/ogden_weather.csv')
+write_csv(ogden_weather, 'inputs/2021-04-04_Ogden/ogden_weather.csv')
 
 ###############################
 # host finding probability
