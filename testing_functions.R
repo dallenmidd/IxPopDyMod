@@ -63,7 +63,7 @@ test_transitions <- function() {
 
 # test to ensure that there are no "dead-ends" in life cycle 
 # based on all the non-mortality transitions
-test_lifecycles <- function() {
+test_lifecycles <- function(graph = TRUE) {
   # check if all life_stages are in from and to in tick_transitions
   all_from <- tick_transitions %>% pull(from) %>% unique() %>% sort()
   all_to <- tick_transitions %>% filter(to %in% life_stages) %>% pull(to) %>% unique() %>% sort()
@@ -77,8 +77,10 @@ test_lifecycles <- function() {
   # check if the graph has a cycle (trail to itself) from each life stage
   # i.e., for each life stage, can I get back to that life_stage
   # TODO for now, just inspecting this visually
-  g <- graph_from_data_frame(tick_transitions %>% select(from, to) %>% filter(to %in% life_stages))
-  plot(g)
+  if (graph) {
+    g <- graph_from_data_frame(tick_transitions %>% select(from, to) %>% filter(to %in% life_stages))
+    plot(g)
+  }
 }
 
 
