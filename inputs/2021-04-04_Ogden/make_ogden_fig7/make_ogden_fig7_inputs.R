@@ -42,11 +42,12 @@ ogden_weather_long %>%
   ggplot(aes(x = j_day, y = tmean, color = station)) + 
   geom_point()
 
-station_names <- str_replace_all(str_to_lower(unique(ogden_weather_long$station)), ' ', '_')
+station_names <- unique(ogden_weather_long$station)
 
 for (i in station_names) {
-  write_csv(filter(ogden_weather_long, station == i), 
-          str_c('inputs/2021-04-04_Ogden/make_ogden_fig7/weather_', i, '.csv'))
+  name <- str_replace_all(i, " ", "_") %>% str_to_lower()
+  write_csv(filter(ogden_weather_long, station == i) %>% select(-c(station)), 
+          str_c('inputs/2021-04-04_Ogden/make_ogden_fig7/weather_', name, '.csv'))
 }
 
   
