@@ -47,7 +47,8 @@ for (location in locations) {
   
   out <- run(steps, initial_population)
   out_N_df <- output_to_df(out)
+  
+  write_csv(out_N_df, str_c("outputs/", location, "_output.csv"))
 
 }
-
 
