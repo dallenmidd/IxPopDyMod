@@ -52,3 +52,12 @@ for (location in locations) {
 
 }
 
+
+# plot the results
+dfs <- lapply(locations, function(location) 
+  read_csv(str_c("outputs/", location, "_output.csv")))
+dfs <- lapply(dfs, function(df) filter(df, age_group == "a"))
+lambda_plots <- lapply(dfs, function(df) graph_population_overall_trend(df))
+pop_plots <- lapply(dfs, function(df) graph_population_each_group(df))
+do.call(gridExtra::grid.arrange, lambda_plots)
+do.call(gridExtra::grid.arrange, pop_plots)

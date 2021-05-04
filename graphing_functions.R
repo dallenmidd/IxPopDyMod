@@ -19,5 +19,6 @@ graph_population_overall_trend <- function(out_N_df) {
     mutate(lambda = tot/lag(tot)) %>%
     filter(is.finite(lambda) ) %>% 
     ggplot(aes(day,lambda)) + 
-    geom_path()
+    geom_path() + 
+    ylim(0, 2)
 }
