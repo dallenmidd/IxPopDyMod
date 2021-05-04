@@ -238,13 +238,8 @@ get_params <- function(from, to, parameters = tick_params) {
 # that is a named list of the parameters for each transition
 add_params_list <- function(tick_transitions, parameters = tick_params) {
   
-  # TODO should be a vectorized approach
-  params_list <- list()
-  
-  for (i in 1:nrow(tick_transitions)) {
-    p <- get_params(tick_transitions[[i,'from']], tick_transitions[[i, 'to']])
-    params_list[[i]] <- p
-  }
+  params_list <- apply(tick_transitions, 1, 
+                       function(x) get_params(x[["from"]], x[["to"]]))
   
   mutate(tick_transitions, params_list = params_list)
 }
