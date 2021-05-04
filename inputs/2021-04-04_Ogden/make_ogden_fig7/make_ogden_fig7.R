@@ -34,6 +34,8 @@ initial_population['q_a'] <- 10000 # Ogden initial population
 locations <- c("exeter", "hanover", "kapuskasing_cda", 
                "new_glasgow", "point_pelee", "south_baymouth")
 
+mean_dd_gt_zero <- c(3336, 3100, 2317, 3536, 3791, 2733)
+
 for (location in locations) {
   
   print(paste("running model for location:", location))
@@ -55,9 +57,18 @@ for (location in locations) {
 
 # plot the results
 dfs <- lapply(locations, function(location) 
-  read_csv(str_c("outputs/", location, "_output.csv")))
-dfs <- lapply(dfs, function(df) filter(df, age_group == "a"))
-lambda_plots <- lapply(dfs, function(df) graph_population_overall_trend(df))
-pop_plots <- lapply(dfs, function(df) graph_population_each_group(df))
+  read_csv(str_c("outputs/", location, "_output.csv"))) 
+dfs <- lapply(dfs, function(df) filter(df, age_group == "a", process == "a"))
+
+titles <- paste(locations, mean_dd_gt_zero)
+
+lambda_plots <- mapply(
+  function(df, title) list(graph_population_each_group(df, title)), 
+  dfs, titles)
+
+pop_plots <-  mapply(
+  function(df, title) list(graph_population_overall_trend(df, title)), 
+  dfs, titles)
+
 do.call(gridExtra::grid.arrange, lambda_plots)
 do.call(gridExtra::grid.arrange, pop_plots)
