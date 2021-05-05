@@ -36,24 +36,26 @@ locations <- c("exeter", "hanover", "kapuskasing_cda",
 
 mean_dd_gt_zero <- c(3336, 3100, 2317, 3536, 3791, 2733)
 
-for (location in locations) {
+# turning off running model
+if (FALSE) {
+  for (location in locations) {
+    
+    print(paste("running model for location:", location))
+    
+    weather <- read_csv(str_c(input_dir, "make_ogden_fig7/weather_", location, ".csv"))
   
-  print(paste("running model for location:", location))
+    # inspect test results before running
+    print_all_params()
+    test_transitions()
+    test_lifecycles(graph = FALSE)
+    
+    out <- run(steps, initial_population)
+    out_N_df <- output_to_df(out)
+    
+    write_csv(out_N_df, str_c("outputs/", location, "_output.csv"))
   
-  weather <- read_csv(str_c(input_dir, "make_ogden_fig7/weather_", location, ".csv"))
-
-  # inspect test results before running
-  print_all_params()
-  test_transitions()
-  test_lifecycles(graph = FALSE)
-  
-  out <- run(steps, initial_population)
-  out_N_df <- output_to_df(out)
-  
-  write_csv(out_N_df, str_c("outputs/", location, "_output.csv"))
-
+  }
 }
-
 
 # plot the results
 dfs <- lapply(locations, function(location) 
