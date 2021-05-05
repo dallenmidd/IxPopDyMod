@@ -72,3 +72,25 @@ lambda_plots <-  mapply(
 
 do.call(gridExtra::grid.arrange, lambda_plots)
 do.call(gridExtra::grid.arrange, pop_plots)
+
+# return the max number of adults during the ninth full calendar year
+# (which is the last full year if model was run for 3500 steps)
+max_adults_ninth_year <- function(out_N_df) {
+  out_N_df %>% 
+    filter(day > 365 * 8, day < 365 * 9) %>% 
+    pull(pop) %>% 
+    max()
+}
+
+fig7_tbl <- tibble(
+  dd = mean_dd_gt_zero,
+  max_adults = unlist(lapply(dfs, max_adults_ninth_year))  
+)
+
+fig7 <- ggplot(fig7_tbl, aes(mean_dd_gt_zero, max_adults)) + 
+  geom_point() + 
+  xlim(2000, 4000) + 
+  ylim(0, 2000)
+
+  
+
