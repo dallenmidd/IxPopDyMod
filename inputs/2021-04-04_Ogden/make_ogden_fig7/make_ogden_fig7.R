@@ -62,11 +62,11 @@ dfs <- lapply(dfs, function(df) filter(df, age_group == "a", process == "a"))
 
 titles <- paste(locations, mean_dd_gt_zero)
 
-lambda_plots <- mapply(
+pop_plots <- mapply(
   function(df, title) list(graph_population_each_group(df, title)), 
   dfs, titles)
 
-pop_plots <-  mapply(
+lambda_plots <-  mapply(
   function(df, title) list(graph_population_overall_trend(df, title)), 
   dfs, titles)
 
