@@ -90,9 +90,12 @@ fig7_tbl <- tibble(
 )
 
 fig7 <- ggplot(fig7_tbl, aes(mean_dd_gt_zero, max_adults)) + 
-  geom_point() + 
+  geom_point(size = 4, shape = 0) + 
   xlim(2000, 4000) + 
-  ylim(0, 2000)
+  ylim(0, 2000) + 
+  xlab("Mean annual degree-days >O °C") + 
+  ylab("Maximum no. adult ticks at equilibrium") + 
+  theme_classic(base_size = 20)
 
   
 
