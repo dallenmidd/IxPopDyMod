@@ -1,0 +1,71 @@
+---
+title: "A framework for tick population and infection modeling"
+output: html_document
+author: 
+  - Myles Stokowski
+  - Dave Allen
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Importance of models for tick populations. They could be used to forecast populations based on climate change, based on differences in host populations, to tick control methods, or interogated to better understand the drivers of tick populations.
+
+Importance of replicable and reproducible science. How open code fits into this.
+
+Broad philosophy behind our modeling structure. Allows user to easily specify, run, see the results of, and compare tick population models. 
+
+## Model structure
+
+```{r read-code}
+source("core_functions.R")
+source("testing_functions.R")
+```
+
+At a minimum the model requires input files: a `transitions` csv, a `parameters` csv, and a `user-defined-functions` R file. Need to describe what each of these are and their structure. 
+
+# Optional load weather and host community data
+
+## Example 1
+
+Here I am thinking a simple, minimal example. 
+
+```{r ex1-load-inputs}
+
+tick_transitions <- read_csv()
+tick_params <- read_csv()
+
+```
+
+Set the initial population and test inputs
+
+```{r ex1-testinput}
+
+initial_population <- rep(0, length(life_stages))
+initial_population['r_a'] <- 10
+
+print_all_params()
+test_transitions()
+test_lifecycles()
+
+```
+
+
+Run the model 
+
+```{r ex1-run}
+out <- run(steps, initial_population)
+
+# need simipler functions to process and plot out
+```
+
+Compare two different parameter sets. Maybe with and without tick control.
+
+## Full model example
+
+Here we do the winter tick on moose example. HEre we could use the model to test how climate change affects winter tick populations.
+
+## Appendix 1: reproduce Ogden model
