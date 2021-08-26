@@ -1,56 +1,101 @@
-# core_functions.R
+# 00 functions to extract tick age, process, and infection status from life_stage
 
-# functions to extract tick age, process, and infection status from life_stage name
-# currently these are just used for graphing
-
-# return age of tick in life_stage
-# e.g. age("fl") = "l"
+#' Get tick age based on life stage
+#'
+#' @param life_stage Three-character string representing tick life stage
+#' @importFrom stringr str_length
+#' @return Character representing tick age, where "l" indicates larvae, "n"
+#'   indicates nymph, and "a" indicates adult
+#' @examples
+#' age("f_l")
 age <- function(life_stage) {
   substr(life_stage, str_length(life_stage), str_length(life_stage))
 }
 
-# return current process of tick in life_stage
+#' Get tick current process
+#'
+#' @param life_stage Three-character string representing tick life stage
+#' @return Character representing current process tick is undergoing, where "a"
+#'   indicates attached, "e" indicates engorged, "h" indicates hardening, "q"
+#'   indicates questing, "r" indicates reproductive", and "f" indicates feeding
+#' @examples
+#' process("f_l")
 process <- function(life_stage) {
   ifelse(substr(life_stage, 0, 1) != '', substr(life_stage, 0, 1), '')
 }
 
-# return whether a life_stage is infected
-# unlike the 3 previous and similar functions, infected() returns a boolean
+#' Get tick infection status
+#'
+#' @param life_stage Three-character string representing tick life stage
+#' @return Boolean indicating whether a life_stage is infected
+#' @importFrom stringr str_detect
+#' @examples
+#' infected("fin")
 infected <- function(life_stage) {
   str_detect(life_stage, "i")
-  
 }
 
-# 01 functions to grab the predictors that determine the transition probabiltiies at a given time
+# 01 functions to grab the predictors that determine the transition
+# probabilities at a given time
 
-# extract temperature from input data at time time 
-get_temp <- function(time) {
+#' Get temperature from input data
+#'
+#' @param time Numeric vector indicating days to get temperature data
+#' TODO need to pass weather as param wherever function is called
+#' @param weather Data frame with a Julian date "j_day" column and average
+#'   temperature "tmean" column
+#' @return Numeric vector of temperature for the given period
+get_temp <- function(time, weather) {
   weather[which(weather$j_day %in% time), ]$tmean
 }
 
-# extract vapour-pressure deficit from input data at time time 
+# TODO could these (get_temp, vpd and host_den) be implemented as a function
+# factory? Wait to document till trying
+
+# extract vapour-pressure deficit from input data at time time
+#' TODO need to pass weather as param wherever function is called
 get_vpd <- function(time) {
-  weather %>% 
+  weather %>%
     filter(j_day %in% time) %>%
     pull(vpdmean)
-} 
-
+}
+#' TODO need to pass host_comm as param wherever function is called
 get_host_den <- function(time) {
   host_comm[which(host_comm$j_day %in% time), ]$host_den
 }
 
+#' Get tick density for specified time and life stages
+#'
+#' @param time Numeric vector of length one indicating day to get tick density
+#' @param pred Character vector indicating life stages to get tick
+#'   density of
+#' @param N Matrix of number of ticks not currently undergoing development
+#'   per life stage per day
+#' @param N_developing Matrix of number of currently developing ticks per life
+#'   stage per day
+#' @importFrom stringr str_which
+#' @return Numeric vector of length one indicating current number of ticks in
+#'   given life stages
+#' TODO @examples
 get_tick_den <- function(time, N, N_developing, pred) {
   sum((N + N_developing)[str_which(life_stages, pred), time])
 }
 
-# Return a vector of a predictor at time time. 
+#' Get the value of a predictor
+#'
+#' @param time Numeric vector indicating span of days to get predictor values
+#' @param pred String indicating which predictor, one of: temp, vpd, host_den or
+#'   NA
+#' @param is_delay Boolean indicating whether the predictor is for a transition
+#'   involving a delay
+# Return a vector of a predictor at time time.
 # The vector's length is based on whether the transition is_delay.
 get_pred <- function(time, pred, is_delay, N, N_developing) {
-  
+
   # if is_delay, we want a long vector so the cumsum will reach 1
   # otherwise, we want a vector of length 1
   if (is_delay) {time <- time:(time + max_delay)}
-  
+
   if (is.na(pred)) {
     return(NULL)
   } else if (pred == "temp") {
