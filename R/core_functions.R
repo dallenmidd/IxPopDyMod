@@ -170,9 +170,12 @@ get_transition_val <- function(time, transition_row_with_parameters,
 #' @param N_developing Matrix of currently developing ticks. See get_tick_den
 #'   for details.
 #'
+#' TODO pass life_stages, tick_transitions, any other global vars...
+#'
 #' @importFrom dplyr filter
 #' @importFrom stringr str_detect
-#' TODO pass life_stages, tick_transitions, any other global vars...
+#' @importFrom magrittr %>%
+#'
 #'
 #' @return Matrix of transition probabilities, indicating the probabilities of
 #'   transitioning from each stage (axis 1) to each stage (axis 2).

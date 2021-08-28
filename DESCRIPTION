@@ -2,16 +2,15 @@ Package: IxPopDyMod
 Title: Framework for Tick Population and Infection Modelling
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Myles",
+    c(person(given = "Myles",
            family = "Stokowski",
            role = c("aut", "cre"),
-           email = "mstokowski@middlebury.edu",
-           comment = c(ORCID = "YOUR-ORCID-ID")),
-    person(given = "David",
+           email = "mstokowski@middlebury.edu"),
+      person(given = "David",
            family = "Allen",
            role = c("aut"),
            email = "dallen@middlebury.edu",
-           comment = c(ORCID = "0000-0002-0712-9603"))
+           comment = c(ORCID = "0000-0002-0712-9603")))
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
