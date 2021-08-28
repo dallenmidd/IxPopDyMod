@@ -5,6 +5,7 @@
 #' @importFrom ggplot2 ggplot aes geom_point scale_size_manual
 #'   scale_shape_manual geom_line scale_y_log10 geom_hline ggtitle
 #' @return ggplot object
+#' @export
 graph_population_each_group <- function(out_N_df, title=NULL) {
   ggplot(out_N_df, aes(x = .data$day, y = .data$pop, color = .data$process,
                        shape = .data$age_group, group = .data$stage)) +
@@ -29,6 +30,7 @@ graph_population_each_group <- function(out_N_df, title=NULL) {
 #' @importFrom dplyr filter group_by summarise mutate lag
 #'
 #' @return ggplot object
+#' @export
 graph_population_overall_trend <- function(out_N_df, title=NULL) {
   out_N_df %>%
     filter(.data$age_group == 'a') %>%

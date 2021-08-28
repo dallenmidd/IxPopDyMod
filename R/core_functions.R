@@ -516,6 +516,7 @@ run <- function(steps, initial_population, tick_transitions, tick_params,
 #' @importFrom tidyr pivot_longer
 #'
 #' @return Tibble with number of ticks per life stage per day.
+#' @export
 output_to_df <- function(out) {
 
   out_N <- out[[1]]
