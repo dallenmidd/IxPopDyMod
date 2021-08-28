@@ -4,7 +4,17 @@
 \alias{update_delay_arr}
 \title{Update the delay array for the current time}
 \usage{
-update_delay_arr(time, delay_arr, N, N_developing)
+update_delay_arr(
+  time,
+  delay_arr,
+  N,
+  N_developing,
+  tick_transitions,
+  life_stages,
+  max_delay,
+  host_comm,
+  weather
+)
 }
 \arguments{
 \item{time}{Numeric vector indicating day to get transition probabilities}
@@ -15,6 +25,17 @@ update_delay_arr(time, delay_arr, N, N_developing)
 
 \item{N_developing}{Matrix of currently developing ticks. See get_tick_den
 for details.}
+
+\item{tick_transitions}{Tick transitions tibble}
+
+\item{life_stages}{Character vector of life stages.}
+
+\item{max_delay}{Numeric vector of length one. Determines the maximum
+number of days that a delayed transition can last.}
+
+\item{host_comm}{Host community tibble.}
+
+\item{weather}{Weather tibble.}
 }
 \value{
 Delay array indicating the number of ticks currently undergoing delay

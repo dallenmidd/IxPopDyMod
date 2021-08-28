@@ -7,8 +7,7 @@
 get_temp(time, weather)
 }
 \arguments{
-\item{time}{Numeric vector indicating days to get temperature data
-TODO need to pass weather as param wherever function is called}
+\item{time}{Numeric vector indicating days to get temperature data}
 
 \item{weather}{Data frame with a Julian date "j_day" column and average
 temperature "tmean" column}

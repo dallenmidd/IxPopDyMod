@@ -4,7 +4,16 @@
 \alias{get_transition_val}
 \title{Get the value determining probability or duration of a transition}
 \usage{
-get_transition_val(time, transition_row_with_parameters, N, N_developing)
+get_transition_val(
+  time,
+  transition_row_with_parameters,
+  N,
+  N_developing,
+  max_delay,
+  life_stages,
+  host_comm,
+  weather
+)
 }
 \arguments{
 \item{time}{Numeric vector indicating span of days to get predictor values
@@ -17,6 +26,15 @@ with parameters added.}
 
 \item{N_developing}{Matrix of currently developing ticks. See get_tick_den
 for details.}
+
+\item{max_delay}{Numeric vector of length one. Determines the maximum
+number of days that a delayed transition can last.}
+
+\item{life_stages}{Character vector of life stages.}
+
+\item{host_comm}{Host community tibble.}
+
+\item{weather}{Weather tibble.}
 }
 \value{
 Numeric vector indicating probability or duration of a transition.

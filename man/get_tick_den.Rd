@@ -4,7 +4,7 @@
 \alias{get_tick_den}
 \title{Get tick density for specified time and life stages}
 \usage{
-get_tick_den(time, N, N_developing, pred)
+get_tick_den(time, N, N_developing, pred, life_stages)
 }
 \arguments{
 \item{time}{Numeric vector of length one indicating day to get tick density}
@@ -17,11 +17,12 @@ stage per day}
 
 \item{pred}{Character vector indicating life stages to get tick
 density of}
+
+\item{life_stages}{Character vector of life stages.}
 }
 \value{
 Numeric vector of length one indicating current number of ticks in
 given life stages
-TODO @examples
 }
 \description{
 Get tick density for specified time and life stages

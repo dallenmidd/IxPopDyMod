@@ -4,7 +4,15 @@
 \alias{gen_trans_matrix}
 \title{Generate a matrix of transition probabilities between tick life stages}
 \usage{
-gen_trans_matrix(time, N, N_developing)
+gen_trans_matrix(
+  time,
+  N,
+  N_developing,
+  life_stages,
+  tick_transitions,
+  host_comm,
+  weather
+)
 }
 \arguments{
 \item{time}{Numeric vector indicating day to get transition probabilities}
@@ -12,9 +20,15 @@ gen_trans_matrix(time, N, N_developing)
 \item{N}{Tick population matrix. See get_tick_den for details.}
 
 \item{N_developing}{Matrix of currently developing ticks. See get_tick_den
-for details.
+for details.}
 
-TODO pass life_stages, tick_transitions, any other global vars...}
+\item{life_stages}{Character vector of life stages.}
+
+\item{tick_transitions}{Tick transitions tibble}
+
+\item{host_comm}{Host community tibble.}
+
+\item{weather}{Weather tibble.}
 }
 \value{
 Matrix of transition probabilities, indicating the probabilities of

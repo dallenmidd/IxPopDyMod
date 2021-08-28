@@ -10,9 +10,10 @@ library(tidyr)
 library(ggplot2)
 library(igraph)
 
-source("R/core_functions.R")
+devtools::load_all(export_all = FALSE)
+# source("R/core_functions.R")
 source("R/user_defined_functions.R")
-source("R/testing_functions.R")
+# source("R/testing_functions.R")
 
 # set constant steps, which ensures that model doesn't try to run for longer than there is input data
 # increased to see full cycle because with 15 degree temp, new eggs emerge around day 310
@@ -78,12 +79,19 @@ if (simple) {
 }
 
 # inspect test results before running
-print_all_params()
-test_transitions()
-test_lifecycles()
+# print_all_params()
+# test_transitions()
+# test_lifecycles()
 
 # run the model and extract the output population matrix and delay_matrix
-out <- run(steps, initial_population)
+out <- run(100,
+           initial_population,
+           tick_transitions,
+           tick_params,
+           life_stages,
+           max_delay,
+           host_comm,
+           weather)
 out_N <- out[[1]]
 out_N_developing <- out[[2]]
 out_delay_mat <- out[[3]]

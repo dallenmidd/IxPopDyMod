@@ -7,8 +7,6 @@
 #' @importFrom stringr str_length
 #' @return Character representing tick age, where "l" indicates larvae, "n"
 #'   indicates nymph, and "a" indicates adult
-#' @examples
-#' age("f_l")
 age <- function(life_stage) {
   substr(life_stage, str_length(life_stage), str_length(life_stage))
 }
@@ -19,8 +17,6 @@ age <- function(life_stage) {
 #' @return Character representing current process tick is undergoing, where "a"
 #'   indicates attached, "e" indicates engorged, "h" indicates hardening, "q"
 #'   indicates questing, "r" indicates reproductive", and "f" indicates feeding
-#' @examples
-#' process("f_l")
 process <- function(life_stage) {
   ifelse(substr(life_stage, 0, 1) != '', substr(life_stage, 0, 1), '')
 }
@@ -30,8 +26,6 @@ process <- function(life_stage) {
 #' @param life_stage Three-character string representing tick life stage
 #' @return Boolean indicating whether a life_stage is infected
 #' @importFrom stringr str_detect
-#' @examples
-#' infected("fin")
 infected <- function(life_stage) {
   str_detect(life_stage, "i")
 }
@@ -42,7 +36,6 @@ infected <- function(life_stage) {
 #' Get temperature from input data
 #'
 #' @param time Numeric vector indicating days to get temperature data
-#' TODO need to pass weather as param wherever function is called
 #' @param weather Data frame with a Julian date "j_day" column and average
 #'   temperature "tmean" column
 #' @return Numeric vector of temperature for the given period
@@ -54,16 +47,15 @@ get_temp <- function(time, weather) {
 # factory? Wait to document till trying
 
 # extract vapour-pressure deficit from input data at time time
-#' TODO need to pass weather as param wherever function is called
-get_vpd <- function(time) {
-  weather %>%
-    filter(j_day %in% time) %>%
-    pull(vpdmean)
+get_vpd <- function(time, weather) {
+  weather[which(weather$j_day %in% time), ]$vpdmean
 }
-#' TODO need to pass host_comm as param wherever function is called
-get_host_den <- function(time) {
+
+get_host_den <- function(time, host_comm) {
   host_comm[which(host_comm$j_day %in% time), ]$host_den
 }
+
+
 
 #' Get tick density for specified time and life stages
 #'
@@ -74,11 +66,11 @@ get_host_den <- function(time) {
 #'   per life stage per day
 #' @param N_developing Matrix of number of currently developing ticks per life
 #'   stage per day
+#' @param life_stages Character vector of life stages.
 #' @importFrom stringr str_which
 #' @return Numeric vector of length one indicating current number of ticks in
 #'   given life stages
-#' TODO @examples
-get_tick_den <- function(time, N, N_developing, pred) {
+get_tick_den <- function(time, N, N_developing, pred, life_stages) {
   sum((N + N_developing)[str_which(life_stages, pred), time])
 }
 
@@ -89,9 +81,19 @@ get_tick_den <- function(time, N, N_developing, pred) {
 #'   NA
 #' @param is_delay Boolean indicating whether the predictor is for a transition
 #'   involving a delay
+#' @param N Tick population matrix. See get_tick_den for details.
+#' @param N_developing Matrix of currently developing ticks. See get_tick_den
+#'   for details.
+#' @param max_delay Numeric vector of length one. Determines the maximum
+#' number of days that a delayed transition can last.
+#' @param life_stages Character vector of life stages.
+#' @param host_comm Host community tibble.
+#' @param weather Weather tibble.
+#'
 # Return a vector of a predictor at time time.
 # The vector's length is based on whether the transition is_delay.
-get_pred <- function(time, pred, is_delay, N, N_developing) {
+get_pred <- function(time, pred, is_delay, N, N_developing, max_delay,
+                     life_stages, host_comm, weather) {
 
   # if is_delay, we want a long vector so the cumsum will reach 1
   # otherwise, we want a vector of length 1
@@ -100,13 +102,13 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
   if (is.na(pred)) {
     return(NULL)
   } else if (pred == "temp") {
-    return(get_temp(time))
+    return(get_temp(time, weather))
   } else if (pred == "vpd") {
-    return(get_vpd(time))
+    return(get_vpd(time, weather))
   } else if (pred == "host_den") {
-    return(get_host_den(time[1])) # length == n_host_spp
+    return(get_host_den(time[1], host_comm)) # length == n_host_spp
   } else if (any(str_detect(life_stages, pred))) {
-    return(get_tick_den(time[1], N, N_developing, pred)) # length == 1
+    return(get_tick_den(time[1], N, N_developing, pred, life_stages)) # length == 1
   } else {
     print("error: couldn't match pred")
   }
@@ -132,12 +134,18 @@ get_pred <- function(time, pred, is_delay, N, N_developing) {
 #' @param N Tick population matrix. See get_tick_den for details.
 #' @param N_developing Matrix of currently developing ticks. See get_tick_den
 #'   for details.
+#' @param max_delay Numeric vector of length one. Determines the maximum
+#' number of days that a delayed transition can last.
+#' @param life_stages Character vector of life stages.
+#' @param host_comm Host community tibble.
+#' @param weather Weather tibble.
 #'
 #' @return Numeric vector indicating probability or duration of a transition.
 #'   Vector will be of length one if the transition is not a delay transition???
 #'   TODO better describe what this returns
-get_transition_val <- function(time, transition_row_with_parameters,
-                               N, N_developing) {
+get_transition_val <- function(time, transition_row_with_parameters, N,
+                               N_developing, max_delay, life_stages,
+                               host_comm, weather) {
 
   # get the function
   f <- get(transition_row_with_parameters[['transition_fun']])
@@ -147,9 +155,11 @@ get_transition_val <- function(time, transition_row_with_parameters,
 
   # get the value of the predictors for the function
   pred1 <- get_pred(time, transition_row_with_parameters[['pred1']],
-                    transition_row_with_parameters[['delay']], N, N_developing)
+                    transition_row_with_parameters[['delay']], N, N_developing,
+                    max_delay, life_stages, host_comm, weather)
   pred2 <- get_pred(time, transition_row_with_parameters[['pred2']],
-                    transition_row_with_parameters[['delay']], N, N_developing)
+                    transition_row_with_parameters[['delay']], N, N_developing,
+                    max_delay, life_stages, host_comm, weather)
 
   # evaluate the function
   do.call(f, c(list(pred1, pred2), params[[1]]))
@@ -169,17 +179,21 @@ get_transition_val <- function(time, transition_row_with_parameters,
 #' @param N Tick population matrix. See get_tick_den for details.
 #' @param N_developing Matrix of currently developing ticks. See get_tick_den
 #'   for details.
-#'
-#' TODO pass life_stages, tick_transitions, any other global vars...
+#' @param life_stages Character vector of life stages.
+#' @param tick_transitions Tick transitions tibble
+#' @param host_comm Host community tibble.
+#' @param weather Weather tibble.
 #'
 #' @importFrom dplyr filter
 #' @importFrom stringr str_detect
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
 #'
 #'
 #' @return Matrix of transition probabilities, indicating the probabilities of
 #'   transitioning from each stage (axis 1) to each stage (axis 2).
-gen_trans_matrix <- function(time, N, N_developing) {
+gen_trans_matrix <- function(time, N, N_developing, life_stages,
+                             tick_transitions, host_comm, weather) {
 
   # initialize the transition matrix with 0s
   n_life_stages <- length(life_stages)
@@ -187,17 +201,18 @@ gen_trans_matrix <- function(time, N, N_developing) {
                          dimnames = list(life_stages, life_stages))
 
   transitions <- tick_transitions %>%
-    filter(delay == 0,
-           to %in% life_stages)  # exclude mortality
+    filter(.data$delay == 0,
+           .data$to %in% life_stages)  # exclude mortality
 
   mort <- tick_transitions %>%
-    filter(delay == 0,
-           !(to %in% life_stages))
+    filter(.data$delay == 0,
+           !(.data$to %in% life_stages))
 
   if (nrow(transitions) > 0) {
     for (t in seq_len(nrow(transitions))) {
       trans_matrix[transitions[t,]$from, transitions[t,]$to] <-
-        get_transition_val(time, transitions[t, ], N, N_developing)
+        get_transition_val(time, transitions[t, ], N, N_developing, NULL,
+                           life_stages, host_comm, weather)
     }
   }
 
@@ -205,7 +220,8 @@ gen_trans_matrix <- function(time, N, N_developing) {
     for (m in seq_len(nrow(mort))) {
       from_stage <- mort[m,]$from
 
-      mortality <- get_transition_val(time, mort[m,], N, N_developing)
+      mortality <- get_transition_val(
+        time, mort[m,], N, N_developing, NULL, life_stages, host_comm, weather)
       trans_prob_sum <- sum(trans_matrix[from_stage,], mortality)
 
       # sum of transition probabilities plus mortality should not exceed 1
@@ -243,6 +259,14 @@ gen_trans_matrix <- function(time, N, N_developing) {
 #' @param N Tick population matrix. See get_tick_den for details.
 #' @param N_developing Matrix of currently developing ticks. See get_tick_den
 #'   for details.
+#' @param life_stages Character vector of life stages.
+#' @param tick_transitions Tick transitions tibble
+#' @param host_comm Host community tibble.
+#' @param weather Weather tibble.
+#'
+#' @param max_delay Numeric vector of length one. Determines the maximum
+#' number of days that a delayed transition can last.
+
 #'
 #' @importFrom dplyr pull
 #'
@@ -251,13 +275,14 @@ gen_trans_matrix <- function(time, N, N_developing) {
 #'   is the day on which the ticks will emerge from the transition. The value
 #'   at a given cell is the number of ticks emerging from the transition.
 
-update_delay_arr <- function(time, delay_arr, N, N_developing) {
+update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
+                             life_stages, max_delay, host_comm, weather) {
 
   # select all delay transition functions, including mortality
   transitions <- tick_transitions[tick_transitions$delay == 1, ]
 
   # loop through these transitions by from_stage
-  from_stages <- unique(pull(transitions, from))
+  from_stages <- unique(pull(transitions, .data$from))
   for (from_stage in from_stages) {
 
     # for a given delay transition, every "from" stage has a unique "to" stage
@@ -267,7 +292,8 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
     to_stage <- trans[['to']]
 
     # daily probability of transitioning to the next stage
-    val <- get_transition_val(time, trans, N, N_developing)
+    val <- get_transition_val(time, trans, N, N_developing, max_delay,
+                              life_stages, host_comm, weather)
 
     # daily or per capita mortality during the delayed transition
     # each "from" stage has either 1 or 0 corresponding mortality transitions
@@ -276,7 +302,8 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
                                  !(transitions$to %in% life_stages), ]
 
     if(nrow(mort_tibble) == 1) {
-      mort <- get_transition_val(time, mort_tibble[1,], N, N_developing)
+      mort <- get_transition_val(time, mort_tibble[1,], N, N_developing,
+                                 max_delay, life_stages, host_comm, weather)
     } else if (nrow(mort_tibble) == 0) {
       mort <- 0
     } else {
@@ -351,7 +378,7 @@ update_delay_arr <- function(time, delay_arr, N, N_developing) {
 #'
 #' @return Named list of parameters needed for the transition function from the
 #'   `from` life stage to the `to` life stage.
-get_params <- function(from, to, parameters = tick_params) {
+get_params <- function(from, to, parameters) {
 
   string <- paste0(from, to)
   patterns <- paste0(parameters$from, parameters$to)
@@ -373,10 +400,10 @@ get_params <- function(from, to, parameters = tick_params) {
 #'
 #' @return A new tick_transitions tibble with a column, params_list
 #'   that is a named list of the parameters for each transition.
-add_params_list <- function(tick_transitions, parameters = tick_params) {
+add_params_list <- function(tick_transitions, parameters) {
 
-  params_list <- apply(tick_transitions, 1,
-                       function(x) get_params(x[["from"]], x[["to"]]))
+  params_list <- apply(tick_transitions, 1, function(x)
+    get_params(x[["from"]], x[["to"]], parameters))
 
   mutate(tick_transitions, params_list = params_list)
 }
@@ -392,18 +419,26 @@ add_params_list <- function(tick_transitions, parameters = tick_params) {
 #' @param initial_population Named???? numeric vector indicating the starting
 #'   population for each life stage. Length should be equal to the number of
 #'   life stages.
+#' @param life_stages Character vector of life stages.
+#' @param tick_transitions Tick transitions tibble
+#' @param tick_params Tick parameters tibble
+#' @param host_comm Host community tibble.
+#' @param weather Weather tibble.
+#'
+#' @param max_delay Numeric vector of length one. Determines the maximum
+#' number of days that a delayed transition can last.
 #'
 #' @return List with population matrix, matrix of currently developing ticks,
 #'   and delay matrix.
 #' TODO we probably want exported function to just return the nicely formatted
 #' tibble of population per life stage over time.
 #' @export
-run <- function(steps, initial_population) {
+run <- function(steps, initial_population, tick_transitions, tick_params,
+                life_stages, max_delay, host_comm, weather) {
 
   # update the tick transitions global variable by adding parameters
   # for each transition
-  # TODO would be better not to update a global variable
-  tick_transitions <<- add_params_list(tick_transitions)
+  tick_transitions <- add_params_list(tick_transitions, tick_params)
 
   # initialize a delay array of all zeros
   # dimensions: to, from, time
@@ -447,10 +482,14 @@ run <- function(steps, initial_population) {
     N_developing[, time] <- rowSums(delay_arr[,,(time + 1):dim(delay_arr)[3]])
 
     # calculate transition probabilities
-    trans_matrix <- gen_trans_matrix(time, N, N_developing)
+    trans_matrix <- gen_trans_matrix(time, N, N_developing, life_stages,
+                                     tick_transitions, host_comm,
+                                     weather)
 
     # calculate the number of ticks entering delayed development
-    delay_arr <- update_delay_arr(time, delay_arr, N, N_developing)
+    delay_arr <- update_delay_arr(time, delay_arr, N, N_developing,
+                                  tick_transitions, life_stages, max_delay,
+                                  host_comm, weather)
 
     # collapse the delay_arr by summing across 'from', giving a matrix with
     # dims = (to, days)
@@ -467,9 +506,14 @@ run <- function(steps, initial_population) {
   return(list(N, N_developing, delay_mat))
 }
 
+
+
+
 #' Convert model output to a nicely formatted tibble
 #'
 #' @param out Output from run()
+#' @importFrom dplyr row_number mutate
+#' @importFrom tidyr pivot_longer
 #'
 #' @return Tibble with number of ticks per life stage per day.
 output_to_df <- function(out) {
@@ -483,10 +527,10 @@ output_to_df <- function(out) {
     t() %>%
     as.data.frame() %>%
     mutate(day = row_number()) %>%
-    pivot_longer(-c(day), names_to = 'stage', values_to = 'pop') %>%
-    mutate(age_group = age(stage),
-           process = process(stage),
-           infected = infected(stage))
+    pivot_longer(-c(.data$day), names_to = 'stage', values_to = 'pop') %>%
+    mutate(age_group = age(.data$stage),
+           process = process(.data$stage),
+           infected = infected(.data$stage))
 
   out_N_df
 }

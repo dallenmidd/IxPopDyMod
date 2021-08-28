@@ -4,7 +4,17 @@
 \alias{get_pred}
 \title{Get the value of a predictor}
 \usage{
-get_pred(time, pred, is_delay, N, N_developing)
+get_pred(
+  time,
+  pred,
+  is_delay,
+  N,
+  N_developing,
+  max_delay,
+  life_stages,
+  host_comm,
+  weather
+)
 }
 \arguments{
 \item{time}{Numeric vector indicating span of days to get predictor values}
@@ -14,6 +24,20 @@ NA}
 
 \item{is_delay}{Boolean indicating whether the predictor is for a transition
 involving a delay}
+
+\item{N}{Tick population matrix. See get_tick_den for details.}
+
+\item{N_developing}{Matrix of currently developing ticks. See get_tick_den
+for details.}
+
+\item{max_delay}{Numeric vector of length one. Determines the maximum
+number of days that a delayed transition can last.}
+
+\item{life_stages}{Character vector of life stages.}
+
+\item{host_comm}{Host community tibble.}
+
+\item{weather}{Weather tibble.}
 }
 \description{
 Get the value of a predictor

@@ -15,6 +15,3 @@ Boolean indicating whether a life_stage is infected
 \description{
 Get tick infection status
 }
-\examples{
-infected("fin")
-}

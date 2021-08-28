@@ -17,6 +17,3 @@ indicates questing, "r" indicates reproductive", and "f" indicates feeding
 \description{
 Get tick current process
 }
-\examples{
-process("f_l")
-}

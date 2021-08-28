@@ -4,7 +4,7 @@
 \alias{add_params_list}
 \title{Add parameters to a tick_transitions tibble}
 \usage{
-add_params_list(tick_transitions, parameters = tick_params)
+add_params_list(tick_transitions, parameters)
 }
 \arguments{
 \item{tick_transitions}{Tick transitions tibble}

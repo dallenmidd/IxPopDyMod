@@ -4,7 +4,7 @@
 \alias{get_params}
 \title{Return list of parameters for a given transition}
 \usage{
-get_params(from, to, parameters = tick_params)
+get_params(from, to, parameters)
 }
 \arguments{
 \item{from}{String indicating life stage a transition is from}

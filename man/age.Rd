@@ -16,6 +16,3 @@ indicates nymph, and "a" indicates adult
 \description{
 Get tick age based on life stage
 }
-\examples{
-age("f_l")
-}
