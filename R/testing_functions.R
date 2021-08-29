@@ -1,8 +1,14 @@
 # testing_functions.R
 
-# print the parameters that are being grabbed through pattern matching and the
-# name of the function -- used for debugging, determining what extra parameters
-# are being grabbed
+#' Print parameters for a given transition
+#'
+#' @details
+#' Print the parameters that are being grabbed through pattern matching and the
+#' name of the function. Useful for debugging to determine whether correct
+#' parameters are being selected for each transition.
+#'
+#' @param transition_row A row from the tick transitions tibble.
+#' @param parameters Tick parameters tibble.
 #'
 #' @importFrom dplyr filter pull
 #' @importFrom stringr str_detect
@@ -24,8 +30,10 @@ print_params <- function(transition_row, parameters) {
   print(params)
 }
 
-#'
+#' Print parameter names and values for each transition
 #' @importFrom dplyr arrange
+#' @param tick_transitions Tick transitions table
+#' @param parameters Tick parameters table
 #' @export
 print_all_params <- function(tick_transitions, parameters) {
   funs <- tick_transitions %>%
@@ -42,11 +50,25 @@ print_trans_matrix <- function(trans_matrix) {
                  substr(0, 4)), quote = FALSE)
 }
 
-# for use in testing, faster than running the whole model and useful for seeing
-# which functions are being problematic when the model breaks
+#' Calculate transition value for each transition
+#'
+#' @details
+#' For use in testing. Much faster than running the whole model and useful for
+#' seeing which functions are being problematic when the model breaks
+#'
+#' @param life_stages Character vector of life stages.
+#' @param tick_transitions Tick transitions tibble
+#' @param tick_params Tick parameters tibble
+#' @param max_delay Numeric vector of length one. Determines the maximum
+#'   number of days that a delayed transition can last.
+#' @param host_comm Host community tibble.
+#' @param weather Weather tibble.
+
 #' @export
-test_transitions <- function(life_stages, steps, tick_transitions, tick_params,
+test_transitions <- function(life_stages, tick_transitions, tick_params,
                              max_delay, host_comm, weather) {
+
+  steps <- 300
 
   # initialize a population matrix with 10 of each tick life_stage on day 1
   N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
@@ -64,6 +86,9 @@ test_transitions <- function(life_stages, steps, tick_transitions, tick_params,
 
   # loop through all the transition functions and calculate transition
   # probabilities
+
+  # TODO could instead return/print a tibble using mutate to calculate
+  # transition value as an additional column
   for (i in 1:nrow(funs)) {
     print(paste(funs[[i, 'from']], funs[[i, 'to']],
                 funs[[i, 'transition_fun']]))
@@ -77,8 +102,20 @@ test_transitions <- function(life_stages, steps, tick_transitions, tick_params,
   # transition_vals
 }
 
-# test to ensure that there are no "dead-ends" in life cycle
-# based on all the non-mortality transitions
+#' Check that transitions form a cycle
+#'
+#' @details
+#' Tests to ensure that there are no "dead-ends" in the life cycle by ensuring
+#' that all non-mortality life stages occur in both the `from` and `to` fields
+#' of transitions.
+#'
+#' Optionally, also outputs a graph of the life cycle for visually confirming
+#' that transitions are as intended.
+#'
+#' @param life_stages Character vector of life stages.
+#' @param tick_transitions Tick transitions tibble
+#' @param graph Default `TRUE`, if `FALSE`, graph is not created.
+#'
 #' @importFrom dplyr pull filter select
 #' @importFrom igraph graph_from_data_frame
 #' @export
