@@ -26,12 +26,13 @@ print_params <- function(transition_row, parameters) {
 
 #'
 #' @importFrom dplyr arrange
-print_all_params <- function(tick_transitions) {
+#' @export
+print_all_params <- function(tick_transitions, parameters) {
   funs <- tick_transitions %>%
     arrange(.data$transition_fun)
 
   for (i in 1:nrow(funs)) {
-    print_params(funs[i,])
+    print_params(funs[i,], parameters)
   }
 }
 
@@ -43,7 +44,9 @@ print_trans_matrix <- function(trans_matrix) {
 
 # for use in testing, faster than running the whole model and useful for seeing
 # which functions are being problematic when the model breaks
-test_transitions <- function(life_stages, steps, tick_transitions, max_delay) {
+#' @export
+test_transitions <- function(life_stages, steps, tick_transitions, tick_params,
+                             max_delay, host_comm, weather) {
 
   # initialize a population matrix with 10 of each tick life_stage on day 1
   N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
@@ -54,7 +57,7 @@ test_transitions <- function(life_stages, steps, tick_transitions, max_delay) {
   rownames(N) <- life_stages
 
   # select which functions to test
-  funs <- add_params_list(tick_transitions)
+  funs <- add_params_list(tick_transitions, tick_params)
   #filter(transition_fun == 'density_fun')
 
   transition_vals <- c()
@@ -64,7 +67,8 @@ test_transitions <- function(life_stages, steps, tick_transitions, max_delay) {
   for (i in 1:nrow(funs)) {
     print(paste(funs[[i, 'from']], funs[[i, 'to']],
                 funs[[i, 'transition_fun']]))
-    print(get_transition_val(1, funs[i,], N, N_developing, max_delay))
+    print(get_transition_val(1, funs[i,], N, N_developing, max_delay,
+                             life_stages, host_comm, weather))
     # transition_vals <- c(transition_vals,
     #                      get_transition_val(
     #                        1, funs[i,], N, N_developing, max_delay))
@@ -77,7 +81,8 @@ test_transitions <- function(life_stages, steps, tick_transitions, max_delay) {
 # based on all the non-mortality transitions
 #' @importFrom dplyr pull filter select
 #' @importFrom igraph graph_from_data_frame
-test_lifecycles <- function(graph = TRUE, life_stages, tick_transitions) {
+#' @export
+test_lifecycles <- function(life_stages, tick_transitions, graph = TRUE) {
   # check if all life_stages are in from and to in tick_transitions
   all_from <- tick_transitions %>% pull(.data$from) %>% unique() %>% sort()
   all_to <- tick_transitions %>%
