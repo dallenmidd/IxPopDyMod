@@ -90,7 +90,6 @@ out <- IxPopDyMod::run(
   initial_population,
   tick_transitions,
   tick_params,
-  life_stages,
   max_delay,
   host_comm,
   weather)

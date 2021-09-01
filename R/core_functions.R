@@ -30,6 +30,11 @@ infected <- function(life_stage) {
   str_detect(life_stage, "i")
 }
 
+#' Get all life stages
+get_life_stages <- function(tick_transitions) {
+  unique(pull(tick_transitions, from))
+}
+
 # 01 functions to grab the predictors that determine the transition
 # probabilities at a given time
 
@@ -419,10 +424,6 @@ add_params_list <- function(tick_transitions, parameters) {
 #' @param initial_population Named???? numeric vector indicating the starting
 #'   population for each life stage. Length should be equal to the number of
 #'   life stages.
-#' @param life_stages Character vector of life stages.
-#'
-#' TODO life_stages can be generated from tick_transitions so it shouldn't need
-#' to be supplied as a parameter
 #'
 #' @param tick_transitions Tick transitions tibble
 #' @param tick_params Tick parameters tibble
@@ -438,7 +439,9 @@ add_params_list <- function(tick_transitions, parameters) {
 #' tibble of population per life stage over time.
 #' @export
 run <- function(steps, initial_population, tick_transitions, tick_params,
-                life_stages, max_delay, host_comm, weather) {
+                max_delay, host_comm, weather) {
+
+  life_stages <- get_life_stages(tick_transitions)
 
   # update the tick transitions global variable by adding parameters
   # for each transition
