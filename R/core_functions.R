@@ -420,6 +420,10 @@ add_params_list <- function(tick_transitions, parameters) {
 #'   population for each life stage. Length should be equal to the number of
 #'   life stages.
 #' @param life_stages Character vector of life stages.
+#'
+#' TODO life_stages can be generated from tick_transitions so it shouldn't need
+#' to be supplied as a parameter
+#'
 #' @param tick_transitions Tick transitions tibble
 #' @param tick_params Tick parameters tibble
 #' @param host_comm Host community tibble.

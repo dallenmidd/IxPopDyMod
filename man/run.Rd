@@ -27,7 +27,10 @@ life stages.}
 
 \item{tick_params}{Tick parameters tibble}
 
-\item{life_stages}{Character vector of life stages.}
+\item{life_stages}{Character vector of life stages.
+
+TODO life_stages can be generated from tick_transitions so it shouldn't need
+to be supplied as a parameter}
 
 \item{max_delay}{Numeric vector of length one. Determines the maximum
 number of days that a delayed transition can last.}
