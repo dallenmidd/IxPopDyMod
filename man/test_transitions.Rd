@@ -4,18 +4,9 @@
 \alias{test_transitions}
 \title{Calculate transition value for each transition}
 \usage{
-test_transitions(
-  life_stages,
-  tick_transitions,
-  tick_params,
-  max_delay,
-  host_comm,
-  weather
-)
+test_transitions(tick_transitions, tick_params, max_delay, host_comm, weather)
 }
 \arguments{
-\item{life_stages}{Character vector of life stages.}
-
 \item{tick_transitions}{Tick transitions tibble}
 
 \item{tick_params}{Tick parameters tibble}
