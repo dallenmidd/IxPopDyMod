@@ -85,17 +85,14 @@ IxPopDyMod::test_transitions(life_stages, tick_transitions, tick_params,
 IxPopDyMod::test_lifecycles(life_stages, tick_transitions)
 
 # run the model and extract the output population matrix and delay_matrix
-out <- IxPopDyMod::run(
+out_N_df <- IxPopDyMod::run(
   steps,
   initial_population,
   tick_transitions,
   tick_params,
-  life_stages,
   max_delay,
   host_comm,
   weather)
-
-out_N_df <- IxPopDyMod::output_to_df(out)
 
 # for checking whether model output has changed, a more
 # thorough alternative to visually inspecting the output graph

@@ -56,7 +56,6 @@ print_trans_matrix <- function(trans_matrix) {
 #' For use in testing. Much faster than running the whole model and useful for
 #' seeing which functions are being problematic when the model breaks
 #'
-#' @param life_stages Character vector of life stages.
 #' @param tick_transitions Tick transitions tibble
 #' @param tick_params Tick parameters tibble
 #' @param max_delay Numeric vector of length one. Determines the maximum
@@ -65,10 +64,12 @@ print_trans_matrix <- function(trans_matrix) {
 #' @param weather Weather tibble.
 
 #' @export
-test_transitions <- function(life_stages, tick_transitions, tick_params,
+test_transitions <- function(tick_transitions, tick_params,
                              max_delay, host_comm, weather) {
 
   steps <- 300
+
+  life_stages <- get_life_stages(tick_transitions)
 
   # initialize a population matrix with 10 of each tick life_stage on day 1
   N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
@@ -80,9 +81,8 @@ test_transitions <- function(life_stages, tick_transitions, tick_params,
 
   # select which functions to test
   funs <- add_params_list(tick_transitions, tick_params)
-  #filter(transition_fun == 'density_fun')
 
-  transition_vals <- c()
+
 
   # loop through all the transition functions and calculate transition
   # probabilities

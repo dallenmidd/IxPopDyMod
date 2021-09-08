@@ -30,6 +30,11 @@ infected <- function(life_stage) {
   str_detect(life_stage, "i")
 }
 
+#' Get all life stages
+get_life_stages <- function(tick_transitions) {
+  unique(pull(tick_transitions, from))
+}
+
 # 01 functions to grab the predictors that determine the transition
 # probabilities at a given time
 
@@ -414,15 +419,14 @@ add_params_list <- function(tick_transitions, parameters) {
 
 #' Run the model
 #'
+#' @importFrom dplyr pivot_longer
+#' @importFrom dplyr row_number
+#'
 #' @param steps Numeric vector of length one indicating the duration to run the
 #'   model over in days.
 #' @param initial_population Named???? numeric vector indicating the starting
 #'   population for each life stage. Length should be equal to the number of
 #'   life stages.
-#' @param life_stages Character vector of life stages.
-#'
-#' TODO life_stages can be generated from tick_transitions so it shouldn't need
-#' to be supplied as a parameter
 #'
 #' @param tick_transitions Tick transitions tibble
 #' @param tick_params Tick parameters tibble
@@ -432,13 +436,12 @@ add_params_list <- function(tick_transitions, parameters) {
 #' @param max_delay Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
 #'
-#' @return List with population matrix, matrix of currently developing ticks,
-#'   and delay matrix.
-#' TODO we probably want exported function to just return the nicely formatted
-#' tibble of population per life stage over time.
+#' @return Data frame of population of ticks of each life stage each day
 #' @export
 run <- function(steps, initial_population, tick_transitions, tick_params,
-                life_stages, max_delay, host_comm, weather) {
+                max_delay, host_comm, weather) {
+
+  life_stages <- get_life_stages(tick_transitions)
 
   # update the tick transitions global variable by adding parameters
   # for each transition
@@ -505,30 +508,9 @@ run <- function(steps, initial_population, tick_transitions, tick_params,
     N[, time + 1] <- N[, time] %*% trans_matrix + delay_mat[, time + 1]
   }
 
-  # the population matrix N and delay_mat are local variables
-  # we return them here after running "steps" times
-  return(list(N, N_developing, delay_mat))
-}
-
-
-
-
-#' Convert model output to a nicely formatted tibble
-#'
-#' @param out Output from run()
-#' @importFrom dplyr row_number mutate
-#' @importFrom tidyr pivot_longer
-#'
-#' @return Tibble with number of ticks per life stage per day.
-#' @export
-output_to_df <- function(out) {
-
-  out_N <- out[[1]]
-  out_N_developing <- out[[2]]
-  out_N <- out_N + out_N_developing
-
-  out_N_df <-
-    out_N %>%
+  # Return the total population of ticks each day. Developing ticks are counted in
+  # the FROM stage.
+  N + N_developing %>%
     t() %>%
     as.data.frame() %>%
     mutate(day = row_number()) %>%
@@ -536,6 +518,4 @@ output_to_df <- function(out) {
     mutate(age_group = age(.data$stage),
            process = process(.data$stage),
            infected = infected(.data$stage))
-
-  out_N_df
 }

@@ -9,7 +9,6 @@ run(
   initial_population,
   tick_transitions,
   tick_params,
-  life_stages,
   max_delay,
   host_comm,
   weather
@@ -27,11 +26,6 @@ life stages.}
 
 \item{tick_params}{Tick parameters tibble}
 
-\item{life_stages}{Character vector of life stages.
-
-TODO life_stages can be generated from tick_transitions so it shouldn't need
-to be supplied as a parameter}
-
 \item{max_delay}{Numeric vector of length one. Determines the maximum
 number of days that a delayed transition can last.}
 
@@ -40,10 +34,7 @@ number of days that a delayed transition can last.}
 \item{weather}{Weather tibble.}
 }
 \value{
-List with population matrix, matrix of currently developing ticks,
-and delay matrix.
-TODO we probably want exported function to just return the nicely formatted
-tibble of population per life stage over time.
+Data frame of population of ticks of each life stage each day
 }
 \description{
 Run the model
