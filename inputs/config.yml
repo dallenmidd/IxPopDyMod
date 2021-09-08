@@ -1,0 +1,8 @@
+max_delay: 500
+initial_population:
+  r_a: 100
+transitions: inputs/2021-04-04_Ogden/tick_transitions.csv
+parameters: inputs/2021-04-04_Ogden/tick_parameters.csv
+host_comm: inputs/2021-04-04_Ogden/host_comm.csv
+weather: inputs/2021-04-04_Ogden/ogden_weather.csv
+
