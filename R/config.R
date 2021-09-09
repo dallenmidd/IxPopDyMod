@@ -34,7 +34,7 @@ validate_config <- function(config) {
     )
   }
 
-  # TODO
+  # TODO Myles
   # max_delay must be positive, and length(max_delay) == 1
   # initial_population must be a named vector with the same names and
   #   length as get_life_stages(transitions)
@@ -125,19 +125,24 @@ write_config <- function(file) {}
 
 #' Run each config and return a df for comparing the outputs
 #' @return df like the output from run, but with a column each for each config
+#' TODO Dave - not sure but you may also want to change run() in core_functions
+#' so it just takes a config object
 run_all_configs <- function() {}
 
 #' Generate copies of a config with a modified parameter
 #' TODO locate parameter by row in parameters table or filtering
 #' with from, to, param_name, and host_spp?
+#' TODO Dave
 #' @param config base configuration to make modified copies of
 #' @param param_row row number of parameter to vary
 #' @param values Numeric vector of values to use for parameter
+#' @return List of configs?????
 vary_param <- function(config, param_row, values)
 
 
 #' Generate an array/grid of configs modifying each parameter along its own
 #' sequence of values
+#' TODO Dave - no idea about the feasability of this one!
 vary_many_params <- function() {}
 
 # We agreed that any changes we'd want to do to tick_transitions would be manual
