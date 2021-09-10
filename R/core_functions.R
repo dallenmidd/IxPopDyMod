@@ -510,7 +510,7 @@ run <- function(steps, initial_population, tick_transitions, tick_params,
 
   # Return the total population of ticks each day. Developing ticks are counted in
   # the FROM stage.
-  N + N_developing %>%
+  (N + N_developing) %>%
     t() %>%
     as.data.frame() %>%
     mutate(day = row_number()) %>%
