@@ -419,7 +419,7 @@ add_params_list <- function(tick_transitions, parameters) {
 
 #' Run the model
 #'
-#' @importFrom dplyr pivot_longer
+#' @importFrom tidyr pivot_longer
 #' @importFrom dplyr row_number
 #'
 #' @param steps Numeric vector of length one indicating the duration to run the
