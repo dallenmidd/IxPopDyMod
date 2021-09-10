@@ -80,7 +80,7 @@ if (simple) {
 
 # inspect test results before running
 IxPopDyMod::print_all_params(tick_transitions, tick_params)
-IxPopDyMod::test_transitions(life_stages, tick_transitions, tick_params,
+IxPopDyMod::test_transitions(tick_transitions, tick_params,
                              max_delay, host_comm, weather)
 IxPopDyMod::test_lifecycles(life_stages, tick_transitions)
 
