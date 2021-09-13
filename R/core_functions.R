@@ -32,7 +32,7 @@ infected <- function(life_stage) {
 
 #' Get all life stages
 get_life_stages <- function(tick_transitions) {
-  unique(pull(tick_transitions, from))
+  unique(pull(tick_transitions, .data$from))
 }
 
 # 01 functions to grab the predictors that determine the transition
