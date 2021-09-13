@@ -14,7 +14,7 @@ new_config <- function(initial_population, transitions, parameters,
   stopifnot(is.integer(max_delay))
 
   structure(list(steps = steps,
-                 intial_population = initial_population,
+                 initial_population = initial_population,
                  transitions = transitions,
                  parameters = parameters,
                  host_comm = host_comm,
@@ -24,29 +24,140 @@ new_config <- function(initial_population, transitions, parameters,
 }
 
 #' check that a config object is valid
+#' @importFrom rlang has_name
 #' @return Returns the input config object if it passes all the checks
-validate_config <- function(config) {
+validate_config <- function(config) { # TODO should probably change argument name bc conflicts with config()
 
-  if (steps < 0) {
+  if (length(config$steps) != 1) {
+    stop(
+      "`steps` must have length 1"
+    )
+  }
+
+  if (config$steps < 0) {
     stop(
       "`steps` must be positive",
       .call = FALSE
     )
   }
 
+  if (length(config$max_delay) != 1) {
+    stop(
+      "`max_delay` must have length 1"
+    )
+  }
+
+  # TODO this may be too strict...
+  if (config$max_delay < 365L) {
+    stop(
+      "`max_delay` should be at least 365 or developing ticks may not emerge
+       from delay transitions"
+    )
+  }
+
+  weather_colnames <- c('tmean', 'j_day')
+  host_comm_colnames <- c('j_day', 'host_spp', 'host_den')
+  parameters_colnames <- c('from', 'to', 'param_name', 'host_spp',
+                           'param_value')
+  transitions_colnames <- c('from', 'to', 'transition_fun', 'delay', 'pred1',
+                            'pred2')
+
+  has_required_cols <- function(df_name, required_colnames) {
+    if (!all(has_name(config[[df_name]], required_colnames))) {
+      missing_cols <- required_colnames[!has_name(config[[df_name]],
+                                                  required_colnames)]
+      stop("`", df_name, "` is missing required columns: ",
+           paste(missing_cols, collapse = ', '))
+    }
+  }
+
+  has_required_cols('weather', weather_colnames)
+  has_required_cols('host_comm', host_comm_colnames)
+  has_required_cols('parameters', parameters_colnames)
+  has_required_cols('transitions', transitions_colnames)
+
+  weather_coltypes <- c(tmean = 'numeric', j_day = 'numeric')
+  host_comm_coltypes <- c(
+    j_day = 'numeric', host_spp = 'character', host_den = 'numeric')
+  parameters_coltypes <- c(
+    from = 'character', to = 'character', param_name = 'character',
+    host_spp = 'character', param_value = 'numeric')
+  transitions_coltypes <- c(
+    from = 'character', to = 'character', transition_fun = 'character',
+    delay = 'numeric', pred1 = 'character', pred2 = 'character'
+  )
+
+  has_required_types <- function(df_name, required_coltypes) {
+
+    actual_coltypes <- sapply(config[[df_name]], class)
+
+    for (col in names(required_coltypes)) {
+
+      if (!(required_coltypes[[col]] == actual_coltypes[[col]] |
+            (required_coltypes[[col]] == 'numeric' &
+             actual_coltypes[[col]] %in% c('double', 'integer'))))
+
+        # TODO technically model could work without weather or host community
+        # inputs, it's just a very simple model that way. This would be okay if
+        # the pred1 and pred2 columns are not host_den or temp or vpd...
+        # Should we be less strict for that case? E.g. this might throw an error
+        # if a column like host_spp in the parameters table is empty and defaults
+        # to logical type... even though that should be okay
+
+      stop(
+        "Expected type ", required_coltypes[col], " for column ", col,
+        " in ", df_name,
+        " but found type ", actual_coltypes[col]
+      )
+    }
+  }
+
+  has_required_types('weather', weather_coltypes)
+  has_required_types('host_comm', host_comm_coltypes)
+  has_required_types('parameters', parameters_coltypes)
+  has_required_types('transitions', transitions_coltypes)
+
+  if (is.null(names(config$initial_population))) {
+    stop(
+      "`initial_population` must have names"
+    )
+  }
+
+  life_stages <- get_life_stages(config$transitions)
+  life_stages_found <- names(config$initial_population)
+
+  if (!all(life_stages_found %in% life_stages)) {
+    stop(
+      "`initial_population` had names that are not valid life stages: ",
+      paste(life_stages_found[!(life_stages_found %in% life_stages)],
+            collapse = ", ")
+    )
+  }
+
+  if (!any(config$initial_population > 0)) {
+    stop(
+      "`initial_population` must be greater than 0 for at least one life stage"
+    )
+  }
+
+  if (any(config$initial_population < 0)) {
+    stop(
+      "`initial_population` may not be negative for any life stage"
+    )
+  }
+
+  # TODO change run() behavior so it takes an initial_population named vector
+  # with only some life stages. Currently we pass a vector of length
+  # life_stages, and I'm not sure whether it uses the order or names of the
+  # vector initial_population to set the starting population in the population
+  # matrix `N`
+
   # TODO Myles
-  # max_delay must be positive, and length(max_delay) == 1
-  # initial_population must be a named vector with the same names and
-  #   length as get_life_stages(transitions)
-  # make sure there is an initial_population greater than 0 for some life stage?
-  #   and/or that all the names of the intial_population vector are valid life
-  #   stages
   # transitions must form a closed loop (borrow testing functions code)
   # functions (e.g. expo_fun) in transitions table are accessible/exist
   # each function in the transition df has the parameters it needs in the
   #   parameters df
   # pred1 and pred2 values are supported by get_pred()
-  # all tibbles must have required columns, with correct types
   # ...
 
   config
