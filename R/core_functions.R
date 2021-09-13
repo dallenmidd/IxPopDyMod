@@ -362,6 +362,8 @@ update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
       delay_arr[from_stage, to_stage, time + days_to_next] <-
         delay_arr[from_stage, to_stage, time + days_to_next] +
         N[from_stage, time] * surv_to_next
+    } else {
+      stop('cumsum of daily transition probabilities never reached 1, max_delay may be too small')
     }
   }
   return(delay_arr)
