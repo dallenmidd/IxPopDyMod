@@ -117,6 +117,19 @@ validate_config <- function(config) { # TODO should probably change argument nam
   has_required_types('parameters', parameters_coltypes)
   has_required_types('transitions', transitions_coltypes)
 
+
+  # return whether parameters are sorted by host_spp column
+  parameters_are_sorted <- function(parameters) {
+    actual <- parameters$host_spp[!is.na(parameters$host_spp)]
+    all(actual == sort(actual) | actual == sort(actual, decreasing = TRUE))
+  }
+
+  if (!parameters_are_sorted(config$parameters)) {
+    stop(
+      "`parameters` must be sorted by the column `host_spp`"
+    )
+  }
+
   if (is.null(names(config$initial_population))) {
     stop(
       "`initial_population` must have names"
@@ -146,6 +159,29 @@ validate_config <- function(config) { # TODO should probably change argument nam
     )
   }
 
+  transitions_with_parameters <- add_params_list(config$transitions,
+                                                 config$parameters)
+
+  has_expected_parameters <- function(transition_row) {
+    expected <- as.list(args(get(transition_row[['transition_fun']])))
+    expected <- expected[!(names(expected) %in% c('x', 'y', ''))]
+    actual <- transition_row$params_list
+    setequal(names(expected), names(actual))
+  }
+
+  # TODO would be MUCH better to show which expected parameters are missing/extra
+  if (!all(apply(transitions_with_parameters, 1, has_expected_parameters))) {
+    stop(
+      "extra or missing parameters"
+    )
+  }
+
+
+
+
+
+
+
   # TODO change run() behavior so it takes an initial_population named vector
   # with only some life stages. Currently we pass a vector of length
   # life_stages, and I'm not sure whether it uses the order or names of the
@@ -155,8 +191,6 @@ validate_config <- function(config) { # TODO should probably change argument nam
   # TODO Myles
   # transitions must form a closed loop (borrow testing functions code)
   # functions (e.g. expo_fun) in transitions table are accessible/exist
-  # each function in the transition df has the parameters it needs in the
-  #   parameters df
   # pred1 and pred2 values are supported by get_pred()
   # ...
 
@@ -194,6 +228,9 @@ config <- function(initial_population, transitions, parameters,
   initial_population <- ensure_int(initial_population)
   steps <- ensure_int(steps)
   max_delay <- ensure_int(max_delay)
+
+  # sort parameters by host_spp column
+  parameters <- dplyr::arrange(parameters, .data$host_spp)
 
   # return validated config
   validate_config(new_config(initial_population, transitions, parameters,
