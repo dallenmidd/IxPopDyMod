@@ -159,6 +159,19 @@ validate_config <- function(config) { # TODO should probably change argument nam
     )
   }
 
+  parameter_pattern_matching_is_valid <- function(parameters) {
+    all(sapply(c(parameters$from, parameters$to),
+               function(x) {
+                 any(stringr::str_detect(life_stages, x)) |
+                   x %in% c('m', 'per_capita_m') }))
+  }
+
+  if (!parameter_pattern_matching_is_valid(config$parameters)) {
+    stop(
+      "all "
+    )
+  }
+
   transitions_with_parameters <- add_params_list(config$transitions,
                                                  config$parameters)
 
@@ -175,6 +188,12 @@ validate_config <- function(config) { # TODO should probably change argument nam
       "extra or missing parameters"
     )
   }
+
+  l <- sapply(c(config$parameters$from, config$parameters$to), function(x) {
+    any(stringr::str_detect(life_stages, x)) |
+      x %in% c('m', 'per_capita_m')
+  }
+  )
 
 
 
