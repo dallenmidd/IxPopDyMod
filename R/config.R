@@ -160,17 +160,51 @@ validate_config <- function(config) { # TODO should probably change argument nam
   }
 
   parameter_pattern_matching_is_valid <- function(parameters) {
-    all(sapply(c(parameters$from, parameters$to),
-               function(x) {
-                 any(stringr::str_detect(life_stages, x)) |
-                   x %in% c('m', 'per_capita_m') }))
+
+    is_valid <- function(s) {
+      any(stringr::str_detect(life_stages, s) |
+            s %in% c('m', 'per_capita_m'))}
+
+    # get name and index of invalid `from` or `to` fields
+    invalid_from <- which(!sapply(parameters$from, is_valid))
+    invalid_to <- which(!sapply(parameters$to, is_valid))
+
+    invalid <- tibble::tibble(
+      string = c(names(invalid_from),
+                 names(invalid_to)),
+      row = c(invalid_from,
+              invalid_to),
+      col = c(rep('from', length(invalid_from)),
+              rep('to', length(invalid_to))))
+
+    n_invalid <- nrow(invalid)
+
+    row_to_string <- function(row) {
+      paste0('"', row[['string']], '" in col "', row[['col']], '", row ',
+             row[['row']])
+    }
+
+    if (n_invalid > 0) {
+
+      problem_list <- apply(invalid[1:min(3, n_invalid), ],
+                            1,
+                            row_to_string)
+      names(problem_list) = rep("x", length(problem_list))
+
+      stop(
+        "Strings in `parameters` `from` and `to` columns must either be regex
+        patterns that match life stages, or strings \"m\" or \"per_capita_m\"
+        indicating mortality. Found exceptions: \n",
+        rlang::format_error_bullets(problem_list),
+        ifelse(n_invalid > 3,
+               paste('\n... and ', n_invalid - 3, 'more problems'),
+               ''),
+        call. = FALSE
+      )
+    }
   }
 
-  if (!parameter_pattern_matching_is_valid(config$parameters)) {
-    stop(
-      "all "
-    )
-  }
+  parameter_pattern_matching_is_valid(config$parameters)
 
   transitions_with_parameters <- add_params_list(config$transitions,
                                                  config$parameters)
@@ -188,13 +222,6 @@ validate_config <- function(config) { # TODO should probably change argument nam
       "extra or missing parameters"
     )
   }
-
-  l <- sapply(c(config$parameters$from, config$parameters$to), function(x) {
-    any(stringr::str_detect(life_stages, x)) |
-      x %in% c('m', 'per_capita_m')
-  }
-  )
-
 
 
 
