@@ -26,29 +26,29 @@ new_config <- function(initial_population, transitions, parameters,
 #' check that a config object is valid
 #' @importFrom rlang has_name
 #' @return Returns the input config object if it passes all the checks
-validate_config <- function(config) { # TODO should probably change argument name bc conflicts with config()
+validate_config <- function(cfg) {
 
-  if (length(config$steps) != 1) {
+  if (length(cfg$steps) != 1) {
     stop(
       "`steps` must have length 1"
     )
   }
 
-  if (config$steps < 0) {
+  if (cfg$steps < 0) {
     stop(
       "`steps` must be positive",
       .call = FALSE
     )
   }
 
-  if (length(config$max_delay) != 1) {
+  if (length(cfg$max_delay) != 1) {
     stop(
       "`max_delay` must have length 1"
     )
   }
 
   # TODO this may be too strict...
-  if (config$max_delay < 365L) {
+  if (cfg$max_delay < 365L) {
     stop(
       "`max_delay` should be at least 365 or developing ticks may not emerge
        from delay transitions"
@@ -63,8 +63,8 @@ validate_config <- function(config) { # TODO should probably change argument nam
                             'pred2')
 
   has_required_cols <- function(df_name, required_colnames) {
-    if (!all(has_name(config[[df_name]], required_colnames))) {
-      missing_cols <- required_colnames[!has_name(config[[df_name]],
+    if (!all(has_name(cfg[[df_name]], required_colnames))) {
+      missing_cols <- required_colnames[!has_name(cfg[[df_name]],
                                                   required_colnames)]
       stop("`", df_name, "` is missing required columns: ",
            paste(missing_cols, collapse = ', '))
@@ -89,7 +89,7 @@ validate_config <- function(config) { # TODO should probably change argument nam
 
   has_required_types <- function(df_name, required_coltypes) {
 
-    actual_coltypes <- sapply(config[[df_name]], class)
+    actual_coltypes <- sapply(cfg[[df_name]], class)
 
     for (col in names(required_coltypes)) {
 
@@ -124,20 +124,20 @@ validate_config <- function(config) { # TODO should probably change argument nam
     all(actual == sort(actual) | actual == sort(actual, decreasing = TRUE))
   }
 
-  if (!parameters_are_sorted(config$parameters)) {
+  if (!parameters_are_sorted(cfg$parameters)) {
     stop(
       "`parameters` must be sorted by the column `host_spp`"
     )
   }
 
-  if (is.null(names(config$initial_population))) {
+  if (is.null(names(cfg$initial_population))) {
     stop(
       "`initial_population` must have names"
     )
   }
 
-  life_stages <- get_life_stages(config$transitions)
-  life_stages_found <- names(config$initial_population)
+  life_stages <- get_life_stages(cfg$transitions)
+  life_stages_found <- names(cfg$initial_population)
 
   if (!all(life_stages_found %in% life_stages)) {
     stop(
@@ -147,13 +147,13 @@ validate_config <- function(config) { # TODO should probably change argument nam
     )
   }
 
-  if (!any(config$initial_population > 0)) {
+  if (!any(cfg$initial_population > 0)) {
     stop(
       "`initial_population` must be greater than 0 for at least one life stage"
     )
   }
 
-  if (any(config$initial_population < 0)) {
+  if (any(cfg$initial_population < 0)) {
     stop(
       "`initial_population` may not be negative for any life stage"
     )
@@ -204,10 +204,10 @@ validate_config <- function(config) { # TODO should probably change argument nam
     }
   }
 
-  parameter_pattern_matching_is_valid(config$parameters)
+  parameter_pattern_matching_is_valid(cfg$parameters)
 
-  transitions_with_parameters <- add_params_list(config$transitions,
-                                                 config$parameters)
+  transitions_with_parameters <- add_params_list(cfg$transitions,
+                                                 cfg$parameters)
 
   # return a string with the following information for a problematic transition:
   # function name and row in transition table (to locate the error)
@@ -278,7 +278,7 @@ validate_config <- function(config) { # TODO should probably change argument nam
   # pred1 and pred2 values are supported by get_pred()
   # ...
 
-  config
+  cfg
 }
 
 #' Helper for users to create a `config` object
@@ -329,19 +329,19 @@ config <- function(initial_population, transitions, parameters,
 read_config <- function(file) {
 
   # parse the input config file as a named list
-  configuration <- yaml::read_yaml(file)
+  cfg <- yaml::read_yaml(file)
 
   # reshape initial_population from list to named vector
-  configuration$initial_population <- unlist(configuration$initial_population)
+  cfg$initial_population <- unlist(cfg$initial_population)
 
   # convert from paths to dfs
-  configuration$transitions <- read_csv(configuration$transitions, show_col_types = FALSE)
-  configuration$parameters <- read_csv(configuration$parameters, show_col_types = FALSE)
-  configuration$host_comm <- read_csv(configuration$host_comm, show_col_types = FALSE)
-  configuration$weather <- read_csv(configuration$weather, show_col_types = FALSE)
+  cfg$transitions <- read_csv(cfg$transitions, show_col_types = FALSE)
+  cfg$parameters <- read_csv(cfg$parameters, show_col_types = FALSE)
+  cfg$host_comm <- read_csv(cfg$host_comm, show_col_types = FALSE)
+  cfg$weather <- read_csv(cfg$weather, show_col_types = FALSE)
 
   # use this named list as the arguments to constructing a config object
-  do.call(config, configuration)
+  do.call(config, cfg)
 }
 
 #' convert a config object back to a YAML file
