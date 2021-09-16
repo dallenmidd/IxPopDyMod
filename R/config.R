@@ -197,7 +197,7 @@ validate_config <- function(config) { # TODO should probably change argument nam
         indicating mortality. Found exceptions: \n",
         rlang::format_error_bullets(problem_list),
         ifelse(n_invalid > 3,
-               paste('\n... and ', n_invalid - 3, 'more problems'),
+               paste('\n... and', n_invalid - 3, 'more problems'),
                ''),
         call. = FALSE
       )
@@ -209,24 +209,62 @@ validate_config <- function(config) { # TODO should probably change argument nam
   transitions_with_parameters <- add_params_list(config$transitions,
                                                  config$parameters)
 
-  has_expected_parameters <- function(transition_row) {
+  # return a string with the following information for a problematic transition:
+  # function name and row in transition table (to locate the error)
+  # list of missing parameters
+  # list of extra parameters
+  missing_and_extra_params <- function(row_index) {
+
+    transition_row <- transitions_with_parameters[row_index,]
     expected <- as.list(args(get(transition_row[['transition_fun']])))
-    expected <- expected[!(names(expected) %in% c('x', 'y', ''))]
-    actual <- transition_row$params_list
-    setequal(names(expected), names(actual))
+    expected <- names(expected[!(names(expected) %in% c('x', 'y', ''))])
+    # need empty string to get rid of unnamed NULL value at end of list
+    actual <- names(transition_row$params_list[[1]])
+    missing <- setdiff(expected, actual)
+    extra <- setdiff(actual, expected)
+
+    param_to_string <- function(param, problem) {
+      paste0(problem, ' param "', param,
+             '" in function "', transition_row[['transition_fun']],
+             '" in row ', row_index, ' of `transitions`')
+    }
+
+    params_to_string_list <- function(params, problem) {
+      if (length(params) > 0) {
+        lapply(params,
+               function(p) param_to_string(p, problem))
+      }
+    }
+
+    c(params_to_string_list(missing, 'Missing'),
+      params_to_string_list(extra, 'Extra'))
   }
 
-  # TODO would be MUCH better to show which expected parameters are missing/extra
-  if (!all(apply(transitions_with_parameters, 1, has_expected_parameters))) {
-    stop(
-      "extra or missing parameters"
+
+  set_all_names_x <- function(v) {
+    names(v) <- rep('x', length(v))
+    v
+  }
+
+  errors <- unlist(lapply(
+    seq_len(nrow(transitions_with_parameters)),
+    missing_and_extra_params))
+
+  n_errors <- length(errors)
+
+  if (n_errors > 0) {
+
+    error_bullets <- rlang::format_error_bullets(
+      set_all_names_x(errors[1:min(3, n_errors)]))
+
+    stop('Extra and/or missing parameters found: \n',
+         error_bullets,
+         ifelse(n_errors > 3,
+                paste('\n... and', n_errors - 3, 'more problems'),
+                ''),
+         call. = FALSE
     )
   }
-
-
-
-
-
 
   # TODO change run() behavior so it takes an initial_population named vector
   # with only some life stages. Currently we pass a vector of length
