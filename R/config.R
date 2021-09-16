@@ -30,7 +30,8 @@ validate_config <- function(cfg) {
 
   if (length(cfg$steps) != 1) {
     stop(
-      "`steps` must have length 1"
+      "`steps` must have length 1",
+      call. = FALSE
     )
   }
 
@@ -43,7 +44,8 @@ validate_config <- function(cfg) {
 
   if (length(cfg$max_delay) != 1) {
     stop(
-      "`max_delay` must have length 1"
+      "`max_delay` must have length 1",
+      call. = FALSE
     )
   }
 
@@ -51,7 +53,8 @@ validate_config <- function(cfg) {
   if (cfg$max_delay < 365L) {
     stop(
       "`max_delay` should be at least 365 or developing ticks may not emerge
-       from delay transitions"
+       from delay transitions",
+      call. = FALSE
     )
   }
 
@@ -67,7 +70,9 @@ validate_config <- function(cfg) {
       missing_cols <- required_colnames[!has_name(cfg[[df_name]],
                                                   required_colnames)]
       stop("`", df_name, "` is missing required columns: ",
-           paste(missing_cols, collapse = ', '))
+           paste(missing_cols, collapse = ', '),
+           call. = FALSE
+           )
     }
   }
 
@@ -107,7 +112,8 @@ validate_config <- function(cfg) {
       stop(
         "Expected type ", required_coltypes[col], " for column ", col,
         " in ", df_name,
-        " but found type ", actual_coltypes[col]
+        " but found type ", actual_coltypes[col],
+        call. = FALSE
       )
     }
   }
@@ -126,13 +132,15 @@ validate_config <- function(cfg) {
 
   if (!parameters_are_sorted(cfg$parameters)) {
     stop(
-      "`parameters` must be sorted by the column `host_spp`"
+      "`parameters` must be sorted by the column `host_spp`",
+      call. = FALSE
     )
   }
 
   if (is.null(names(cfg$initial_population))) {
     stop(
-      "`initial_population` must have names"
+      "`initial_population` must have names",
+      call. = FALSE
     )
   }
 
@@ -143,20 +151,28 @@ validate_config <- function(cfg) {
     stop(
       "`initial_population` had names that are not valid life stages: ",
       paste(life_stages_found[!(life_stages_found %in% life_stages)],
-            collapse = ", ")
+            collapse = ", "),
+      call. = FALSE
     )
   }
 
   if (!any(cfg$initial_population > 0)) {
     stop(
-      "`initial_population` must be greater than 0 for at least one life stage"
+      "`initial_population` must be greater than 0 for at least one life stage",
+      call. = FALSE
     )
   }
 
   if (any(cfg$initial_population < 0)) {
     stop(
-      "`initial_population` may not be negative for any life stage"
+      "`initial_population` may not be negative for any life stage",
+      call. = FALSE
     )
+  }
+
+  set_all_names_x <- function(v) {
+    names(v) <- rep('x', length(v))
+    v
   }
 
   parameter_pattern_matching_is_valid <- function(parameters) {
@@ -186,10 +202,9 @@ validate_config <- function(cfg) {
 
     if (n_invalid > 0) {
 
-      problem_list <- apply(invalid[1:min(3, n_invalid), ],
-                            1,
-                            row_to_string)
-      names(problem_list) = rep("x", length(problem_list))
+      problem_list <- set_all_names_x(apply(invalid[1:min(3, n_invalid), ],
+                                            1,
+                                            row_to_string))
 
       stop(
         "Strings in `parameters` `from` and `to` columns must either be regex
@@ -238,12 +253,6 @@ validate_config <- function(cfg) {
 
     c(params_to_string_list(missing, 'Missing'),
       params_to_string_list(extra, 'Extra'))
-  }
-
-
-  set_all_names_x <- function(v) {
-    names(v) <- rep('x', length(v))
-    v
   }
 
   errors <- unlist(lapply(
