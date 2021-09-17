@@ -87,6 +87,8 @@ validate_config <- function(cfg) {
   parameters_coltypes <- c(
     from = 'character', to = 'character', param_name = 'character',
     host_spp = 'character', param_value = 'numeric')
+
+  # TODO delay should probably be logical TRUE or FALSE rather than 0 or 1
   transitions_coltypes <- c(
     from = 'character', to = 'character', transition_fun = 'character',
     delay = 'numeric', pred1 = 'character', pred2 = 'character'
@@ -285,6 +287,17 @@ validate_config <- function(cfg) {
   # transitions must form a closed loop (borrow testing functions code)
   # functions (e.g. expo_fun) in transitions table are accessible/exist
   # pred1 and pred2 values are supported by get_pred()
+  #
+  # weather and host_comm inputs have values for each j_day
+  #   in seq_len(cfg$steps)
+  #   host_spp must have a row for each host_spp for each j_day
+  #   the inputs do not need to be sorted by j_day
+  #
+  # use something like test_transitions() to test that transition functions
+  #   return reasonable answers.
+  #   is.numeric() ensures results are not NULL or NA
+  #   should also test that values are >= 0, because a negative probability doesn't make sense
+  #   should use all() for delay outputs that are vectors with length > 1
   # ...
 
   cfg
