@@ -372,6 +372,54 @@ validate_config <- function(cfg) {
 
   }
 
+  # ensure that there is weather or host_comm data for the entire j_day range
+  # that we are running the model
+  test_missing_days <- function(tbl, tbl_name, steps) {
+
+    missing_days <- setdiff(1:steps,
+                            intersect(1:steps, tbl$j_day))
+
+    n_missing_days <- length(missing_days)
+
+    if (n_missing_days > 0) {
+      stop("`", tbl_name, "` must have a row for each `j_day` from 1 to `steps`.
+           Missing `j_day` values: ",
+           ifelse(n_missing_days > 3,
+                  paste(paste(missing_days[1:3], collapse = ', '),
+                        "... and", n_missing_days - 3, "more"),
+                  paste(missing_days, collapse = ', ')),
+           call. = FALSE
+      )
+    }
+  }
+
+  test_missing_days(cfg$weather, 'weather', cfg$steps)
+  test_missing_days(cfg$host_comm, 'host_comm', cfg$steps)
+
+  # ensure that there is host density data for the same days for all host spp
+  test_host_spp_days <- function(host_comm) {
+
+    hosts <- unique(host_comm$host_spp)
+
+    days_for_each_host <- unname(sapply(hosts, function(h) {
+      host_comm[(host_comm$host_spp == h), 'j_day']
+    }))
+
+    is_same_day_range <- do.call(setequal, days_for_each_host)
+
+    if(!(is_same_day_range)) {
+      stop(
+        "`host_comm` must have the same `j_day` range for each `host_spp`",
+        call. = FALSE
+      )
+    }
+  }
+
+
+
+
+
+
 
   # TODO change run() behavior so it takes an initial_population named vector
   # with only some life stages. Currently we pass a vector of length
@@ -381,11 +429,6 @@ validate_config <- function(cfg) {
 
   # TODO Myles
   # transitions must form a closed loop (borrow testing functions code)
-  #
-  # weather and host_comm inputs have values for each j_day
-  #   in seq_len(cfg$steps)
-  #   host_spp must have a row for each host_spp for each j_day
-  #   the inputs do not need to be sorted by j_day
   #
   # use something like test_transitions() to test that transition functions
   #   return reasonable answers.
