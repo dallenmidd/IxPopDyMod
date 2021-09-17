@@ -173,8 +173,10 @@ validate_config <- function(cfg) {
   }
 
   set_all_names_x <- function(v) {
-    names(v) <- rep('x', length(v))
-    v
+    if (!is.null(v)) {
+      names(v) <- rep('x', length(v))
+      v
+    }
   }
 
   parameter_pattern_matching_is_valid <- function(parameters) {
@@ -222,6 +224,50 @@ validate_config <- function(cfg) {
   }
 
   parameter_pattern_matching_is_valid(cfg$parameters)
+
+
+  transition_fun_exists <- function(row_index, transitions = cfg$transitions) {
+    tryCatch(
+      {
+        function_name <- transitions[[row_index, 'transition_fun']]
+        get(function_name)
+        NULL # indicate that there was no error
+      },
+
+      error = function(e) {
+        paste0("Can't find function `", function_name, "` from row ", row_index,
+               " of `transitions`")
+      }
+    )
+  }
+
+  transition_fun_errors <-
+    seq_len(nrow(cfg$transitions)) %>%
+    lapply(transition_fun_exists) %>%
+    unlist() %>%
+    set_all_names_x() %>%
+    rlang::format_error_bullets()
+
+  n_errors <- length(transition_fun_errors)
+
+  if ((n_errors) > 0) {
+    stop(
+      "Strings in the `transition_fun` column of `transitions` must be the names
+       of functions: \n",
+      transition_fun_errors[1:min(3, n_errors)],
+      '\n',
+      rlang::format_error_bullets(c(
+        i = "If you're using custom functions, make sure you've loaded your
+        functions into the environment, e.g. by sourcing a file with
+        function definitions.")),
+      ifelse(n_errors > 3,
+             paste('\n... and', n_errors - 3, 'more problems'),
+             ''),
+      call. = FALSE
+    )
+  }
+
+
 
   transitions_with_parameters <- add_params_list(cfg$transitions,
                                                  cfg$parameters)
@@ -285,7 +331,6 @@ validate_config <- function(cfg) {
 
   # TODO Myles
   # transitions must form a closed loop (borrow testing functions code)
-  # functions (e.g. expo_fun) in transitions table are accessible/exist
   # pred1 and pred2 values are supported by get_pred()
   #
   # weather and host_comm inputs have values for each j_day
