@@ -323,6 +323,56 @@ validate_config <- function(cfg) {
     )
   }
 
+  # return whether a predictor value is supported by get_pred()
+  predictor_is_valid <- function(pred) {
+
+    valid_strings <- c('temp', 'vpd', 'host_den')
+
+    life_stages <- get_life_stages(cfg$transitions)
+
+    is.na(pred) ||
+      pred %in% valid_strings ||
+      any(stringr::str_detect(life_stages, pred))
+  }
+
+  test_predictors <- function(transitions) {
+
+    error_tibble <- transitions[c('pred1', 'pred2')] %>%
+      dplyr::mutate(row = dplyr::row_number()) %>%
+      tidyr::pivot_longer(cols = c('pred1', 'pred2'))
+
+    error_tibble$valid <- unlist(lapply(error_tibble$value, predictor_is_valid))
+
+    error_tibble <- error_tibble %>%
+      filter(!valid)
+
+    row_to_string <- function(row) {
+      paste0("\"", row['value'], "\" in row ", row['row'],
+             ", column `", row['name'], "`")
+    }
+
+    n_errors <- nrow(error_tibble)
+
+    if (n_errors > 0) {
+
+      error_bullets <- rlang::format_error_bullets(
+        set_all_names_x(apply(error_tibble[1:min(3, n_errors),],
+                               1,
+                               row_to_string))
+      )
+
+      stop('Unsupported predictor values found in `transitions`: \n',
+           error_bullets,
+           ifelse(n_errors > 3,
+                  paste('\n... and', n_errors - 3, 'more problems'),
+                  ''),
+           call. = FALSE
+      )
+    }
+
+  }
+
+
   # TODO change run() behavior so it takes an initial_population named vector
   # with only some life stages. Currently we pass a vector of length
   # life_stages, and I'm not sure whether it uses the order or names of the
@@ -331,7 +381,6 @@ validate_config <- function(cfg) {
 
   # TODO Myles
   # transitions must form a closed loop (borrow testing functions code)
-  # pred1 and pred2 values are supported by get_pred()
   #
   # weather and host_comm inputs have values for each j_day
   #   in seq_len(cfg$steps)
