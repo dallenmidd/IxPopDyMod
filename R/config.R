@@ -139,9 +139,10 @@ validate_config <- function(cfg) {
     )
   }
 
-  if (is.null(names(cfg$initial_population))) {
+  if (is.null(names(cfg$initial_population)) |
+      any(names(cfg$initial_population) == '')) {
     stop(
-      "`initial_population` must have names",
+      "all values of `initial_population` must be named",
       call. = FALSE
     )
   }
