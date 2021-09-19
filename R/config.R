@@ -415,11 +415,93 @@ validate_config <- function(cfg) {
     }
   }
 
+  test_host_spp_days(cfg$host_comm)
 
+  test_transition_values <- function(cfg) {
 
+    life_stages <- get_life_stages(cfg$transitions)
 
+    # initialize a population matrix with 10 of each tick life_stage on day 1
+    # and an empty N_developing matrix
+    N <- matrix(nrow = length(life_stages),
+                ncol = cfg$steps + cfg$max_delay,
+                data = 0)
+    rownames(N) <- life_stages
+    N_developing <- N
+    N[,1] <- 10
 
+    funs <- add_params_list(cfg$transitions, cfg$parameters)
 
+    is_valid <- function(transition_value) {
+      all(!is.na(transition_value) &
+            is.numeric(transition_value) &
+            transition_value >= 0)
+    }
+
+    to_short_string <- function(v) {
+      l <- length(v)
+      max <- 3
+      string <- paste(v[1:min(max, l)],
+            collapse = ', ')
+      paste0(
+        string,
+        ifelse(l > max,
+               paste('... and', l - max, 'more values'),
+                     ''))
+    }
+
+    transition_values <-
+      sapply(
+        seq_len(nrow(funs)),
+        function(row_index) {
+          get_transition_val(
+            time = 1,
+            transition_row_with_parameters = funs[row_index, ],
+            N = N,
+            N_developing = N_developing,
+            max_delay = cfg$max_delay,
+            life_stages = life_stages,
+            host_comm = cfg$host_comm,
+            weather = cfg$weather)})
+
+    transitions_are_valid <-
+      sapply(transition_values,
+             is_valid)
+
+    if (!all(transitions_are_valid)) {
+
+      funs$valid = transitions_are_valid
+      funs$value = transition_values
+
+      invalid_funs <- funs %>%
+        dplyr::mutate(row_number = dplyr::row_number()) %>%
+        dplyr::filter(!.data$valid)
+
+      n_invalid <- nrow(invalid_funs)
+
+      row_to_string <- function(row) {
+        paste0('`', row[['transition_fun']], '` in row ', row[['row_number']],
+               ' evaluates to ', to_short_string(row[['value']]))
+      }
+
+      errors <- invalid_funs[1:min(3, n_invalid),] %>%
+        apply(1, row_to_string) %>%
+        set_all_names_x() %>%
+        rlang::format_error_bullets()
+
+      stop(
+        "Transitions must evaluate to numeric values greater than zero.
+         Found exceptions: \n",
+        errors,
+        ifelse(n_invalid > 3,
+               paste('\n... and', n_invalid - 3, 'more problems'),
+               ''),
+        call. = FALSE
+      )
+    }
+  }
+
+  test_transition_values(cfg)
 
   # TODO change run() behavior so it takes an initial_population named vector
   # with only some life stages. Currently we pass a vector of length
@@ -429,13 +511,6 @@ validate_config <- function(cfg) {
 
   # TODO Myles
   # transitions must form a closed loop (borrow testing functions code)
-  #
-  # use something like test_transitions() to test that transition functions
-  #   return reasonable answers.
-  #   is.numeric() ensures results are not NULL or NA
-  #   should also test that values are >= 0, because a negative probability doesn't make sense
-  #   should use all() for delay outputs that are vectors with length > 1
-  # ...
 
   cfg
 }
