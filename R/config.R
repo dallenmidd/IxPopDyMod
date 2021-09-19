@@ -405,7 +405,7 @@ validate_config <- function(cfg) {
     # get days in same order since we do not test set equality
     days_for_each_host <- lapply(days_for_each_host, sort)
 
-    is_same_day_range <- do.call(all.equal, days_for_each_host)
+    is_same_day_range <- isTRUE(do.call(all.equal, days_for_each_host))
 
     if(!(is_same_day_range)) {
       stop(
