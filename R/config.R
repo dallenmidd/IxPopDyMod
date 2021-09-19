@@ -367,6 +367,8 @@ validate_config <- function(cfg) {
 
   }
 
+  test_predictors(cfg$transitions)
+
   # ensure that there is weather or host_comm data for the entire j_day range
   # that we are running the model
   test_missing_days <- function(tbl, tbl_name, steps) {
