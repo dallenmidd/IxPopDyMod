@@ -123,7 +123,7 @@ validate_config <- function(cfg) {
   # return whether parameters are sorted by host_spp column
   parameters_are_sorted <- function(parameters) {
     actual <- parameters$host_spp[!is.na(parameters$host_spp)]
-    all(actual == sort(actual) | actual == sort(actual, decreasing = TRUE))
+    all(actual == sort(actual)) | all(actual == sort(actual, decreasing = TRUE))
   }
 
   if (!parameters_are_sorted(cfg$parameters)) {
