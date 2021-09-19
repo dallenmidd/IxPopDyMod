@@ -58,29 +58,6 @@ validate_config <- function(cfg) {
     )
   }
 
-  weather_colnames <- c('tmean', 'j_day')
-  host_comm_colnames <- c('j_day', 'host_spp', 'host_den')
-  parameters_colnames <- c('from', 'to', 'param_name', 'host_spp',
-                           'param_value')
-  transitions_colnames <- c('from', 'to', 'transition_fun', 'delay', 'pred1',
-                            'pred2')
-
-  has_required_cols <- function(df_name, required_colnames) {
-    if (!all(has_name(cfg[[df_name]], required_colnames))) {
-      missing_cols <- required_colnames[!has_name(cfg[[df_name]],
-                                                  required_colnames)]
-      stop("`", df_name, "` is missing required columns: ",
-           paste(missing_cols, collapse = ', '),
-           call. = FALSE
-           )
-    }
-  }
-
-  has_required_cols('weather', weather_colnames)
-  has_required_cols('host_comm', host_comm_colnames)
-  has_required_cols('parameters', parameters_colnames)
-  has_required_cols('transitions', transitions_colnames)
-
   weather_coltypes <- c(tmean = 'numeric', j_day = 'numeric')
   host_comm_coltypes <- c(
     j_day = 'numeric', host_spp = 'character', host_den = 'numeric')
@@ -93,6 +70,22 @@ validate_config <- function(cfg) {
     from = 'character', to = 'character', transition_fun = 'character',
     delay = 'numeric', pred1 = 'character', pred2 = 'character'
   )
+
+  has_required_cols <- function(df_name, required_colnames) {
+    if (!all(has_name(cfg[[df_name]], required_colnames))) {
+      missing_cols <- required_colnames[!has_name(cfg[[df_name]],
+                                                  required_colnames)]
+      stop("`", df_name, "` is missing required columns: ",
+           paste(missing_cols, collapse = ', '),
+           call. = FALSE
+           )
+    }
+  }
+
+  has_required_cols('weather', names(weather_coltypes))
+  has_required_cols('host_comm', names(host_comm_coltypes))
+  has_required_cols('parameters', names(parameters_coltypes))
+  has_required_cols('transitions', names(transitions_coltypes))
 
   has_required_types <- function(df_name, required_coltypes) {
 
