@@ -35,10 +35,10 @@ validate_config <- function(cfg) {
     )
   }
 
-  if (cfg$steps < 0) {
+  if (cfg$steps < 1) {
     stop(
-      "`steps` must be positive",
-      .call = FALSE
+      "`steps` must be at least 1",
+      call. = FALSE
     )
   }
 
