@@ -52,6 +52,7 @@ validate_config <- function(cfg) {
   # TODO this may be too strict...
   if (cfg$max_delay < 365L) {
     stop(
+      # TODO could use strwrap() to remove line breaks from error messages
       "`max_delay` should be at least 365 or developing ticks may not emerge
        from delay transitions",
       call. = FALSE
@@ -105,9 +106,9 @@ validate_config <- function(cfg) {
         # to logical type... even though that should be okay
 
       stop(
-        "Expected type ", required_coltypes[col], " for column ", col,
-        " in ", df_name,
-        " but found type ", actual_coltypes[col],
+        "Expected type \"", required_coltypes[col], "\" for column `", col,
+        "` in `", df_name,
+        "` but found type \"", actual_coltypes[col], "\"",
         call. = FALSE
       )
     }
