@@ -167,10 +167,61 @@ validate_config <- function(cfg) {
     )
   }
 
-  set_all_names_x <- function(v) {
-    if (!is.null(v)) {
-      names(v) <- rep('x', length(v))
-      v
+
+  set_all_names <- function(name) {
+    function(v) {
+      if (!is.null(v)) {
+        names(v) <- rep(name, length(v))
+        v
+      }
+    }
+  }
+
+  set_all_names_x <- set_all_names('x')
+  set_all_names_i <- set_all_names('i')
+
+  #' @param error_header String
+  #' @param problem_list List of strings describing each problem
+  print_errors <- function(error_header, problem_list, hints = NULL,
+                           max_problems = 3L) {
+
+    n_problems <- length(problem_list)
+
+    if (n_problems > 0) {
+
+      error_header <- paste(
+        stringr::str_squish(error_header),
+        '\n')
+
+      problems_to_print <-
+        problem_list[seq_len(min(n_problems, max_problems))] %>%
+        set_all_names_x() %>%
+        rlang::format_error_bullets()
+
+      error_footer <- ifelse(
+        n_problems > max_problems,
+        paste("\n... and", n_problems - max_problems, "more problems\n"),
+        "\n"
+      )
+
+      hints <- hints %>%
+        stringr::str_squish() %>%
+        set_all_names_i() %>%
+        rlang::format_error_bullets()
+
+      stop(
+        error_header,
+        problems_to_print,
+        error_footer,
+        hints,
+        call. = FALSE
+      )
+    }
+  }
+
+  error_df_to_list <- function(error_df, row_to_string) {
+    if (nrow(error_df) > 0) {
+      apply(error_df, 1, row_to_string)
     }
   }
 
@@ -192,30 +243,18 @@ validate_config <- function(cfg) {
       col = c(rep('from', length(invalid_from)),
               rep('to', length(invalid_to))))
 
-    n_invalid <- nrow(invalid)
-
     row_to_string <- function(row) {
       paste0('"', row[['string']], '" in col "', row[['col']], '", row ',
              row[['row']])
     }
 
-    if (n_invalid > 0) {
-
-      problem_list <- set_all_names_x(apply(invalid[1:min(3, n_invalid), ],
-                                            1,
-                                            row_to_string))
-
-      stop(
-        "Strings in `parameters` `from` and `to` columns must either be regex
-        patterns that match life stages, or strings \"m\" or \"per_capita_m\"
-        indicating mortality. Found exceptions: \n",
-        rlang::format_error_bullets(problem_list),
-        ifelse(n_invalid > 3,
-               paste('\n... and', n_invalid - 3, 'more problems'),
-               ''),
-        call. = FALSE
-      )
-    }
+    problem_list <- error_df_to_list(invalid, row_to_string)
+    print_errors(
+      error_header = "Strings in `parameters` `from` and `to` columns must
+      either be regex patterns that match life stages, or strings \"m\" or
+      \"per_capita_m\" indicating mortality. Found exceptions:",
+      problem_list = problem_list
+    )
   }
 
   parameter_pattern_matching_is_valid(cfg$parameters)
@@ -239,29 +278,16 @@ validate_config <- function(cfg) {
   transition_fun_errors <-
     seq_len(nrow(cfg$transitions)) %>%
     lapply(transition_fun_exists) %>%
-    unlist() %>%
-    set_all_names_x() %>%
-    rlang::format_error_bullets()
+    unlist()
 
-  n_errors <- length(transition_fun_errors)
-
-  if ((n_errors) > 0) {
-    stop(
-      "Strings in the `transition_fun` column of `transitions` must be the names
-       of functions: \n",
-      transition_fun_errors[1:min(3, n_errors)],
-      '\n',
-      rlang::format_error_bullets(c(
-        i = "If you're using custom functions, make sure you've loaded your
-        functions into the environment, e.g. by sourcing a file with
-        function definitions.")),
-      ifelse(n_errors > 3,
-             paste('\n... and', n_errors - 3, 'more problems'),
-             ''),
-      call. = FALSE
-    )
-  }
-
+  print_errors(
+    "Strings in the `transition_fun` column of `transitions` must be the names
+     of functions:",
+    transition_fun_errors,
+    "If you're using custom functions, make sure you've loaded your
+      functions into the environment, e.g. by sourcing a file with
+      function definitions."
+  )
 
 
   transitions_with_parameters <- add_params_list(cfg$transitions,
@@ -302,21 +328,7 @@ validate_config <- function(cfg) {
     seq_len(nrow(transitions_with_parameters)),
     missing_and_extra_params))
 
-  n_errors <- length(errors)
-
-  if (n_errors > 0) {
-
-    error_bullets <- rlang::format_error_bullets(
-      set_all_names_x(errors[1:min(3, n_errors)]))
-
-    stop('Extra and/or missing parameters found: \n',
-         error_bullets,
-         ifelse(n_errors > 3,
-                paste('\n... and', n_errors - 3, 'more problems'),
-                ''),
-         call. = FALSE
-    )
-  }
+  print_errors( 'Extra and/or missing parameters found: \n', errors)
 
   # return whether a predictor value is supported by get_pred()
   predictor_is_valid <- function(pred) {
@@ -346,25 +358,9 @@ validate_config <- function(cfg) {
              ", column `", row['name'], "`")
     }
 
-    n_errors <- nrow(error_tibble)
-
-    if (n_errors > 0) {
-
-      error_bullets <- rlang::format_error_bullets(
-        set_all_names_x(apply(error_tibble[1:min(3, n_errors),],
-                               1,
-                               row_to_string))
-      )
-
-      stop('Unsupported predictor values found in `transitions`: \n',
-           error_bullets,
-           ifelse(n_errors > 3,
-                  paste('\n... and', n_errors - 3, 'more problems'),
-                  ''),
-           call. = FALSE
-      )
-    }
-
+    errors <- error_df_to_list(error_tibble, row_to_string)
+    print_errors(
+      'Unsupported predictor values found in `transitions`:', errors)
   }
 
   test_predictors(cfg$transitions)
@@ -484,19 +480,11 @@ validate_config <- function(cfg) {
                ' evaluates to ', to_short_string(row[['value']]))
       }
 
-      errors <- invalid_funs[1:min(3, n_invalid),] %>%
-        apply(1, row_to_string) %>%
-        set_all_names_x() %>%
-        rlang::format_error_bullets()
-
-      stop(
-        "Transitions must evaluate to numeric values greater than zero.
-         Found exceptions: \n",
-        errors,
-        ifelse(n_invalid > 3,
-               paste('\n... and', n_invalid - 3, 'more problems'),
-               ''),
-        call. = FALSE
+      errors <- error_df_to_list(invalid_funs, row_to_string)
+      print_errors(
+        "Transitions must evaluate to numeric values greater than zero. Found
+        exceptions:",
+        errors
       )
     }
   }
