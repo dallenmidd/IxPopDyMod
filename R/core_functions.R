@@ -424,49 +424,42 @@ add_params_list <- function(tick_transitions, parameters) {
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr row_number
 #'
-#' @param steps Numeric vector of length one indicating the duration to run the
-#'   model over in days.
-#' @param initial_population Named???? numeric vector indicating the starting
-#'   population for each life stage. Length should be equal to the number of
-#'   life stages.
-#'
-#' @param tick_transitions Tick transitions tibble
-#' @param tick_params Tick parameters tibble
-#' @param host_comm Host community tibble.
-#' @param weather Weather tibble.
-#'
-#' @param max_delay Numeric vector of length one. Determines the maximum
-#' number of days that a delayed transition can last.
+#' @param cfg An `IxPopDyMod::config` object
 #'
 #' @return Data frame of population of ticks of each life stage each day
+#'
 #' @export
-run <- function(steps, initial_population, tick_transitions, tick_params,
-                max_delay, host_comm, weather) {
+run <- function(cfg) {
 
-  life_stages <- get_life_stages(tick_transitions)
+  life_stages <- get_life_stages(cfg$transitions)
 
-  # update the tick transitions global variable by adding parameters
-  # for each transition
-  tick_transitions <- add_params_list(tick_transitions, tick_params)
+  # combine transitions and parameters
+  transitions_with_params <- add_params_list(cfg$transitions, cfg$parameters)
 
   # initialize a delay array of all zeros
   # dimensions: to, from, time
   # dimensions: from, to, time
   delay_arr <- array(dim = c(length(life_stages),
                              length(life_stages),
-                             steps + max_delay),
+                             cfg$steps + cfg$max_delay),
                      dimnames = list(life_stages, life_stages, NULL),
                      data = 0)
 
-
-  # intialize a population matrix with initial_population
-  N <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
-  N[,1] <- initial_population
+  # initialize a population matrix with initial_population
+  N <- matrix(nrow = length(life_stages), ncol = cfg$steps, data = 0)
+  N[,1] <-
+    sapply(life_stages, function(x) {
+      if (x %in% names(cfg$initial_population)) {
+        cfg$initial_population[[x]]
+      } else {
+        0 # life stages not specified in cfg$initial_population
+      }
+    })
   rownames(N) <- life_stages
 
   # Initialize a population matrix to keep track of the number of individuals of
   # each stage that are currently developing (currently undergoing a delay)
-  N_developing <- matrix(nrow = length(life_stages), ncol = steps, data = 0)
+  N_developing <- matrix(nrow = length(life_stages), ncol = cfg$steps, data = 0)
   rownames(N_developing) <- life_stages
 
   # at each time step:
@@ -475,7 +468,7 @@ run <- function(steps, initial_population, tick_transitions, tick_params,
   # (3) update the population matrix "N" for "time + 1"
 
   # at each time step
-  for (time in 1:(steps - 1)) {
+  for (time in 1:(cfg$steps - 1)) {
 
     if (time %% 100 == 0) print(paste("day", time))
 
@@ -492,13 +485,13 @@ run <- function(steps, initial_population, tick_transitions, tick_params,
 
     # calculate transition probabilities
     trans_matrix <- gen_trans_matrix(time, N, N_developing, life_stages,
-                                     tick_transitions, host_comm,
-                                     weather)
+                                     transitions_with_params, cfg$host_comm,
+                                     cfg$weather)
 
     # calculate the number of ticks entering delayed development
     delay_arr <- update_delay_arr(time, delay_arr, N, N_developing,
-                                  tick_transitions, life_stages, max_delay,
-                                  host_comm, weather)
+                                  transitions_with_params, life_stages,
+                                  cfg$max_delay, cfg$host_comm, cfg$weather)
 
     # collapse the delay_arr by summing across 'from', giving a matrix with
     # dims = (to, days)
