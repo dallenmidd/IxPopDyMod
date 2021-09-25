@@ -26,10 +26,8 @@ validate_config <- function(cfg) {
   }
 
   if (cfg$max_delay < 365L) {
-    stop(
-      # TODO could use strwrap() to remove line breaks from error messages
-      "`max_delay` should be at least 365 or developing ticks may not emerge
-       from delay transitions",
+    stop(stringr::str_squish("`max_delay` should be at least 365 or developing
+                             ticks may not emerge from delay transitions"),
       call. = FALSE
     )
   }
@@ -349,13 +347,15 @@ validate_config <- function(cfg) {
     n_missing_days <- length(missing_days)
 
     if (n_missing_days > 0) {
-      stop("`", tbl_name, "` must have a row for each `j_day` from 1 to `steps`.
-           Missing `j_day` values: ",
-           ifelse(n_missing_days > 3,
-                  paste(paste(missing_days[1:3], collapse = ', '),
-                        "... and", n_missing_days - 3, "more"),
-                  paste(missing_days, collapse = ', ')),
-           call. = FALSE
+      stop(
+        stringr::str_squish(paste0(
+          "`", tbl_name, "` must have a row for each `j_day` from 1 to `steps`.
+          Missing `j_day` values: ")), ' ',
+        ifelse(n_missing_days > 3,
+               paste(paste(missing_days[1:3], collapse = ', '),
+                     "... and", n_missing_days - 3, "more"),
+               paste(missing_days, collapse = ', ')),
+        call. = FALSE
       )
     }
   }
