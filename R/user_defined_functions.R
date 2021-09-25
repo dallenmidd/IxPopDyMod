@@ -1,12 +1,3 @@
-# user_defined_functions.R
-# TODO rename to something like `preset_transition_functions.R`? We could have
-# one file (this one) for transition functions that we supply and then allow
-# users to source their own files with functions that would not be part of the
-# package source
-
-# 02 functional forms for transition probabilities
-## DA Note: in the simple example can we show a simpiler verison of a host comm?
-
 #' Exponential function
 #'
 #' @param x Predictor 1 in transitions table.

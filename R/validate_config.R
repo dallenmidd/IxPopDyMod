@@ -1,6 +1,7 @@
-#' check that a config object is valid
+#' Check that a `config` object is valid
 #' @importFrom rlang has_name
 #' @return Returns the input config object if it passes all the checks
+#' @noRd
 validate_config <- function(cfg) {
 
   if (length(cfg$steps) != 1) {
@@ -24,7 +25,6 @@ validate_config <- function(cfg) {
     )
   }
 
-  # TODO this may be too strict...
   if (cfg$max_delay < 365L) {
     stop(
       # TODO could use strwrap() to remove line breaks from error messages

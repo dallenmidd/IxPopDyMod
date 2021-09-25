@@ -1,5 +1,8 @@
 #' `config` constructor
-#' Quickly create a new `config` object with minimal checks. Backend use only.
+#' @description
+#' Quickly create a new `config` object with minimal checks. See `config()` for
+#' explanation of parameters.
+#' @noRd
 new_config <- function(initial_population, transitions, parameters,
                        host_comm, weather, steps, max_delay) {
 
@@ -23,21 +26,17 @@ new_config <- function(initial_population, transitions, parameters,
             class = 'config')
 }
 
-#' Helper for users to create a `config` object
-#' This function should make it easy for users to create a new `config`, e.g. by
-#' allowing doubles like 365 instead of the integer 365L for steps, max_delay
-#' and initial_population.
-#' @param initial_population Named???? numeric vector indicating the starting
-#'   population for each life stage. Length should be equal to the number of
-#'   life stages.
-#' @param transitions Tick transitions tibble
-#' @param parameters Tick parameters tibble
-#' @param host_comm Host community tibble.
-#' @param weather Weather tibble.
+#' Create a `config` object
+#' @param initial_population Named numeric vector indicating starting population
+#'   for each life stage. Life stages not specified are assumed to be 0.
+#' @param transitions Tick transitions data frame. See readme for details.
+#' @param parameters Tick parameters tibble. See readme for details.
+#' @param host_comm Host community tibble. See readme for details.
+#' @param weather Weather tibble. See readme for details.
 #' @param steps Numeric vector of length one indicating the duration to run the
 #'   model over in days.
 #' @param max_delay Numeric vector of length one. Determines the maximum
-#' number of days that a delayed transition can last.
+#'   number of days that a delayed transition can last.
 #' @return A `config` object
 #' @export
 config <- function(initial_population, transitions, parameters,
@@ -100,8 +99,8 @@ read_config <- function(file) {
 #' @param parameters_path Path to output parameters csv
 #' @param weather_path Path to output weather csv
 #' @param host_comm_path Path to output host_comm csv
-
-#' @param transtions
+#'
+#' @export
 write_config <- function(cfg, config_path, transitions_path, parameters_path,
                          weather_path, host_comm_path) {
 
@@ -141,6 +140,8 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
 #' @return A stacked data frame of the model outputs for each `config`. Return
 #'   value is like `run()`, with an additional column "config" identifying
 #'   the `config` object that results were generated from.
+#'
+#' @export
 run_all_configs <- function(configs, parallel = FALSE) {
 
   if (parallel) {
@@ -162,26 +163,12 @@ run_all_configs <- function(configs, parallel = FALSE) {
 #' @param param_row row number of parameter to vary
 #' @param values Numeric vector of values to use for parameter
 #' @return List of configs?????
-vary_param <- function(config, param_row, values)
+#' @export
+vary_param <- function(config, param_row, values) {}
 
 
 #' Generate an array/grid of configs modifying each parameter along its own
 #' sequence of values
 #' TODO Dave - no idea about the feasability of this one!
+#' @export
 vary_many_params <- function() {}
-
-# We agreed that any changes we'd want to do to tick_transitions would be manual
-# I think it is similar for host_comm and weather. For weather, we might want to
-# compare weather between a few different IUCN climate scenarios - which would
-# require manually downloading that data and formatting weather csvs for each
-# scenario - I don't think there's a standardized way that we'd want to vary
-# the weather input. Same goes for host_den. For example we might want to compare
-# a few different rodent communities, but it would make more sense to manually
-# create these different host_comm dfs
-
-# example use:
-if (FALSE) {
-  ex_config <- read_config('inputs/config.yml')
-  ex_config
-}
-

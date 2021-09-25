@@ -4,6 +4,7 @@
 #' @importFrom stringr str_length
 #' @return Character representing tick age, where "l" indicates larvae, "n"
 #'   indicates nymph, and "a" indicates adult
+#' @noRd
 age <- function(life_stage) {
   substr(life_stage, str_length(life_stage), str_length(life_stage))
 }
@@ -14,6 +15,7 @@ age <- function(life_stage) {
 #' @return Character representing current process tick is undergoing, where "a"
 #'   indicates attached, "e" indicates engorged, "h" indicates hardening, "q"
 #'   indicates questing, "r" indicates reproductive", and "f" indicates feeding
+#' @noRd
 process <- function(life_stage) {
   ifelse(substr(life_stage, 0, 1) != '', substr(life_stage, 0, 1), '')
 }
@@ -23,13 +25,17 @@ process <- function(life_stage) {
 #' @param life_stage Three-character string representing tick life stage
 #' @return Boolean indicating whether a life_stage is infected
 #' @importFrom stringr str_detect
+#' @noRd
 infected <- function(life_stage) {
   str_detect(life_stage, "i")
 }
 
 #' Get all life stages
-get_life_stages <- function(tick_transitions) {
-  unique(pull(tick_transitions, .data$from))
+#' @param transitions Tick transitions data frame.
+#' @return Character vector of life stage names
+#' @noRd
+get_life_stages <- function(transitions) {
+  unique(pull(transitions, .data$from))
 }
 
 #' Get temperature from input data
@@ -37,6 +43,7 @@ get_life_stages <- function(tick_transitions) {
 #' @param time Numeric vector of days to get data
 #' @param weather weather df from `config` object
 #' @return Numeric vector of temperature
+#' @noRd
 get_temp <- function(time, weather) {
   weather[which(weather$j_day %in% time), ]$tmean
 }
@@ -46,6 +53,7 @@ get_temp <- function(time, weather) {
 #' @param time Numeric vector of days to get data
 #' @param weather weather df from `config` object
 #' @return Numeric vector of vpd
+#' @noRd
 get_vpd <- function(time, weather) {
   weather[which(weather$j_day %in% time), ]$vpdmean
 }
@@ -55,6 +63,7 @@ get_vpd <- function(time, weather) {
 #' @param time Numeric vector of days to get data
 #' @param host_comm host_comm df from `config` object
 #' @return Numeric vector of host density
+#' @noRd
 get_host_den <- function(time, host_comm) {
   host_comm[which(host_comm$j_day %in% time), ]$host_den
 }
@@ -73,6 +82,7 @@ get_host_den <- function(time, host_comm) {
 #' @importFrom stringr str_which
 #' @return Numeric vector of length one indicating current number of ticks in
 #'   given life stages
+#' @noRd
 get_tick_den <- function(time, N, N_developing, pred, life_stages) {
   sum((N + N_developing)[str_which(life_stages, pred), time])
 }
@@ -92,6 +102,7 @@ get_tick_den <- function(time, N, N_developing, pred, life_stages) {
 #' @param life_stages Character vector of life stages.
 #' @param host_comm Host community tibble.
 #' @param weather Weather tibble.
+#' @noRd
 #'
 # Return a vector of a predictor at time time.
 # The vector's length is based on whether the transition is_delay.
@@ -137,6 +148,7 @@ get_pred <- function(time, pred, is_delay, N, N_developing, max_delay,
 #' @param life_stages Character vector of life stages.
 #' @param host_comm Host community tibble.
 #' @param weather Weather tibble.
+#' @noRd
 #'
 #' @return Numeric vector indicating probability or duration of a transition.
 get_transition_val <- function(time, transition_row_with_parameters, N,
@@ -180,6 +192,8 @@ get_transition_val <- function(time, transition_row_with_parameters, N,
 #'
 #' @return Matrix of transition probabilities, indicating the probabilities of
 #'   transitioning from each stage (axis 1) to each stage (axis 2).
+#'
+#' @noRd
 gen_trans_matrix <- function(time, N, N_developing, life_stages,
                              tick_transitions, host_comm, weather) {
 
@@ -258,7 +272,7 @@ gen_trans_matrix <- function(time, N, N_developing, life_stages,
 #'   transitions. Axis 1 is the from_stage, axis 2 is the to_stage, and axis 3
 #'   is the day on which the ticks will emerge from the transition. The value
 #'   at a given cell is the number of ticks emerging from the transition.
-
+#' @noRd
 update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
                              life_stages, max_delay, host_comm, weather) {
 
@@ -367,6 +381,8 @@ update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
 #'
 #' @return Named list of parameters needed for the transition function from the
 #'   `from` life stage to the `to` life stage.
+#'
+#' @noRd
 get_params <- function(from, to, parameters) {
 
   string <- paste0(from, to)
@@ -389,6 +405,8 @@ get_params <- function(from, to, parameters) {
 #'
 #' @return A new tick_transitions tibble with a column, params_list
 #'   that is a named list of the parameters for each transition.
+#'
+#' @noRd
 add_params_list <- function(tick_transitions, parameters) {
 
   params_list <- apply(tick_transitions, 1, function(x)
