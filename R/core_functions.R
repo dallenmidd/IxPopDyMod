@@ -205,12 +205,13 @@ gen_trans_matrix <- function(time, N, N_developing, life_stages,
   trans_matrix <- matrix(0, ncol = n_life_stages, nrow = n_life_stages,
                          dimnames = list(life_stages, life_stages))
 
+
   transitions <- tick_transitions %>%
-    filter(.data$delay == 0,
+    filter(!.data$delay,
            .data$to %in% life_stages)  # exclude mortality
 
   mort <- tick_transitions %>%
-    filter(.data$delay == 0,
+    filter(!.data$delay,
            !(.data$to %in% life_stages))
 
   if (nrow(transitions) > 0) {
@@ -284,7 +285,7 @@ update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
                              life_stages, max_delay, host_comm, weather) {
 
   # select all delay transition functions, including mortality
-  transitions <- tick_transitions[tick_transitions$delay == 1, ]
+  transitions <- tick_transitions[tick_transitions$delay, ]
 
   # loop through these transitions by from_stage
   from_stages <- unique(pull(transitions, .data$from))

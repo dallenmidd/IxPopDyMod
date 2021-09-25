@@ -66,10 +66,9 @@ validate_config <- function(cfg) {
     from = 'character', to = 'character', param_name = 'character',
     host_spp = 'character', param_value = 'numeric')
 
-  # TODO delay should probably be logical TRUE or FALSE rather than 0 or 1
   transitions_coltypes <- c(
     from = 'character', to = 'character', transition_fun = 'character',
-    delay = 'numeric', pred1 = 'character', pred2 = 'character'
+    delay = 'logical', pred1 = 'character', pred2 = 'character'
   )
 
   has_required_cols <- function(df_name, required_colnames) {
