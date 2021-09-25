@@ -41,7 +41,7 @@ new_config <- function(initial_population, transitions, parameters,
 #' @return A `config` object
 #' @export
 config <- function(initial_population, transitions, parameters,
-                   host_comm, weather, steps = 365L, max_delay = 365L) {
+                   host_comm, weather, steps, max_delay = 365L) {
 
   # convert doubles to integers
   ensure_int <- function(x) {
