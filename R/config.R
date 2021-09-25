@@ -574,13 +574,24 @@ read_config <- function(file) {
 write_config <- function(file) {}
 
 
-##########################
+#' Run the model for each config
+#' @param configs List of `config` objects
+#' @param parallel Logical; if TRUE, run on all cores using `parallel` package.
+#' @return A stacked data frame of the model outputs for each `config`. Return
+#'   value is like `run()`, with an additional column "config" identifying
+#'   the `config` object that results were generated from.
+run_all_configs <- function(configs, parallel = FALSE) {
 
-#' Run each config and return a df for comparing the outputs
-#' @return df like the output from run, but with a column each for each config
-#' TODO Dave - not sure but you may also want to change run() in core_functions
-#' so it just takes a config object
-run_all_configs <- function() {}
+  if (parallel) {
+    n_cores <- parallel::detectCores()
+    l <- parallel::mcmapply(run, configs, mc.cores = n_cores,
+                            SIMPLIFY = FALSE)
+  } else {
+    l <- sapply(configs, run, simplify = FALSE)
+  }
+
+  dplyr::bind_rows(l, .id = "config")
+}
 
 #' Generate copies of a config with a modified parameter
 #' TODO locate parameter by row in parameters table or filtering
