@@ -86,13 +86,53 @@ read_config <- function(file) {
   do.call(config, cfg)
 }
 
-#' convert a config object back to a YAML file
-#' TODO Behavior for this would probably be weird and low priority.
-#' How would we handle the dfs that are part of the config object? Have
-#' param for this function for path to each csv? Write those csvs from the dfs
-#' in the config object, or assume they are already there?
-#' @param file Path to the output YAML config file
-write_config <- function(file) {}
+#' Save a `config` object as files
+#'
+#' @description
+#' Write a `config` object as a YAML file, and write all dataframe
+#' components (transitions, parameters, weather, host_comm) as csv files. All
+#' paths must be explicitly specified as arguments. This function will not
+#' allow overwriting files.
+#'
+#' @param cfg A `config` object
+#' @param config_path Path to the output YAML config file
+#' @param transitions_path Path to output transitions csv
+#' @param parameters_path Path to output parameters csv
+#' @param weather_path Path to output weather csv
+#' @param host_comm_path Path to output host_comm csv
+
+#' @param transtions
+write_config <- function(cfg, config_path, transitions_path, parameters_path,
+                         weather_path, host_comm_path) {
+
+  for (f in c(config_path, transitions_path, parameters_path, weather_path,
+              host_comm_path)) {
+    if (file.exists(f)) {
+      stop(
+        paste0('Cannot write "', f, '", file already exists'),
+        call. = FALSE
+      )
+    }
+  }
+
+  yaml::write_yaml(
+    x = list(
+      steps = cfg$steps,
+      max_delay = cfg$max_delay,
+      initial_population = as.list(cfg$initial_population),
+      transitions = transitions_path,
+      parameters = parameters_path,
+      weather = weather_path,
+      host_comm = host_comm_path
+      ),
+    file = config_path
+  )
+
+  readr::write_csv(cfg$transitions, transitions_path)
+  readr::write_csv(cfg$parameters, parameters_path)
+  readr::write_csv(cfg$weather, weather_path)
+  readr::write_csv(cfg$host_comm, host_comm_path)
+}
 
 
 #' Run the model for each config
