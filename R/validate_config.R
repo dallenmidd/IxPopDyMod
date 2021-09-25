@@ -465,12 +465,6 @@ validate_config <- function(cfg) {
 
   test_transition_values(cfg)
 
-  # TODO change run() behavior so it takes an initial_population named vector
-  # with only some life stages. Currently we pass a vector of length
-  # life_stages, and I'm not sure whether it uses the order or names of the
-  # vector initial_population to set the starting population in the population
-  # matrix `N`
-
   # TODO Myles
   # transitions must form a closed loop (borrow testing functions code)
 
