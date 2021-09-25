@@ -6,6 +6,9 @@
 \usage{
 read_config(file)
 }
+\arguments{
+\item{file}{YAML file to read}
+}
 \value{
 A \code{config} object
 }

@@ -325,7 +325,7 @@ validate_config <- function(cfg) {
     error_tibble$valid <- unlist(lapply(error_tibble$value, predictor_is_valid))
 
     error_tibble <- error_tibble %>%
-      filter(!valid)
+      filter(!(.data$valid))
 
     row_to_string <- function(row) {
       paste0("\"", row['value'], "\" in row ", row['row'],

@@ -65,6 +65,7 @@ config <- function(initial_population, transitions, parameters,
 #' create a config object from a yaml file
 #' @importFrom yaml read_yaml
 #' @importFrom readr read_csv
+#' @param file YAML file to read
 #' @return A `config` object
 #' @export
 read_config <- function(file) {

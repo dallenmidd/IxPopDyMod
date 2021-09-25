@@ -2,7 +2,7 @@
 # all calls to validate_config() should throw an error unless otherwise noted
 
 devtools::load_all()
-base_config <- read_config('inputs/config.yml')
+base_config <- read_config('inputs/ogden_config.yml')
 
 reset <- function() broken <<- base_config
 test <- function() validate_config(broken)
