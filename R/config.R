@@ -54,9 +54,6 @@ config <- function(initial_population, transitions, parameters,
   steps <- ensure_int(steps)
   max_delay <- ensure_int(max_delay)
 
-  # sort parameters by host_spp column
-  parameters <- dplyr::arrange(parameters, .data$host_spp)
-
   # return validated config
   validate_config(new_config(initial_population, transitions, parameters,
                              host_comm, weather, steps, max_delay))

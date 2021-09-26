@@ -17,14 +17,10 @@ has_required_types <- function(cfg, df_name, required_coltypes) {
 
     if (!(required_coltypes[[col]] == actual_coltypes[[col]] |
           (required_coltypes[[col]] == 'numeric' &
-           actual_coltypes[[col]] %in% c('double', 'integer'))))
-
-      # TODO technically model could work without weather or host community
-      # inputs, it's just a very simple model that way. This would be okay if
-      # the pred1 and pred2 columns are not host_den or temp or vpd...
-      # Should we be less strict for that case? E.g. this might throw an error
-      # if a column like host_spp in the parameters table is empty and defaults
-      # to logical type... even though that should be okay
+           actual_coltypes[[col]] %in% c('double', 'integer')) |
+          # if missing values were interpreted as type logical
+          (actual_coltypes[[col]] == 'logical' &
+           all(is.na(cfg[[df_name]][, col])))))
 
       stop(
         "Expected type \"", required_coltypes[col], "\" for column `", col,
@@ -212,6 +208,16 @@ test_predictors <- function(transitions) {
     'Unsupported predictor values found in `transitions`:', errors)
 }
 
+# determine whether transitions depend on given predictors
+depends_on <- function(predictors) {
+  function(transitions) {
+    any(predictors %in% unlist(transitions[, c('pred1', 'pred2')]))
+  }
+}
+
+depends_on_weather <- depends_on(c('temp', 'vpd'))
+depends_on_hosts <- depends_on('host_den')
+
 # ensure that there is weather or host_comm data for the entire j_day range
 # that we are running the model, plus the max_delay
 # We add max_delay because if input data is missing for time in between
@@ -370,25 +376,50 @@ validate_config <- function(cfg) {
     )
   }
 
-  parameters_coltypes <- c(
-    from = 'character', to = 'character', param_name = 'character',
-    host_spp = 'character', param_value = 'numeric')
   transitions_coltypes <- c(
     from = 'character', to = 'character', transition_fun = 'character',
     delay = 'logical', pred1 = 'character', pred2 = 'character'
   )
-
-  has_required_cols(cfg, 'parameters', names(parameters_coltypes))
   has_required_cols(cfg, 'transitions', names(transitions_coltypes))
-
-  has_required_types(cfg, 'parameters', parameters_coltypes)
   has_required_types(cfg, 'transitions', transitions_coltypes)
 
-  if (!parameters_are_sorted(cfg$parameters)) {
-    stop(
-      "`parameters` must be sorted by the column `host_spp`",
-      call. = FALSE
-    )
+  test_predictors(cfg$transitions)
+
+  if (depends_on_weather(cfg$transitions)) {
+    weather_coltypes <- c(tmean = 'numeric', j_day = 'numeric')
+    has_required_cols(cfg, 'weather', names(weather_coltypes))
+    test_missing_days(cfg$weather, 'weather', cfg$steps, cfg$max_delay)
+    has_required_types(cfg, 'weather', weather_coltypes)
+  }
+
+
+  parameters_coltypes <- c(
+    from = 'character', to = 'character', param_name = 'character',
+    param_value = 'numeric')
+
+  if (depends_on_hosts(cfg$transitions)) {
+
+    # add host spp column requirement
+    parameters_coltypes['host_spp'] <- 'character'
+
+    host_comm_coltypes <- c(
+      j_day = 'numeric', host_spp = 'character', host_den = 'numeric')
+    has_required_cols(cfg, 'host_comm', names(host_comm_coltypes))
+    has_required_types(cfg, 'host_comm', host_comm_coltypes)
+    test_missing_days(cfg$host_comm, 'host_comm', cfg$steps, cfg$max_delay)
+    test_host_spp_days(cfg$host_comm)
+  }
+
+  has_required_cols(cfg, 'parameters', names(parameters_coltypes))
+  has_required_types(cfg, 'parameters', parameters_coltypes)
+
+  if (depends_on_hosts(cfg$transitions)) {
+    if (!parameters_are_sorted(cfg$parameters)) {
+      stop(
+        "`parameters` must be sorted by the column `host_spp`",
+        call. = FALSE
+      )
+    }
   }
 
   if (is.null(names(cfg$initial_population)) |
@@ -449,23 +480,6 @@ validate_config <- function(cfg) {
     function(i) missing_and_extra_params(i, transitions_with_parameters)))
 
   print_errors( 'Extra and/or missing parameters found: \n', errors)
-
-  test_predictors(cfg$transitions)
-
-  weather_coltypes <- c(tmean = 'numeric', j_day = 'numeric')
-  host_comm_coltypes <- c(
-    j_day = 'numeric', host_spp = 'character', host_den = 'numeric')
-
-  has_required_cols(cfg, 'weather', names(weather_coltypes))
-  has_required_cols(cfg, 'host_comm', names(host_comm_coltypes))
-
-  has_required_types(cfg, 'weather', weather_coltypes)
-  has_required_types(cfg, 'host_comm', host_comm_coltypes)
-
-  test_missing_days(cfg$weather, 'weather', cfg$steps, cfg$max_delay)
-  test_missing_days(cfg$host_comm, 'host_comm', cfg$steps, cfg$max_delay)
-
-  test_host_spp_days(cfg$host_comm)
 
   test_transition_values(cfg)
 
