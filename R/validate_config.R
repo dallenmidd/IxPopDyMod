@@ -218,6 +218,17 @@ depends_on <- function(predictors) {
 depends_on_weather <- depends_on(c('temp', 'vpd'))
 depends_on_hosts <- depends_on('host_den')
 
+to_short_string <- function(v, max = 3) {
+  l <- length(v)
+  string <- paste(v[1:min(max, l)],
+                  collapse = ', ')
+  paste0(
+    string,
+    ifelse(l > max,
+           paste('... and', l - max, 'more values'),
+           ''))
+}
+
 # ensure that there is weather or host_comm data for the entire j_day range
 # that we are running the model, plus the max_delay
 # We add max_delay because if input data is missing for time in between
@@ -228,17 +239,12 @@ test_missing_days <- function(tbl, tbl_name, steps, max_delay) {
   missing_days <- setdiff(1:(steps + max_delay),
                           intersect(1:(steps + max_delay), tbl$j_day))
 
-  n_missing_days <- length(missing_days)
-
-  if (n_missing_days > 0) {
+  if (length(missing_days) > 0) {
     stop(
       stringr::str_squish(paste0(
         "`", tbl_name, "` must have a row for each `j_day` from 1 to `steps`
           + `max_delay`. Missing `j_day` values: ")), ' ',
-      ifelse(n_missing_days > 3,
-             paste(paste(missing_days[1:3], collapse = ', '),
-                   "... and", n_missing_days - 3, "more"),
-             paste(missing_days, collapse = ', ')),
+      to_short_string(missing_days),
       call. = FALSE
     )
   }
@@ -285,18 +291,6 @@ test_transition_values <- function(cfg) {
     all(!is.na(transition_value) &
           is.numeric(transition_value) &
           transition_value >= 0)
-  }
-
-  to_short_string <- function(v) {
-    l <- length(v)
-    max <- 3
-    string <- paste(v[1:min(max, l)],
-                    collapse = ', ')
-    paste0(
-      string,
-      ifelse(l > max,
-             paste('... and', l - max, 'more values'),
-             ''))
   }
 
   transition_values <-
