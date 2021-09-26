@@ -50,6 +50,10 @@ config <- function(initial_population, transitions, parameters,
     x
   }
 
+  if ('host_spp' %in% names(parameters)) {
+    parameters <- dplyr::arrange(parameters, .data$host_spp)
+  }
+
   initial_population <- ensure_int(initial_population)
   steps <- ensure_int(steps)
   max_delay <- ensure_int(max_delay)
