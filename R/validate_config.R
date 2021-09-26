@@ -338,19 +338,22 @@ validate_config <- function(cfg) {
   test_predictors(cfg$transitions)
 
   # ensure that there is weather or host_comm data for the entire j_day range
-  # that we are running the model
-  test_missing_days <- function(tbl, tbl_name, steps) {
+  # that we are running the model, plus the max_delay
+  # We add max_delay because if input data is missing for time in between
+  # steps and steps+max_delay, we could incorrectly get delay transitions that
+  # do not cumsum to 1
+  test_missing_days <- function(tbl, tbl_name, steps, max_delay) {
 
-    missing_days <- setdiff(1:steps,
-                            intersect(1:steps, tbl$j_day))
+    missing_days <- setdiff(1:(steps + max_delay),
+                            intersect(1:(steps + max_delay), tbl$j_day))
 
     n_missing_days <- length(missing_days)
 
     if (n_missing_days > 0) {
       stop(
         stringr::str_squish(paste0(
-          "`", tbl_name, "` must have a row for each `j_day` from 1 to `steps`.
-          Missing `j_day` values: ")), ' ',
+          "`", tbl_name, "` must have a row for each `j_day` from 1 to `steps`
+          + `max_delay`. Missing `j_day` values: ")), ' ',
         ifelse(n_missing_days > 3,
                paste(paste(missing_days[1:3], collapse = ', '),
                      "... and", n_missing_days - 3, "more"),
@@ -360,8 +363,8 @@ validate_config <- function(cfg) {
     }
   }
 
-  test_missing_days(cfg$weather, 'weather', cfg$steps)
-  test_missing_days(cfg$host_comm, 'host_comm', cfg$steps)
+  test_missing_days(cfg$weather, 'weather', cfg$steps, cfg$max_delay)
+  test_missing_days(cfg$host_comm, 'host_comm', cfg$steps, cfg$max_delay)
 
   # ensure that there is host density data for the same days for all host spp
   test_host_spp_days <- function(host_comm) {
