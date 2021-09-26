@@ -23,10 +23,24 @@ site_climate <- prismData %>%
   group_by(j_day) %>%
   filter(j_day < 365.5) %>%
   summarise(tmean = mean(tmean), ppt = mean(ppt), vpdmean = mean(vpdmin+vpdmax)/2)
-  
-  
+
+
 site_climate %>%
   ggplot(aes(j_day,vpdmean)) +
   geom_line()
 
-write_csv(x = site_climate, path = 'inputs/weather.csv')  
+write_csv(x = site_climate, path = 'inputs/improved_ixodes_scapularis/weather.csv')
+
+
+# repeat over many years
+site_climate <- read_csv('inputs/improved_ixodes_scapularis/weather.csv')
+years <- 11
+
+accumulate <- site_climate
+for (i in 1:(years - 1)) {
+  accumulate <- bind_rows(accumulate, site_climate)
+}
+
+accumulate$j_day = seq_len(nrow(accumulate))
+write_csv(accumulate, 'inputs/improved_ixodes_scapularis/weather.csv')
+
