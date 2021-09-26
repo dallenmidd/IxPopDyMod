@@ -157,16 +157,53 @@ run_all_configs <- function(configs, parallel = FALSE) {
   dplyr::bind_rows(l, .id = "config")
 }
 
-#' Generate copies of a config with a modified parameter
-#' TODO locate parameter by row in parameters table or filtering
-#' with from, to, param_name, and host_spp?
-#' TODO Dave
-#' @param config base configuration to make modified copies of
-#' @param param_row row number of parameter to vary
+
+
+#' Generate copies of a `config` with a modified parameter
+#'
+#' @description
+#' Create copies of a `config` with a modified parameter. These new
+#' `configs`s can be used to see how that parameter affects the model
+#'
+#' @param cfg A `config` object
+#' @param config Base configuration to make modified copies of
+#' @param param_row Row number of parameter to vary,
+#'   if this is specified arguments from, to, and param_name are unneeded
+#' @param from The from life stage from of the parameter to change. If this is given
+#'   to and param_name are also needed.
+#' @param to The to life stage of the parameter to change.
+#' @param param_name The name of the parameter to change
 #' @param values Numeric vector of values to use for parameter
-#' @return List of configs?????
+#' @return A list of `config`s
+#'
 #' @export
-vary_param <- function(config, param_row, values) {}
+vary_param <- function(cfg, param_row, to, from, param_name, values) {
+
+  if (to)
+  {
+    param_row <- which(cfg[['parameters']]$to == to &
+                       cfg[['parameters']]$from == from &
+                       cfg[['parameters']]$param_name == param_name)
+  }
+
+  list_cfg <- list()
+
+  for (v in values){
+    new_parameters <- config[[parameters]]
+    new_parameters[param_row, 'param_value'] <- v
+
+    new_cfg <- config(cfg[['initial_population']],
+                         cfg[[transitions]],
+                         new_parameters,
+                         cfg[['host_comm']],
+                         cfg[['weather']],
+                         cfg[['steps']],
+                         cfg[['max_delay']] )
+
+    list_cfg <- c(list_cfg, new_cfg)
+
+  }
+}
 
 
 #' Generate an array/grid of configs modifying each parameter along its own
