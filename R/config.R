@@ -177,9 +177,9 @@ run_all_configs <- function(configs, parallel = FALSE) {
 #' @return A list of `config`s
 #'
 #' @export
-vary_param <- function(cfg, param_row, to, from, param_name, values) {
+vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA , values) {
 
-  if (to)
+  if (!is.na(to))
   {
     param_row <- which(cfg[['parameters']]$to == to &
                        cfg[['parameters']]$from == from &
@@ -187,22 +187,23 @@ vary_param <- function(cfg, param_row, to, from, param_name, values) {
   }
 
   list_cfg <- list()
-
+  counter <- 1
   for (v in values){
-    new_parameters <- config[[parameters]]
+    new_parameters <- cfg[['parameters']]
     new_parameters[param_row, 'param_value'] <- v
 
     new_cfg <- config(cfg[['initial_population']],
-                         cfg[[transitions]],
+                         cfg[['transitions']],
                          new_parameters,
                          cfg[['host_comm']],
                          cfg[['weather']],
                          cfg[['steps']],
                          cfg[['max_delay']] )
 
-    list_cfg <- c(list_cfg, new_cfg)
-
+    list_cfg[[counter]] <-  new_cfg
+    counter <- counter + 1
   }
+  list_cfg
 }
 
 
