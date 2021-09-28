@@ -65,7 +65,7 @@ config <- function(initial_population, transitions, parameters,
 
 #' create a config object from a yaml file
 #' @importFrom yaml read_yaml
-#' @importFrom readr read_csv
+#' @importFrom readr read_csv cols
 #' @param file YAML file to read
 #' @return A `config` object
 #' @export
@@ -78,10 +78,10 @@ read_config <- function(file) {
   cfg$initial_population <- unlist(cfg$initial_population)
 
   # convert from paths to dfs
-  cfg$transitions <- read_csv(cfg$transitions, show_col_types = FALSE)
-  cfg$parameters <- read_csv(cfg$parameters, show_col_types = FALSE)
-  cfg$host_comm <- read_csv(cfg$host_comm, show_col_types = FALSE)
-  cfg$weather <- read_csv(cfg$weather, show_col_types = FALSE)
+  cfg$transitions <- read_csv(cfg$transitions, col_types = cols())
+  cfg$parameters <- read_csv(cfg$parameters, col_types = cols())
+  cfg$host_comm <- read_csv(cfg$host_comm, col_types = cols())
+  cfg$weather <- read_csv(cfg$weather, col_types = cols())
 
   # use this named list as the arguments to constructing a config object
   do.call(config, cfg)
