@@ -137,24 +137,25 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
 
 
 #' Run the model for each config
+#'
+#' @description
+#' Simple convenience wrapper for calling run on each `config` in a list
+#'
 #' @param configs List of `config` objects
 #' @param parallel Logical; if TRUE, run on all cores using `parallel` package.
-#' @return A stacked data frame of the model outputs for each `config`. Return
-#'   value is like `run()`, with an additional column "config" identifying
-#'   the `config` object that results were generated from.
+#'
+#' @return A list of data frame model outputs like those returned by `run()`
 #'
 #' @export
 run_all_configs <- function(configs, parallel = FALSE) {
 
   if (parallel) {
     n_cores <- parallel::detectCores()
-    l <- parallel::mcmapply(run, configs, mc.cores = n_cores,
+    parallel::mcmapply(run, configs, mc.cores = n_cores,
                             SIMPLIFY = FALSE)
   } else {
-    l <- sapply(configs, run, simplify = FALSE)
+    sapply(configs, run, simplify = FALSE)
   }
-
-  dplyr::bind_rows(l, .id = "config")
 }
 
 
