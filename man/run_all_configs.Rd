@@ -12,10 +12,8 @@ run_all_configs(configs, parallel = FALSE)
 \item{parallel}{Logical; if TRUE, run on all cores using \code{parallel} package.}
 }
 \value{
-A stacked data frame of the model outputs for each \code{config}. Return
-value is like \code{run()}, with an additional column "config" identifying
-the \code{config} object that results were generated from.
+A list of data frame model outputs like those returned by \code{run()}
 }
 \description{
-Run the model for each config
+Simple convenience wrapper for calling run on each \code{config} in a list
 }

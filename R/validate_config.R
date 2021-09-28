@@ -52,6 +52,7 @@ set_all_names_i <- set_all_names('i')
 
 #' @param error_header String
 #' @param problem_list List of strings describing each problem
+#' @noRd
 print_errors <- function(error_header, problem_list, hints = NULL,
                          max_problems = 3L) {
 
