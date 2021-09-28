@@ -241,5 +241,47 @@ set_param <- function(cfg, param_row, value) {
 
   cfg
 }
+
+
+#' Generate copies of a `config` with all combinations of modified parameters
+#'
+#' @inheritParams vary_param
+#'
+#' @param param_rows Numeric vector indicating the rows in the parameters
+#'   table where parameter values should be modified. Length must equal length
+#'   of values_list
+#'
+#' @param values_list List of numeric vectors. The values of a vector
+#'   `values_list[[i]]` are the parameter values to use for the parameter
+#'   identified by `param_rows[[i]]`
+#'
+#' @return A list of `config`s
+#'
 #' @export
-vary_many_params <- function() {}
+vary_many_params <- function(cfg, param_rows, values_list) {
+
+  if ((l <- length(param_rows)) != length(values_list)) {
+    stop(
+      'param_rows and values_list must have equal lengths',
+      call. = FALSE
+    )
+  }
+
+  i <- 1
+  cfgs <- list(cfg)
+
+  while (i <= l) {
+
+    cfgs <- lapply(cfgs, function(x) {
+      vary_param(cfg = x,
+                 param_row = param_rows[[i]],
+                 values = values_list[[i]])
+    })
+
+    cfgs <- unlist(cfgs, recursive = FALSE)
+
+    i <- i + 1
+  }
+
+  cfgs
+}
