@@ -164,52 +164,82 @@ run_all_configs <- function(configs, parallel = FALSE) {
 #'
 #' @description
 #' Create copies of a `config` with a modified parameter. These new
-#' `configs`s can be used to see how that parameter affects the model
+#' `config`s can be used to see how that parameter affects the model
 #'
-#' @param cfg A `config` object
-#' @param config Base configuration to make modified copies of
-#' @param param_row Row number of parameter to vary,
-#'   if this is specified arguments from, to, and param_name are unneeded
-#' @param from The from life stage from of the parameter to change. If this is given
-#'   to and param_name are also needed.
+#' @param cfg Base `config` to make modified copies of
+#' @param param_row Row number of parameter to vary, if this is specified
+#'   arguments from, to, param_name, and host_spp are unneeded
+#' @param from The from life stage from of the parameter to change. If this is
+#'   given, to and param_name are also needed.
 #' @param to The to life stage of the parameter to change.
 #' @param param_name The name of the parameter to change
+#' @param host_spp The host_spp identifying the parameter to change. Needed only
+#'   if there are multiple rows in the parameter table with the same from, to
+#'   and param_name, but different host_spp.
 #' @param values Numeric vector of values to use for parameter
 #' @return A list of `config`s
 #'
 #' @export
-vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA , values) {
+vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
+                       host_spp = NA, values) {
+
+  if (!is.na(param_row) && !all(is.na(c(to, from, param_name, host_spp)))) {
+    stop(
+      "vary_param should be called with either param_row; or with to, from,
+      param_name and (optionally) host_spp",
+      call. = FALSE
+    )
+  }
 
   if (!is.na(to))
   {
     param_row <- which(cfg[['parameters']]$to == to &
                        cfg[['parameters']]$from == from &
-                       cfg[['parameters']]$param_name == param_name)
+                       cfg[['parameters']]$param_name == param_name &
+                       (cfg[['parameters']]$host_spp == host_spp |
+                          (is.na(cfg[['parameters']]$host_spp) &
+                             is.na(host_spp))))
+
+    if (length(param_row) != 1) {
+      stop(
+        "to, from, param_name and (optionally) host_spp must identify exactly 1
+        parameter row. Found rows: ", paste(param_row, collapse = ', '),
+        call. = FALSE
+      )
+    }
   }
 
   list_cfg <- list()
   counter <- 1
   for (v in values){
-    new_parameters <- cfg[['parameters']]
-    new_parameters[param_row, 'param_value'] <- v
-
-    new_cfg <- config(cfg[['initial_population']],
-                         cfg[['transitions']],
-                         new_parameters,
-                         cfg[['host_comm']],
-                         cfg[['weather']],
-                         cfg[['steps']],
-                         cfg[['max_delay']] )
-
-    list_cfg[[counter]] <-  new_cfg
+    list_cfg[[counter]] <- set_param(cfg, param_row, v)
     counter <- counter + 1
   }
   list_cfg
 }
 
 
-#' Generate an array/grid of configs modifying each parameter along its own
-#' sequence of values
-#' TODO Dave - no idea about the feasability of this one!
+set_param <- function(cfg, param_row, value) {
+
+  cfg$parameters[param_row, 'param_value'] <- value
+
+  # The only validation check that changing a parameter value might break
+  # is the value of an evaluated transition row. Therefore, we run this check
+  # rather than all the checks in validate_config()
+  tryCatch(
+    # This test identifies the errors by the *transitions* row that caused the
+    # error, which is not very helpful when we are changing *parameters*. We
+    # add to that behavior by also identifying the offending parameter
+    test_transition_values(cfg),
+    error = function(e) {
+      e$message <-paste(
+        "Setting parameter in row", param_row, "to value", value,
+        "resulted in an invalid transition value.", e$message)
+      stop(e)
+    }
+  )
+
+  cfg
+}
 #' @export
 vary_many_params <- function() {}
