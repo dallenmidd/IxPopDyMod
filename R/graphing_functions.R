@@ -43,3 +43,23 @@ graph_population_overall_trend <- function(out_N_df, title=NULL) {
     ylim(0, 2) +
     ggtitle(title)
 }
+
+
+#' Calculate multiplicative growth rate of population
+#'
+#' @importFrom dplyr group_by summarise filter mutate
+#'
+#' @param out Model output data frame
+#' @return Numeric vector of length one representing growth rate
+#' @export
+growth_rate <- function(out) {
+  out %>%
+    group_by(.data$day) %>%
+    summarise(tot = sum(.data$pop)) %>%
+    mutate(lambda = .data$tot/lag(.data$tot)) %>%
+    filter(is.finite(.data$lambda), .data$lambda > 0) %>%
+    summarise(lambda = exp(mean(log(.data$lambda)))) %>%
+    as.numeric()
+}
+
+
