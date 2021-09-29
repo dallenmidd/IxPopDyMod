@@ -48,8 +48,8 @@ cfg_list <- vary_many_params(
   cfg = cfg,
   param_rows = c(58, 24),
   values_list = list(
-    c(1000,2000,5000), # values for number of eggs (row 58)
-    c(1e-4, 2e-4, 3e-4, 4e-4) # values for host finding (row 24)
+    c(10,100,1000,10000), # values for number of eggs (row 58)
+    c(1e-5, 1e-4, 1e-3, 1e-2) # values for host finding (row 24)
   )
 )
 
@@ -62,3 +62,18 @@ many_out <- run_all_configs(cfg_list, parallel = TRUE)
 plots <- lapply(many_out, graph_population_each_group)
 do.call(cowplot::plot_grid, plots)
 
+
+growth_rates <- lapply(many_out, growth_rate)
+
+growth_tibble <-
+  data.frame(
+    eggs = c(rep(10,4), rep(100,4), rep(1000,4), rep(10000,4)),
+    egg_scale = c(rep(1,4), rep(2,4), rep(3,4), rep(4,4)),
+    host_find = rep(c(1e-5, 1e-4, 1e-3, 1e-2),4),
+    host_scale = rep(c(1,2,3,4),4),
+    growth = unlist(growth_rates)
+  )
+
+growth_tibble %>%
+  ggplot(aes(egg_scale, host_scale)) +
+  geom_tile(aes(fill = growth))
