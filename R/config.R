@@ -1,7 +1,12 @@
 #' `config` constructor
+#'
 #' @description
-#' Quickly create a new `config` object with minimal checks. See `config()` for
-#' explanation of parameters.
+#' Quickly create a new `config` object with minimal checks
+#'
+#' @inheritParams config
+#'
+#' @return a `config` object
+#'
 #' @noRd
 new_config <- function(initial_population, transitions, parameters,
                        host_comm, weather, steps, max_delay) {
@@ -27,17 +32,156 @@ new_config <- function(initial_population, transitions, parameters,
 }
 
 #' Create a `config` object
-#' @param initial_population Named numeric vector indicating starting population
-#'   for each life stage. Life stages not specified are assumed to be 0.
-#' @param transitions Tick transitions data frame. See readme for details.
-#' @param parameters Tick parameters tibble. See readme for details.
-#' @param host_comm Host community tibble. See readme for details.
-#' @param weather Weather tibble. See readme for details.
+#'
+#' @description
+#' Make a `config` object from the input parameters, and ensure that the inputs
+#' meet the requirements for the model. The returned object is a complete
+#' description of a model run scenario.
+#'
+#' @param transitions A `tibble` in which each row corresponds to a transition
+#' between two tick life stages, or a transition from a tick life stage to
+#' mortality.
+#'
+#' \describe{
+#'   \item{from}{
+#'   Tick life stage a transition is originating from, specified
+#'   with a three character string. The final character specifies stage, with
+#'   "e" = egg, "l" = larva, "n" = nymph, and "a" = adult. The middle character
+#'   specifies infection, with "i" = infected, and "u" = uninfected. The first
+#'   character is the current process or sub-stage, for example "q" = questing,
+#'   "e" = engorged, and "r" = reproductive. We use "`_`" to indicate if any of
+#'   these components is not relevant, for example "`_`" as the second character
+#'   if we are ignoring infection.}
+#'   \item{to}{
+#'   Tick life stage a transition is going to. May be specified with the same
+#'   three character format as the "from" field. Alternatively, may be the one
+#'   of the strings "m" or "per_capita_m" to indicate mortality.
+#'   }
+#'   \item{transition_fun}{
+#'   A string; the name of the function to use to calculate the value of the
+#'   transition. Must either be a function included in the package or a custom
+#'   function that has been loaded into the workspace.
+#'
+#'
+#'   Functions can take 0-2 predictors, and any number of parameters. Argument
+#'   order matters - all transition functions must start with two predictor
+#'   arguments (even if they are not used within the function), followed by any
+#'   parameters. They must return a numeric vector. See  \code{\link{
+#'   constant_fun}}, \code{\link{expo_fun}} and \code{\link{infect_fun}} for
+#'   examples for how to write custom functions.
+#'   }
+#'   \item{delay}{
+#'   If TRUE, transition is interpreted as a delay, if FALSE, transition is
+#'   interpreted as a daily probability.
+#'   }
+#'   \item{pred1}{
+#'   Specifies the first predictor to use in a transition function. One of NA,
+#'   "temp", "vpd", "host_den", or a pattern that matches at least one life
+#'   stage.
+#'   }
+#'   \item{pred2}{
+#'   Specifies the second predictor to use in a transition function. Format like
+#'   pred1.
+#'   }
+#' }
+#'
+#' @param parameters A `tibble` of parameters to use in the transitions
+#' described in the transitions table. Each row corresponds to a parameter
+#' value that may be used in one or more transitions. Parameter values will be
+#' used in transitions where the "from" and "to" fields of the two (parameters
+#' and transitions) tables match.
+#'
+#' \describe{
+#'   \item{from}{
+#'   Used to identify the transitions that a parameter should be used for.
+#'   Format like the "from" column in the transitions table, or a regex pattern
+#'   that matches with one or more life stage strings.
+#'   }
+#'   \item{to}{
+#'   Used to identify the transitions that a parameter should be used for.
+#'   Format like the "to" column in the transitions table, or a regex pattern
+#'   that matches with one or more life stage strings.
+#'   }
+#'   \item{param_name}{
+#'   A string specifying the name of the argument in the function where you want
+#'   to use a parameter.
+#'   }
+#'   \item{host_spp}{
+#'   Optional column, not needed for model configurations that do not dependent
+#'   on host community. For a given row, NA if the parameter value is not
+#'   dependent on the host species. Otherwise, a string specifying the name of
+#'   the host species that the parameter value pertains to.
+#'   }
+#'   \item{param_value}{
+#'   Numeric; the value of the parameter
+#'   }
+#' }
+#'
+#' @param host_comm Optionally, a `tibble` of input host community data to be
+#' used as predictor values in transition functions.
+#'
+#' \describe{
+#'   \item{j_day}{Julian day; an integer}
+#'   \item{host_spp}{String specifying a host species}
+#'   \item{host_den}{
+#'   Numeric value indicating the density of species "host_spp" on day "j_day"
+#'   }
+#' }
+#'
+#' @param weather Optionally, a `tibble` of input weather data to be used as
+#' predictor values in transition functions.
+#'
+#' \describe{
+#'   \item{j_day}{Julian day; an integer}
+#'   \item{tmean}{
+#'   Optionally, numeric indicating mean temperature on day "j_day"
+#'   }
+#'   \item{vpd}{
+#'   Optionally, numeric indicating vapour-pressure deficit on day "jday"
+#'   }
+#' }
+#'
 #' @param steps Numeric vector of length one indicating the duration to run the
 #'   model over in days.
+#'
 #' @param max_delay Numeric vector of length one. Determines the maximum
 #'   number of days that a delayed transition can last.
+#'
+#' @param initial_population Named numeric vector indicating starting population
+#' for each life stage. Life stages not specified are assumed to be 0.
+#'
 #' @return A `config` object
+#'
+#' @details
+#'
+#' The delay column affects how a transition row is used in the model. In all
+#' cases, a transition row is evaluated with any parameters and predictors,
+#' resulting in a transition value, `t`. If there is another row with the same
+#' "from", but either "m" or "per_capita_m" for the "to" stage, this row
+#' will be evaluated as well, resulting in a mortality transition value, `m`.
+#' Only delay transitions support "per_capita_m".
+#'
+#' In non-delay transitions (where `delay == FALSE`), ticks can either advance
+#' to the "to" stage, die, or remain in the "from" stage. In this case, `t`
+#' is interpretted as the probability that a tick in the "from" stage will
+#' advance to the "to" stage at the next time step. The survival rate, or the
+#' probability that a tick will remain in the same "from" life stage, is
+#' calculated as `1 - (t + m)`.
+#'
+#' In delay transitions (where `delay == TRUE`), ticks can either advance to the
+#' "to" stage, or die - there is no survival. In this case, `t` is used to
+#' determine the number of days until ticks in the "from" stage will emerge as
+#' ticks in the "to" stage. `t` will be vectorized over each day from the
+#' current time step to `max_delay` days ahead. The duration of the transition
+#' (in days) will be the index `i` of the first element in `t` where the
+#' cummulative sum of `t[1:i]` is greater than or equal to 1.
+#'
+#' Delay transitions support two modes of mortality, "m" and "per_capita_m".
+#' For transitions to "m", the mortality value `m` is interpretted as a daily
+#' probability of mortality for each day in the delay transition. This differs
+#' from transitions to "per_capita_m", where `m` is the total probability of
+#' mortality over the entire duration of the delay transition.#'
+#'
 #' @export
 config <- function(initial_population, transitions, parameters,
                    host_comm, weather, steps, max_delay = 365L) {
