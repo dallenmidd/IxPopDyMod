@@ -225,17 +225,6 @@ gen_trans_matrix <- function(time, N, N_developing, life_stages,
 
       mortality <- get_transition_val(
         time, mort[m,], N, N_developing, NULL, life_stages, host_comm, weather)
-      trans_prob_sum <- sum(trans_matrix[from_stage,], mortality)
-
-      # sum of transition probabilities plus mortality should not exceed 1
-      # unless we're coming from a reproductive stage
-      if (trans_prob_sum > 1 && !str_detect(from_stage, 'r.a')) {
-        stop('transition probability from ',
-             from_stage,
-             ' = ',
-             trans_prob_sum,
-             ', but should be <= 1')
-      }
 
       # The max(0, 1- ...) structure should ensure that survival is between 0
       # and 1. This line also ensures that when a reproductive tick lays
