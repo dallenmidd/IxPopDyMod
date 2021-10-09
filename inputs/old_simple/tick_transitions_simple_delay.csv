@@ -1,9 +1,0 @@
-from, to, transition_fun, delay, source, todo, fecundity, pred1, pred2
-__e, __l, constant_fun, 1, NA, NA, 1, NA, NA
-__e, m, constant_fun, 1, NA, NA, 1, NA, NA
-__l, __n, constant_fun, 1, NA, NA, 1, NA, NA
-__l, m, constant_fun, 1, NA, NA, 1, NA, NA
-__n, __a, constant_fun, 1, NA, NA, 1, NA, NA
-__n, m, constant_fun, 1, NA, NA, 1, NA, NA
-__a, __e, constant_fun, 1, NA, NA, 1000, NA, NA
-__a, m, constant_fun, 1, NA, NA, 1, NA, NA

@@ -1,0 +1,6 @@
+steps: 30
+initial_population:
+  a: 1000
+transitions: data-raw/config_ex_1/transitions_ex_1.csv
+parameters: data-raw/config_ex_1/parameters_ex_1.csv
+

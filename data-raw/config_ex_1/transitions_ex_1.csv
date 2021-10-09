@@ -1,0 +1,9 @@
+from, to, transition_fun, delay, pred1, pred2
+e, l, constant_fun, FALSE, NA, NA 
+e, m, constant_fun, FALSE, NA, NA 
+l, n, constant_fun, FALSE, NA, NA 
+l, m, constant_fun, FALSE, NA, NA 
+n, a, constant_fun, FALSE, NA, NA 
+n, m, constant_fun, FALSE, NA, NA 
+a, e, constant_fun, FALSE, NA, NA 
+a, m, constant_fun, FALSE, NA, NA 
