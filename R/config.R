@@ -327,7 +327,10 @@ run_all_configs <- function(configs, parallel = FALSE) {
 vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
                        host_spp = NA, values) {
 
-  if (!is.na(param_row) && !all(is.na(c(to, from, param_name, host_spp)))) {
+  p <- cfg$parameters
+
+  if ((!is.na(param_row) && !all(is.na(c(to, from, param_name, host_spp)))) ||
+      (is.na(param_row) && any(is.na(c(to, from, param_name))))) {
     stop(
       "vary_param should be called with either param_row; or with to, from,
       param_name and (optionally) host_spp",
@@ -337,12 +340,19 @@ vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
 
   if (!is.na(to))
   {
-    param_row <- which(cfg[['parameters']]$to == to &
-                       cfg[['parameters']]$from == from &
-                       cfg[['parameters']]$param_name == param_name &
-                       (cfg[['parameters']]$host_spp == host_spp |
-                          (is.na(cfg[['parameters']]$host_spp) &
-                             is.na(host_spp))))
+    if ('host_spp' %in% names(p) &&
+        depends_on_hosts(cfg$transitions) &&
+        !is.na(host_spp)) {
+      param_row <- which(p$to == to &
+                           p$from == from &
+                           p$param_name == param_name &
+                           p$host_spp == host_spp)
+    } else {
+      param_row <- which(
+        p$to == to &
+        p$from == from &
+        p$param_name == param_name)
+    }
 
     if (length(param_row) != 1) {
       stop(
@@ -361,7 +371,6 @@ vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
   }
   list_cfg
 }
-
 
 set_param <- function(cfg, param_row, value) {
 
