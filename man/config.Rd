@@ -45,9 +45,9 @@ function that has been loaded into the workspace.
 Functions can take 0-2 predictors, and any number of parameters. Argument
 order matters - all transition functions must start with two predictor
 arguments (even if they are not used within the function), followed by any
-parameters. They must return a numeric vector. See  \code{\link{
-  constant_fun}}, \code{\link{expo_fun}} and \code{\link{infect_fun}} for
-examples for how to write custom functions.
+parameters. They must return a numeric vector. See
+\code{\link{constant_fun}}, \code{\link{expo_fun}} and
+\code{\link{infect_fun}} for examples for how to write custom functions.
 }
 \item{delay}{
 If TRUE, transition is interpreted as a delay, if FALSE, transition is
