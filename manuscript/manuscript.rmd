@@ -12,60 +12,34 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Importance of models for tick populations. They could be used to forecast populations based on climate change, based on differences in host populations, to tick control methods, or interogated to better understand the drivers of tick populations.
+Ticks are obligate, blood-feeding parasites and vectors of important wildlife, livestock and human pathogens (sonenshine2014). It is important to understand tick population dynamics.THis is hard because 
+
+Models for tick populations offer important tools to understand population dynamics. They can be used to understand how tick populations will respond to climate change (ogden2014, winter202, li2016). Models can also be used to test potential tick and tick-borne disease control strategies (mount1997, wang2016). Models can also be used to interrogate theories of tick-borne disease transmission that are hard to address experimentally (ogden2009, levi2016, dunn2013).
+
+There is a long history of modeling tick populations (mount1997, randolph1997, ginsberg1988, haile1987). These models can take a number of different forms ordinary differential equations (maliyoni2017, wallace2019), difference equations (ogden2005), Leslie models (dobson2011, estradapena2014), agent-based (halsey2018) . As with other models there is a tradeoff between model complexity and ability to arrive at analytic results versus the need for simulation. Approximation, such as the next generation matrix, can be used to calcualte the r_0 of either the tick population () or hte tick-borne disease (hartemink2008) for analytic results.
 
 Importance of replicable and reproducible science. How open code fits into this.
 
 Broad philosophy behind our modeling structure. Allows user to easily specify, run, see the results of, and compare tick population models. 
 
-## Model structure
+## Package use
 
-```{r read-code}
-source("core_functions.R")
-source("testing_functions.R")
-```
-
-At a minimum the model requires input files: a `transitions` csv, a `parameters` csv, and a `user-defined-functions` R file. Need to describe what each of these are and their structure. 
-
-# Optional load weather and host community data
-
-## Example 1
-
-Here I am thinking a simple, minimal example. 
-
-```{r ex1-load-inputs}
-
-tick_transitions <- read_csv()
-tick_params <- read_csv()
+```{r load-model}
 
 ```
 
-Set the initial population and test inputs
+# Specific model with `config`
 
-```{r ex1-testinput}
+Required aspects of `config` and then optional aspects. 
 
-initial_population <- rep(0, length(life_stages))
-initial_population['r_a'] <- 10
+# Run, analyze, and graph model
 
-print_all_params()
-test_transitions()
-test_lifecycles()
-
-```
-
-
-Run the model 
-
-```{r ex1-run}
-out <- run(steps, initial_population)
-
-# need simipler functions to process and plot out
-```
-
-Compare two different parameter sets. Maybe with and without tick control.
+# Compare model output with different parameterization
 
 ## Full model example
 
 Here we do the winter tick on moose example. HEre we could use the model to test how climate change affects winter tick populations.
+
+## Conclusions and future directions
 
 ## Appendix 1: reproduce Ogden model
