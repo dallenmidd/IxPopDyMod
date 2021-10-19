@@ -6,93 +6,63 @@ output: github_document
 
 # IxPopDyMod: A framework for Ixodidae Population Dynamics Models
 
-## Install source code
-
-First install the source code off of this page. This includes the three `.R` files. You will also need to load the necessary packages.
-
-```{r, message=FALSE}
-source('core_functions.R')
-source('graphing_functions.R')
-source('testing_functions.R')
-
-library(tidyverse)
-library(tibble)
-library(readr)
-library(magrittr)
-library(dplyr)
-library(stringr)
-library(tidyr)
-library(ggplot2)
-library(igraph)
-library(knitr)
-```
-
- 
-## Specifying the model
-
 This package is designed to help the user specify, run, and then visualize and analyze the results of Ixodidae (hard-bodied ticks) population dynamics models. Such population dynamics models exist in the literature, but the source code to run them is not always available. We wanted to provide an easy way for these models to be written and shared.
 
-To specify the model the user must provide two `.csv` files. One giving the life stage transitions and one giving parameters for the functions describing those transitions. 
+TODO see paper for a full description of the model
 
-```{r message=FALSE}
-tick_transitions <- read_csv('inputs/2021-03-02_Dave_test/tick_transitions.csv')
-tick_params <- read_csv('inputs/2021-03-02_Dave_test/tick_parameters.csv') %>% arrange(host_spp)
-life_stages <- tick_transitions %>% pull(from) %>% unique()
+## Installation
 
+Install the package from the [GitHub](https://github.com/) with: 
+```{r, eval = FALSE}
+# install.packages("remotes")
+remotes::install_github("dallenmidd/IxPopDyMod")
 ```
 
+## Example analysis
 
-### The tick transtions file
+We present an example analysis using a simple model configuration pre-loaded into the package. In this example, we will:
 
+1. Vary a parameter in the model
+2. Run the model with each new parameter value
+3. Calculate the growth rate for each of the model outputs
+4. Graph the population over time for each out of the outputs
+
+```{r warning=FALSE}
+library(IxPopDyMod)
+library(ggplot2)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+### Vary a parameter in the model
+We give a new range of parameter values for number of eggs laid.
 ```{r}
-kable(tick_transitions)
-
+eggs_laid = c(800, 1000, 1200)
+modified_configs <- vary_param(config_ex_1, from = '__a', to = '__e', 
+                               param_name = 'a', values = eggs_laid)
 ```
 
-The life stage is specified with a three character string. The final character is for `e` = egg, `l` = larva, `n` = nymph, and `a` = adult. The middle character is for infected or uninfected. Here we ignore infection so leave it as a `_`. The first character is the sub-stage here we have `q` = questing, `e` = engorged, and `r` = reproductive. Although additional sub-stages are possible. Each row of the transition table represents a separate transition between life stages. These transitions can take either one time step (`delay` = 0) or have some delay (`delay` = 1). A function describes either the probability of that transition (if `delay` = 0) or the daily rate at which the transition happens (if `delay` = 1). This function can have 0-2 predictor variables, which are specified in the `pred1` and `pred2` columns. 
-
-So, for example, here we have a transition from questing larvae to engorged larvae (i.e., host finding and successful feeding), which in this case is a constant function which takes place in one day. In more complicated models this step could be a function of the host community and include the delay of how long feeding takes. The next transition from engorged larvae to questing nymphs (i.e., development and molting) has a delay and the amount of time it takes is given by the `expo_fun` which is driven by temperature.
-
-### Mortality
-
-The transitions which go `to` the stage `m` stand for mortality. If a transition does not have a delay, then individuals in that life stage are assumed to *stay* in that life stage if they do not move to the next life stage or die. So if `q_l` to `e_l` was 0.25 and `q_l` to `m` was 0.05, this would mean 70% of `q_l` stayed in that life stage.
-
-On the other hand if a transition does have a delay it behaves differently. All individuals are assumed to move from that life stage to the next, but with a daily rate give. Mortality is added HOW???. So for example if `e_l` to `q_n` is XXX and `e_l` to `m` is XXX, then XXX.
-
-### Transition functions
-
-Each transition is described by a transition function. These functions must be defined by the user. For example:
-
+### Run the model with each new parameter value
 ```{r}
-expo_fun <- function(x, y, a, b) ifelse(x>0, a*x^b, 0)
+outputs <- run_all_configs(modified_configs)
+outputs[[1]]
 ```
+The model output is a data frame with columns... Since we ran the model with multiple configurations, we get a list of data frames.
 
-Here `x` and `y` are possible predictor variables. In this case `expo_fun` takes just one predictors variable, so `y` is not included in the actual functions. `a` and `b` are parameters which will be given later. These functions allow the user to specify exactly how each transition varies with predictors (e.g., how tick development varies with temperature, how tick questing varies with relative humidity, how host finding varies with host density,...). Here we load these functions from an R script:
-
+### Calculate growth rate for each of the model outputs
 ```{r}
-source('user_defined_functions.R')
+sapply(outputs, growth_rate) 
 ```
+The population is stable with 1000 eggs laid, as indicated by the growth rate `1`. The population decreases with 800 eggs laid, and increases with 1200 eggs laid.
 
-### Parameters for these functions
+### Graph outputs
+To see a breakdown of how the population is changing, we graph the population over time of each age group, for each model output. As expected, there is a cycle with a peak in number of eggs, followed by peaks in larvae, nymph and then adult population.
 
-Now that we have life stage transitions and functions which describe them, we need parameters for those functions. They are given in `tick_params`.
-
-```{r}
-kable(tick_params)
+```{r warning = FALSE}
+names(outputs) <- c('0800 eggs laid', '1000 eggs laid', '1200 eggs laid')
+outputs_stacked <- dplyr::bind_rows(outputs, .id = "id")
+outputs_stacked %>%
+  graph_population_each_group() +
+  facet_wrap(~ id)
 ```
-
-TALK ABOUT how the . works. 
-
-### Troubleshooting
-
-The three testing functions allow you to see whether everythign is expected
-```{r, eval = F}
-print_all_params()
-test_transitions()
-test_lifecycles()
-```
-
-## Running the model
-
 
 
