@@ -1,3 +1,4 @@
+library(IxPopDyMod)
 library(tidyverse)
 library(usethis)
 

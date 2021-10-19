@@ -15,8 +15,4 @@ This model configuration uses only non-delay transitions, and no transitions
 depend on predictors (e.g. weather or host community). Parameter values are
 selected so that the population is stable over time.
 }
-\examples{
-TODO
-
-}
 \keyword{datasets}

@@ -6,8 +6,6 @@
 #'
 #' @format A \code{\link{config}}
 #'
-#' @examples TODO
-#'
 "config_ex_1"
 
 #' Simple model configuration example using delays
@@ -17,7 +15,5 @@
 #' on predictors, and the population is stable over time.
 #'
 #' @format A \code{\link{config}}
-#'
-#' @examples TODO
 #'
 "config_ex_2"

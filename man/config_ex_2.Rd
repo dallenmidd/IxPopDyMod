@@ -15,8 +15,4 @@ This model configuration uses delay transitions for all transitions except
 the adult to eggs transition. As in \code{config_ex_1}, no transitions depend
 on predictors, and the population is stable over time.
 }
-\examples{
-TODO
-
-}
 \keyword{datasets}
