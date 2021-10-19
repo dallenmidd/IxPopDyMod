@@ -4,12 +4,10 @@
 \alias{graph_population_overall_trend}
 \title{Graph overall trend in population}
 \usage{
-graph_population_overall_trend(out_N_df, title = NULL)
+graph_population_overall_trend(output)
 }
 \arguments{
-\item{out_N_df}{Tibble of population size per life stage per day}
-
-\item{title}{Optional title to display on graph}
+\item{output}{Model output; a tibble}
 }
 \value{
 ggplot object

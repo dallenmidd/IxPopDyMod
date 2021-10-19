@@ -4,12 +4,10 @@
 \alias{graph_population_each_group}
 \title{Graph population size of each life stage over time}
 \usage{
-graph_population_each_group(out_N_df, title = NULL)
+graph_population_each_group(output)
 }
 \arguments{
-\item{out_N_df}{Tibble of population size per life stage per day}
-
-\item{title}{Optional title to display on graph}
+\item{output}{Model output; a tibble}
 }
 \value{
 ggplot object
