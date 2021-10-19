@@ -50,7 +50,7 @@ library(dplyr, warn.conflicts = FALSE)
 ### Vary a parameter in the model
 We give a new range of parameter values for number of eggs laid.
 ```{r}
-eggs_laid = c(800, 1000, 1200)
+eggs_laid <- c(800, 1000, 1200)
 modified_configs <- vary_param(config_ex_1, from = '__a', to = '__e', 
                                param_name = 'a', values = eggs_laid)
 ```
