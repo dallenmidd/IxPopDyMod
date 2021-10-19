@@ -4,6 +4,20 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%",
+  fig.width = 16 / 2,
+  fig.height = 9 / 2,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE
+)
+```
+
 # IxPopDyMod: A framework for Ixodidae Population Dynamics Models
 
 This package is designed to help the user specify, run, and then visualize and analyze the results of Ixodidae (hard-bodied ticks) population dynamics models. Such population dynamics models exist in the literature, but the source code to run them is not always available. We wanted to provide an easy way for these models to be written and shared.
@@ -27,7 +41,7 @@ We present an example analysis using a simple model configuration pre-loaded int
 3. Calculate the growth rate for each of the model outputs
 4. Graph the population over time for each out of the outputs
 
-```{r warning=FALSE}
+```{r}
 library(IxPopDyMod)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)

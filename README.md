@@ -53,22 +53,21 @@ modified_configs <- vary_param(config_ex_1, from = '__a', to = '__e',
 ``` r
 outputs <- run_all_configs(modified_configs)
 outputs[[1]]
+#> # A tibble: 116 × 6
+#>      day stage    pop age_group process infected
+#>    <int> <chr>  <dbl> <chr>     <chr>   <lgl>   
+#>  1     1 __e        0 e         _       FALSE   
+#>  2     1 __l        0 l         _       FALSE   
+#>  3     1 __n        0 n         _       FALSE   
+#>  4     1 __a     1000 a         _       FALSE   
+#>  5     2 __e   800000 e         _       FALSE   
+#>  6     2 __l        0 l         _       FALSE   
+#>  7     2 __n        0 n         _       FALSE   
+#>  8     2 __a        0 a         _       FALSE   
+#>  9     3 __e        0 e         _       FALSE   
+#> 10     3 __l   800000 l         _       FALSE   
+#> # … with 106 more rows
 ```
-
-    ## # A tibble: 116 × 6
-    ##      day stage    pop age_group process infected
-    ##    <int> <chr>  <dbl> <chr>     <chr>   <lgl>   
-    ##  1     1 __e        0 e         _       FALSE   
-    ##  2     1 __l        0 l         _       FALSE   
-    ##  3     1 __n        0 n         _       FALSE   
-    ##  4     1 __a     1000 a         _       FALSE   
-    ##  5     2 __e   800000 e         _       FALSE   
-    ##  6     2 __l        0 l         _       FALSE   
-    ##  7     2 __n        0 n         _       FALSE   
-    ##  8     2 __a        0 a         _       FALSE   
-    ##  9     3 __e        0 e         _       FALSE   
-    ## 10     3 __l   800000 l         _       FALSE   
-    ## # … with 106 more rows
 
 The model output is a data frame with columns… Since we ran the model
 with multiple configurations, we get a list of data frames.
@@ -77,9 +76,8 @@ with multiple configurations, we get a list of data frames.
 
 ``` r
 sapply(outputs, growth_rate) 
+#> [1] 0.9457416 1.0000000 1.0466351
 ```
-
-    ## [1] 0.9457416 1.0000000 1.0466351
 
 The population is stable with 1000 eggs laid, as indicated by the growth
 rate `1`. The population decreases with 800 eggs laid, and increases
@@ -101,4 +99,4 @@ outputs_stacked %>%
   facet_wrap(~ id)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
