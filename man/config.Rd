@@ -161,5 +161,5 @@ Delay transitions support two modes of mortality, "m" and "per_capita_m".
 For transitions to "m", the mortality value \code{m} is interpretted as a daily
 probability of mortality for each day in the delay transition. This differs
 from transitions to "per_capita_m", where \code{m} is the total probability of
-mortality over the entire duration of the delay transition.#'
+mortality over the entire duration of the delay transition.'
 }

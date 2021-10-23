@@ -180,7 +180,7 @@ new_config <- function(initial_population, transitions, parameters,
 #' For transitions to "m", the mortality value `m` is interpretted as a daily
 #' probability of mortality for each day in the delay transition. This differs
 #' from transitions to "per_capita_m", where `m` is the total probability of
-#' mortality over the entire duration of the delay transition.#'
+#' mortality over the entire duration of the delay transition.'
 #'
 #' @export
 config <- function(initial_population, transitions, parameters,
