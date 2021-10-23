@@ -30,7 +30,7 @@ pre-loaded into the package. In this example, we will:
 3.  Calculate the growth rate for each of the model outputs
 4.  Graph the population over time for each out of the outputs
 
-<!-- end list -->
+If you wish to create a custom model configuration, see `?config()`.
 
 ``` r
 library(IxPopDyMod)
@@ -40,13 +40,19 @@ library(dplyr, warn.conflicts = FALSE)
 
 ### Vary a parameter in the model
 
-We give a new range of parameter values for number of eggs laid.
+We start with `config_ex_1`, a simple model configuration that doesn’t
+consider infection, and that has four life stages: `__e` for egg, `__l`
+for larvae, `__n` for nymph, and `__a` for adult. We give a new range of
+parameter values for number of eggs laid.
 
 ``` r
-eggs_laid = c(800, 1000, 1200)
+eggs_laid <- c(800, 1000, 1200)
 modified_configs <- vary_param(config_ex_1, from = '__a', to = '__e', 
                                param_name = 'a', values = eggs_laid)
 ```
+
+This gives us a list of three modified model `config`s, which differ
+only in the number of eggs laid.
 
 ### Run the model with each new parameter value
 
@@ -69,8 +75,12 @@ outputs[[1]]
 #> # … with 106 more rows
 ```
 
-The model output is a data frame with columns… Since we ran the model
-with multiple configurations, we get a list of data frames.
+The model output is a data frame where the column `day` indicates Julian
+date, `stage` indicates tick life stage, and `pop` is population size.
+The remaining columns breakdown the `stage` column into it’s constituent
+parts: the `age` and current `process` of a tick, and whether it is
+`infected`. Since we ran the model with multiple configurations, we get
+a list of data frames. Here we inspect only the first.
 
 ### Calculate growth rate for each of the model outputs
 
@@ -79,21 +89,22 @@ sapply(outputs, growth_rate)
 #> [1] 0.9457416 1.0000000 1.0466351
 ```
 
-The population is stable with 1000 eggs laid, as indicated by the growth
-rate `1`. The population decreases with 800 eggs laid, and increases
-with 1200 eggs laid.
+`growth_rate` calculates the multiplicative growth rate for a model
+output. The population is stable with 1000 eggs laid, as indicated by
+the growth rate `1`. The population decreases with 800 eggs laid, and
+increases with 1200 eggs laid.
 
 ### Graph outputs
 
 To see a breakdown of how the population is changing, we graph the
 population over time of each age group, for each model output. As
-expected, there is a cycle with a peak in number of eggs, followed by
-peaks in larvae, nymph and then adult
+expected, for each output there is a cycle with a peak in number of
+eggs, followed by peaks in larvae, nymph and then adult
 population.
 
 ``` r
 names(outputs) <- c('0800 eggs laid', '1000 eggs laid', '1200 eggs laid')
-outputs_stacked <- dplyr::bind_rows(outputs, .id = "id")
+outputs_stacked <- bind_rows(outputs, .id = "id")
 outputs_stacked %>%
   graph_population_each_group() +
   facet_wrap(~ id)
