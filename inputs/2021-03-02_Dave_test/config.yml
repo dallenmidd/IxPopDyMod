@@ -1,0 +1,6 @@
+steps: 500
+initial_population:
+  r_a: 10
+transitions: inputs/2021-03-02_Dave_test/tick_transitions.csv
+parameters: inputs/2021-03-02_Dave_test/tick_parameters.csv
+weather: inputs/2021-04-04_Ogden/ogden_weather.csv

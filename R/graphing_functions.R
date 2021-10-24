@@ -1,21 +1,45 @@
 #' Graph population size of each life stage over time
 #'
-#' @param out_N_df Tibble of population size per life stage per day
-#' @param title Optional title to display on graph
+#' @param output Model output; a tibble
 #' @importFrom ggplot2 ggplot aes geom_point scale_size_manual
-#'   scale_shape_manual geom_line scale_y_log10 geom_hline ggtitle
+#'   scale_shape_manual geom_line scale_y_log10 geom_hline ylab xlab labs
 #' @return ggplot object
 #' @export
-graph_population_each_group <- function(out_N_df, title=NULL) {
-  ggplot(out_N_df, aes(x = .data$day, y = .data$pop, color = .data$process,
-                       shape = .data$age_group, group = .data$stage)) +
-    geom_point(aes(size = infected)) +
-    scale_size_manual(values = c(1, 3)) +
-    scale_shape_manual(values = c(15:18)) +
+graph_population_each_group <- function(output) {
+
+  p <- output %>%
+    ggplot(
+      aes(x = .data$day,
+          y = .data$pop,
+          group = .data$stage)) +
+    scale_y_log10() +
     geom_line() +
-    scale_y_log10(limits = c(-1, 1e+05), breaks = c(10, 100, 1000, 10000, 100000, 1000000)) +
-    geom_hline(yintercept = 1000) +
-    ggtitle(title)
+    geom_point() +
+    ylab('Population') +
+    xlab('Julian day')
+
+  if (length(unique(output$age_group)) > 1) {
+    p <- p +
+      aes(shape = .data$age_group) +
+      labs(shape = "Age group")
+  }
+
+  if (length(unique(output$infected)) == 2) {
+    # 2 unique values: infected or uninfected
+    p <- p +
+      aes(size = .data$infected) +
+      scale_size_manual(1, 3) +
+      labs(size = "Infected")
+  }
+
+  if (length(unique(output$process)) > 1) {
+    p <- p +
+      aes(color = .data$process) +
+      labs(color = "Process")
+  }
+
+  p
+
 }
 
 #' Graph overall trend in population
@@ -23,23 +47,41 @@ graph_population_each_group <- function(out_N_df, title=NULL) {
 #' @details
 #' See roughly whether population is increasing or decreasing.
 #'
-#' @param out_N_df Tibble of population size per life stage per day
-#' @param title Optional title to display on graph
+#' @inheritParams graph_population_each_group
 #'
 #' @importFrom ggplot2 ggplot aes geom_path ylim ggtitle
 #' @importFrom dplyr filter group_by summarise mutate lag
 #'
 #' @return ggplot object
 #' @export
-graph_population_overall_trend <- function(out_N_df, title=NULL) {
-  out_N_df %>%
+graph_population_overall_trend <- function(output) {
+  output %>%
     filter(.data$age_group == 'a') %>%
-    group_by(.data$day) %>%
-    summarise(tot = sum(.data$pop)) %>%
+    group_by(.data$day, .add = TRUE) %>%
+    summarise(tot = sum(.data$pop), .groups = "keep") %>%
     mutate(lambda = .data$tot/lag(.data$tot)) %>%
     filter(is.finite(.data$lambda) ) %>%
     ggplot(aes(.data$day, .data$lambda)) +
     geom_path() +
-    ylim(0, 2) +
-    ggtitle(title)
+    ylim(0, 2)
 }
+
+
+#' Calculate multiplicative growth rate of population
+#'
+#' @importFrom dplyr group_by summarise filter mutate
+#'
+#' @param out Model output data frame
+#' @return Numeric vector of length one representing growth rate
+#' @export
+growth_rate <- function(out) {
+  out %>%
+    group_by(.data$day) %>%
+    summarise(tot = sum(.data$pop)) %>%
+    mutate(lambda = .data$tot/lag(.data$tot)) %>%
+    filter(is.finite(.data$lambda), .data$lambda > 0) %>%
+    summarise(lambda = exp(mean(log(.data$lambda)))) %>%
+    as.numeric()
+}
+
+

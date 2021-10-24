@@ -1,17 +1,17 @@
 from, to, transition_fun, delay, source, pred1, pred2
-__e, q_l, expo_fun, 1, Ogden et al. 2004, temp, NA
-__e, m, constant_fun, 1, Ogden et al. 2005, NA, NA
-q_l, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-q_n, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-q_a, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-e_l, m, constant_fun, 1, Ogden et al. 2005, NA, NA
-e_n, m, constant_fun, 1, Ogden et al. 2005, NA, NA
-e_a, m, constant_fun, 1, Ogden et al. 2005, NA, NA
-r_a, m, constant_fun, 0, Ogden et al. 2005, NA, NA
-q_l, e_l, find_n_feed, 0,, host_den, NA
-e_l, q_n, expo_fun,1,,temp, NA
-q_n, e_n, find_n_feed, 0,, host_den, NA
-e_n, q_a, expo_fun,1,,temp, NA
-q_a, e_a, find_n_feed, 0,, host_den, NA
-e_a, r_a, expo_fun,1,,temp, NA
-r_a, __e, constant_fun,0,,NA, NA
+__e, q_l, expo_fun, TRUE, Ogden et al. 2004, temp, NA
+__e, m, constant_fun, TRUE, Ogden et al. 2005, NA, NA
+q_l, m, constant_fun, FALSE, Ogden et al. 2005, NA, NA
+q_n, m, constant_fun, FALSE, Ogden et al. 2005, NA, NA
+q_a, m, constant_fun, FALSE, Ogden et al. 2005, NA, NA
+e_l, m, constant_fun, TRUE, Ogden et al. 2005, NA, NA
+e_n, m, constant_fun, TRUE, Ogden et al. 2005, NA, NA
+e_a, m, constant_fun, TRUE, Ogden et al. 2005, NA, NA
+r_a, m, constant_fun, FALSE, Ogden et al. 2005, NA, NA
+q_l, e_l, find_n_feed, FALSE,, host_den, NA
+e_l, q_n, expo_fun, TRUE,,temp, NA
+q_n, e_n, find_n_feed, FALSE,, host_den, NA
+e_n, q_a, expo_fun, TRUE,,temp, NA
+q_a, e_a, find_n_feed, FALSE,, host_den, NA
+e_a, r_a, expo_fun, TRUE,,temp, NA
+r_a, __e, constant_fun,FALSE,,NA, NA

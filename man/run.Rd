@@ -4,34 +4,10 @@
 \alias{run}
 \title{Run the model}
 \usage{
-run(
-  steps,
-  initial_population,
-  tick_transitions,
-  tick_params,
-  max_delay,
-  host_comm,
-  weather
-)
+run(cfg)
 }
 \arguments{
-\item{steps}{Numeric vector of length one indicating the duration to run the
-model over in days.}
-
-\item{initial_population}{Named???? numeric vector indicating the starting
-population for each life stage. Length should be equal to the number of
-life stages.}
-
-\item{tick_transitions}{Tick transitions tibble}
-
-\item{tick_params}{Tick parameters tibble}
-
-\item{max_delay}{Numeric vector of length one. Determines the maximum
-number of days that a delayed transition can last.}
-
-\item{host_comm}{Host community tibble.}
-
-\item{weather}{Weather tibble.}
+\item{cfg}{An \code{IxPopDyMod::config} object}
 }
 \value{
 Data frame of population of ticks of each life stage each day

@@ -1,5 +1,13 @@
 #' `config` constructor
-#' Quickly create a new `config` object with minimal checks. Backend use only.
+#'
+#' @description
+#' Quickly create a new `config` object with minimal checks
+#'
+#' @inheritParams config
+#'
+#' @return a `config` object
+#'
+#' @noRd
 new_config <- function(initial_population, transitions, parameters,
                        host_comm, weather, steps, max_delay) {
 
@@ -14,7 +22,7 @@ new_config <- function(initial_population, transitions, parameters,
   stopifnot(is.integer(max_delay))
 
   structure(list(steps = steps,
-                 intial_population = initial_population,
+                 initial_population = initial_population,
                  transitions = transitions,
                  parameters = parameters,
                  host_comm = host_comm,
@@ -23,54 +31,160 @@ new_config <- function(initial_population, transitions, parameters,
             class = 'config')
 }
 
-#' check that a config object is valid
-#' @return Returns the input config object if it passes all the checks
-validate_config <- function(config) {
-
-  if (steps < 0) {
-    stop(
-      "`steps` must be positive",
-      .call = FALSE
-    )
-  }
-
-  # TODO
-  # max_delay must be positive, and length(max_delay) == 1
-  # initial_population must be a named vector with the same names and
-  #   length as get_life_stages(transitions)
-  # make sure there is an initial_population greater than 0 for some life stage?
-  #   and/or that all the names of the intial_population vector are valid life
-  #   stages
-  # transitions must form a closed loop (borrow testing functions code)
-  # functions (e.g. expo_fun) in transitions table are accessible/exist
-  # each function in the transition df has the parameters it needs in the
-  #   parameters df
-  # pred1 and pred2 values are supported by get_pred()
-  # all tibbles must have required columns, with correct types
-  # ...
-
-  config
-}
-
-#' Helper for users to create a `config` object
-#' This function should make it easy for users to create a new `config`, e.g. by
-#' allowing doubles like 365 instead of the integer 365L for steps, max_delay
-#' and initial_population.
-#' @param initial_population Named???? numeric vector indicating the starting
-#'   population for each life stage. Length should be equal to the number of
-#'   life stages.
-#' @param transitions Tick transitions tibble
-#' @param parameters Tick parameters tibble
-#' @param host_comm Host community tibble.
-#' @param weather Weather tibble.
+#' Create a `config` object
+#'
+#' @description
+#' Make a `config` object from the input parameters, and ensure that the inputs
+#' meet the requirements for the model. The returned object is a complete
+#' description of a model run scenario.
+#'
+#' @param transitions A `tibble` in which each row corresponds to a transition
+#' between two tick life stages, or a transition from a tick life stage to
+#' mortality.
+#'
+#' \describe{
+#'   \item{from}{
+#'   Tick life stage a transition is originating from, specified
+#'   with a three character string. The final character specifies stage, with
+#'   "e" = egg, "l" = larva, "n" = nymph, and "a" = adult. The middle character
+#'   specifies infection, with "i" = infected, and "u" = uninfected. The first
+#'   character is the current process or sub-stage, for example "q" = questing,
+#'   "e" = engorged, and "r" = reproductive. We use "`_`" to indicate if any of
+#'   these components is not relevant, for example "`_`" as the second character
+#'   if we are ignoring infection.}
+#'   \item{to}{
+#'   Tick life stage a transition is going to. May be specified with the same
+#'   three character format as the "from" field. Alternatively, may be the one
+#'   of the strings "m" or "per_capita_m" to indicate mortality.
+#'   }
+#'   \item{transition_fun}{
+#'   A string; the name of the function to use to calculate the value of the
+#'   transition. Must either be a function included in the package or a custom
+#'   function that has been loaded into the workspace.
+#'
+#'
+#'   Functions can take 0-2 predictors, and any number of parameters. Argument
+#'   order matters - all transition functions must start with two predictor
+#'   arguments (even if they are not used within the function), followed by any
+#'   parameters. They must return a numeric vector. See
+#'   \code{\link{constant_fun}}, \code{\link{expo_fun}} and
+#'   \code{\link{infect_fun}} for examples for how to write custom functions.
+#'   }
+#'   \item{delay}{
+#'   If TRUE, transition is interpreted as a delay, if FALSE, transition is
+#'   interpreted as a daily probability.
+#'   }
+#'   \item{pred1}{
+#'   Specifies the first predictor to use in a transition function. One of NA,
+#'   "temp", "vpd", "host_den", or a pattern that matches at least one life
+#'   stage.
+#'   }
+#'   \item{pred2}{
+#'   Specifies the second predictor to use in a transition function. Format like
+#'   pred1.
+#'   }
+#' }
+#'
+#' @param parameters A `tibble` of parameters to use in the transitions
+#' described in the transitions table. Each row corresponds to a parameter
+#' value that may be used in one or more transitions. Parameter values will be
+#' used in transitions where the "from" and "to" fields of the two (parameters
+#' and transitions) tables match.
+#'
+#' \describe{
+#'   \item{from}{
+#'   Used to identify the transitions that a parameter should be used for.
+#'   Format like the "from" column in the transitions table, or a regex pattern
+#'   that matches with one or more life stage strings.
+#'   }
+#'   \item{to}{
+#'   Used to identify the transitions that a parameter should be used for.
+#'   Format like the "to" column in the transitions table, or a regex pattern
+#'   that matches with one or more life stage strings.
+#'   }
+#'   \item{param_name}{
+#'   A string specifying the name of the argument in the function where you want
+#'   to use a parameter.
+#'   }
+#'   \item{host_spp}{
+#'   Optional column, not needed for model configurations that do not dependent
+#'   on host community. For a given row, NA if the parameter value is not
+#'   dependent on the host species. Otherwise, a string specifying the name of
+#'   the host species that the parameter value pertains to.
+#'   }
+#'   \item{param_value}{
+#'   Numeric; the value of the parameter
+#'   }
+#' }
+#'
+#' @param host_comm Optionally, a `tibble` of input host community data to be
+#' used as predictor values in transition functions.
+#'
+#' \describe{
+#'   \item{j_day}{Julian day; an integer}
+#'   \item{host_spp}{String specifying a host species}
+#'   \item{host_den}{
+#'   Numeric value indicating the density of species "host_spp" on day "j_day"
+#'   }
+#' }
+#'
+#' @param weather Optionally, a `tibble` of input weather data to be used as
+#' predictor values in transition functions.
+#'
+#' \describe{
+#'   \item{j_day}{Julian day; an integer}
+#'   \item{tmean}{
+#'   Optionally, numeric indicating mean temperature on day "j_day"
+#'   }
+#'   \item{vpd}{
+#'   Optionally, numeric indicating vapour-pressure deficit on day "jday"
+#'   }
+#' }
+#'
 #' @param steps Numeric vector of length one indicating the duration to run the
 #'   model over in days.
+#'
 #' @param max_delay Numeric vector of length one. Determines the maximum
-#' number of days that a delayed transition can last.
+#'   number of days that a delayed transition can last.
+#'
+#' @param initial_population Named numeric vector indicating starting population
+#' for each life stage. Life stages not specified are assumed to be 0.
+#'
 #' @return A `config` object
+#'
+#' @details
+#'
+#' The delay column affects how a transition row is used in the model. In all
+#' cases, a transition row is evaluated with any parameters and predictors,
+#' resulting in a transition value, `t`. If there is another row with the same
+#' "from", but either "m" or "per_capita_m" for the "to" stage, this row
+#' will be evaluated as well, resulting in a mortality transition value, `m`.
+#' Only delay transitions support "per_capita_m".
+#'
+#' In non-delay transitions (where `delay == FALSE`), ticks can either advance
+#' to the "to" stage, die, or remain in the "from" stage. In this case, `t`
+#' is interpretted as the probability that a tick in the "from" stage will
+#' advance to the "to" stage at the next time step. The survival rate, or the
+#' probability that a tick will remain in the same "from" life stage, is
+#' calculated as `1 - (t + m)`.
+#'
+#' In delay transitions (where `delay == TRUE`), ticks can either advance to the
+#' "to" stage, or die - there is no survival. In this case, `t` is used to
+#' determine the number of days until ticks in the "from" stage will emerge as
+#' ticks in the "to" stage. `t` will be vectorized over each day from the
+#' current time step to `max_delay` days ahead. The duration of the transition
+#' (in days) will be the index `i` of the first element in `t` where the
+#' cummulative sum of `t[1:i]` is greater than or equal to 1.
+#'
+#' Delay transitions support two modes of mortality, "m" and "per_capita_m".
+#' For transitions to "m", the mortality value `m` is interpretted as a daily
+#' probability of mortality for each day in the delay transition. This differs
+#' from transitions to "per_capita_m", where `m` is the total probability of
+#' mortality over the entire duration of the delay transition.'
+#'
 #' @export
 config <- function(initial_population, transitions, parameters,
-                   host_comm, weather, steps = 365L, max_delay = 365L) {
+                   host_comm, weather, steps, max_delay = 365L) {
 
   # convert doubles to integers
   ensure_int <- function(x) {
@@ -78,6 +192,10 @@ config <- function(initial_population, transitions, parameters,
       stats::setNames(as.integer(x), names(x))
     }
     x
+  }
+
+  if ('host_spp' %in% names(parameters)) {
+    parameters <- dplyr::arrange(parameters, .data$host_spp)
   }
 
   initial_population <- ensure_int(initial_population)
@@ -91,67 +209,232 @@ config <- function(initial_population, transitions, parameters,
 
 #' create a config object from a yaml file
 #' @importFrom yaml read_yaml
-#' @importFrom readr read_csv
+#' @importFrom readr read_csv cols
+#' @param file YAML file to read
 #' @return A `config` object
 #' @export
 read_config <- function(file) {
 
   # parse the input config file as a named list
-  configuration <- yaml::read_yaml(file)
+  cfg <- yaml::read_yaml(file)
 
   # reshape initial_population from list to named vector
-  configuration$initial_population <- unlist(configuration$initial_population)
+  cfg$initial_population <- unlist(cfg$initial_population)
 
   # convert from paths to dfs
-  configuration$transitions <- read_csv(configuration$transitions, show_col_types = FALSE)
-  configuration$parameters <- read_csv(configuration$parameters, show_col_types = FALSE)
-  configuration$host_comm <- read_csv(configuration$host_comm, show_col_types = FALSE)
-  configuration$weather <- read_csv(configuration$weather, show_col_types = FALSE)
+  cfg$transitions <- read_csv(cfg$transitions, col_types = cols())
+  cfg$parameters <- read_csv(cfg$parameters, col_types = cols())
+  cfg$host_comm <- read_csv(cfg$host_comm, col_types = cols())
+  cfg$weather <- read_csv(cfg$weather, col_types = cols())
 
   # use this named list as the arguments to constructing a config object
-  do.call(config, configuration)
+  do.call(config, cfg)
 }
 
-#' convert a config object back to a YAML file
-#' TODO Behavior for this would probably be weird and low priority.
-#' How would we handle the dfs that are part of the config object? Have
-#' param for this function for path to each csv? Write those csvs from the dfs
-#' in the config object, or assume they are already there?
-#' @param file Path to the output YAML config file
-write_config <- function(file) {}
+#' Save a `config` object as files
+#'
+#' @description
+#' Write a `config` object as a YAML file, and write all dataframe
+#' components (transitions, parameters, weather, host_comm) as csv files. All
+#' paths must be explicitly specified as arguments. This function will not
+#' allow overwriting files.
+#'
+#' @param cfg A `config` object
+#' @param config_path Path to the output YAML config file
+#' @param transitions_path Path to output transitions csv
+#' @param parameters_path Path to output parameters csv
+#' @param weather_path Path to output weather csv
+#' @param host_comm_path Path to output host_comm csv
+#'
+#' @export
+write_config <- function(cfg, config_path, transitions_path, parameters_path,
+                         weather_path, host_comm_path) {
+
+  for (f in c(config_path, transitions_path, parameters_path, weather_path,
+              host_comm_path)) {
+    if (file.exists(f)) {
+      stop(
+        paste0('Cannot write "', f, '", file already exists'),
+        call. = FALSE
+      )
+    }
+  }
+
+  yaml::write_yaml(
+    x = list(
+      steps = cfg$steps,
+      max_delay = cfg$max_delay,
+      initial_population = as.list(cfg$initial_population),
+      transitions = transitions_path,
+      parameters = parameters_path,
+      weather = weather_path,
+      host_comm = host_comm_path
+      ),
+    file = config_path
+  )
+
+  readr::write_csv(cfg$transitions, transitions_path)
+  readr::write_csv(cfg$parameters, parameters_path)
+  readr::write_csv(cfg$weather, weather_path)
+  readr::write_csv(cfg$host_comm, host_comm_path)
+}
 
 
-##########################
+#' Run the model for each config
+#'
+#' @description
+#' Simple convenience wrapper for calling run on each `config` in a list
+#'
+#' @param configs List of `config` objects
+#' @param parallel Logical; if TRUE, run on all cores using `parallel` package.
+#'
+#' @return A list of data frame model outputs like those returned by `run()`
+#'
+#' @export
+run_all_configs <- function(configs, parallel = FALSE) {
 
-#' Run each config and return a df for comparing the outputs
-#' @return df like the output from run, but with a column each for each config
-run_all_configs <- function() {}
+  if (parallel) {
+    n_cores <- parallel::detectCores()
+    parallel::mcmapply(run, configs, mc.cores = n_cores,
+                            SIMPLIFY = FALSE)
+  } else {
+    sapply(configs, run, simplify = FALSE)
+  }
+}
 
-#' Generate copies of a config with a modified parameter
-#' TODO locate parameter by row in parameters table or filtering
-#' with from, to, param_name, and host_spp?
-#' @param config base configuration to make modified copies of
-#' @param param_row row number of parameter to vary
+
+
+#' Generate copies of a `config` with a modified parameter
+#'
+#' @description
+#' Create copies of a `config` with a modified parameter. These new
+#' `config`s can be used to see how that parameter affects the model
+#'
+#' @param cfg Base `config` to make modified copies of
+#' @param param_row Row number of parameter to vary, if this is specified
+#'   arguments from, to, param_name, and host_spp are unneeded
+#' @param from The from life stage from of the parameter to change. If this is
+#'   given, to and param_name are also needed.
+#' @param to The to life stage of the parameter to change.
+#' @param param_name The name of the parameter to change
+#' @param host_spp The host_spp identifying the parameter to change. Needed only
+#'   if there are multiple rows in the parameter table with the same from, to
+#'   and param_name, but different host_spp.
 #' @param values Numeric vector of values to use for parameter
-vary_param <- function(config, param_row, values)
+#' @return A list of `config`s
+#'
+#' @export
+vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
+                       host_spp = NA, values) {
 
+  p <- cfg$parameters
 
-#' Generate an array/grid of configs modifying each parameter along its own
-#' sequence of values
-vary_many_params <- function() {}
+  if ((!is.na(param_row) && !all(is.na(c(to, from, param_name, host_spp)))) ||
+      (is.na(param_row) && any(is.na(c(to, from, param_name))))) {
+    stop(
+      "vary_param should be called with either param_row; or with to, from,
+      param_name and (optionally) host_spp",
+      call. = FALSE
+    )
+  }
 
-# We agreed that any changes we'd want to do to tick_transitions would be manual
-# I think it is similar for host_comm and weather. For weather, we might want to
-# compare weather between a few different IUCN climate scenarios - which would
-# require manually downloading that data and formatting weather csvs for each
-# scenario - I don't think there's a standardized way that we'd want to vary
-# the weather input. Same goes for host_den. For example we might want to compare
-# a few different rodent communities, but it would make more sense to manually
-# create these different host_comm dfs
+  if (!is.na(to))
+  {
+    if ('host_spp' %in% names(p) &&
+        depends_on_hosts(cfg$transitions) &&
+        !is.na(host_spp)) {
+      param_row <- which(p$to == to &
+                           p$from == from &
+                           p$param_name == param_name &
+                           p$host_spp == host_spp)
+    } else {
+      param_row <- which(
+        p$to == to &
+        p$from == from &
+        p$param_name == param_name)
+    }
 
-# example use:
-if (FALSE) {
-  ex_config <- read_config('inputs/config.yml')
-  ex_config
+    if (length(param_row) != 1) {
+      stop(
+        "to, from, param_name and (optionally) host_spp must identify exactly 1
+        parameter row. Found rows: ", paste(param_row, collapse = ', '),
+        call. = FALSE
+      )
+    }
+  }
+
+  list_cfg <- list()
+  counter <- 1
+  for (v in values){
+    list_cfg[[counter]] <- set_param(cfg, param_row, v)
+    counter <- counter + 1
+  }
+  list_cfg
 }
 
+set_param <- function(cfg, param_row, value) {
+
+  cfg$parameters[param_row, 'param_value'] <- value
+
+  # The only validation check that changing a parameter value might break
+  # is the value of an evaluated transition row. Therefore, we run this check
+  # rather than all the checks in validate_config()
+  tryCatch(
+    # This test identifies the errors by the *transitions* row that caused the
+    # error, which is not very helpful when we are changing *parameters*. We
+    # add to that behavior by also identifying the offending parameter
+    test_transition_values(cfg),
+    error = function(e) {
+      e$message <-paste(
+        "Setting parameter in row", param_row, "to value", value,
+        "resulted in an invalid transition value.", e$message)
+      stop(e)
+    }
+  )
+
+  cfg
+}
+
+
+#' Generate copies of a `config` with all combinations of modified parameters
+#'
+#' @inheritParams vary_param
+#'
+#' @param param_rows Numeric vector indicating the rows in the parameters
+#'   table where parameter values should be modified. Length must equal length
+#'   of values_list
+#'
+#' @param values_list List of numeric vectors. The values of a vector
+#'   `values_list[[i]]` are the parameter values to use for the parameter
+#'   identified by `param_rows[[i]]`
+#'
+#' @return A list of `config`s
+#'
+#' @export
+vary_many_params <- function(cfg, param_rows, values_list) {
+
+  if ((l <- length(param_rows)) != length(values_list)) {
+    stop(
+      'param_rows and values_list must have equal lengths',
+      call. = FALSE
+    )
+  }
+
+  i <- 1
+  cfgs <- list(cfg)
+
+  while (i <= l) {
+
+    cfgs <- lapply(cfgs, function(x) {
+      vary_param(cfg = x,
+                 param_row = param_rows[[i]],
+                 values = values_list[[i]])
+    })
+
+    cfgs <- unlist(cfgs, recursive = FALSE)
+
+    i <- i + 1
+  }
+
+  cfgs
+}

@@ -30,4 +30,7 @@ Imports:
     stringr,
     dplyr,
     tidyr,
-    igraph
+    igraph,
+    readr,
+    yaml,
+    tibble
