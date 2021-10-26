@@ -438,3 +438,25 @@ vary_many_params <- function(cfg, param_rows, values_list) {
 
   cfgs
 }
+
+
+#' Visualize transitions as a life cycle graph
+#'
+#' @details
+#' This function could be used to visually confirm that a custom `config` has
+#' all the transitions intended
+#'
+#' @param transitions Tick transitions tibble
+#'
+#' @importFrom dplyr pull filter select
+#' @importFrom igraph graph_from_data_frame
+#' @export
+#' @examples
+#' graph_lifecycle(config_ex_1$transitions)
+graph_lifecycle <- function(transitions) {
+  transitions %>%
+    select(.data$from, .data$to) %>%
+    filter(.data$to %in% get_life_stages(transitions)) %>%
+    graph_from_data_frame() %>%
+    plot(edge.arrow.size = 0.5)
+}
