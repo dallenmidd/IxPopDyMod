@@ -661,7 +661,6 @@ get_params <- function(from, to, parameters = tick_params) {
 # that is a named list of the parameters for each transition
 add_params_list <- function(tick_transitions, parameters = tick_params) {
 
-  # TODO should be a vectorized approach
   params_list <- list()
 
     for (i in 1:nrow(tick_transitions)) {

@@ -478,8 +478,5 @@ validate_config <- function(cfg) {
 
   test_transition_values(cfg)
 
-  # TODO Myles
-  # transitions must form a closed loop (borrow testing functions code)
-
   cfg
 }
