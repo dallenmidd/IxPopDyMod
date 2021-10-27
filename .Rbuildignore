@@ -1,3 +1,10 @@
 ^IxPopDyMod\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^README\.Rmd$
+^data-raw$
+^manuscript$
+^benchmarking$
+^inputs$
+^outputs$
+^sources\.csv$

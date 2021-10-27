@@ -11,7 +11,11 @@ Authors@R:
            role = c("aut"),
            email = "dallen@middlebury.edu",
            comment = c(ORCID = "0000-0002-0712-9603")))
-Description: What the package does (one paragraph).
+Description: Specify, run, and then 
+    visualize and analyze the results of Ixodidae (hard-bodied ticks) population
+    dynamics models. Such population dynamics models exist in the literature, 
+    but the source code to run them is not always available. We wanted to 
+    provide an easy way for these models to be written and shared.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
