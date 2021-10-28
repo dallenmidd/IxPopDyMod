@@ -1,5 +1,5 @@
 Package: IxPopDyMod
-Title: Framework for Tick Population and Infection Modelling
+Title: Framework for Tick Population and Infection Modeling
 Version: 0.1.0
 Authors@R: 
     c(person(given = "Myles",
@@ -12,11 +12,11 @@ Authors@R:
            email = "dallen@middlebury.edu",
            comment = c(ORCID = "0000-0002-0712-9603")))
 Maintainer: Myles Stokowski <mylesstokowski@gmail.com>
-Description: Specify, run, and then 
-    visualize and analyze the results of Ixodidae (hard-bodied ticks) population
-    dynamics models. Such population dynamics models exist in the literature, 
-    but the source code to run them is not always available. We wanted to 
-    provide an easy way for these models to be written and shared.
+Description: Code to specify, run, and then visualize and analyze the results of 
+    Ixodidae (hard-bodied ticks) population and infection dynamics models. Such 
+    models exist in the literature, but the source code to run them is not 
+    always available. 'IxPopDyMod' provides an easy way for these models to be 
+    written and shared.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
