@@ -8,3 +8,5 @@
 ^inputs$
 ^outputs$
 ^sources\.csv$
+^cran-comments\.md$
+^scripts$

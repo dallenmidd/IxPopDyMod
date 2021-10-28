@@ -65,7 +65,7 @@ grid.arrange(merged4a, merged4b, merged4c)
 # faster and decrease is slower, but I think that is because of how
 # we define questing ticks -- as ticks that are ready to quest
 # and may or may not be actively questing on any given day. I'm pretty
-# sure Ogden is modelling number of actively questing ticks on a
+# sure Ogden is modeling number of actively questing ticks on a
 # given day, because that is what you can compare to the number of
 # questing ticks collected in the field through drag sampling.
 

@@ -163,7 +163,7 @@ new_config <- function(initial_population, transitions, parameters,
 #'
 #' In non-delay transitions (where `delay == FALSE`), ticks can either advance
 #' to the "to" stage, die, or remain in the "from" stage. In this case, `t`
-#' is interpretted as the probability that a tick in the "from" stage will
+#' is interpreted as the probability that a tick in the "from" stage will
 #' advance to the "to" stage at the next time step. The survival rate, or the
 #' probability that a tick will remain in the same "from" life stage, is
 #' calculated as `1 - (t + m)`.
@@ -174,10 +174,10 @@ new_config <- function(initial_population, transitions, parameters,
 #' ticks in the "to" stage. `t` will be vectorized over each day from the
 #' current time step to `max_delay` days ahead. The duration of the transition
 #' (in days) will be the index `i` of the first element in `t` where the
-#' cummulative sum of `t[1:i]` is greater than or equal to 1.
+#' cumulative sum of `t[1:i]` is greater than or equal to 1.
 #'
 #' Delay transitions support two modes of mortality, "m" and "per_capita_m".
-#' For transitions to "m", the mortality value `m` is interpretted as a daily
+#' For transitions to "m", the mortality value `m` is interpreted as a daily
 #' probability of mortality for each day in the delay transition. This differs
 #' from transitions to "per_capita_m", where `m` is the total probability of
 #' mortality over the entire duration of the delay transition.'

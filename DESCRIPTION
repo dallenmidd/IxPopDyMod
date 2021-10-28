@@ -1,16 +1,17 @@
 Package: IxPopDyMod
 Title: Framework for Tick Population and Infection Modelling
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     c(person(given = "Myles",
            family = "Stokowski",
            role = c("aut", "cre"),
-           email = "mstokowski@middlebury.edu"),
+           email = "mylesstokowski@gmail.com"),
       person(given = "David",
            family = "Allen",
            role = c("aut"),
            email = "dallen@middlebury.edu",
            comment = c(ORCID = "0000-0002-0712-9603")))
+Maintainer: Myles Stokowski <mylesstokowski@gmail.com>
 Description: Specify, run, and then 
     visualize and analyze the results of Ixodidae (hard-bodied ticks) population
     dynamics models. Such population dynamics models exist in the literature, 
@@ -20,13 +21,13 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 URL: https://github.com/dallenmidd/IxPopDyMod
 Depends:
     R (>= 3.2.4)
 Suggests: 
     knitr,
-    rmarkdown,
+    rmarkdown
 Imports: 
     magrittr,
     rlang,
@@ -38,3 +39,4 @@ Imports:
     readr,
     yaml,
     tibble
+Language: en-US
