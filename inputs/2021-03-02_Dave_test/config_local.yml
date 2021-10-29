@@ -1,0 +1,6 @@
+steps: 730
+initial_population:
+  r_a: 10
+transitions: tick_transitions.csv
+parameters: tick_parameters.csv
+weather: weather.csv
