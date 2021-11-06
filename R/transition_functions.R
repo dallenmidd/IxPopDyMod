@@ -159,6 +159,9 @@ infect_fun <- function(x, y, from_infected, to_infected, host_rc, pref) {
 #' @param pref Parameters named `pref` in parameters table. Numeric vector of
 #'   length equal to the number of host species. Values are the preference for
 #'   ticks in a given transition for each host species.
+#'
+#' @return Numeric vector of length 1, indicating mortality rate
+#'
 #' @export
 density_fun <- function(x, y, a, b, c, pref)
   sum((a + (b * log((c + y * pref * x / sum(pref * x)) / x)))

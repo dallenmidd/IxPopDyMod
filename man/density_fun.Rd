@@ -24,6 +24,9 @@ stages specified by predictor 2.}
 length equal to the number of host species. Values are the preference for
 ticks in a given transition for each host species.}
 }
+\value{
+Numeric vector of length 1, indicating mortality rate
+}
 \description{
 Density dependent mortality
 }

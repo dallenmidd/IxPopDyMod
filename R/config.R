@@ -246,6 +246,8 @@ read_config <- function(file) {
 #' @param weather_path Path to output weather csv
 #' @param host_comm_path Path to output host_comm csv
 #'
+#' @return None, writes config components to disk
+#'
 #' @export
 write_config <- function(cfg, config_path, transitions_path, parameters_path,
                          weather_path, host_comm_path) {
@@ -277,6 +279,8 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
   readr::write_csv(cfg$parameters, parameters_path)
   readr::write_csv(cfg$weather, weather_path)
   readr::write_csv(cfg$host_comm, host_comm_path)
+
+  return(NULL)
 }
 
 
@@ -451,6 +455,9 @@ vary_many_params <- function(cfg, param_rows, values_list) {
 #' @importFrom dplyr pull filter select
 #' @importFrom igraph graph_from_data_frame
 #' @export
+#'
+#' @return None, plots a life cycle graph
+#'
 #' @examples
 #' graph_lifecycle(config_ex_1$transitions)
 graph_lifecycle <- function(transitions) {

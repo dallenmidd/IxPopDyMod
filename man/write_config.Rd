@@ -26,6 +26,9 @@ write_config(
 
 \item{host_comm_path}{Path to output host_comm csv}
 }
+\value{
+None, writes config components to disk
+}
 \description{
 Write a \code{config} object as a YAML file, and write all dataframe
 components (transitions, parameters, weather, host_comm) as csv files. All
