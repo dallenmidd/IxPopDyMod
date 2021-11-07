@@ -236,6 +236,12 @@ config <- function(initial_population, transitions, parameters,
 #' @importFrom readr read_csv cols
 #' @param file YAML file to read
 #' @return A `config` object
+#'
+#' @examples
+#' \dontrun{
+#' read_config('cfg.yml')
+#' }
+#'
 #' @export
 read_config <- function(file) {
 
@@ -271,6 +277,13 @@ read_config <- function(file) {
 #' @param host_comm_path Path to output host_comm csv
 #'
 #' @return None, writes config components to disk
+#'
+#' @examples
+#'
+#' \dontrun{
+#' write_config(config_ex_1, 'cfg.yml', 'trans.csv', 'params.csv',
+#'              'weather.csv', 'host_comm.csv')
+#' }
 #'
 #' @export
 write_config <- function(cfg, config_path, transitions_path, parameters_path,

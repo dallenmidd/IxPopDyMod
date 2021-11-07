@@ -11,6 +11,9 @@
 #'
 #' @return Numeric vector of length 1
 #'
+#' @examples
+#' expo_fun(.5, NULL, .1, .3)
+#'
 #' @export
 expo_fun <- function(x, y, a, b) ifelse(x>0, a*x^b, 0)
 
@@ -21,6 +24,8 @@ expo_fun <- function(x, y, a, b) ifelse(x>0, a*x^b, 0)
 #'
 #' @return Numeric vector of length 1 equal to input parameter `a`
 #'
+#' @examples
+#' constant_fun(NULL, NULL, 1)
 #' @export
 constant_fun <- function(x, y, a) a
 
@@ -40,6 +45,10 @@ constant_fun <- function(x, y, a) a
 #'
 #' @return Numeric vector of length 1 indicating probability that ticks find any
 #'   host and then successfully feed on that host.
+#'
+#' @examples
+#' find_n_feed(10, NULL, .1, 1, .5)
+#' find_n_feed(runif(2) * 10, NULL, .1, runif(2), runif(2))
 #'
 #' @export
 find_n_feed <- function(x, y, a, pref, feed_success) {
@@ -75,6 +84,9 @@ find_n_feed <- function(x, y, a, pref, feed_success) {
 #'
 #' @return Numeric vector of length 1
 #'
+#' @examples
+#' feed_fun(10, 30, .001, .1, .5, 20, 40)
+#'
 #' @export
 feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 
@@ -90,6 +102,9 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 #' @details
 #'  (const prob of finding a host) * (prob of active questing)
 #'
+#' @references
+#' Based on Ogden et al. (2005) <doi:10.1016/j.ijpara.2004.12.013>
+#'
 #' @param x Predictor 1 in transitions table. Numeric vector of length 1
 #'   indicating temperature.
 #' @param y Predictor 2 in transitions table. Not used in this function.
@@ -101,6 +116,9 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 #'   temperature at which ticks actively quest.
 #'
 #' @return Numeric vector of length 1
+#'
+#' @examples
+#' ogden_feed_fun(30, NULL, .03, .01, 10, 35)
 #'
 #' @export
 ogden_feed_fun <- function(x, y, a, q, tmin, tmax)
@@ -128,7 +146,13 @@ ogden_feed_fun <- function(x, y, a, q, tmin, tmax)
 #'   length equal to the number of host species. Values are the preference for
 #'   ticks in a given transition for each host species.
 #'
+#'
 #' @return Numeric vector of length 1
+#'
+#' @examples
+#' infect_fun(10, NULL, 0, 0, .3, 1)
+#' infect_fun(10, NULL, 0, 1, .3, 1)
+#' infect_fun(10, NULL, 1, 1, .3, 1)
 #'
 #' @export
 infect_fun <- function(x, y, from_infected, to_infected, host_rc, pref) {
@@ -161,6 +185,9 @@ infect_fun <- function(x, y, from_infected, to_infected, host_rc, pref) {
 #'   ticks in a given transition for each host species.
 #'
 #' @return Numeric vector of length 1, indicating mortality rate
+#'
+#' @examples
+#' density_fun(c(10, 20), 100, .1, .3, .2, c(.5, .8))
 #'
 #' @export
 density_fun <- function(x, y, a, b, c, pref)

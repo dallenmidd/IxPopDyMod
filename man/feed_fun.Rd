@@ -38,3 +38,7 @@ Probability of actively questing and then finding a host
 Product of binomial and Briere functions
 (prob of finding a host) * (prob of active questing)
 }
+\examples{
+feed_fun(10, 30, .001, .1, .5, 20, 40)
+
+}

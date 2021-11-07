@@ -31,3 +31,8 @@ host and then successfully feed on that host.
 \description{
 Probability of finding a host and successfully feeding on it
 }
+\examples{
+find_n_feed(10, NULL, .1, 1, .5)
+find_n_feed(runif(2) * 10, NULL, .1, runif(2), runif(2))
+
+}

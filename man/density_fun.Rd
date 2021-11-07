@@ -30,3 +30,7 @@ Numeric vector of length 1, indicating mortality rate
 \description{
 Density dependent mortality
 }
+\examples{
+density_fun(c(10, 20), 100, .1, .3, .2, c(.5, .8))
+
+}

@@ -15,3 +15,9 @@ A \code{config} object
 \description{
 create a config object from a yaml file
 }
+\examples{
+\dontrun{
+read_config('cfg.yml')
+}
+
+}
