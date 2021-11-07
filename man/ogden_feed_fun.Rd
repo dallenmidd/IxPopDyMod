@@ -35,6 +35,6 @@ Probability of actively questing times constant host finding probability
 ogden_feed_fun(30, NULL, .03, .01, 10, 35)
 
 }
-\references{
-Based on Ogden et al. (2005) \url{doi:10.1016/j.ijpara.2004.12.013}
+\seealso{
+Based on Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
 }

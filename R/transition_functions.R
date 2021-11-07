@@ -102,8 +102,8 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 #' @details
 #'  (const prob of finding a host) * (prob of active questing)
 #'
-#' @references
-#' Based on Ogden et al. (2005) <doi:10.1016/j.ijpara.2004.12.013>
+#' @seealso
+#' Based on Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
 #'
 #' @param x Predictor 1 in transitions table. Numeric vector of length 1
 #'   indicating temperature.
