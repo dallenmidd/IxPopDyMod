@@ -15,3 +15,8 @@ ggplot object
 \description{
 Graph population size of each life stage over time
 }
+\examples{
+out <- run(config_ex_1)
+graph_population_each_group(out)
+
+}

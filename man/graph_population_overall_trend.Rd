@@ -16,5 +16,16 @@ ggplot object
 Graph overall trend in population
 }
 \details{
-See roughly whether population is increasing or decreasing.
+See roughly whether population is increasing or decreasing. Calculates and
+plots the rate of change in number of adult ticks between consecutive days.
+}
+\examples{
+
+# Make a new config that results in a population where some ticks remain
+# in their life stage for multiple days.
+my_config <- config_ex_1
+my_config$parameters$param_value <- c(0.5, 0, 0.01, 0.95, 0.1, 0.8, 900, 0)
+out <- run(my_config)
+graph_population_overall_trend(out)
+
 }

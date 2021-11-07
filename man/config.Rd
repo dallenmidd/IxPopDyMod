@@ -163,3 +163,27 @@ probability of mortality for each day in the delay transition. This differs
 from transitions to "per_capita_m", where \code{m} is the total probability of
 mortality over the entire duration of the delay transition.'
 }
+\examples{
+
+# We rebuild an example config from its constituent parts. This is successful as
+# expected, because we're just making a config that's identical to an example.
+do.call(config, config_ex_1)
+
+# If we modify the config to something unsuitable, the function will complain.
+# For example, if we modify the egg to larvae transition to use a different
+# function that requires an additional parameter.
+
+# We define a super simple function that takes two parameters.
+prod_fun <- function(x, y, a, b) a * b
+
+my_config <- config_ex_1
+my_config$transitions[1, 3] <- 'prod_fun'
+# do.call(config, my_config) # not run, will throw an error
+
+
+# Config will report that parameter "b" is missing for the exponential function.
+# Adding the parameter should fix the config
+my_config$parameters[9,] <- list(from = '__e', to = '__l', param_name = 'b',
+                                 param_value = 1)
+my_config <- do.call(config, my_config)
+}

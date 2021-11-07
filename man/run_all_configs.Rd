@@ -17,3 +17,10 @@ A list of data frame model outputs like those returned by \code{run()}
 \description{
 Simple convenience wrapper for calling run on each \code{config} in a list
 }
+\examples{
+# run two example configs and save results
+
+\dontrun{
+outputs <- run_all_configs(list(config_ex_1, config_ex_2))
+}
+}

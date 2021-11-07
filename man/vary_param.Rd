@@ -40,3 +40,14 @@ A list of \code{config}s
 Create copies of a \code{config} with a modified parameter. These new
 \code{config}s can be used to see how that parameter affects the model
 }
+\examples{
+
+# create new configs with different values for the parameter determining
+# mortality of eggs (which is found in row 2)
+cfgs <- vary_param(config_ex_1, param_row = 2, values = c(0, 0.1, 0.2))
+
+# inspect parameter row 2 in each of the new configs to verify that we have
+# the new values
+lapply(cfgs, function(cfg) cfg$parameters[[2, 'param_value']])
+
+}

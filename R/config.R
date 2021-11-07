@@ -183,6 +183,30 @@ new_config <- function(initial_population, transitions, parameters,
 #' mortality over the entire duration of the delay transition.'
 #'
 #' @export
+#'
+#' @examples
+#'
+#' # We rebuild an example config from its constituent parts. This is successful as
+#' # expected, because we're just making a config that's identical to an example.
+#' do.call(config, config_ex_1)
+#'
+#' # If we modify the config to something unsuitable, the function will complain.
+#' # For example, if we modify the egg to larvae transition to use a different
+#' # function that requires an additional parameter.
+#'
+#' # We define a super simple function that takes two parameters.
+#' prod_fun <- function(x, y, a, b) a * b
+#'
+#' my_config <- config_ex_1
+#' my_config$transitions[1, 3] <- 'prod_fun'
+#' # do.call(config, my_config) # not run, will throw an error
+#'
+#'
+#' # Config will report that parameter "b" is missing for the exponential function.
+#' # Adding the parameter should fix the config
+#' my_config$parameters[9,] <- list(from = '__e', to = '__l', param_name = 'b',
+#'                                  param_value = 1)
+#' my_config <- do.call(config, my_config)
 config <- function(initial_population, transitions, parameters,
                    host_comm, weather, steps, max_delay = 365L) {
 
@@ -295,6 +319,13 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
 #' @return A list of data frame model outputs like those returned by `run()`
 #'
 #' @export
+#'
+#' @examples
+#' # run two example configs and save results
+#'
+#' \dontrun{
+#' outputs <- run_all_configs(list(config_ex_1, config_ex_2))
+#' }
 run_all_configs <- function(configs, parallel = FALSE) {
 
   if (parallel) {
@@ -326,6 +357,16 @@ run_all_configs <- function(configs, parallel = FALSE) {
 #'   and param_name, but different host_spp.
 #' @param values Numeric vector of values to use for parameter
 #' @return A list of `config`s
+#'
+#' @examples
+#'
+#' # create new configs with different values for the parameter determining
+#' # mortality of eggs (which is found in row 2)
+#' cfgs <- vary_param(config_ex_1, param_row = 2, values = c(0, 0.1, 0.2))
+#'
+#' # inspect parameter row 2 in each of the new configs to verify that we have
+#' # the new values
+#' lapply(cfgs, function(cfg) cfg$parameters[[2, 'param_value']])
 #'
 #' @export
 vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
@@ -413,6 +454,19 @@ set_param <- function(cfg, param_row, value) {
 #'   identified by `param_rows[[i]]`
 #'
 #' @return A list of `config`s
+#'
+#' @examples
+#'
+#' # create new configs with different values for the parameter determining
+#' # mortality of eggs (which is found in row 2) and that determining
+#' # mortality of larvae (which is found in row 4)
+#' cfgs <- vary_many_params(config_ex_1,
+#'                         param_rows = c(2, 4),
+#'                         values_list = list(c(0, 0.1), c(.99, .98)))
+#'
+#' # inspect parameter rows 2 and 4 in each of the new configs to verify that we
+#' # have the new values
+#' lapply(cfgs, function(cfg) cfg$parameters[c(2, 4), 'param_value'])
 #'
 #' @export
 vary_many_params <- function(cfg, param_rows, values_list) {

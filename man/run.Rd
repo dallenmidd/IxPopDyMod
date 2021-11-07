@@ -15,3 +15,7 @@ Data frame of population of ticks of each life stage each day
 \description{
 Run the model
 }
+\examples{
+run(config_ex_1)
+
+}
