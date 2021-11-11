@@ -19,3 +19,6 @@ Numeric vector of length 1 equal to input parameter \code{a}
 \description{
 Constant function
 }
+\examples{
+constant_fun(NULL, NULL, 1)
+}

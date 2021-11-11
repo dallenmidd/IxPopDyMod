@@ -1,3 +1,12 @@
+## Resubmission
+This is a resubmission. In this version I have: 
+
+* added a reference describing ogden_feed_fun() in that function's documentation. There are no existing references that comprehensively describe the methods in our package. We plan to write a paper describing the package, and when available, cite it in the description field of the DESCRIPTION file.
+
+* added executable examples to exported functions
+
+* added \value to .Rd files regarding exported methods
+
 ## Test environments
 
 * local macOS install, R 4.1.1
@@ -27,4 +36,5 @@
 NOTES:
 
 + Possibly mis-spelled words in DESCRIPTION: Ixodidae (16:42)
+
  

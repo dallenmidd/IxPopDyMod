@@ -31,3 +31,10 @@ Probability of actively questing times constant host finding probability
 \details{
 (const prob of finding a host) * (prob of active questing)
 }
+\examples{
+ogden_feed_fun(30, NULL, .03, .01, 10, 35)
+
+}
+\seealso{
+Based on Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
+}

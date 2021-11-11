@@ -414,6 +414,9 @@ add_params_list <- function(tick_transitions, parameters) {
 #'
 #' @return Data frame of population of ticks of each life stage each day
 #'
+#' @examples
+#' run(config_ex_1)
+#'
 #' @export
 run <- function(cfg) {
 

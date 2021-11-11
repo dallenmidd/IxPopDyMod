@@ -38,3 +38,9 @@ Since density dependent mortality is subtracted later, in this
 function we assume that all feeding ticks feed successfully and become
 engorged.
 }
+\examples{
+infect_fun(10, NULL, 0, 0, .3, 1)
+infect_fun(10, NULL, 0, 1, .3, 1)
+infect_fun(10, NULL, 1, 1, .3, 1)
+
+}

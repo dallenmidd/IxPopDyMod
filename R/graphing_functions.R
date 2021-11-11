@@ -4,6 +4,11 @@
 #' @importFrom ggplot2 ggplot aes geom_point scale_size_manual
 #'   scale_shape_manual geom_line scale_y_log10 geom_hline ylab xlab labs
 #' @return ggplot object
+#'
+#' @examples
+#' out <- run(config_ex_1)
+#' graph_population_each_group(out)
+#'
 #' @export
 graph_population_each_group <- function(output) {
 
@@ -45,7 +50,8 @@ graph_population_each_group <- function(output) {
 #' Graph overall trend in population
 #'
 #' @details
-#' See roughly whether population is increasing or decreasing.
+#' See roughly whether population is increasing or decreasing. Calculates and
+#' plots the rate of change in number of adult ticks between consecutive days.
 #'
 #' @inheritParams graph_population_each_group
 #'
@@ -53,6 +59,16 @@ graph_population_each_group <- function(output) {
 #' @importFrom dplyr filter group_by summarise mutate lag
 #'
 #' @return ggplot object
+#'
+#' @examples
+#'
+#' # Make a new config that results in a population where some ticks remain
+#' # in their life stage for multiple days.
+#' my_config <- config_ex_1
+#' my_config$parameters$param_value <- c(0.5, 0, 0.01, 0.95, 0.1, 0.8, 900, 0)
+#' out <- run(my_config)
+#' graph_population_overall_trend(out)
+#'
 #' @export
 graph_population_overall_trend <- function(output) {
   output %>%
@@ -73,6 +89,11 @@ graph_population_overall_trend <- function(output) {
 #'
 #' @param out Model output data frame
 #' @return Numeric vector of length one representing growth rate
+#'
+#' @examples
+#' out <- run(config_ex_1)
+#' growth_rate(out)
+#'
 #' @export
 growth_rate <- function(out) {
   out %>%

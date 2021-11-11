@@ -9,6 +9,9 @@ graph_lifecycle(transitions)
 \arguments{
 \item{transitions}{Tick transitions tibble}
 }
+\value{
+None, plots a life cycle graph
+}
 \description{
 Visualize transitions as a life cycle graph
 }

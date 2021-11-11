@@ -15,3 +15,8 @@ Numeric vector of length one representing growth rate
 \description{
 Calculate multiplicative growth rate of population
 }
+\examples{
+out <- run(config_ex_1)
+growth_rate(out)
+
+}

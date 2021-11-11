@@ -21,3 +21,7 @@ Numeric vector of length 1
 \description{
 Exponential function
 }
+\examples{
+expo_fun(.5, NULL, .1, .3)
+
+}
