@@ -1,0 +1,92 @@
+---
+title: "The `IxPopDyMod` package for writing and analyzing tick population dynamics models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The `IxPopDyMod` package for writing and analyzing tick population dynamics models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%",
+  fig.width = 16 / 2,
+  fig.height = 9 / 2,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE
+)
+```
+
+# Purpose
+
+This package is designed to help users easily write, analyze, and compare tick population dynamics models. There is a long history of using these models to better understand the drivers of tick populations and predict how tick populations could respond to climate change, different host community composition, or tick control strategies. I hope that this package will make it easier for these models to be used.
+
+# Examples of package use
+
+This vignette presents three examples of package use. The hope is that this will help others see how models are specified and better understand the structure of the package. The examples highlight:
+
+1. How tick transitions can be temperature-dependent
+1. How to incorporate the host community into a model
+1. How to include tick-borne disease infection dynamics into a model
+
+First load the package and tidyverse
+
+```{r}
+library(IxPopDyMod)
+library(tidyverse)
+```
+
+## Temperature-dependent transitions
+
+The first step is always to read a `config` file. This is the configuration which specifies the model. Here I read the `config` and then show the tick life-stage transitions.
+
+```{r}
+cfg <- read_config('temp_example_config/config.yml')
+cfg$transitions
+```
+
+From the first line, you see that the development from eggs, `__e`, to questing larvae, `q_l`, is an exponential function of temperature. We can see the parameters for this transition:
+
+```{r}
+cfg$parameters %>% filter(from == '__e', to == 'q_l')
+```
+
+The daily development rate is 0.0000292*temp^2.27.
+
+### Compare two temperature scenarios
+
+Here I highlight how this temperature dependence affects the output of the model. I make a second `config` in which the daily temperature is one degree warmer.
+
+```{r}
+
+cfg2 <- cfg
+cfg2$weather <- cfg$weather %>% mutate(tmean = tmean + 1)
+
+output1 <- run(cfg)
+output2 <- run(cfg2)
+
+output1 <- output1 %>% mutate(temp = 'cold')
+output2 <- output2 %>% mutate(temp = 'warm')
+```
+
+Finally I compare the outputs for a commonly measured aspect of tick populations, the number of questing nymphs. 
+
+```{r}
+output1 %>%
+  rbind(output2) %>% 
+  filter(stage == 'q_n') %>%
+  ggplot(aes(day, pop, col = temp)) +
+  geom_line() +
+  scale_color_manual(values = c('cold' = 'blue', 'warm' = 'red')) +
+  ylab('Questing nymphs')
+```
+
+Here you can see nymphs start questing earlier and reach a higher population in the warmer climate. 
+
+## Host community
+
+## Tick-borne disease infection dynamics
