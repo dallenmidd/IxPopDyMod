@@ -1,7 +1,7 @@
-steps: 1200
+steps: 500
 initial_population:
   r_a: 10
-transitions: inputs/2021-03-19_Dave_test/tick_transitions.csv
-parameters: inputs/2021-03-19_Dave_test/tick_parameters.csv
-weather: inputs/2021-03-19_Dave_test/weather.csv
-host_comm: inputs/2021-03-19_Dave_test/host_comm.csv
+transitions: host_example_config/tick_transitions.csv
+parameters: host_example_config/tick_parameters.csv
+weather: host_example_config/weather.csv
+host_comm: host_example_config/host_comm.csv

@@ -1,25 +1,9 @@
 ---
 title: "The `IxPopDyMod` package for writing and analyzing tick population dynamics models"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{The `IxPopDyMod` package for writing and analyzing tick population dynamics models}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: github_document
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%",
-  fig.width = 16 / 2,
-  fig.height = 9 / 2,
-  message = FALSE,
-  warning = FALSE,
-  cache = FALSE
-)
-```
+
 
 # Purpose
 
@@ -89,4 +73,57 @@ Here you can see nymphs start questing earlier and reach a higher population in 
 
 ## Host community
 
+In the previous example there was no host community explicitly stated and ticks had a constant probabilty of transition between life stages (e.g., from larva to nymph). It is possible to instead model these probabilities based on host community composition. 
+
+```{r}
+cfg <- read_config('host_example_config/config.yml')
+cfg$transitions
+```
+
+Here transition from questing larvae, `q_l`, to engroged larvae, `e_l`, depends on the `host_den`, this is how the host community is included in the transition. 
+
+```{r}
+cfg$parameters %>% filter(from == 'q.l', to == 'e.l')
+
+```
+Here the parameters of `find_n_feed` get different values for each host species. In this case the two parameters are `pref`, which is the larval tick's preference for the three different host species, and `feed_success`, which is the fraction of feeding larvae which successfully feed to completion. 
+
+In this example the temperature and host community are constant through time, but this case change to see how seasonal or year-to-year variation in host density affects tick populations.
+
+### Compare host communities of different densities
+
+I now compare how different host densities affect tick populations. Here I vary the deer density.
+
+```{r, results = 'hide'}
+cfg_lowdeerden <- cfg
+cfg_highdeerden <- cfg
+cfg_lowdeerden$host_comm <- cfg$host_comm %>% 
+  mutate(host_den = ifelse(host_spp == 'deer', 0.1, host_den) )
+
+cfg_highdeerden$host_comm <- cfg$host_comm %>% 
+  mutate(host_den = ifelse(host_spp == 'deer', 5, host_den) )
+
+
+output_middeerden <- run(cfg)
+output_lowdeerden <- run(cfg_lowdeerden)
+output_highdeerden <- run(cfg_highdeerden)
+
+output_middeerden <- output_middeerden %>% mutate(deer_den = 'mid')
+output_lowdeerden <- output_lowdeerden %>% mutate(deer_den = 'low')
+output_highdeerden <- output_highdeerden %>% mutate(deer_den = 'high')
+```
+
+And then use the `graph_population_each_group` function to see how the deer densities affect the tick population.
+
+```{r}
+output_lowdeerden %>%
+  bind_rows(output_middeerden, output_highdeerden) %>%
+  mutate(deer_den = factor(deer_den, levels = c('low', 'mid', 'high'))) %>%
+  graph_population_each_group() +
+  facet_wrap(~deer_den)
+
+```
+
 ## Tick-borne disease infection dynamics
+
+In the examples above I modeled just a tick population without a tick borne disease. Here I give an example of how the package can be used to also include 
