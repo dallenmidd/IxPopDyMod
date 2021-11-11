@@ -26,10 +26,9 @@ TODO see paper for a full description of the model
 
 ## Installation
 
-Install the package from the [GitHub](https://github.com/) with: 
+Install the package from [CRAN](https://cran.r-project.org/web/packages/IxPopDyMod/index.html) with: 
 ```{r, eval = FALSE}
-# install.packages("remotes")
-remotes::install_github("dallenmidd/IxPopDyMod")
+install.packages("IxPopDyMod")
 ```
 
 ## Example analysis

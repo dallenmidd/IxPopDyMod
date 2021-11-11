@@ -13,11 +13,12 @@ TODO see paper for a full description of the model
 
 ## Installation
 
-Install the package from the [GitHub](https://github.com/) with:
+Install the package from
+[CRAN](https://cran.r-project.org/web/packages/IxPopDyMod/index.html)
+with:
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("dallenmidd/IxPopDyMod")
+install.packages("IxPopDyMod")
 ```
 
 ## Example analysis
@@ -99,8 +100,7 @@ increases with 1200 eggs laid.
 To see a breakdown of how the population is changing, we graph the
 population over time of each age group, for each model output. As
 expected, for each output there is a cycle with a peak in number of
-eggs, followed by peaks in larvae, nymph and then adult
-population.
+eggs, followed by peaks in larvae, nymph and then adult population.
 
 ``` r
 names(outputs) <- c('0800 eggs laid', '1000 eggs laid', '1200 eggs laid')
