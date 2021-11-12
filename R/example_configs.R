@@ -17,3 +17,18 @@
 #' @format A \code{\link{config}}
 #'
 "config_ex_2"
+
+#' Configuration for Ixodes scapularis population dynamics model from Ogden et al. 2005
+#'
+#' This model configuration recreates the Ixodes scaularis (blacklegged tick)
+#' population dynamics model from Ogden et al. 2005. This is a relatively complete
+#' model of tick population dynamics, including the effects of both temperature and
+#' the host community on tick life-stage transitions. We include this configuration
+#' to show that our package can be used to recreate existing models.
+#'
+#' @format A \code{\link{config}}
+#'
+#' @seealso
+#' Based on Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
+#'
+"ogden2005"

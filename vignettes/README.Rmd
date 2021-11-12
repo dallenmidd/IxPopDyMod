@@ -1,9 +1,7 @@
 ---
 title: "The `IxPopDyMod` package for writing and analyzing tick population dynamics models"
-output: rmarkdown::github_document
+output: github_document
 ---
-
-
 
 # Purpose
 
