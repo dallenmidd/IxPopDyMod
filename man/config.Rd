@@ -100,10 +100,11 @@ Numeric; the value of the parameter
 used as predictor values in transition functions.
 
 \describe{
-\item{j_day}{Julian day; an integer}
+\item{j_day}{Optional, omit this column for constant host density. Julian
+day; an integer}
 \item{host_spp}{String specifying a host species}
 \item{host_den}{
-Numeric value indicating the density of species "host_spp" on day "j_day"
+Numeric value indicating the density of species "host_spp"
 }
 }}
 
@@ -111,12 +112,13 @@ Numeric value indicating the density of species "host_spp" on day "j_day"
 predictor values in transition functions.
 
 \describe{
-\item{j_day}{Julian day; an integer}
+\item{j_day}{Optional, omit this column for constant weather. Julian day;
+an integer}
 \item{tmean}{
-Optionally, numeric indicating mean temperature on day "j_day"
+Optionally, numeric indicating mean temperature
 }
 \item{vpd}{
-Optionally, numeric indicating vapour-pressure deficit on day "jday"
+Optionally, numeric indicating vapour-pressure deficit
 }
 }}
 

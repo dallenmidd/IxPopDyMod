@@ -38,34 +38,20 @@ get_life_stages <- function(transitions) {
   unique(pull(transitions, .data$from))
 }
 
-#' Get temperature from input data
+#' Get a predictor from input data
 #'
-#' @param time Numeric vector of days to get data
-#' @param weather weather df from `config` object
-#' @return Numeric vector of temperature
-#' @noRd
-get_temp <- function(time, weather) {
-  weather[which(weather$j_day %in% time), ]$tmean
-}
+#' @param time Numeric vector of days to get data. Ignored if input is constant
+#'   over time (as indicated by absence of 'j_day' column)
+#' @param table input weather or host density data frame from config object
+#' @param col name of column from table to get predictor values from
+get_pred_from_table <- function(time, table, col) {
 
-#' Get vapour-pressure deficit from input data
-#'
-#' @param time Numeric vector of days to get data
-#' @param weather weather df from `config` object
-#' @return Numeric vector of vpd
-#' @noRd
-get_vpd <- function(time, weather) {
-  weather[which(weather$j_day %in% time), ]$vpdmean
-}
+  if ('j_day' %in% colnames(table)) {
+    unlist(table[which(table$j_day %in% time), col])
+  } else { # constant predictor value
+    unlist(table[, col])
+  }
 
-#' Get host density from input data
-#'
-#' @param time Numeric vector of days to get data
-#' @param host_comm host_comm df from `config` object
-#' @return Numeric vector of host density
-#' @noRd
-get_host_den <- function(time, host_comm) {
-  host_comm[which(host_comm$j_day %in% time), ]$host_den
 }
 
 
@@ -116,11 +102,11 @@ get_pred <- function(time, pred, is_delay, N, N_developing, max_delay,
   if (is.na(pred)) {
     return(NULL)
   } else if (pred == "temp") {
-    return(get_temp(time, weather))
+    return(get_pred_from_table(time, weather, 'tmean'))
   } else if (pred == "vpd") {
-    return(get_vpd(time, weather))
+    return(get_pred_from_table(time, weather, 'vpdmean'))
   } else if (pred == "host_den") {
-    return(get_host_den(time[1], host_comm)) # length == n_host_spp
+    return(get_pred_from_table(time[1], host_comm, 'host_den')) # length == n_host_spp
   } else if (any(str_detect(life_stages, pred))) {
     return(get_tick_den(time[1], N, N_developing, pred, life_stages)) # length == 1
   } else {

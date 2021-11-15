@@ -381,9 +381,11 @@ validate_config <- function(cfg) {
   test_predictors(cfg$transitions)
 
   if (depends_on_weather(cfg$transitions)) {
-    weather_coltypes <- c(tmean = 'numeric', j_day = 'numeric')
+    weather_coltypes <- c(tmean = 'numeric')
     has_required_cols(cfg, 'weather', names(weather_coltypes))
-    test_missing_days(cfg$weather, 'weather', cfg$steps, cfg$max_delay)
+    if ('j_day' %in% colnames(cfg$weather)) {
+      test_missing_days(cfg$weather, 'weather', cfg$steps, cfg$max_delay)
+    }
     has_required_types(cfg, 'weather', weather_coltypes)
   }
 
@@ -398,11 +400,15 @@ validate_config <- function(cfg) {
     parameters_coltypes['host_spp'] <- 'character'
 
     host_comm_coltypes <- c(
-      j_day = 'numeric', host_spp = 'character', host_den = 'numeric')
+      host_spp = 'character', host_den = 'numeric')
     has_required_cols(cfg, 'host_comm', names(host_comm_coltypes))
     has_required_types(cfg, 'host_comm', host_comm_coltypes)
-    test_missing_days(cfg$host_comm, 'host_comm', cfg$steps, cfg$max_delay)
-    test_host_spp_days(cfg$host_comm)
+
+    if ('j_day' %in% colnames(cfg$host_comm)) {
+      test_missing_days(cfg$host_comm, 'host_comm', cfg$steps, cfg$max_delay)
+      test_host_spp_days(cfg$host_comm)
+    }
+
   }
 
   has_required_cols(cfg, 'parameters', names(parameters_coltypes))
