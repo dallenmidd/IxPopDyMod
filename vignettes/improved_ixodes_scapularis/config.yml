@@ -1,7 +1,7 @@
 steps: 3650
 initial_population:
   rua: 10
-transitions: inputs/improved_ixodes_scapularis/tick_transitions.csv
-parameters: inputs/improved_ixodes_scapularis/tick_parameters.csv
-weather: inputs/improved_ixodes_scapularis/weather.csv
-host_comm: inputs/improved_ixodes_scapularis/host_den.csv
+transitions: vignettes/improved_ixodes_scapularis/tick_transitions.csv
+parameters: vignettes/improved_ixodes_scapularis/tick_parameters.csv
+weather: vignettes/improved_ixodes_scapularis/weather.csv
+host_comm: vignettes/improved_ixodes_scapularis/host_den.csv
