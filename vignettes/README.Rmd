@@ -1,6 +1,10 @@
 ---
 title: "The `IxPopDyMod` package for writing and analyzing tick population dynamics models"
-output: github_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{example usage}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 # Purpose
