@@ -1,0 +1,6 @@
+steps: 900
+initial_population:
+  r_a: 10
+transitions: inputs/infect_example_confit/tick_transitions.csv
+parameters: inputs/infect_example_confit/tick_parameters.csv
+host_comm: inputs/infect_example_confit/host_den.csv
