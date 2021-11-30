@@ -30,5 +30,5 @@ fua, eua, infect_fun, FALSE, host_den, NA
 eia, r_a, constant_fun, TRUE, NA, NA
 eia, m, constant_fun, TRUE, NA, NA
 eua, r_a, constant_fun, TRUE, NA, NA
-eun, m, constant_fun, TRUE, NA, NA
+eua, m, constant_fun, TRUE, NA, NA
 r_a, __e, constant_fun, FALSE, NA, NA

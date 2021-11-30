@@ -205,3 +205,9 @@ find_host <- function(x, y, a, pref)
   1-(1-a)^sum(x*pref)
 }
 ```
+
+
+```{r}
+cfg <- read_config('vignettes/infect_example_config/config.yml')
+cfg$transitions
+```
