@@ -1,6 +1,6 @@
-from, to, transition_fun, delay, source, pred1, pred2
-__e, q_l, constant_fun, TRUE, NA, NA, NA
-__e, m, constant_fun, TRUE, NA, NA, NA
+from, to, transition_fun, delay, pred1, pred2
+__e, q_l, constant_fun, TRUE, NA, NA
+__e, m, constant_fun, TRUE, NA, NA
 q_l, f_l, find_host, FALSE, host_den, NA
 q_l, m, constant_fun, FALSE, NA, NA
 f_l, eil, infect_fun, FALSE, host_den, NA
