@@ -13,7 +13,7 @@ qin, fin, find_host, FALSE, host_den, NA
 qun, fun, find_host, FALSE, host_den, NA
 qin, m, constant_fun, FALSE, NA, NA
 qun, m, constant_fun, FALSE, NA, NA
-fin, ein, constant_fun, FALSE, host_den, NA
+fin, ein, infect_fun, FALSE, host_den, NA
 fun, ein, infect_fun, FALSE, host_den, NA
 fun, eun, infect_fun, FALSE, host_den, NA
 ein, qia, constant_fun, TRUE, NA, NA
@@ -24,7 +24,7 @@ qia, fia, find_host, FALSE, host_den, NA
 qua, fua, find_host, FALSE, host_den, NA
 qia, m, constant_fun, FALSE, NA, NA
 qua, m, constant_fun, FALSE, NA, NA
-fia, eia, constant_fun, FALSE, host_den, NA
+fia, eia, infect_fun, FALSE, host_den, NA
 fua, eia, infect_fun, FALSE, host_den, NA
 fua, eua, infect_fun, FALSE, host_den, NA
 eia, r_a, constant_fun, TRUE, NA, NA
