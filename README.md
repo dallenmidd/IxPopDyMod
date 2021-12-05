@@ -316,3 +316,102 @@ find_host <- function(x, y, a, pref)
   1-(1-a)^sum(x*pref)
 }
 ```
+
+``` r
+cfg <- read_config('vignettes/infect_example_config/config.yml')
+cfg$transitions
+#> # A tibble: 33 × 6
+#>    from  to    transition_fun delay pred1    pred2
+#>    <chr> <chr> <chr>          <lgl> <chr>    <lgl>
+#>  1 __e   q_l   constant_fun   TRUE  <NA>     NA   
+#>  2 __e   m     constant_fun   TRUE  <NA>     NA   
+#>  3 q_l   f_l   find_host      FALSE host_den NA   
+#>  4 q_l   m     constant_fun   FALSE <NA>     NA   
+#>  5 f_l   eil   infect_fun     FALSE host_den NA   
+#>  6 f_l   eul   infect_fun     FALSE host_den NA   
+#>  7 eil   qin   constant_fun   TRUE  <NA>     NA   
+#>  8 eil   m     constant_fun   TRUE  <NA>     NA   
+#>  9 eul   qun   constant_fun   TRUE  <NA>     NA   
+#> 10 eul   m     constant_fun   TRUE  <NA>     NA   
+#> # … with 23 more rows
+```
+
+Here we use the middle character of the life-stage key. It is either `i`
+for infected or `u` for uninfected. We assume no transovarial infection
+so questing larvae are uninfected. But after they feed, `f_l`, they can
+either become engorged infected, `eil`, or engorged uninfected, `eul`,
+larvae. This is based on `infect_fun`, which as above has host
+species-specific parameters of `pref` and `host_rc` (reservoir
+competence).
+
+### Effect of deer density
+
+Deer are important to the blacklegged tick as the main host of adult
+ticks. As such they are thought to increase tick populations (see
+above). But deer can also serve as hosts for juvenile tick life stages,
+and deer are poor reservoirs for *Borrelia burgdorferi*. So increased
+deer density may also decrease the proportion of bloodmeals juvenile
+ticks take from more comptenet reservoirs life mice. We use this simple
+model to illustrate this possiblity.
+
+``` r
+deer_den <- c(0.1, 0.25, 0.5, 0.75, 1)
+results_tib <- tibble(deer = deer_den, nymph_den = 0, nip = 0)
+
+for (i in 1:5)
+{
+  cfg_mod <- cfg
+  cfg_mod$host_comm[1,2] <- deer_den[i]
+  out <- run(cfg_mod)
+  
+  nymph_sum <- out %>%
+  filter(stage == 'qin' | stage == 'qun') %>%
+  group_by(stage) %>%
+  summarise(totpop = sum(pop)) 
+
+  results_tib$nip[i] <- unlist(nymph_sum[1,2] /(nymph_sum[1,2] + nymph_sum[2,2]))
+  results_tib$nymph_den[i] <- out %>%
+    filter(stage == 'qin' | stage == 'qun') %>%
+    summarise(totpop = sum(pop)) %>%
+    unlist()
+}
+#> [1] "day 100"
+#> [1] "day 200"
+#> [1] "day 300"
+#> [1] "day 400"
+#> [1] "day 100"
+#> [1] "day 200"
+#> [1] "day 300"
+#> [1] "day 400"
+#> [1] "day 100"
+#> [1] "day 200"
+#> [1] "day 300"
+#> [1] "day 400"
+#> [1] "day 100"
+#> [1] "day 200"
+#> [1] "day 300"
+#> [1] "day 400"
+#> [1] "day 100"
+#> [1] "day 200"
+#> [1] "day 300"
+#> [1] "day 400"
+
+results_tib %>%
+  ggplot(aes(deer, nip)) +
+  geom_point()
+```
+
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+
+``` r
+
+results_tib %>%
+  ggplot(aes(deer, nymph_den)) +
+  geom_point()
+```
+
+<img src="man/figures/README-unnamed-chunk-17-2.png" width="100%" />
+
+Here we see that as deer density increases the number of nymphs
+increases (as the tick population gets bigger). But the nymph infection
+prevalence (NIP) goes down.
