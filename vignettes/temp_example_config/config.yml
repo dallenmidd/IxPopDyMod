@@ -1,6 +1,0 @@
-steps: 730
-initial_population:
-  r_a: 10
-transitions: vignettes/temp_example_config/tick_transitions.csv
-parameters: vignettes/temp_example_config/tick_parameters.csv
-weather: vignettes/temp_example_config/weather.csv

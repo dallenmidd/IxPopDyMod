@@ -54,6 +54,7 @@ If you wish to create a custom model configuration, see `?config()`.
 
 ```{r}
 library(IxPopDyMod)
+library(readr)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
 ```
@@ -97,7 +98,19 @@ outputs_stacked %>%
 In this second example we load in an external `config`. The first step is always to read a `config` file. This is the configuration which specifies the model. Here I read the `config` and then show the tick life-stage transitions.
 
 ```{r}
-cfg <- read_config('vignettes/temp_example_config/config.yml')
+transitions_input <- system.file('extdata', 'temp_example_config', 'tick_transitions.csv', package='IxPopDyMod', mustWork = TRUE) %>% read_csv()
+parameters_input <- system.file('extdata', 'temp_example_config', 'tick_parameters.csv', package='IxPopDyMod', mustWork = TRUE) %>% read_csv()
+weather_input <- system.file('extdata', 'temp_example_config', 'weather.csv', package='IxPopDyMod', mustWork = TRUE) %>% read_csv()
+
+cfg <- config(
+  steps = 730L,
+  initial_population = c('r_a' = 10L),
+  transitions = transitions_input,
+  parameters = parameters_input,
+  host_comm = data.frame(), # need to specify that there's no host community
+  weather = weather_input,
+)
+
 cfg$transitions
 ```
 
