@@ -5,11 +5,11 @@
 
 This package is designed to help the user specify, run, and then
 visualize and analyze the results of Ixodidae (hard-bodied ticks)
-population dynamics models. Such population dynamics models exist in the
-literature, but the source code to run them is not always available. We
-wanted to provide an easy way for these models to be written and shared.
+population dynamics models. Such models exist in the literature, but the
+source code to run them is not always available. We wanted to provide an
+easy way for these models to be written and shared.
 
-TODO see paper for a full description of the model
+<!-- TODO see paper for a full description of the model -->
 
 ## Installation
 
@@ -27,26 +27,23 @@ Here we provide a series of examples to help others see how models are
 specified and better understand the structure of the package. The
 examples highlight:
 
-1.  A very simple example to show basic package commands
+1.  Basic package use with a simple model configuration
 2.  How tick transitions can be temperature-dependent
 3.  How to include the host community into a model
 4.  How to include tick-borne disease infection dynamics into a model
 5.  How to include host-host density dependent tick mortality
 
+These examples all use and modify preset model configurations. If you
+wish to create a custom model configuration, see `?config()`.
+
 ## Simple example
 
-We present an example analysis using a simple model configuration
-pre-loaded into the package. In this example, we will:
-
-1.  Vary a parameter in the model
-2.  Run the model with each new parameter value
-3.  Calculate the growth rate for each of the model outputs
-4.  Graph the population over time for each out of the outputs
-
-If you wish to create a custom model configuration, see `?config()`.
+We start with `config_ex_1`, a simple model configuration that doesn’t
+consider infection, and that has four life stages: `__e` for egg, `__l`
+for larvae, `__n` for nymph, and `__a` for adult.
 
 ``` r
-devtools::load_all() # library(IxPopDyMod)
+library(IxPopDyMod)
 library(readr)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
@@ -54,10 +51,7 @@ library(dplyr, warn.conflicts = FALSE)
 
 ### Vary a parameter in the model
 
-We start with `config_ex_1`, a simple model configuration that doesn’t
-consider infection, and that has four life stages: `__e` for egg, `__l`
-for larvae, `__n` for nymph, and `__a` for adult. We give a new range of
-parameter values for number of eggs laid.
+We give a new range of parameter values for number of eggs laid.
 
 ``` r
 eggs_laid <- c(800, 1000, 1200)
@@ -103,7 +97,7 @@ sapply(outputs, growth_rate)
 #> [1] 0.9457416 1.0000000 1.0466351
 ```
 
-`growth_rate` calculates the multiplicative growth rate for a model
+`growth_rate()` calculates the multiplicative growth rate for a model
 output. The population is stable with 1000 eggs laid, as indicated by
 the growth rate `1`. The population decreases with 800 eggs laid, and
 increases with 1200 eggs laid.
@@ -126,11 +120,6 @@ outputs_stacked %>%
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 ## Temperature-dependent transitions
-
-In this second example we load in an external `config`. The first step
-is always to read a `config` file. This is the configuration which
-specifies the model. Here I read the `config` and then show the tick
-life-stage transitions.
 
 ``` r
 temp_example_config$transitions
@@ -155,9 +144,10 @@ temp_example_config$transitions
 #> 16 r_a   __e   constant_fun   FALSE <NA>              <NA>  NA
 ```
 
-From the first line, you see that the development from eggs, `__e`, to
-questing larvae, `q_l`, is an exponential function of temperature. We
-can see the parameters for this transition:
+From the first line of this tick life-stage transitions table, you see
+that the development from eggs, `__e`, to questing larvae, `q_l`, is an
+exponential function of temperature. We can see the parameters for this
+transition:
 
 ``` r
 temp_example_config$parameters %>% filter(from == '__e', to == 'q_l')
@@ -168,12 +158,12 @@ temp_example_config$parameters %>% filter(from == '__e', to == 'q_l')
 #> 2 __e   q_l   b          NA         2.27      NA           NA            Ogden …
 ```
 
-The daily development rate is 0.0000292 \* *t**e**m**p*<sup>2.27</sup>.
+The daily development rate is `0.0000292*temp^2.27`.
 
 ### Compare two temperature scenarios
 
-Here I highlight how this temperature dependence affects the output of
-the model. I make a second `config` in which the daily temperature is
+Here we highlight how this temperature dependence affects the output of
+the model. We make a second `config` in which the daily temperature is
 one degree warmer.
 
 ``` r
@@ -187,7 +177,7 @@ output1 <- output1 %>% mutate(temp = 'cold')
 output2 <- output2 %>% mutate(temp = 'warm')
 ```
 
-Finally I compare the outputs for a commonly measured aspect of tick
+Finally, we compare the outputs for a commonly measured aspect of tick
 populations, the number of questing nymphs.
 
 ``` r
@@ -235,9 +225,9 @@ host_example_config$transitions
 #> 16 r_a   __e   constant_fun   FALSE <NA>              <NA>     NA
 ```
 
-Here transition from questing larvae, `q_l`, to engroged larvae, `e_l`,
-depends on the `host_den`, this is how the host community is included in
-the transition.
+Here transition from questing larvae, `q_l`, to engorged larvae, `e_l`,
+depends on the `host_den`, which is how the host community is included
+in the transition.
 
 ``` r
 host_example_config$parameters %>% filter(from == 'q.l', to == 'e.l')
@@ -259,13 +249,14 @@ tick’s preference for the three different host species, and
 successfully feed to completion.
 
 In this example the temperature and host community are constant through
-time, but this case change to see how seasonal or year-to-year variation
-in host density affects tick populations.
+time, but the package also supports variable temperature and host
+community data to see how seasonal or year-to-year variation in affects
+tick populations.
 
 ### Compare host communities of different densities
 
-I now compare how different host densities affect tick populations. Here
-I vary the deer density.
+We now compare how different host densities affect tick populations.
+Here we vary the deer density.
 
 ``` r
 cfg_lowdeerden <- host_example_config
@@ -286,7 +277,7 @@ output_lowdeerden <- output_lowdeerden %>% mutate(deer_den = 'low')
 output_highdeerden <- output_highdeerden %>% mutate(deer_den = 'high')
 ```
 
-And then use the `graph_population_each_group` function to see how the
+And then use the `graph_population_each_group()` function to see how the
 deer densities affect the tick population.
 
 ``` r
@@ -301,12 +292,12 @@ output_lowdeerden %>%
 
 ## Tick-borne disease infection dynamics
 
-In the examples above I modeled just a tick population without a tick
-borne disease. Here I give an example of how the package can be used to
-also include
+In the examples above we modeled a tick population without a tick borne
+disease. Here we give an example of how the package can be used to also
+include infection dynamics.
 
-So far all examples use transition functions loaded into the package,
-here we show how to define our own.
+So far all examples have used transition functions loaded into the
+package, here we show how to define our own.
 
 ``` r
 find_host <- function(x, y, a, pref)
