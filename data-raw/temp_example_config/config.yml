@@ -1,0 +1,6 @@
+steps: 730
+initial_population:
+  r_a: 10
+transitions: data-raw/temp_example_config/tick_transitions.csv
+parameters: data-raw/temp_example_config/tick_parameters.csv
+weather: data-raw/temp_example_config/weather.csv

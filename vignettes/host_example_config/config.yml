@@ -1,7 +1,0 @@
-steps: 500
-initial_population:
-  r_a: 10
-transitions: vignettes/host_example_config/tick_transitions.csv
-parameters: vignettes/host_example_config/tick_parameters.csv
-weather: vignettes/host_example_config/weather.csv
-host_comm: vignettes/host_example_config/host_comm.csv

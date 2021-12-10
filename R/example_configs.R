@@ -44,3 +44,21 @@
 #' output <- run(ogden2005)
 #' graph_population_each_group(output)
 "ogden2005"
+
+#' Configuration for showing how we can modify climate data
+#'
+#' @format A \code{\link{config}}
+"temp_example_config"
+
+#' Configuration for showing how we can modify host community data
+#'
+#' @format A \code{\link{config}}
+"host_example_config"
+
+#' Configuration for showing infection dynamics
+#'
+#' @format A \code{\link{config}}
+"infect_example_config"
+
+
+

@@ -53,7 +53,7 @@ We present an example analysis using a simple model configuration pre-loaded int
 If you wish to create a custom model configuration, see `?config()`.
 
 ```{r}
-library(IxPopDyMod)
+devtools::load_all() # library(IxPopDyMod)
 library(readr)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
@@ -98,26 +98,13 @@ outputs_stacked %>%
 In this second example we load in an external `config`. The first step is always to read a `config` file. This is the configuration which specifies the model. Here I read the `config` and then show the tick life-stage transitions.
 
 ```{r}
-transitions_input <- system.file('extdata', 'temp_example_config', 'tick_transitions.csv', package='IxPopDyMod', mustWork = TRUE) %>% read_csv()
-parameters_input <- system.file('extdata', 'temp_example_config', 'tick_parameters.csv', package='IxPopDyMod', mustWork = TRUE) %>% read_csv()
-weather_input <- system.file('extdata', 'temp_example_config', 'weather.csv', package='IxPopDyMod', mustWork = TRUE) %>% read_csv()
-
-cfg <- config(
-  steps = 730L,
-  initial_population = c('r_a' = 10L),
-  transitions = transitions_input,
-  parameters = parameters_input,
-  host_comm = data.frame(), # need to specify that there's no host community
-  weather = weather_input,
-)
-
-cfg$transitions
+temp_example_config$transitions
 ```
 
 From the first line, you see that the development from eggs, `__e`, to questing larvae, `q_l`, is an exponential function of temperature. We can see the parameters for this transition:
 
 ```{r}
-cfg$parameters %>% filter(from == '__e', to == 'q_l')
+temp_example_config$parameters %>% filter(from == '__e', to == 'q_l')
 ```
 
 The daily development rate is $0.0000292*temp^{2.27}$.
@@ -128,10 +115,10 @@ Here I highlight how this temperature dependence affects the output of the model
 
 ```{r, results = 'hide'}
 
-cfg2 <- cfg
-cfg2$weather <- cfg$weather %>% mutate(tmean = tmean + 1)
+cfg2 <- temp_example_config
+cfg2$weather <- temp_example_config$weather %>% mutate(tmean = tmean + 1)
 
-output1 <- run(cfg)
+output1 <- run(temp_example_config)
 output2 <- run(cfg2)
 
 output1 <- output1 %>% mutate(temp = 'cold')
@@ -157,14 +144,14 @@ Here you can see nymphs start questing earlier and reach a higher population in 
 In the previous example there was no host community explicitly stated and ticks had a constant probabilty of transition between life stages (e.g., from larva to nymph). It is possible to instead model these probabilities based on host community composition. 
 
 ```{r}
-cfg <- read_config('vignettes/host_example_config/config.yml')
-cfg$transitions
+host_example_config$transitions
 ```
 
 Here transition from questing larvae, `q_l`, to engroged larvae, `e_l`, depends on the `host_den`, this is how the host community is included in the transition. 
 
 ```{r}
-cfg$parameters %>% filter(from == 'q.l', to == 'e.l')
+
+host_example_config$parameters %>% filter(from == 'q.l', to == 'e.l')
 
 ```
 Here the parameters of `find_n_feed` get different values for each host species. In this case the two parameters are `pref`, which is the larval tick's preference for the three different host species, and `feed_success`, which is the fraction of feeding larvae which successfully feed to completion. 
@@ -176,16 +163,16 @@ In this example the temperature and host community are constant through time, bu
 I now compare how different host densities affect tick populations. Here I vary the deer density.
 
 ```{r, results = 'hide'}
-cfg_lowdeerden <- cfg
-cfg_highdeerden <- cfg
-cfg_lowdeerden$host_comm <- cfg$host_comm %>% 
+cfg_lowdeerden <- host_example_config
+cfg_highdeerden <- host_example_config
+cfg_lowdeerden$host_comm <- host_example_config$host_comm %>% 
   mutate(host_den = ifelse(host_spp == 'deer', 0.1, host_den) )
 
-cfg_highdeerden$host_comm <- cfg$host_comm %>% 
+cfg_highdeerden$host_comm <- host_example_config$host_comm %>% 
   mutate(host_den = ifelse(host_spp == 'deer', 5, host_den) )
 
 
-output_middeerden <- run(cfg)
+output_middeerden <- run(host_example_config)
 output_lowdeerden <- run(cfg_lowdeerden)
 output_highdeerden <- run(cfg_highdeerden)
 
@@ -222,22 +209,21 @@ find_host <- function(x, y, a, pref)
 
 
 ```{r}
-cfg <- read_config('vignettes/infect_example_config/config.yml')
-cfg$transitions
+infect_example_config$transitions
 ```
 Here we use the middle character of the life-stage key. It is either `i` for infected or `u` for uninfected. We assume no transovarial infection so questing larvae are uninfected. But after they feed, `f_l`, they can either become engorged infected, `eil`, or engorged uninfected, `eul`, larvae. This is based on `infect_fun`, which as above has host species-specific parameters of `pref` and `host_rc` (reservoir competence). 
 
 ### Effect of deer density
 
-Deer are important to the blacklegged tick as the main host of adult ticks. As such they are thought to increase tick populations (see above). But deer can also serve as hosts for juvenile tick life stages, and deer are poor reservoirs for *Borrelia burgdorferi*. So increased deer density may also decrease the proportion of bloodmeals juvenile ticks take from more comptenet reservoirs life mice. We use this simple model to illustrate this possiblity. 
+Deer are important to the blacklegged tick as the main host of adult ticks. As such they are thought to increase tick populations (see above). But deer can also serve as hosts for juvenile tick life stages, and deer are poor reservoirs for *Borrelia burgdorferi*. So increased deer density may also decrease the proportion of bloodmeals juvenile ticks take from more comptenet reservoirs life mice. We use this simple model to illustrate this possibility. 
 
-```{r}
+```{r, results='hide'}
 deer_den <- c(0.1, 0.25, 0.5, 0.75, 1)
 results_tib <- tibble(deer = deer_den, nymph_den = 0, nip = 0)
 
 for (i in 1:5)
 {
-  cfg_mod <- cfg
+  cfg_mod <- infect_example_config
   cfg_mod$host_comm[1,2] <- deer_den[i]
   out <- run(cfg_mod)
   
@@ -252,7 +238,9 @@ for (i in 1:5)
     summarise(totpop = sum(pop)) %>%
     unlist()
 }
+```
 
+```{r}
 results_tib %>%
   ggplot(aes(deer, nip)) +
   geom_point()
@@ -260,7 +248,6 @@ results_tib %>%
 results_tib %>%
   ggplot(aes(deer, nymph_den)) +
   geom_point()
-
 ```
 
 Here we see that as deer density increases the number of nymphs increases (as the tick population gets bigger). But the nymph infection prevalence (NIP) goes down.

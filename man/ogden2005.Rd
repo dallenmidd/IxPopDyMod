@@ -6,6 +6,16 @@
 \title{Configuration for Ixodes scapularis population dynamics model from Ogden et al. 2005}
 \format{
 A \code{\link{config}}
+
+#' \describe{
+\item{steps}{Number of time steps to run the model. Here each step corresponds to one day.}
+\item{initial_population}{Named vector of initial population size. Here the population starts with 10000 questing adults.}
+\item{transitions}{A \code{\link{tibble}} giving the transitions between tick life stages.}
+\item{parameters}{A \code{\link{tibble}} with the parameters to the life-stage transitions functions.}
+\item{host_comm}{A \code{\link{tibble}} with the density of hosts over the model run. Here the host community is stable with 20 deer and 200 rodents.}
+\item{weather}{A \code{\link{tibble}} with the average temperature for each day of the run.}
+\item{max_delay}{The number of time units used for the delay functions.}
+}
 }
 \usage{
 ogden2005
@@ -17,7 +27,12 @@ model of tick population dynamics, including the effects of both temperature and
 the host community on tick life-stage transitions. We include this configuration
 to show that our package can be used to recreate existing models.
 }
+\examples{
+data(ogden2005)
+output <- run(ogden2005)
+graph_population_each_group(output)
+}
 \seealso{
-Based on Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
+Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
 }
 \keyword{datasets}

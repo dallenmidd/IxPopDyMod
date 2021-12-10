@@ -46,7 +46,8 @@ pre-loaded into the package. In this example, we will:
 If you wish to create a custom model configuration, see `?config()`.
 
 ``` r
-library(IxPopDyMod)
+devtools::load_all() # library(IxPopDyMod)
+library(readr)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
 ```
@@ -132,8 +133,7 @@ specifies the model. Here I read the `config` and then show the tick
 life-stage transitions.
 
 ``` r
-cfg <- read_config('vignettes/temp_example_config/config.yml')
-cfg$transitions
+temp_example_config$transitions
 #> # A tibble: 16 × 7
 #>    from  to    transition_fun delay source            pred1 pred2
 #>    <chr> <chr> <chr>          <lgl> <chr>             <chr> <lgl>
@@ -160,7 +160,7 @@ questing larvae, `q_l`, is an exponential function of temperature. We
 can see the parameters for this transition:
 
 ``` r
-cfg$parameters %>% filter(from == '__e', to == 'q_l')
+temp_example_config$parameters %>% filter(from == '__e', to == 'q_l')
 #> # A tibble: 2 × 8
 #>   from  to    param_name host_spp param_value param_ci_low param_ci_high source 
 #>   <chr> <chr> <chr>      <lgl>          <dbl> <lgl>        <lgl>         <chr>  
@@ -168,7 +168,7 @@ cfg$parameters %>% filter(from == '__e', to == 'q_l')
 #> 2 __e   q_l   b          NA         2.27      NA           NA            Ogden …
 ```
 
-The daily development rate is \(0.0000292*temp^{2.27}\).
+The daily development rate is 0.0000292 \* *t**e**m**p*<sup>2.27</sup>.
 
 ### Compare two temperature scenarios
 
@@ -177,11 +177,10 @@ the model. I make a second `config` in which the daily temperature is
 one degree warmer.
 
 ``` r
+cfg2 <- temp_example_config
+cfg2$weather <- temp_example_config$weather %>% mutate(tmean = tmean + 1)
 
-cfg2 <- cfg
-cfg2$weather <- cfg$weather %>% mutate(tmean = tmean + 1)
-
-output1 <- run(cfg)
+output1 <- run(temp_example_config)
 output2 <- run(cfg2)
 
 output1 <- output1 %>% mutate(temp = 'cold')
@@ -214,8 +213,7 @@ and ticks had a constant probabilty of transition between life stages
 probabilities based on host community composition.
 
 ``` r
-cfg <- read_config('vignettes/host_example_config/config.yml')
-cfg$transitions
+host_example_config$transitions
 #> # A tibble: 16 × 7
 #>    from  to    transition_fun delay source            pred1    pred2
 #>    <chr> <chr> <chr>          <lgl> <chr>             <chr>    <lgl>
@@ -242,7 +240,7 @@ depends on the `host_den`, this is how the host community is included in
 the transition.
 
 ``` r
-cfg$parameters %>% filter(from == 'q.l', to == 'e.l')
+host_example_config$parameters %>% filter(from == 'q.l', to == 'e.l')
 #> # A tibble: 6 × 8
 #>   from  to    param_name  host_spp param_value param_ci_low param_ci_high source
 #>   <chr> <chr> <chr>       <chr>          <dbl> <lgl>        <lgl>         <chr> 
@@ -270,16 +268,16 @@ I now compare how different host densities affect tick populations. Here
 I vary the deer density.
 
 ``` r
-cfg_lowdeerden <- cfg
-cfg_highdeerden <- cfg
-cfg_lowdeerden$host_comm <- cfg$host_comm %>% 
+cfg_lowdeerden <- host_example_config
+cfg_highdeerden <- host_example_config
+cfg_lowdeerden$host_comm <- host_example_config$host_comm %>% 
   mutate(host_den = ifelse(host_spp == 'deer', 0.1, host_den) )
 
-cfg_highdeerden$host_comm <- cfg$host_comm %>% 
+cfg_highdeerden$host_comm <- host_example_config$host_comm %>% 
   mutate(host_den = ifelse(host_spp == 'deer', 5, host_den) )
 
 
-output_middeerden <- run(cfg)
+output_middeerden <- run(host_example_config)
 output_lowdeerden <- run(cfg_lowdeerden)
 output_highdeerden <- run(cfg_highdeerden)
 
@@ -318,8 +316,7 @@ find_host <- function(x, y, a, pref)
 ```
 
 ``` r
-cfg <- read_config('vignettes/infect_example_config/config.yml')
-cfg$transitions
+infect_example_config$transitions
 #> # A tibble: 33 × 6
 #>    from  to    transition_fun delay pred1    pred2
 #>    <chr> <chr> <chr>          <lgl> <chr>    <lgl>
@@ -352,7 +349,7 @@ above). But deer can also serve as hosts for juvenile tick life stages,
 and deer are poor reservoirs for *Borrelia burgdorferi*. So increased
 deer density may also decrease the proportion of bloodmeals juvenile
 ticks take from more comptenet reservoirs life mice. We use this simple
-model to illustrate this possiblity.
+model to illustrate this possibility.
 
 ``` r
 deer_den <- c(0.1, 0.25, 0.5, 0.75, 1)
@@ -360,7 +357,7 @@ results_tib <- tibble(deer = deer_den, nymph_den = 0, nip = 0)
 
 for (i in 1:5)
 {
-  cfg_mod <- cfg
+  cfg_mod <- infect_example_config
   cfg_mod$host_comm[1,2] <- deer_den[i]
   out <- run(cfg_mod)
   
@@ -375,42 +372,23 @@ for (i in 1:5)
     summarise(totpop = sum(pop)) %>%
     unlist()
 }
-#> [1] "day 100"
-#> [1] "day 200"
-#> [1] "day 300"
-#> [1] "day 400"
-#> [1] "day 100"
-#> [1] "day 200"
-#> [1] "day 300"
-#> [1] "day 400"
-#> [1] "day 100"
-#> [1] "day 200"
-#> [1] "day 300"
-#> [1] "day 400"
-#> [1] "day 100"
-#> [1] "day 200"
-#> [1] "day 300"
-#> [1] "day 400"
-#> [1] "day 100"
-#> [1] "day 200"
-#> [1] "day 300"
-#> [1] "day 400"
+```
 
+``` r
 results_tib %>%
   ggplot(aes(deer, nip)) +
   geom_point()
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
 
 ``` r
-
 results_tib %>%
   ggplot(aes(deer, nymph_den)) +
   geom_point()
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-18-2.png" width="100%" />
 
 Here we see that as deer density increases the number of nymphs
 increases (as the tick population gets bigger). But the nymph infection

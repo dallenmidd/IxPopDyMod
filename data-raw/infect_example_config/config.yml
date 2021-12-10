@@ -1,0 +1,6 @@
+steps: 500
+initial_population:
+  r_a: 10
+transitions: data-raw/infect_example_config/tick_transitions.csv
+parameters: data-raw/infect_example_config/tick_parameters.csv
+host_comm: data-raw/infect_example_config/host_comm.csv

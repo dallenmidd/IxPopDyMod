@@ -1,6 +1,0 @@
-steps: 500
-initial_population:
-  r_a: 10
-transitions: vignettes/infect_example_config/tick_transitions.csv
-parameters: vignettes/infect_example_config/tick_parameters.csv
-host_comm: vignettes/infect_example_config/host_comm.csv
