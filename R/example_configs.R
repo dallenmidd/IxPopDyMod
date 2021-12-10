@@ -41,8 +41,10 @@
 #' @seealso Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
 #' @examples
 #' data(ogden2005)
+#' \dontrun{
 #' output <- run(ogden2005)
 #' graph_population_each_group(output)
+#' }
 "ogden2005"
 
 #' Configuration for showing how we can modify climate data

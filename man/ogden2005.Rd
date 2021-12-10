@@ -29,8 +29,10 @@ to show that our package can be used to recreate existing models.
 }
 \examples{
 data(ogden2005)
+\dontrun{
 output <- run(ogden2005)
 graph_population_each_group(output)
+}
 }
 \seealso{
 Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
