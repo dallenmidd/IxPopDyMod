@@ -22,6 +22,13 @@ Importance of replicable and reproducible science. How open code fits into this.
 
 Broad philosophy behind our modeling structure. Allows user to easily specify, run, see the results of, and compare tick population models. 
 
+The modeling structure supports classic matrix models, where the population on day n equals the population on day n-1, multiplied by a matrix of transition probabilites. However, this approach alone does not accurately represent Ixodidae tick life cycles. In many cases, transitions between tick life stages occur over a longer period (e.g. from _ to _ days?). In order to simulate this behavior, our modeling framework supports delay transitions, where ticks undergo a developmental period whose duration is determined by a user specified function. When that duration has passed, the number of ticks that emerge into the new life stage is the number of ticks that entered development, with mortality subtracted.
+
+TODO don't explain config here... Modelling tick populations using our model structure requires several inputs, which together uniquely specify a model configuration. These are: a table specifying the transitions between tick life stages, a table specifying parameters. Users may optionally specify input host community and weather data that transitions may depend on. Finally, users may optionally specify custom functions to compute the probability or duration of a transition. The package includes an S3 object, "config", which helps a user construct a model configuration, and whose documentation explains the model structure in more detail.
+
+
+
+
 ## Package use
 
 ```{r load-model}
