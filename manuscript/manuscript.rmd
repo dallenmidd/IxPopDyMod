@@ -12,32 +12,35 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Ticks are obligate, blood-feeding parasites and vectors of important wildlife, livestock and human pathogens (sonenshine2014). It is important to understand tick population dynamics.THis is hard because 
+Ticks are obligate, blood-feeding parasites and vectors of important wildlife, livestock and human pathogens (sonenshine2014). It is important to understand tick population and infection dynamics given their impacts on public health (eisen and paddock 2020). This is hard because 
+- determining true tick population sizes is difficult (dobson2014)
+- model validation requires coupled environmental and tick density data. Additionally, since tick populations are sensitive to micro climates, environmental data must be high resolution/site specific (norman2016)
 
 Models for tick populations offer important tools to understand population dynamics. They can be used to understand how tick populations will respond to climate change (ogden2014, winter202, li2016). Models can also be used to test potential tick and tick-borne disease control strategies (mount1997, wang2016). Models can also be used to interrogate theories of tick-borne disease transmission that are hard to address experimentally (ogden2009, levi2016, dunn2013).
 
-There is a long history of modeling tick populations (mount1997, randolph1997, ginsberg1988, haile1987). These models can take a number of different forms ordinary differential equations (maliyoni2017, wallace2019), difference equations (ogden2005), Leslie models (dobson2011, estradapena2014), agent-based (halsey2018) . As with other models there is a tradeoff between model complexity and ability to arrive at analytic results versus the need for simulation. Approximation, such as the next generation matrix, can be used to calcualte the r_0 of either the tick population () or hte tick-borne disease (hartemink2008) for analytic results.
+There is a long history of modeling tick populations (mount1997, randolph1997, ginsberg1988, haile1987). These models can take a number of different forms including ordinary differential equations (maliyoni2017, wallace2019), difference equations (ogden2005), Leslie models (dobson2011, estradapena2014), and agent-based models (halsey2018). As with other models there is a tradeoff between model complexity and ability to arrive at analytic results versus the need for simulation. Approximation, such as the next generation matrix, can be used to calculate the r_0 of either the tick population (wu2013) or the tick-borne disease (hartemink2008) for analytic results.
+DAVE: am I correct that wu2013 is an appropriate example of this? https://pubmed.ncbi.nlm.nih.gov/23206385/
 
 Importance of replicable and reproducible science. How open code fits into this.
+- Jalali et al. 2021 https://doi.org/10.1093/epirev/mxab006
+- Patz et al. 2000 https://doi.org/10.1016/S0020-7519(00)00141-7
+- Reproducible and open science increases the credibility of research (Munafo et al. 2017 https://doi.org/10.1038/s41562-016-0021)
+- Specifically, sharing code allows others to modify parts of an analysis and assess sensitivity (Peng et al. 2006 https://doi.org/10.1093/aje/kwj093). 
+TODO: Myles will weave these sources together
 
 Broad philosophy behind our modeling structure. Allows user to easily specify, run, see the results of, and compare tick population models. 
 
-The modeling structure supports classic matrix models, where the population on day n equals the population on day n-1, multiplied by a matrix of transition probabilites. However, this approach alone does not accurately represent Ixodidae tick life cycles. In many cases, transitions between tick life stages occur over a longer period (e.g. from _ to _ days?). In order to simulate this behavior, our modeling framework supports delay transitions, where ticks undergo a developmental period whose duration is determined by a user specified function. When that duration has passed, the number of ticks that emerge into the new life stage is the number of ticks that entered development, with mortality subtracted.
-
-TODO don't explain config here... Modelling tick populations using our model structure requires several inputs, which together uniquely specify a model configuration. These are: a table specifying the transitions between tick life stages, a table specifying parameters. Users may optionally specify input host community and weather data that transitions may depend on. Finally, users may optionally specify custom functions to compute the probability or duration of a transition. The package includes an S3 object, "config", which helps a user construct a model configuration, and whose documentation explains the model structure in more detail.
-
-
-
+The modeling structure supports classic matrix models, where the population on day n equals the population on day n-1, multiplied by a matrix of transition probabilities. However, this approach alone does not accurately represent Ixodidae tick life cycles. In many cases, transitions between tick life stages occur over a multi-day period. In order to simulate this behavior, our modeling framework supports delay transitions, where ticks undergo a developmental period whose duration is determined by a user specified function. When that duration has passed, the number of ticks that emerge into the new life stage is the number of ticks that entered development, with mortality subtracted.
 
 ## Package use
 
 ```{r load-model}
-
+library(IxPopDyMod)
 ```
 
 # Specific model with `config`
 
-Required aspects of `config` and then optional aspects. 
+Modelling tick populations using our model structure requires several inputs, which together uniquely specify a model configuration. The required components are: a table specifying the transitions between tick life stages, a table specifying parameter values, the initial population of each tick life stage, and the number of time steps to run the model. Users may optionally specify input host community and weather data that transitions may depend on, as well as custom functions to compute the probability or duration of a transition. The package includes an S3 object, "config", which helps a user construct a model configuration, and whose documentation explains the model structure in more detail.
 
 # Run, analyze, and graph model
 
@@ -45,8 +48,24 @@ Required aspects of `config` and then optional aspects.
 
 ## Full model example
 
-Here we do the winter tick on moose example. HEre we could use the model to test how climate change affects winter tick populations.
+Here we do the winter tick on moose example. Here we could use the model to test how climate change affects winter tick populations.
 
 ## Conclusions and future directions
 
+The package makes no assumptions about the area where a tick population is being modeled. In order to study regional differences in tick population sizes, the model could be applied across a spatial grid, using environmental data sourced for each grid cell. 
+
+Validating the model for studying black-legged tick and Lyme disease in Vermont.
+
+Things that are not captured in the model:
+- Number of ticks on each host is not normally distributed ()
+- No flow of ticks or hosts in/out of the area being modelled
+
 ## Appendix 1: reproduce Ogden model
+- Unlike Ogden, the number of eggs laid by reproductive females is not density dependent. Such density dependence is not realistic, and may instead have been used to ensure that tick populations have some upper limit?
+
+We reproduced the results of (ogden2005) using IxPopDyMod. Our process was as follows:
+- We converted their differential and difference? equations which describe rates of change to functions describing probability and/or duration of life stage transitions. 
+
+
+
+
