@@ -4,5 +4,4 @@ initial_population:
   q_a: 10000
 transitions: data-raw/ogden2005/tick_transitions.csv
 parameters: data-raw/ogden2005/tick_parameters.csv
-host_comm: data-raw/ogden2005/host_comm.csv
-weather: data-raw/ogden2005/ogden_weather.csv
+predictors: data-raw/ogden2005/predictors.csv

@@ -1,4 +1,5 @@
-library(IxPopDyMod)
+# library(IxPopDyMod)
+devtools::load_all()
 library(tidyverse)
 library(usethis)
 

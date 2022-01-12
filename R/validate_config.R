@@ -176,12 +176,12 @@ missing_and_extra_params <- function(row_index, transitions_with_parameters) {
     params_to_string_list(extra, 'Extra'))
 }
 
-test_predictors <- function(transitions) {
+test_predictors <- function(transitions, predictors) {
 
   # return whether a predictor value is supported by get_pred()
   predictor_is_valid <- function(pred) {
 
-    valid_strings <- c('temp', 'vpd', 'host_den')
+    valid_strings <- unique(predictors$pred)
 
     life_stages <- get_life_stages(transitions)
 
@@ -216,7 +216,6 @@ depends_on <- function(predictors) {
   }
 }
 
-depends_on_weather <- depends_on(c('temp', 'vpd'))
 depends_on_hosts <- depends_on('host_den')
 
 to_short_string <- function(v, max = 3) {
@@ -230,44 +229,37 @@ to_short_string <- function(v, max = 3) {
            ''))
 }
 
-# ensure that there is weather or host_comm data for the entire j_day range
-# that we are running the model, plus the max_delay
+# Ensure that there predictor data for the entire j_day range that we are
+# running the model, plus the max_delay, OR that the predictor values are
+# constant over time (indicated by NA j_day).
 # We add max_delay because if input data is missing for time in between
 # steps and steps+max_delay, we could incorrectly get delay transitions that
 # do not cumsum to 1
-test_missing_days <- function(tbl, tbl_name, steps, max_delay) {
+test_missing_days <- function(tbl, steps, max_delay) {
 
-  missing_days <- setdiff(1:(steps + max_delay),
-                          intersect(1:(steps + max_delay), tbl$j_day))
+  day_range <- 1:(steps + max_delay)
+
+  f <- function(group, ...) {
+    j_days <- group$j_day
+    if (all(is.na(j_days))) {
+      return(integer(0))
+    }
+    setdiff(day_range,
+            intersect(day_range, group$j_day))
+  }
+
+  missing_days <- tbl %>%
+    group_by(.data$pred, .data$pred_subcategory) %>%
+    dplyr::group_map(f) %>%
+    unlist()
 
   if (length(missing_days) > 0) {
     stop(
       stringr::str_squish(paste0(
-        "`", tbl_name, "` must have a row for each `j_day` from 1 to `steps`
-          + `max_delay`. Missing `j_day` values: ")), ' ',
+        "each pred in the `predictors` table must have a row for each `j_day`
+        from 1 to `steps` + `max_delay`, OR have a single row with NA in the
+        `j_day` column. Missing `j_day` values: ")), ' ',
       to_short_string(missing_days),
-      call. = FALSE
-    )
-  }
-}
-
-# ensure that there is host density data for the same days for all host spp
-test_host_spp_days <- function(host_comm) {
-
-  hosts <- unique(host_comm$host_spp)
-
-  days_for_each_host <- unname(sapply(hosts, function(h) {
-    host_comm[(host_comm$host_spp == h), 'j_day']
-  }))
-
-  # get days in same order since we do not test set equality
-  days_for_each_host <- lapply(days_for_each_host, sort)
-
-  is_same_day_range <- isTRUE(do.call(all.equal, days_for_each_host))
-
-  if(!(is_same_day_range)) {
-    stop(
-      "`host_comm` must have the same `j_day` range for each `host_spp`",
       call. = FALSE
     )
   }
@@ -305,8 +297,7 @@ test_transition_values <- function(cfg) {
           N_developing = N_developing,
           max_delay = cfg$max_delay,
           life_stages = life_stages,
-          host_comm = cfg$host_comm,
-          weather = cfg$weather)})
+          predictors = cfg$predictors)})
 
   transitions_are_valid <-
     sapply(transition_values,
@@ -378,38 +369,24 @@ validate_config <- function(cfg) {
   has_required_cols(cfg, 'transitions', names(transitions_coltypes))
   has_required_types(cfg, 'transitions', transitions_coltypes)
 
-  test_predictors(cfg$transitions)
+  test_predictors(cfg$transitions, cfg$predictors)
 
-  if (depends_on_weather(cfg$transitions)) {
-    weather_coltypes <- c(tmean = 'numeric')
-    has_required_cols(cfg, 'weather', names(weather_coltypes))
-    if ('j_day' %in% colnames(cfg$weather)) {
-      test_missing_days(cfg$weather, 'weather', cfg$steps, cfg$max_delay)
-    }
-    has_required_types(cfg, 'weather', weather_coltypes)
+  predictors_coltypes <- c(
+    pred = 'character',
+    pred_subcategory = 'character',
+    j_day = 'numeric',
+    value = 'numeric'
+  )
+
+  if (!is.null(cfg$predictors)) {
+    has_required_cols(cfg, 'predictors', names(predictors_coltypes))
+    test_missing_days(cfg$predictors, cfg$steps, cfg$max_delay)
+    has_required_types(cfg, 'predictors', predictors_coltypes)
   }
-
 
   parameters_coltypes <- c(
     from = 'character', to = 'character', param_name = 'character',
     param_value = 'numeric')
-
-  if (depends_on_hosts(cfg$transitions)) {
-
-    # add host spp column requirement
-    parameters_coltypes['host_spp'] <- 'character'
-
-    host_comm_coltypes <- c(
-      host_spp = 'character', host_den = 'numeric')
-    has_required_cols(cfg, 'host_comm', names(host_comm_coltypes))
-    has_required_types(cfg, 'host_comm', host_comm_coltypes)
-
-    if ('j_day' %in% colnames(cfg$host_comm)) {
-      test_missing_days(cfg$host_comm, 'host_comm', cfg$steps, cfg$max_delay)
-      test_host_spp_days(cfg$host_comm)
-    }
-
-  }
 
   has_required_cols(cfg, 'parameters', names(parameters_coltypes))
   has_required_types(cfg, 'parameters', parameters_coltypes)
