@@ -292,9 +292,9 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
 
   yaml::write_yaml(
     x = list(
-      steps = cfg$steps,
+      steps = ensure_int(cfg$steps),
       max_delay = cfg$max_delay,
-      initial_population = as.list(cfg$initial_population),
+      initial_population = as.list(ensure_int(cfg$initial_population)),
       transitions = transitions_path,
       parameters = parameters_path,
       predictors = predictors_path
