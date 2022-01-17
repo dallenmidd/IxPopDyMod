@@ -207,13 +207,7 @@ new_config <- function(initial_population, transitions, parameters,
 config <- function(initial_population, transitions, parameters,
                    predictors, steps, max_delay = 365L) {
 
-  # convert doubles to integers
-  ensure_int <- function(x) {
-    if (is.double(x) && all(x == as.integer(x))) {
-      stats::setNames(as.integer(x), names(x))
-    }
-    x
-  }
+
 
   if ('host_spp' %in% names(parameters)) {
     parameters <- dplyr::arrange(parameters, .data$host_spp)
@@ -528,4 +522,17 @@ graph_lifecycle <- function(transitions) {
     filter(.data$to %in% get_life_stages(transitions)) %>%
     graph_from_data_frame() %>%
     plot(edge.arrow.size = 0.5)
+}
+
+#' Convert doubles to integers and preserve names
+#'
+#' @param x A double
+#' @return If x is a double whose value is equal to an integer, return the
+#' equivalent integer. Otherwise, return x
+#' @noRd
+ensure_int <- function(x) {
+  if (is.double(x) && all(x == as.integer(x))) {
+    return(stats::setNames(as.integer(x), names(x)))
+  }
+  x
 }
