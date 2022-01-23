@@ -183,6 +183,342 @@ out_starting_in_june %>%
 # above a threshold? but also need to make sure they don't emerge immediately in
 # the fall after a larvae becomes attached...
 
+# in this output graph, we see some population (> 1) for all life stages from
+# eggs to engorged adults. However, we don't see any reproductive adults, which
+# should emerge next.
+out_starting_in_june %>%
+  filter(pop > 0,
+         stage == 'e_a') %>%
+  print(n = 100)
+# there are e_a ticks starting on day 259
+# and the number/population seems reasonable
+
+out_starting_in_june %>%
+  filter(pop > 0,
+         stage == 'r_a')
+# reproductive ticks emerge on day 322, but pop is only 0.0579
+# since we started the model with 10 r_a ticks, this is too low for a stable pop
+# between when e_a (day 259) and r_a (322) ticks emerge, is 63 days, but the
+# transition is not a delay transition, so the transition value must be zero
+# until day 322-1 = 321. Let's look at the predictor values to see why
+winter_tick$predictors %>%
+  filter(j_day %in% 255:325) %>%
+  ggplot(aes(j_day, value, color = pred)) +
+  geom_point() +
+  geom_hline(yintercept = 15) + # max_temp threshold
+  geom_vline(xintercept = 321) # day of first reproductive adults
+
+winter_tick$transitions %>%
+  filter(from == 'e_a')
+
+winter_tick$parameters %>%
+  filter(from == 'e_a')
+
+# transition probability is a function of max_temp
+lapply(
+  10:20,
+  function(temp) {
+  expo_shifted_fun(
+  x = temp,
+  y = NULL,
+  a = 0.01,
+  b = 1.2,
+  c = 15
+  )}
+)
+# value is 0 if max_temp is below zero
+
+# takeaway: reproductive ticks (predictably) don't emerge until temperature is
+# above 15C threshold, and in the mean time, the population of engorged adults
+# goes way down
+out_starting_in_june %>%
+  filter(stage == 'e_a',
+         day %in% 259:322) %>%
+  ggplot(aes(day, pop)) +
+  geom_point()
+
+# why are the e_a ticks dying so much? because the mortality rate is high
+# until snowmelt, specifically, daily probability of mortality is 0.64
+snow_cover_fun
+winter_tick$parameters %>% filter(from == 'e_a', to == 'm')
+# I got that number from Drew and Samuel 1986. Looking back at that paper,
+# they define survival as the % of engorged adults that laid eggs (rather than
+# dying before egg laying). This is a "per_capita_m" type of mortality, but we're
+# modelling it as a daily mortality.
+# TODO could we convert to a daily mortality rate?
+
+# when (calendar year) are engorged adults emerging?
+# based on Drew and Samuel 1986, it should be early march to mid may
+# in current model, it's clear they emerge starting e_a. the end of when
+# they emerge is trickier to determine - it's based on a fixed delay transition
+# from attached larvae. But based on graph above, it seems like the bulk of new
+# engorged adults have emerged by j_day 290
+winter_tick$transitions %>% filter(to == 'e_a')
+
+# earlier we shifted j_day of the weather by -155
+winter_tick$predictors %>%
+  filter(j_day %in% c(259, 290))
+414 - 365 # ~ feb 20 (259 + 155 - 365)
+445 - 365 # ~ march 20
+# it looks like engorged adults are emerging too early in the spring
+# which makes sense because we were getting cycles in the population that were
+# less than a year long
+
+# The fixed length delay transition from attached larvae to engorged adult
+# should probably go. We could use Addison and McLaughlin 1988 to break this
+# up into multiple stages. This paper has timing for the length of larvae and
+# nymph and adult stages on moose, including time of engorged adult "detachment",
+# I can't tell from paper whether detachment is different from drop off -
+# detachment being when tick stops feeding, drop off being when it physically
+# drops off moose onto the ground?
+# But even if we break it up using the durations of the individual on-host life
+# stages from Addison and McLaughlin 1988, we still ultimately get a fixed delay,
+# rather than engorged adults emerging/dropping off based on climate...
+# For now, based on that paper, 190-192 days may be a better delay length than
+# 175 days for a_l to e_a, so we'll change that
+winter_tick$parameters %>% print()
+winter_tick$parameters[10, 'param_value'] <- 1 / 190
+
+# rerunning model to see how this affects timing
+out_longer_period_on_moose <- winter_tick %>% run()
+out_longer_period_on_moose %>%
+  graph_population_each_group_lower_limit() +
+  geom_vline(xintercept = seq(365, 365 * 4, 365))
+
+# population stays higher longer - probably because engorged adults are emerging
+# later in the spring when weather is better
+# this also seems to result in a pattern that is more consistent annually - which
+# may be more evident from this graph where we don't set a lower limit so we
+# keep seeing the population cycle after pop goes below 1
+out_longer_period_on_moose %>%
+  graph_population_each_group() +
+  geom_vline(xintercept = seq(365, 365 * 4, 365))
+
+# lets repeat some of plotting we did earlier for the model run, about the timing
+# of e_a and r_a ticks
+
+out_longer_period_on_moose %>%
+  filter(pop > 0,
+         stage == 'e_a') %>%
+  print(n = 100)
+# e_a ticks now emerge on day 273
+
+out_longer_period_on_moose %>%
+  filter(stage %in% c('e_a'),
+         day %in% 270:350) %>%
+  ggplot(aes(day, pop, color = stage)) +
+  geom_point()
+# e_a ticks peak around day 280, mostly done by day 300
+
+out_longer_period_on_moose %>%
+  filter(pop > 0,
+         stage == 'r_a')
+# r_a ticks still emerge on day 322, which makes sense because it's based on
+# the same 15C temp threshold
+# r_a tick population is slightly bigger (~0.2 rather than ~0.05 on day 322),
+# but still too small for a stable population
+
+# lets think about whether this timing makes sense based on tick phenology
+273 + 155 - 365 # 63 = March 3
+280 + 155 - 365 # 70 = March 10
+300 + 155 - 365 # 90 = March 30
+# so engorged adults are appearing (emerging and peaking) almost entirely in March
+# which is probably still a little early
+
+# even though r_a populations are way too low in magnitude, we may still be able
+# to see phenology by plotting
+out_longer_period_on_moose %>%
+  filter(day >= 322,
+         day < 322 + 50,
+         stage == 'r_a') %>%
+  ggplot(aes(day, pop)) +
+  geom_point()
+
+# or same for eggs
+out_longer_period_on_moose %>%
+  filter(day >= 322,
+         day < 322 + 50,
+         stage == '__e') %>%
+  ggplot(aes(day, pop)) +
+  geom_point()
+# this reveals that essentially all egg laying is done by jday 350/355
+# which is
+355 + 155 - 365 # day 145 = May 24
+# looking at Drew and Samuel 1986, egg laying should starting around May 20,
+# peaking May 30-June 10, ending by June 20. When you also consider that egg
+# laying in reality happens over a ~20-30 day period, peaking around day 6,
+# our model is doing egg laying too early
+# Currently the reason that egg laying is pushed back even to where it is now,
+# ending around May 24, is that the e_a to r_a transition only happens when
+# the temp is above 15C. So e_a ticks just die and die till that threshold is
+# met. It would be far better to model this as a delay transition.
+# TODO use Drew and Samuel 1986, fig 4 to fit this transition
+winter_tick$transitions %>%
+  filter(from == 'e_a')
+
+# in order to do this fitting, use nls() - see Dave's example
+
+# Consider e_a ticks that were placed in the grassland on March 19, 1983
+# They took ~78 days +-3 to begin ovipositing (equivalent in our model to
+# duration of transition to r_a). Survival was low, around 5%.
+# The question is, why did they take ~78 days, as a function of temperature over
+# the period between March 19, and March 19th plus 78 days.
+# March 19th = Julian day 79, so the Julian day range is 79:(79 + 78)
+# We need to get the temp for each day in this range
+temp_data <-
+  winter_tick$predictors %>%
+  filter(pred == 'max_temp',
+         # have to advance a year (+365) to get data
+         true_j_day %in% (79 + 365):(79 + 78 + 365))
+
+temp_data %>%
+  ggplot(aes(j_day, value)) +
+  geom_point()
+
+# looking at how Ogden does this delay
+ogden2005$transitions %>%
+  filter(from == 'e_a')
+ogden2005$parameters %>%
+  filter(str_detect('e_a', from))
+# lets calculate values of this transition for a reasonable range of temps
+ogden_expo_fun <- function(temp) {
+  expo_fun(
+    x = temp,
+    a = 0.000769,
+    b = 1.4)
+}
+
+transition_value_per_temp <-
+  sapply(0:30, ogden_expo_fun)
+
+ggplot(
+  tibble(temp = 0:30, val = transition_value_per_temp),
+  aes(temp, val)) +
+  geom_point()
+
+
+# what happens if we apply ogden's e_a to r_a delay expo_fun to our winter tick
+# weather data?
+temp_data <-
+  temp_data %>%
+  mutate(
+    temp = value,
+    transition_value = ogden_expo_fun(temp),
+    cumsum = cumsum(transition_value),
+    days_passed = row_number())
+
+temp_data %>%
+  ggplot(aes(temp, transition_value)) +
+  geom_point()
+
+temp_data %>%
+  ggplot(aes(j_day, transition_value)) +
+  geom_point()
+
+temp_data %>%
+  ggplot(aes(days_passed, cumsum)) +
+  geom_point()
+
+# cumsum reaches 1 around day 55
+# we could adjust parameters to push it back to day ~78
+# a value of 1.15 for parameter b is one way to accomplish
+ogden_expo_fun2 <- function(temp) expo_fun(temp, NULL, 0.000769, 1.15)
+temp_data %>%
+  mutate(
+    temp = value,
+    transition_value = ogden_expo_fun2(temp),
+    cumsum = cumsum(transition_value),
+    days_passed = row_number()) %>%
+  ggplot(aes(days_passed, cumsum)) +
+  geom_point()
+
+# now lets consider the cohort starting on april 2, which took ~63+-5 days to
+# develop, starting on april 2, which is Julian day 93
+# notice that this results in r_a emerging right around the same day as the previous
+# cohort (Julian day 79 + 78 = 157 for previous cohort, 93 + 63 = 156 for this one)
+# I was initially concerned this may be hard to reconcile, however for the first
+# ~15 days between March 19th and April 2, the cumsum is only ~0.03, so the
+# j_day that both groups reach a cumsum of 1 is similar
+
+temp_data2 <-
+  winter_tick$predictors %>%
+  filter(pred == 'max_temp',
+         # have to advance a year (+365) to get data
+         true_j_day %in% (93 + 365):(93 + 63 + 365))
+
+temp_data2 %>%
+  mutate(
+    temp = value,
+    transition_value = ogden_expo_fun2(temp),
+    cumsum = cumsum(transition_value),
+    days_passed = row_number()
+  ) %>%
+  ggplot(aes(j_day, cumsum)) +
+  geom_point()
+
+
+# We could approach this a little differently - by calculating the daily
+# value of the expo_fun over each day throughout the season. Then starting at
+# each day that a cohort starts, compute when the cumsum reaches 1.
+
+# The total range of starting dates for engorged adults is March 6 to May 22.
+# Those starting on May 22 take ~20 days. For a little buffer, going up to end
+# of June should be sufficient.
+temp_data3 <-
+  winter_tick$predictors %>%
+  filter(pred == 'max_temp',
+         # 66 is March 6th
+         # 182 is June 30th
+         true_j_day %in% (66 + 365):(182 + 365)) %>%
+  mutate(transition_value = ogden_expo_fun2(value),
+         days_passed = row_number(),
+         true_j_day = true_j_day - 365) %>%
+  select(j_day, true_j_day, days_passed, temp = value, transition_value)
+
+# NOTE: we are using weather station data from 1982, should be okay because
+# tick phenology pretty similar between 1982 and 1983
+
+# grassland cohorts, 1983
+# start date - start jday - preoviposition duration
+# March 19   -      79    - 78
+# April 2    -      93    - 63
+# April 16   -      107   - 42
+# April 30   -      121   - 37
+
+transition_cumsum_between_true_j_days <- function(start, duration) {
+  temp_data3 %>%
+    filter(true_j_day %in% start:(start + duration)) %>%
+    pull(transition_value) %>%
+    sum()
+}
+
+transition_cumsum_between_true_j_days(79, 78)
+transition_cumsum_between_true_j_days(93, 63)
+transition_cumsum_between_true_j_days(107, 42)
+transition_cumsum_between_true_j_days(121, 37)
+
+duration_till_cumsum_gte_1 <- function (start) {
+  temp_data3 %>%
+    filter(true_j_day >= start) %>%
+    mutate(cumsum = cumsum(transition_value)) %>%
+    filter(cumsum < 1) %>%
+    nrow()
+}
+
+# attempting to recreate lower left subfig of Drew and Samuel 1986 based
+# on the function we just roughly fit
+tibble(
+  start_date = 79:121,
+  preoviposition_period = sapply(79:121, duration_till_cumsum_gte_1)
+) %>%
+  ggplot(aes(start_date, preoviposition_period)) +
+  geom_point() +
+  xlim(66, 143) + # march 6 to may 22
+  ylim(0, 100)
+
+# TODO left off here, so the issue is that the transition is taking
+# too long when we start later in the season
+
 
 
 
