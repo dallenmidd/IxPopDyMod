@@ -519,7 +519,47 @@ tibble(
 # TODO left off here, so the issue is that the transition is taking
 # too long when we start later in the season
 
+# TODO this doesn't work - not sure how to make this compatible w formula
+# fit function using y ~ x and nls?
+# y would be duration of oviposition period? or cumsum of daily probabilities, always == 1?
+# x would be starting day? or temperature over each day?
+x <- c(79, 93, 107, 121)
+y <- c(78, 63, 42, 37)
+x <- x - 66 # subtract 66 because first true_j_day is 66 # this results in an
+            # index on the temps vector
+mydata <- data.frame(x = x, y = y)
+temps <- temp_data3$temp
+nls(
+  formula = y ~ sum(sapply(
+  # temp_data3[temp_data3['true_j_day'] %in% y:(y + x), 'temp'],
+    temps[x:(x + y)],
+    function(x) {
+      ifelse(x > 0, a * x ^ b, 0)
+    })),
+  data = mydata,
+  start = list(a = .000769, b = 1.15)
+  )
 
+
+# Dave's example
+{
+# This is just fake data
+x <- 1:11
+y <- c( 1, 1.2, 1.8, 2.9, 5, 10, 14, 17.5, 18.7, 19, 19.5)
+mydata <- data.frame(x = x, y = y)
+
+# plot the data
+plot(x,y)
+
+# this is the part that fits a curve
+nls(formula = y ~ c*exp(a+b*x )/(1+exp(a+b*x)),
+    data = mydata,
+    start = list(c = 20, b = 3/4, a = - 4.5) )
+
+
+# show that the curve works
+curve(19.8*exp(-5.4+0.899*x )/(1+exp(-5.4+0.899*x)), add = TRUE)
+}
 
 
 # TODO find values of all the transitions, as a factor of predictors and parameters
