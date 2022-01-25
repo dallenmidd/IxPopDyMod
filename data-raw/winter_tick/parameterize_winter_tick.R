@@ -429,7 +429,7 @@ temp_data %>%
 # we could adjust parameters to push it back to day ~78
 # a value of 1.15 for parameter b is one way to accomplish (I found this just by
 # plugging in and testing a few values)
-ogden_expo_fun2 <- function(temp, a, b) expo_fun(temp, NULL, a= 0.000769, b = 1.15)
+ogden_expo_fun2 <- function(temp, a= 0.000769, b = 1.15) expo_fun(temp, NULL, a = a, b = b)
 temp_data %>%
   mutate(
     temp = value,
@@ -584,6 +584,8 @@ day_to_ovi <- function(start_day, a, b)
     nrow()
 }
 
+
+
 day_to_ovi(79, a = 0.000769, b = 1.15)
 day_to_ovi(79, a = 0.0004, b = 1.5)
 
@@ -604,7 +606,18 @@ nll_first_day <- function(a, b)
   -sum(dnorm(x = mydata$y, mean = pred_day, sd = 10, log = TRUE))
 }
 
-optim(par = list(a = 0.07, b = 1), fn = nll_first_day)
+
+try_a <- seq(from = 0.0001, to = 0.001, length = 10)
+try_b <- seq(from = 1, to = 2, length = 10)
+nllmat <- matrix(nrow =10, ncol=10)
+for(a1 in 1:10) {
+  for(b1 in 1:10) {
+    nllmat[a1,b1]<- nll_first_day(a = try_a[a1], b = try_b[b1])
+  }
+}
+
+
+
 
 # Dave's example
 {
