@@ -429,7 +429,7 @@ temp_data %>%
 # we could adjust parameters to push it back to day ~78
 # a value of 1.15 for parameter b is one way to accomplish (I found this just by
 # plugging in and testing a few values)
-ogden_expo_fun2 <- function(temp) expo_fun(temp, NULL, 0.000769, 1.15)
+ogden_expo_fun2 <- function(temp, a, b) expo_fun(temp, NULL, a= 0.000769, b = 1.15)
 temp_data %>%
   mutate(
     temp = value,
@@ -564,6 +564,37 @@ nls(
 # NOTE: I don't think this is playing by the rules of formulas...
 
 # @Dave see up to here
+
+# function that says the day it transitions
+
+day_to_ovi <- function(start_day, a, b)
+{
+    winter_tick$predictors %>%
+    filter(pred == 'max_temp',
+           # 66 is March 6th
+           # 182 is June 30th
+           true_j_day %in% (66 + 365):(182 + 365)) %>%
+    mutate(transition_value = ogden_expo_fun2(value, a = a, b = b),
+           days_passed = row_number(),
+           true_j_day = true_j_day - 365) %>%
+    select(j_day, true_j_day, days_passed, temp = value, transition_value) %>%
+    filter(true_j_day >= start_day) %>%
+    mutate(cumsum = cumsum(transition_value)) %>%
+    filter(cumsum < 1) %>%
+    nrow()
+}
+
+day_to_ovi(79, a = 0.000769, b = 1.15)
+
+x <- c(79, 93, 107, 121)
+y <- c(78, 63, 42, 37)
+mydata <- data.frame(x = x, y = y)
+plot(x,y)
+
+nls(formula = y ~ day_to_ovi(start_day = x),
+    data = mydata,
+    start = list( a = 0.000769, b = 1.15) )
+
 
 # Dave's example
 {
