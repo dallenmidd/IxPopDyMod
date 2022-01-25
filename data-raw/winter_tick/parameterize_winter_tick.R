@@ -585,6 +585,8 @@ day_to_ovi <- function(start_day, a, b)
 }
 
 day_to_ovi(79, a = 0.000769, b = 1.15)
+day_to_ovi(79, a = 0.0004, b = 1.5)
+
 
 x <- c(79, 93, 107, 121)
 y <- c(78, 63, 42, 37)
@@ -595,6 +597,14 @@ nls(formula = y ~ day_to_ovi(start_day = x),
     data = mydata,
     start = list( a = 0.000769, b = 1.15) )
 
+nll_first_day <- function(a, b)
+{
+  pred_day = numeric(length = 4)
+  for (i in 1:4) pred_day[i] <- day_to_ovi(start_day = mydata$x[i], a = a, b = b)
+  -sum(dnorm(x = mydata$y, mean = pred_day, sd = 10, log = TRUE))
+}
+
+optim(par = list(a = 0.07, b = 1), fn = nll_first_day)
 
 # Dave's example
 {
