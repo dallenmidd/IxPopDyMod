@@ -344,6 +344,12 @@ out_longer_period_on_moose %>%
 # this reveals that essentially all egg laying is done by jday 350/355
 # which is
 355 + 155 - 365 # day 145 = May 24
+
+# @Dave I would start here. Still run the code above to set things up, which
+# may take a few minutes - but no need to look over it. First bit of this section
+# is more background - I'll put in another note about what I'm actively thinking
+# about.
+
 # looking at Drew and Samuel 1986, egg laying should starting around May 20,
 # peaking May 30-June 10, ending by June 20. When you also consider that egg
 # laying in reality happens over a ~20-30 day period, peaking around day 6,
@@ -421,7 +427,8 @@ temp_data %>%
 
 # cumsum reaches 1 around day 55
 # we could adjust parameters to push it back to day ~78
-# a value of 1.15 for parameter b is one way to accomplish
+# a value of 1.15 for parameter b is one way to accomplish (I found this just by
+# plugging in and testing a few values)
 ogden_expo_fun2 <- function(temp) expo_fun(temp, NULL, 0.000769, 1.15)
 temp_data %>%
   mutate(
@@ -453,7 +460,7 @@ temp_data2 %>%
     cumsum = cumsum(transition_value),
     days_passed = row_number()
   ) %>%
-  ggplot(aes(j_day, cumsum)) +
+  ggplot(aes(days_passed, cumsum)) +
   geom_point()
 
 
@@ -476,7 +483,7 @@ temp_data3 <-
   select(j_day, true_j_day, days_passed, temp = value, transition_value)
 
 # NOTE: we are using weather station data from 1982, should be okay because
-# tick phenology pretty similar between 1982 and 1983
+# tick phenology pretty similar between 1982 and 1983 (in Drew and Samuel Fig 4)
 
 # grassland cohorts, 1983
 # start date - start jday - preoviposition duration
@@ -485,6 +492,8 @@ temp_data3 <-
 # April 16   -      107   - 42
 # April 30   -      121   - 37
 
+# what is the sum of daily transition values for the given range
+# (the goal would be for them to sum to 1 for each period)
 transition_cumsum_between_true_j_days <- function(start, duration) {
   temp_data3 %>%
     filter(true_j_day %in% start:(start + duration)) %>%
@@ -496,7 +505,10 @@ transition_cumsum_between_true_j_days(79, 78)
 transition_cumsum_between_true_j_days(93, 63)
 transition_cumsum_between_true_j_days(107, 42)
 transition_cumsum_between_true_j_days(121, 37)
+# the values are good for the first 2, but too low for the second 2
 
+# how long from start day does it take for the daily transition values to
+# sum to 1?
 duration_till_cumsum_gte_1 <- function (start) {
   temp_data3 %>%
     filter(true_j_day >= start) %>%
@@ -505,13 +517,22 @@ duration_till_cumsum_gte_1 <- function (start) {
     nrow()
 }
 
-# attempting to recreate lower left subfig of Drew and Samuel 1986 based
+# @Dave this (also represented in next code chunk with a graph) is my best
+# attempt so far to model this transition - and what I think we need to tweak
+
+sapply(c(79,93,107,121),
+       duration_till_cumsum_gte_1)
+# desired results (from grassland cohorts, 1983 table above):
+# 78, 63, 42, 37
+
+# attempting to recreate lower left subfig of Drew and Samuel 1986 fig 4 based
 # on the function we just roughly fit
 tibble(
-  start_date = 79:121,
-  preoviposition_period = sapply(79:121, duration_till_cumsum_gte_1)
+  start_date = c(79:121, 79,93,107,121),
+  preoviposition_period = c(sapply(79:121, duration_till_cumsum_gte_1), 78, 63, 42, 37),
+  group = c(rep('our model', length(79:121)), rep('Drew and Samuel 1986', 4))
 ) %>%
-  ggplot(aes(start_date, preoviposition_period)) +
+  ggplot(aes(start_date, preoviposition_period, color = group)) +
   geom_point() +
   xlim(66, 143) + # march 6 to may 22
   ylim(0, 100)
@@ -525,7 +546,8 @@ tibble(
 # x would be starting day? or temperature over each day?
 x <- c(79, 93, 107, 121)
 y <- c(78, 63, 42, 37)
-x <- x - 66 # subtract 66 because first true_j_day is 66 # this results in an
+x <- x - 66 # subtract 66 because first true_j_day is 66
+            # this results in an
             # index on the temps vector
 mydata <- data.frame(x = x, y = y)
 temps <- temp_data3$temp
@@ -539,7 +561,9 @@ nls(
   data = mydata,
   start = list(a = .000769, b = 1.15)
   )
+# NOTE: I don't think this is playing by the rules of formulas...
 
+# @Dave see up to here
 
 # Dave's example
 {
