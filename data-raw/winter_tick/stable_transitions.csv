@@ -1,0 +1,10 @@
+from,to,transition_fun,delay,pred1,pred2,source
+__e,q_l,constant_fun,TRUE,NA,NA,Drew and Samuel 1986
+__e,per_capita_m,constant_fun,TRUE,NA,NA,Drew and Samuel 1986
+q_l,a_l,feed_fun,FALSE,host_den,max_temp,Myles trial
+q_l,m,snow_cover_fun,FALSE,snow_cover,NA,Drew and Samuel 1985; Holmes et al. 2018;  Rosendale et al. 2016
+a_l,e_a,constant_fun,TRUE,NA,NA,Addison and McLaughlin 1988
+a_l,per_capita_m,constant_fun,TRUE,NA,NA,Myles trial
+e_a,r_a,expo_fun,TRUE,max_temp,NA,Glines 1983;  Drew and Samuel 1986 (preoviposition period)
+e_a,per_capita_m,snow_cover_fun,TRUE,snow_cover,NA,Drew and Samuel 1986
+r_a,__e,constant_fun,FALSE,NA,NA,Drew and Samuel 1986

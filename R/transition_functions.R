@@ -205,6 +205,8 @@ density_fun <- function(x, y, a, b, c, pref)
 #' @param snow_mort mortality with snow on the ground
 snow_cover_fun <- function(x, y, no_snow_mort, snow_mort) {
 
+  x <- x[1]
+
   if (is.na(x)) {
     stop('x must not be NA')
   }
@@ -214,16 +216,5 @@ snow_cover_fun <- function(x, y, no_snow_mort, snow_mort) {
   } else {
     no_snow_mort
   }
-}
-
-#' expo_shifted_fun
-#'
-#' @param a
-#' @param b
-#' @param c
-#' @param x temperature
-#' @param y NA
-expo_shifted_fun <- function(x, y, a, b, c) {
-  ifelse(x > c, a * (x - c) ^ b, 0)
 }
 

@@ -1,0 +1,7 @@
+steps: 1460
+max_delay: 365
+initial_population:
+  r_a: 10
+transitions: data-raw/winter_tick/stable_transitions.csv
+parameters: data-raw/winter_tick/stable_parameters.csv
+predictors: data-raw/winter_tick/stable_predictors.csv

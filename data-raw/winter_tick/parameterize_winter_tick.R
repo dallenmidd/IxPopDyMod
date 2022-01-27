@@ -616,29 +616,166 @@ for(a1 in 1:10) {
   }
 }
 
+min(nllmat)
+nllmat == min(nllmat) # nllmat[2,7]
+nllmat[2,7]
+nll_first_day(try_a[2], try_b[7])
+try_a[2]
+try_b[7]
+
+start_dates <- c(79, 93, 107, 121)
+durations <- lapply(
+  start_dates,
+  function(start) {day_to_ovi(start, a = try_a[2], b = try_b[7])}
+)
+
+# compare our model with new parameterization to Drew and Samuel 1986
+tibble(
+  start_date = c(79:121, 79,93,107,121),
+  preoviposition_period = c(sapply(79:121,
+                                   function(start) {day_to_ovi(start,
+                                                               a = try_a[2],
+                                                               b = try_b[7])}),
+                                   78, 63, 42, 37),
+  group = c(rep('our model', length(79:121)), rep('Drew and Samuel 1986', 4))
+) %>%
+  ggplot(aes(start_date, preoviposition_period, color = group)) +
+  geom_point() +
+  xlim(66, 143) + # march 6 to may 22
+  ylim(0, 100)
+
+# this seems reasonably close. Now let's run the model with these new params
+
+winter_tick$transitions
+winter_tick$transitions[7, 'transition_fun'] <- 'expo_fun'
+winter_tick$transitions[7, 'delay'] <- TRUE
+winter_tick$transitions[8, 'delay'] <- TRUE
+
+winter_tick$parameters <- winter_tick$parameters[-c(14),] # drop parameter 'c'
+winter_tick$parameters[c(12, 13), 'param_value'] <- c(try_a[2], try_b[7])
+
+# so now we've fixed the e_a to r_a transition, but mortality for that transition
+# is probably still bad
+# It would probably be ideal to model daily mortality, as a function of snow
+# cover and/or temperature. Then fit this function with a similar process as
+# above. But a simpler approach is just doing per_capita_m, based on whether
+# adults drop off hosts before snowmelt (survival 11%), or after (survival mean
+# of 73% and 55%). I had initially intended to do this, but implemented it
+# incorrectly... so all we have to do is switch to per_capita_m
+# actually, these numbers are survival and I was using them as mortality,
+# need to do 1 - (survival) to get mortality
+winter_tick$transitions[8, 'to'] <- 'per_capita_m'
+winter_tick$parameters[c(14,15), 'to'] <- 'per_capita_m'
+winter_tick$parameters[c(14,15),]
+winter_tick$parameters[c(14,15), 'param_value'] <- c(1 - .64, 1 - 0.11)
 
 
+# let's try running it
+# make sure we haven't broken anything obvious
+validate_config(winter_tick)
 
-# Dave's example
-{
-# This is just fake data
-x <- 1:11
-y <- c( 1, 1.2, 1.8, 2.9, 5, 10, 14, 17.5, 18.7, 19, 19.5)
-mydata <- data.frame(x = x, y = y)
+# I think we just want to use the first day of snow cover data - it's throwing
+# a warning, and anyway we want to base mortality on whether there is snow
+# on the day that ticks drop off
+snow_cover_fun
+# I modified snow_cover_fun() so it just uses x[1]
+devtools::load_all()
+snow_cover_fun
+validate_config(winter_tick)
+# warning fixed
 
-# plot the data
-plot(x,y)
+out_updated_ea_ra_transition <- run(winter_tick)
+out_updated_ea_ra_transition %>%
+  graph_population_each_group_lower_limit() +
+  geom_vline(xintercept = seq(365, 365 *4, 365))
 
-# this is the part that fits a curve
-nls(formula = y ~ c*exp(a+b*x )/(1+exp(a+b*x)),
-    data = mydata,
-    start = list(c = 20, b = 3/4, a = - 4.5) )
+# now the population is increasing
+# timing seems to follow a 365 day cycle - eggs always emerge at a multiple of
+# 365 days
+out_updated_ea_ra_transition %>%
+  filter(
+    stage == '__e',
+    pop > 1,
+    day %% 365 == 0
+  ) %>% mutate(
+    growth_rate = pop / lag(pop)
+  )
+# appears that between years, egg population is increasing by a factor of 17
+# let's drill down more into an individual year
+out_updated_ea_ra_transition %>%
+  filter(day < 366) %>%
+  graph_population_each_group_lower_limit()
+
+out_updated_ea_ra_transition %>%
+  filter(pop > 1,
+         stage %in% c('__e', 'r_a'),
+         day > 100)
+
+winter_tick$initial_population
+# if we want a stable population, we should have about 10 r_a at the end of the
+# first year - instead r_a peak at 83
+
+# could use Drew and Samuel 1986 for validation - rough look at survival between
+# life stages
+# they found that between habitats, c(25, 10, 27) percent of engorged females
+# survived and laid viable eggs
+out_updated_ea_ra_transition %>%
+  filter(pop > 1,
+         # stage %in% c('e_a', 'r_a'),
+         day < 370) %>%
+  group_by(stage) %>%
+  slice(which.max(pop)) %>%
+  arrange(day)
 
 
-# show that the curve works
-curve(19.8*exp(-5.4+0.899*x )/(1+exp(-5.4+0.899*x)), add = TRUE)
-}
+out_updated_ea_ra_transition %>%
+  filter(pop > 1,
+         stage %in% c('e_a', 'r_a'),
+         day < 370,
+         day > 250) %>%
+  graph_population_each_group()
 
+
+# As a very rough way of getting the population stable, we could adjust the
+# survival of attached larvae to engorged adults. This is probably the value
+# that I have least literature on, so it's not so unreasonable to adjust it.
+winter_tick_short <- winter_tick
+winter_tick_short$steps <- 400
+diff_on_moose_survival <- vary_param(winter_tick_short,
+                                     param_row = 11,
+                                     values = 1 - (1:5)/20)
+out_diff_on_moose_survival <- run_all_configs(diff_on_moose_survival,
+                                              parallel = TRUE)
+
+lapply(
+  c(out_diff_on_moose_survival, list('initial' = out_updated_ea_ra_transition)),
+  function(df) {
+    filter(df,
+           pop > 1,
+           day <= 365,
+           day > 100) %>%
+      group_by(stage) %>%
+      summarize(max_pop = max(pop))
+  }
+)
+
+winter_tick_stable <- winter_tick
+winter_tick_stable$parameters[11, 'param_value'] <- 0.97
+out_winter_tick_stable <- run(winter_tick_stable)
+out_winter_tick_stable %>%
+  graph_population_each_group_lower_limit()
+out_winter_tick_stable %>%
+  group_by(stage, year = floor(day / 365)) %>%
+  summarize(max = max(pop)) %>%
+  arrange()
+
+winter_tick_stable %>%
+  write_config(
+    config_path = 'data-raw/winter_tick/stable.yml',
+    transitions_path = 'data-raw/winter_tick/stable_transitions.csv',
+    parameters_path = 'data-raw/winter_tick/stable_parameters.csv',
+    predictors_path = 'data-raw/winter_tick/stable_predictors.csv'
+  )
 
 # TODO find values of all the transitions, as a factor of predictors and parameters
 # The only predictors that we are using for winter tick (pred1 and pred2 in
