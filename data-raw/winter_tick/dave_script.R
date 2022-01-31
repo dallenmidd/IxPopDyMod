@@ -31,7 +31,7 @@ p3 <- hostx10_run %>%
   filter(pop > 1) %>%
   graph_population_each_group()
 
-plot_grid(p1,p2,p3)
+plot_grid(p1,p2,p3, labels = c('baseline', '2x hosts', '10x hosts'))
 growth_rate(orignial_run)
 growth_rate(more_hosts_run)
 growth_rate(hostx10_run)
@@ -60,7 +60,7 @@ p3 <- hostx0.1_run %>%
   filter(pop > 1) %>%
   graph_population_each_group()
 
-plot_grid(p1,p2,p3)
+plot_grid(p1,p2,p3, labels = c('baseline', 'half hosts', 'tenth hosts'))
 # for half hosts populatoin is decreasing but
 # growth rate is greater than 1
 
