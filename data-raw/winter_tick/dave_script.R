@@ -100,3 +100,28 @@ plot_grid(p1,p2,p3, labels = c('cold','baseline', 'warm'))
 ## also looks like a change in phenology?
 ## long life cycle for cold? shorter for warm?
 
+
+
+
+#trying to figure out transition probabilities
+# e -> q_l
+# q_l -> a_l
+# a_l -> e_a
+# e_a -> r_a
+# r_a -> e
+# just want to see whether they pass the "sniff test"
+# I assume there product is 1, to get stability
+orignial_run %>%
+  filter(day < 365.5) %>%
+  group_by(stage) %>%
+  summarise(max(pop),sum(pop))
+
+# Because the same individual can be in a stage for
+# multiple days, not 100% sure we can really see
+# how many q_l, for example, there ever where
+# but here are my guesses
+# 30000 e -> 15000 q_l = 50%
+# 15000 q_l -> ??? a_l = ???
+# ??? a_l -> 10? 774? e_a  = ?? (this should be 3% right??)
+# ?? e_a -> 10 r_a = ??
+# 10 r_a -> 30000 e_a = 3000 (we know this)
