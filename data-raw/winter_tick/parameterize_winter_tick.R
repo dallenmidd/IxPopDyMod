@@ -777,6 +777,34 @@ winter_tick_stable %>%
     predictors_path = 'data-raw/winter_tick/stable_predictors.csv'
   )
 
+# can pickup here without running prev code
+devtools::load_all()
+library(tidyverse)
+cfg <- read_config('data-raw/winter_tick/stable.yml')
+cfg$steps <- 365 * 2
+o <- run(cfg)
+o <- o %>%
+  mutate(true_j_day = day + 155,
+         date = as.Date(true_j_day, origin = '1982-01-01'),
+         month = month(date))
+
+o %>%
+  filter(day <= 365) %>%
+  mutate(pop = ifelse(pop < 1, 0, pop)) %>%
+  ggplot(aes(date, pop, color = stage))+
+  geom_point() +
+  geom_line() +
+  scale_y_log10() +
+  scale_x_date(date_breaks = '1 month',
+               labels = function(date) month(date)) +
+  xlab('month')
+
+
+  graph(pop)
+  graph_population_each_group_lower_limit() +
+  scale_x_date()
+
+
 # TODO find values of all the transitions, as a factor of predictors and parameters
 # The only predictors that we are using for winter tick (pred1 and pred2 in
 # transitions table) are host_den, snow_cover, and max_temp. We've been keeping
