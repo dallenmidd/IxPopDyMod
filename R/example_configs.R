@@ -28,7 +28,7 @@
 #'
 #' @format A \code{\link{config}}
 #'
-#' #' \describe{
+#' \describe{
 #'   \item{steps}{Number of time steps to run the model. Here each step corresponds to one day.}
 #'   \item{initial_population}{Named vector of initial population size. Here the population starts with 10000 questing adults.}
 #'   \item{transitions}{A \code{\link{tibble}} giving the transitions between tick life stages.}
