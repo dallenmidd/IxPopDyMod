@@ -1,17 +1,17 @@
 from,to,param_name,param_value,source,host_spp
 __e,q_l,a,0.0125,Drew and Samuel 1986,NA
 __e,per_capita_m,a,0.5,Drew and Samuel 1986,NA
-q_l,a_l,q,7e-4,Myles trial - borrowed from Ogden,NA
-q_l,a_l,tmax,35,Myles trial - borrowed from Ogden,NA
+q_l,a_l,q,7e-4,Ogden et al. 2005,NA
+q_l,a_l,tmax,35,Ogden et al. 2005,NA
 q_l,a_l,tmin,0,Drew and Samuel 1985,NA
-q_l,a_l,a,0.1,Myles trial,NA
-q_l,a_l,pref,1,Myles trial (moose is only host),NA
-q_l,m,no_snow_mort,0.06,"Samuel and Welch 1991, Drew and Samuel 1985, number is from Ogden",NA
+q_l,a_l,a,0.1,guess,NA
+q_l,a_l,pref,1,moose is only host,NA
+q_l,m,no_snow_mort,0.06,"Samuel and Welch 1991, Drew and Samuel 1985, base mortality number is from Ogden et al. 2005",NA
 q_l,m,snow_mort,0.95,"Samuel and Welch 1991, Drew and Samuel 1985, number is a guess",NA
 a_l,e_a,a,0.005263157894736842,Addison and McLaughlin 1988,NA
-a_l,per_capita_m,a,0.97,Myles trial - adjust to get stable population?,NA
-e_a,r_a,a,1.9999999999999998e-4,Drew and Samuel 1986/Myles trial,NA
-e_a,r_a,b,1.6666666666666665,Drew and Samuel 1986/Myles trial,NA
+a_l,per_capita_m,a,0.97, adjusted to get stable population,NA
+e_a,r_a,a,1.9999999999999998e-4,Drew and Samuel 1986,NA
+e_a,r_a,b,1.6666666666666665,Drew and Samuel 1986,NA
 e_a,per_capita_m,no_snow_mort,0.36,Drew and Samuel 1986,NA
 e_a,per_capita_m,snow_mort,0.89,Drew and Samuel 1986 (mean from two years),NA
 r_a,__e,a,3000,Drew and Samuel 1986,NA
