@@ -63,3 +63,24 @@
 
 
 
+#' Configuration for winter tick population dynamics model
+#'
+#' This is a model configuration based on a literature search on the factors
+#' affect the winter tick life cycle. Many of the transitions and parameters
+#' in this configuration are drawn from Drew and Samuel (1986). We include this
+#' configuration to show that our package is flexible for modeling multiple
+#' tick species with different life histories.
+#'
+#' @seealso Drew and Samuel (1986) \doi{10.1139/z86-105}
+#' @seealso Drew and Samuel (1985) \doi{10.7589/0090-3558-21.3.274}
+#' @seealso Addison and McLaughlin (1988) \doi{10.2307/3282188}
+#' @seealso Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
+#' @seealso
+#'
+#' @examples
+#' data(winter_tick)
+#' \dontrun{
+#' output <- run(winter_tick)
+#' graph_population_each_group(winter_tick)
+#' }
+"winter_tick"

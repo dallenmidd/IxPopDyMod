@@ -35,3 +35,7 @@ find_host <- function(x, y, a, pref)
 
 infect_example_config <- read_config('data-raw/infect_example_config/config.yml')
 use_data(infect_example_config, overwrite = TRUE)
+
+# config for modeling winter tick population
+winter_tick <- read_config('data-raw/winter_tick/stable.yml')
+use_data(winter_tick, overwrite = TRUE)
