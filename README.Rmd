@@ -26,7 +26,7 @@ This package is designed to help the user specify, run, and then visualize and a
 
 ## Installation
 
-Install the package from [CRAN](https://cran.r-project.org/web/packages/IxPopDyMod/index.html) with: 
+Install the package from [CRAN](https://cran.r-project.org/package=IxPopDyMod) with: 
 ```{r, eval = FALSE}
 install.packages("IxPopDyMod")
 ```
@@ -109,7 +109,7 @@ Here we highlight how this temperature dependence affects the output of the mode
 ```{r, results = 'hide'}
 
 cfg2 <- temp_example_config
-cfg2$weather <- temp_example_config$weather %>% mutate(tmean = tmean + 1)
+cfg2$weather <- temp_example_config$predictors %>% mutate(value = value + 1)
 
 output1 <- run(temp_example_config)
 output2 <- run(cfg2)
@@ -134,7 +134,7 @@ Here you can see nymphs start questing earlier and reach a higher population in 
 
 ## Host community
 
-In the previous example there was no host community explicitly stated and ticks had a constant probabilty of transition between life stages (e.g., from larva to nymph). It is possible to instead model these probabilities based on host community composition. 
+In the previous example there was no host community explicitly stated and ticks had a constant probability of transition between life stages (e.g., from larva to nymph). It is possible to instead model these probabilities based on host community composition. 
 
 ```{r}
 host_example_config$transitions
@@ -158,11 +158,10 @@ We now compare how different host densities affect tick populations. Here we var
 ```{r, results = 'hide'}
 cfg_lowdeerden <- host_example_config
 cfg_highdeerden <- host_example_config
-cfg_lowdeerden$host_comm <- host_example_config$host_comm %>% 
-  mutate(host_den = ifelse(host_spp == 'deer', 0.1, host_den) )
-
-cfg_highdeerden$host_comm <- host_example_config$host_comm %>% 
-  mutate(host_den = ifelse(host_spp == 'deer', 5, host_den) )
+cfg_lowdeerden$predictors <- host_example_config$predictors %>% 
+  mutate(value = ifelse(pred == 'host_den' & pred_subcategory == 'deer', 0.1, value))
+cfg_highdeerden$predictors <- host_example_config$predictors %>% 
+  mutate(value = ifelse(pred == 'host_den' & pred_subcategory == 'deer', 5, value))
 
 
 output_middeerden <- run(host_example_config)
@@ -206,7 +205,7 @@ Here we use the middle character of the life-stage key. It is either `i` for inf
 
 ### Effect of deer density
 
-Deer are important to the blacklegged tick as the main host of adult ticks. As such they are thought to increase tick populations (see above). But deer can also serve as hosts for juvenile tick life stages, and deer are poor reservoirs for *Borrelia burgdorferi*. So increased deer density may also decrease the proportion of bloodmeals juvenile ticks take from more comptenet reservoirs life mice. We use this simple model to illustrate this possibility. 
+Deer are important to the blacklegged tick as the main host of adult ticks. As such they are thought to increase tick populations (see above). But deer can also serve as hosts for juvenile tick life stages, and deer are poor reservoirs for *Borrelia burgdorferi*. So increased deer density may also decrease the proportion of bloodmeals juvenile ticks take from more competent reservoirs life mice. We use this simple model to illustrate this possibility. 
 
 ```{r, results='hide'}
 deer_den <- c(0.1, 0.25, 0.5, 0.75, 1)
@@ -215,7 +214,7 @@ results_tib <- tibble(deer = deer_den, nymph_den = 0, nip = 0)
 for (i in 1:5)
 {
   cfg_mod <- infect_example_config
-  cfg_mod$host_comm[1,2] <- deer_den[i]
+  cfg_mod$predictors[1,4] <- deer_den[i]
   out <- run(cfg_mod)
   
   nymph_sum <- out %>%

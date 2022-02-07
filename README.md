@@ -14,8 +14,7 @@ easy way for these models to be written and shared.
 ## Installation
 
 Install the package from
-[CRAN](https://cran.r-project.org/web/packages/IxPopDyMod/index.html)
-with:
+[CRAN](https://cran.r-project.org/package=IxPopDyMod) with:
 
 ``` r
 install.packages("IxPopDyMod")
@@ -48,7 +47,7 @@ library(readr)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
 ```
-
+# 
 ### Vary a parameter in the model
 
 We give a new range of parameter values for number of eggs laid.
@@ -168,7 +167,7 @@ one degree warmer.
 
 ``` r
 cfg2 <- temp_example_config
-cfg2$weather <- temp_example_config$weather %>% mutate(tmean = tmean + 1)
+cfg2$weather <- temp_example_config$predictors %>% mutate(value = value + 1)
 
 output1 <- run(temp_example_config)
 output2 <- run(cfg2)
@@ -198,7 +197,7 @@ population in the warmer climate.
 ## Host community
 
 In the previous example there was no host community explicitly stated
-and ticks had a constant probabilty of transition between life stages
+and ticks had a constant probability of transition between life stages
 (e.g., from larva to nymph). It is possible to instead model these
 probabilities based on host community composition.
 
@@ -261,11 +260,10 @@ Here we vary the deer density.
 ``` r
 cfg_lowdeerden <- host_example_config
 cfg_highdeerden <- host_example_config
-cfg_lowdeerden$host_comm <- host_example_config$host_comm %>% 
-  mutate(host_den = ifelse(host_spp == 'deer', 0.1, host_den) )
-
-cfg_highdeerden$host_comm <- host_example_config$host_comm %>% 
-  mutate(host_den = ifelse(host_spp == 'deer', 5, host_den) )
+cfg_lowdeerden$predictors <- host_example_config$predictors %>% 
+  mutate(value = ifelse(pred == 'host_den' & pred_subcategory == 'deer', 0.1, value))
+cfg_highdeerden$predictors <- host_example_config$predictors %>% 
+  mutate(value = ifelse(pred == 'host_den' & pred_subcategory == 'deer', 5, value))
 
 
 output_middeerden <- run(host_example_config)
@@ -339,7 +337,7 @@ ticks. As such they are thought to increase tick populations (see
 above). But deer can also serve as hosts for juvenile tick life stages,
 and deer are poor reservoirs for *Borrelia burgdorferi*. So increased
 deer density may also decrease the proportion of bloodmeals juvenile
-ticks take from more comptenet reservoirs life mice. We use this simple
+ticks take from more competent reservoirs life mice. We use this simple
 model to illustrate this possibility.
 
 ``` r
@@ -349,7 +347,7 @@ results_tib <- tibble(deer = deer_den, nymph_den = 0, nip = 0)
 for (i in 1:5)
 {
   cfg_mod <- infect_example_config
-  cfg_mod$host_comm[1,2] <- deer_den[i]
+  cfg_mod$predictors[1,4] <- deer_den[i]
   out <- run(cfg_mod)
   
   nymph_sum <- out %>%

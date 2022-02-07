@@ -1,16 +1,6 @@
-## Resubmission
-This is a resubmission. In this version I have: 
-
-* added a reference describing ogden_feed_fun() in that function's documentation. There are no existing references that comprehensively describe the methods in our package. We plan to write a paper describing the package, and when available, cite it in the description field of the DESCRIPTION file.
-
-* added executable examples to exported functions
-
-* added \value to .Rd files regarding exported methods
-
 ## Test environments
 
 * local macOS install, R 4.1.1
-* local Manjaro Linux 21.1.2 install, R 4.1.1
 * win-builder (release, devel, oldrel)
 * Rhub via 
     devtools::check_rhub(email = "mylesstokowski@gmail.com", interactive = FALSE,
@@ -35,6 +25,18 @@ This is a resubmission. In this version I have:
 
 NOTES:
 
-+ Possibly mis-spelled words in DESCRIPTION: Ixodidae (16:42)
+I got the following message. The DOI links may be slow, but they do load.
 
- 
+Found the following (possibly) invalid URLs:
+  URL: https://doi.org/10.1139/z86-105
+    From: man/winter_tick.Rd
+    Status: 503
+    Message: Service Unavailable
+  URL: https://doi.org/10.2307/3282188
+    From: man/winter_tick.Rd
+    Status: 403
+    Message: Forbidden
+  URL: https://doi.org/10.7589/0090-3558-21.3.274
+    From: man/winter_tick.Rd
+    Status: 403
+    Message: Forbidden
