@@ -8,8 +8,7 @@ config(
   initial_population,
   transitions,
   parameters,
-  host_comm,
-  weather,
+  predictors,
   steps,
   max_delay = 365L
 )
@@ -55,8 +54,8 @@ interpreted as a daily probability.
 }
 \item{pred1}{
 Specifies the first predictor to use in a transition function. One of NA,
-"temp", "vpd", "host_den", or a pattern that matches at least one life
-stage.
+a string identical to a value of the "pred" column in the predictors table,
+or a pattern that matches at least one life stage.
 }
 \item{pred2}{
 Specifies the second predictor to use in a transition function. Format like
@@ -96,30 +95,20 @@ Numeric; the value of the parameter
 }
 }}
 
-\item{host_comm}{Optionally, a \code{tibble} of input host community data to be
-used as predictor values in transition functions.
+\item{predictors}{Optionally, a \code{tibble} of input data to be used as predictor
+values in transition functions, for example weather or host density.
 
 \describe{
-\item{j_day}{Optional, omit this column for constant host density. Julian
-day; an integer}
-\item{host_spp}{String specifying a host species}
-\item{host_den}{
-Numeric value indicating the density of species "host_spp"
-}
-}}
-
-\item{weather}{Optionally, a \code{tibble} of input weather data to be used as
-predictor values in transition functions.
-
-\describe{
-\item{j_day}{Optional, omit this column for constant weather. Julian day;
-an integer}
-\item{tmean}{
-Optionally, numeric indicating mean temperature
-}
-\item{vpd}{
-Optionally, numeric indicating vapour-pressure deficit
-}
+\item{pred}{String specifying the name of the predictor, e.g. "temp" or "host_den}
+\item{pred_subcategory}{This column allows specifying predictors for which
+there are multiple values for a given j_day. Predictor values are sorted by
+this column in the config set up. This ensures that when accessing a predictor
+with multiple values for the same j_day, we get a vector of predictor values
+ordered by this column A typical use for this column is to specify the
+host density of each host species.}
+\item{j_day}{Integer specifying the Julian day, or NA for predictors with
+constant value over time}
+\item{value}{Numeric value of predictor}
 }}
 
 \item{steps}{Numeric vector of length one indicating the duration to run the
