@@ -191,19 +191,24 @@ new_config <- function(initial_population, transitions, parameters,
 #' # For example, if we modify the egg to larvae transition to use a different
 #' # function that requires an additional parameter.
 #'
+#' \dontrun{
 #' # We define a super simple function that takes two parameters.
 #' prod_fun <- function(x, y, a, b) a * b
 #'
 #' my_config <- config_ex_1
 #' my_config$transitions[1, 3] <- 'prod_fun'
-#' # do.call(config, my_config) # not run, will throw an error
 #'
+#' # this will throw an error, because a parameter is missing
+#' do.call(config, my_config)
+#' # config() will report that parameter "b" is missing for the exponential function.
 #'
-#' # Config will report that parameter "b" is missing for the exponential function.
 #' # Adding the parameter should fix the config
 #' my_config$parameters[9,] <- list(from = '__e', to = '__l', param_name = 'b',
 #'                                  param_value = 1)
-#' my_config <- do.call(config, my_config)
+#'
+#' # Now, this should run without issues
+#' do.call(config, my_config)
+#' }
 config <- function(initial_population, transitions, parameters,
                    predictors, steps, max_delay = 365L) {
 
@@ -222,7 +227,7 @@ config <- function(initial_population, transitions, parameters,
                              predictors, steps, max_delay))
 }
 
-#' create a config object from a yaml file
+#' create a config object from a YAML file
 #' @importFrom yaml read_yaml
 #' @importFrom readr read_csv cols
 #' @param file YAML file to read
