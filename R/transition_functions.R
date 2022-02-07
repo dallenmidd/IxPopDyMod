@@ -194,9 +194,6 @@ density_fun <- function(x, y, a, b, c, pref)
   sum((a + (b * log((c + y * pref * x / sum(pref * x)) / x)))
       * pref * x / sum(pref * x))
 
-##############
-# new transition functions
-
 #' Mortality as a function of whether there is a snow on the ground
 #'
 #' @param x amount of snow on ground
@@ -205,6 +202,7 @@ density_fun <- function(x, y, a, b, c, pref)
 #' @param snow_mort mortality with snow on the ground
 snow_cover_fun <- function(x, y, no_snow_mort, snow_mort) {
 
+  # only get the snow cover for day 1
   x <- x[1]
 
   if (is.na(x)) {
