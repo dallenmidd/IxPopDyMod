@@ -47,7 +47,7 @@ library(readr)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
 ```
-# 
+
 ### Vary a parameter in the model
 
 We give a new range of parameter values for number of eggs laid.
@@ -167,7 +167,7 @@ one degree warmer.
 
 ``` r
 cfg2 <- temp_example_config
-cfg2$weather <- temp_example_config$predictors %>% mutate(value = value + 1)
+cfg2$predictors <- temp_example_config$predictors %>% mutate(value = value + 1)
 
 output1 <- run(temp_example_config)
 output2 <- run(cfg2)

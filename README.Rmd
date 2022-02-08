@@ -109,7 +109,7 @@ Here we highlight how this temperature dependence affects the output of the mode
 ```{r, results = 'hide'}
 
 cfg2 <- temp_example_config
-cfg2$weather <- temp_example_config$predictors %>% mutate(value = value + 1)
+cfg2$predictors <- temp_example_config$predictors %>% mutate(value = value + 1)
 
 output1 <- run(temp_example_config)
 output2 <- run(cfg2)
