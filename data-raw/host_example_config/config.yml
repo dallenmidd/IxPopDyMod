@@ -3,5 +3,4 @@ initial_population:
   r_a: 10
 transitions: data-raw/host_example_config/tick_transitions.csv
 parameters: data-raw/host_example_config/tick_parameters.csv
-weather: data-raw/host_example_config/weather.csv
-host_comm: data-raw/host_example_config/host_comm.csv
+predictors: data-raw/host_example_config/predictors.csv

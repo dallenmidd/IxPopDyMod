@@ -9,26 +9,30 @@
 #'
 #' @noRd
 new_config <- function(initial_population, transitions, parameters,
-                       host_comm, weather, steps, max_delay) {
+                       predictors = NULL, steps, max_delay) {
 
 
   # check that all types are correct
   stopifnot(is.integer(initial_population))
   stopifnot(is.data.frame(transitions))
   stopifnot(is.data.frame(parameters))
-  stopifnot(is.data.frame(host_comm))
-  stopifnot(is.data.frame(weather))
+  stopifnot(missing(predictors) || is.data.frame(predictors))
   stopifnot(is.integer(steps))
   stopifnot(is.integer(max_delay))
 
-  structure(list(steps = steps,
-                 initial_population = initial_population,
-                 transitions = transitions,
-                 parameters = parameters,
-                 host_comm = host_comm,
-                 weather = weather,
-                 max_delay = max_delay),
-            class = 'config')
+  cfg <- structure(list(
+    steps = steps,
+    initial_population = initial_population,
+    transitions = transitions,
+    parameters = parameters,
+    max_delay = max_delay),
+    class = 'config')
+
+  if (!missing(predictors)) {
+    cfg$predictors <- predictors
+  }
+
+  cfg
 }
 
 #' Create a `config` object
@@ -76,8 +80,8 @@ new_config <- function(initial_population, transitions, parameters,
 #'   }
 #'   \item{pred1}{
 #'   Specifies the first predictor to use in a transition function. One of NA,
-#'   "temp", "vpd", "host_den", or a pattern that matches at least one life
-#'   stage.
+#'   a string identical to a value of the "pred" column in the predictors table,
+#'   or a pattern that matches at least one life stage.
 #'   }
 #'   \item{pred2}{
 #'   Specifies the second predictor to use in a transition function. Format like
@@ -117,31 +121,22 @@ new_config <- function(initial_population, transitions, parameters,
 #'   }
 #' }
 #'
-#' @param host_comm Optionally, a `tibble` of input host community data to be
-#' used as predictor values in transition functions.
+#' @param predictors Optionally, a `tibble` of input data to be used as predictor
+#' values in transition functions, for example weather or host density.
 #'
 #' \describe{
-#'   \item{j_day}{Optional, omit this column for constant host density. Julian
-#'   day; an integer}
-#'   \item{host_spp}{String specifying a host species}
-#'   \item{host_den}{
-#'   Numeric value indicating the density of species "host_spp"
-#'   }
+#'   \item{pred}{String specifying the name of the predictor, e.g. "temp" or "host_den}
+#'   \item{pred_subcategory}{This column allows specifying predictors for which
+#'   there are multiple values for a given j_day. Predictor values are sorted by
+#'   this column in the config set up. This ensures that when accessing a predictor
+#'   with multiple values for the same j_day, we get a vector of predictor values
+#'   ordered by this column A typical use for this column is to specify the
+#'   host density of each host species.}
+#'   \item{j_day}{Integer specifying the Julian day, or NA for predictors with
+#'   constant value over time}
+#'   \item{value}{Numeric value of predictor}
 #' }
 #'
-#' @param weather Optionally, a `tibble` of input weather data to be used as
-#' predictor values in transition functions.
-#'
-#' \describe{
-#'   \item{j_day}{Optional, omit this column for constant weather. Julian day;
-#'   an integer}
-#'   \item{tmean}{
-#'   Optionally, numeric indicating mean temperature
-#'   }
-#'   \item{vpd}{
-#'   Optionally, numeric indicating vapour-pressure deficit
-#'   }
-#' }
 #'
 #' @param steps Numeric vector of length one indicating the duration to run the
 #'   model over in days.
@@ -196,29 +191,28 @@ new_config <- function(initial_population, transitions, parameters,
 #' # For example, if we modify the egg to larvae transition to use a different
 #' # function that requires an additional parameter.
 #'
+#' \dontrun{
 #' # We define a super simple function that takes two parameters.
 #' prod_fun <- function(x, y, a, b) a * b
 #'
 #' my_config <- config_ex_1
 #' my_config$transitions[1, 3] <- 'prod_fun'
-#' # do.call(config, my_config) # not run, will throw an error
 #'
+#' # this will throw an error, because a parameter is missing
+#' do.call(config, my_config)
+#' # config() will report that parameter "b" is missing for the exponential function.
 #'
-#' # Config will report that parameter "b" is missing for the exponential function.
 #' # Adding the parameter should fix the config
 #' my_config$parameters[9,] <- list(from = '__e', to = '__l', param_name = 'b',
 #'                                  param_value = 1)
-#' my_config <- do.call(config, my_config)
+#'
+#' # Now, this should run without issues
+#' do.call(config, my_config)
+#' }
 config <- function(initial_population, transitions, parameters,
-                   host_comm, weather, steps, max_delay = 365L) {
+                   predictors, steps, max_delay = 365L) {
 
-  # convert doubles to integers
-  ensure_int <- function(x) {
-    if (is.double(x) && all(x == as.integer(x))) {
-      stats::setNames(as.integer(x), names(x))
-    }
-    x
-  }
+
 
   if ('host_spp' %in% names(parameters)) {
     parameters <- dplyr::arrange(parameters, .data$host_spp)
@@ -230,10 +224,10 @@ config <- function(initial_population, transitions, parameters,
 
   # return validated config
   validate_config(new_config(initial_population, transitions, parameters,
-                             host_comm, weather, steps, max_delay))
+                             predictors, steps, max_delay))
 }
 
-#' create a config object from a yaml file
+#' create a config object from a YAML file
 #' @importFrom yaml read_yaml
 #' @importFrom readr read_csv cols
 #' @param file YAML file to read
@@ -256,8 +250,10 @@ read_config <- function(file) {
   # convert from paths to dfs
   cfg$transitions <- read_csv(cfg$transitions, col_types = cols())
   cfg$parameters <- read_csv(cfg$parameters, col_types = cols())
-  cfg$host_comm <- read_csv(cfg$host_comm, col_types = cols())
-  cfg$weather <- read_csv(cfg$weather, col_types = cols())
+
+  if (!is.null(cfg$predictors)) {
+    cfg$predictors <- read_csv(cfg$predictors, col_types = cols())
+  }
 
   # use this named list as the arguments to constructing a config object
   do.call(config, cfg)
@@ -267,7 +263,7 @@ read_config <- function(file) {
 #'
 #' @description
 #' Write a `config` object as a YAML file, and write all dataframe
-#' components (transitions, parameters, weather, host_comm) as csv files. All
+#' components (transitions, parameters, predictors) as csv files. All
 #' paths must be explicitly specified as arguments. This function will not
 #' allow overwriting files.
 #'
@@ -275,8 +271,7 @@ read_config <- function(file) {
 #' @param config_path Path to the output YAML config file
 #' @param transitions_path Path to output transitions csv
 #' @param parameters_path Path to output parameters csv
-#' @param weather_path Path to output weather csv
-#' @param host_comm_path Path to output host_comm csv
+#' @param predictors_path Path to output predictors csv
 #'
 #' @return None, writes config components to disk
 #'
@@ -284,15 +279,14 @@ read_config <- function(file) {
 #'
 #' \dontrun{
 #' write_config(config_ex_1, 'cfg.yml', 'trans.csv', 'params.csv',
-#'              'weather.csv', 'host_comm.csv')
+#'              'predictors.csv')
 #' }
 #'
 #' @export
 write_config <- function(cfg, config_path, transitions_path, parameters_path,
-                         weather_path, host_comm_path) {
+                         predictors_path) {
 
-  for (f in c(config_path, transitions_path, parameters_path, weather_path,
-              host_comm_path)) {
+  for (f in c(config_path, transitions_path, parameters_path, predictors_path)) {
     if (file.exists(f)) {
       stop(
         paste0('Cannot write "', f, '", file already exists'),
@@ -303,21 +297,19 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
 
   yaml::write_yaml(
     x = list(
-      steps = cfg$steps,
+      steps = ensure_int(cfg$steps),
       max_delay = cfg$max_delay,
-      initial_population = as.list(cfg$initial_population),
+      initial_population = as.list(ensure_int(cfg$initial_population)),
       transitions = transitions_path,
       parameters = parameters_path,
-      weather = weather_path,
-      host_comm = host_comm_path
+      predictors = predictors_path
       ),
     file = config_path
   )
 
   readr::write_csv(cfg$transitions, transitions_path)
   readr::write_csv(cfg$parameters, parameters_path)
-  readr::write_csv(cfg$weather, weather_path)
-  readr::write_csv(cfg$host_comm, host_comm_path)
+  readr::write_csv(cfg$predictors, predictors_path)
 
   return(NULL)
 }
@@ -535,4 +527,17 @@ graph_lifecycle <- function(transitions) {
     filter(.data$to %in% get_life_stages(transitions)) %>%
     graph_from_data_frame() %>%
     plot(edge.arrow.size = 0.5)
+}
+
+#' Convert doubles to integers and preserve names
+#'
+#' @param x A double
+#' @return If x is a double whose value is equal to an integer, return the
+#' equivalent integer. Otherwise, return x
+#' @noRd
+ensure_int <- function(x) {
+  if (is.double(x) && all(x == as.integer(x))) {
+    return(stats::setNames(as.integer(x), names(x)))
+  }
+  x
 }

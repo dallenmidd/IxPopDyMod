@@ -193,3 +193,26 @@ infect_fun <- function(x, y, from_infected, to_infected, host_rc, pref) {
 density_fun <- function(x, y, a, b, c, pref)
   sum((a + (b * log((c + y * pref * x / sum(pref * x)) / x)))
       * pref * x / sum(pref * x))
+
+#' Mortality as a function of whether there is a snow on the ground
+#'
+#' @param x amount of snow on ground
+#' @param y not used in this transition function
+#' @param no_snow_mort mortality with no snow on the ground
+#' @param snow_mort mortality with snow on the ground
+snow_cover_fun <- function(x, y, no_snow_mort, snow_mort) {
+
+  # only get the snow cover for day 1
+  x <- x[1]
+
+  if (is.na(x)) {
+    stop('x must not be NA')
+  }
+
+  if (x > 0) {
+    snow_mort
+  } else {
+    no_snow_mort
+  }
+}
+

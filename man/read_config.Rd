@@ -2,7 +2,7 @@
 % Please edit documentation in R/config.R
 \name{read_config}
 \alias{read_config}
-\title{create a config object from a yaml file}
+\title{create a config object from a YAML file}
 \usage{
 read_config(file)
 }
@@ -13,7 +13,7 @@ read_config(file)
 A \code{config} object
 }
 \description{
-create a config object from a yaml file
+create a config object from a YAML file
 }
 \examples{
 \dontrun{

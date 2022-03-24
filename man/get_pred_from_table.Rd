@@ -4,15 +4,15 @@
 \alias{get_pred_from_table}
 \title{Get a predictor from input data}
 \usage{
-get_pred_from_table(time, table, col)
+get_pred_from_table(time, pred, table)
 }
 \arguments{
 \item{time}{Numeric vector of days to get data. Ignored if input is constant
-over time (as indicated by absence of 'j_day' column)}
+over time (as indicated by NA value in 'j_day' column)}
 
-\item{table}{input weather or host density data frame from config object}
+\item{pred}{string specifying the name of the predictor, e.g. "host_den"}
 
-\item{col}{name of column from table to get predictor values from}
+\item{table}{input predictors table}
 }
 \description{
 Get a predictor from input data
