@@ -10,7 +10,7 @@ library(lubridate)
 n_locations <- 6
 
 fig7 <-  read_csv(
-  'inputs/2021-04-04_Ogden/make_ogden_fig7/all_normals.csv') %>%
+  'data-raw/ogden2005/make_ogden_fig7/all_normals.csv') %>%
   mutate(
     date = ymd(paste("1990", rep(seq(1, 12), n_locations), "01", sep = "-")),
     month = (month(date)),
@@ -47,7 +47,7 @@ station_names <- unique(ogden_weather_long$station)
 for (i in station_names) {
   name <- str_replace_all(i, " ", "_") %>% str_to_lower()
   write_csv(filter(ogden_weather_long, station == i) %>% select(-c(station)),
-          str_c('inputs/2021-04-04_Ogden/make_ogden_fig7/weather_', name, '.csv'))
+          str_c('data-raw/ogden2005/make_ogden_fig7/weather_', name, '.csv'))
 }
 
 

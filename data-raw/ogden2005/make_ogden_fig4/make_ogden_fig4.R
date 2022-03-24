@@ -3,17 +3,17 @@
 
 library(tidyverse)
 
-pl <- read_csv('inputs/2021-04-04_Ogden/make_ogden_fig4/predicted_larvae.csv',
+pl <- read_csv('data-raw/ogden2005/make_ogden_fig4/predicted_larvae.csv',
                col_names = c('jday', 'n')) %>% mutate(group = 'pl')
-pn <- read_csv('inputs/2021-04-04_Ogden/make_ogden_fig4/predicted_nymphs.csv',
+pn <- read_csv('data-raw/ogden2005/make_ogden_fig4/predicted_nymphs.csv',
                col_names = c('jday', 'n')) %>% mutate(group = 'pn')
-pa <- read_csv('inputs/2021-04-04_Ogden/make_ogden_fig4/predicted_adults.csv',
+pa <- read_csv('data-raw/ogden2005/make_ogden_fig4/predicted_adults.csv',
                col_names = c('jday', 'n')) %>% mutate(group = 'pa')
-ol <- read_csv('inputs/2021-04-04_Ogden/make_ogden_fig4/observed_larvae.csv',
+ol <- read_csv('data-raw/ogden2005/make_ogden_fig4/observed_larvae.csv',
                col_names = c('jday', 'n')) %>% mutate(group = 'ol')
-on <- read_csv('inputs/2021-04-04_Ogden/make_ogden_fig4/observed_nymphs.csv',
+on <- read_csv('data-raw/ogden2005/make_ogden_fig4/observed_nymphs.csv',
                col_names = c('jday', 'n')) %>% mutate(group = 'on')
-oa <- read_csv('inputs/2021-04-04_Ogden/make_ogden_fig4/observed_adults.csv',
+oa <- read_csv('data-raw/ogden2005/make_ogden_fig4/observed_adults.csv',
                col_names = c('jday', 'n')) %>% mutate(group = 'oa')
 
 # merge all data

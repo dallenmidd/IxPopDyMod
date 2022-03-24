@@ -1,9 +1,8 @@
 library(tidyverse)
 
-ogden_config <- read_config('inputs/2021-04-04_Ogden/ogden_config.yml')
 
 set_weather <- function(cfg, weather) {
-  cfg$weather <- read_csv(paste0('inputs/2021-04-04_Ogden/make_ogden_fig7/weather_',
+  cfg$weather <- read_csv(paste0('data-raw/ogden2005/make_ogden_fig7/weather_',
                                  weather, '.csv'))
   cfg
 }
@@ -13,7 +12,7 @@ locations <- c("exeter", "hanover", "kapuskasing_cda",
 
 mean_dd_gt_zero <- c(3336, 3100, 2317, 3536, 3791, 2733)
 
-configs <- sapply(locations, function(x) {set_weather(ogden_config, x)},
+configs <- sapply(locations, function(x) {set_weather(ogden2005, x)},
                   simplify = FALSE)
 
 out <- run_all_configs(configs, parallel = TRUE)
