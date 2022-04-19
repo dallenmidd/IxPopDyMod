@@ -1,5 +1,5 @@
 library(tidyverse)
-
+library(IxPopDyMod)
 
 set_weather <- function(cfg, weather) {
   cfg$weather <- read_csv(paste0('data-raw/ogden2005/make_ogden_fig7/weather_',
@@ -20,9 +20,8 @@ out <- run_all_configs(configs, parallel = TRUE)
 # out <- read_csv('outputs/ogden_fig7_output.csv')
 
 # plot the results
-dfs <- lapply(locations, function(location)
-  filter(out, config == location))
-dfs <- lapply(dfs, function(df) filter(df, age_group == "a", process == "a"))
+
+dfs <- lapply(out, function(df) filter(df, age_group == "a", process == "a"))
 
 titles <- paste(locations, mean_dd_gt_zero)
 
