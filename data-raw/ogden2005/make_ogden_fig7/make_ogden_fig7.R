@@ -2,9 +2,16 @@ library(tidyverse)
 library(IxPopDyMod)
 
 set_weather <- function(cfg, weather) {
-  cfg$weather <- read_csv(paste0('data-raw/ogden2005/make_ogden_fig7/weather_',
+  temp_weather <- read_csv(paste0('data-raw/ogden2005/make_ogden_fig7/weather_',
                                  weather, '.csv'))
-  cfg
+  cfg$predictors <- tibble(
+    value = c(20,200, temp_weather$tmean),
+    j_day = c(NA, NA, temp_weather$j_day),
+    pred = c('host_den', 'host_den', rep('temp', dim(temp_weather)[1])),
+    pred_subcategory = c('deer', 'rodent', rep(NA, dim(temp_weather)[1]))
+  )
+
+  return(cfg)
 }
 
 locations <- c("exeter", "hanover", "kapuskasing_cda",
@@ -25,15 +32,8 @@ dfs <- lapply(out, function(df) filter(df, age_group == "a", process == "a"))
 
 titles <- paste(locations, mean_dd_gt_zero)
 
-pop_plots <- mapply(
-  function(df, title) list(graph_population_each_group(df, title)),
-  dfs, titles)
+pop_plots <- mapply( function(df) list(graph_population_each_group(df)), dfs)
 
-lambda_plots <-  mapply(
-  function(df, title) list(graph_population_overall_trend(df, title)),
-  dfs, titles)
-
-do.call(gridExtra::grid.arrange, lambda_plots)
 do.call(gridExtra::grid.arrange, pop_plots)
 
 # return the max number of adults during the ninth full calendar year
@@ -58,5 +58,6 @@ fig7 <- ggplot(fig7_tbl, aes(mean_dd_gt_zero, max_adults)) +
   ylab("Maximum no. adult ticks at equilibrium") +
   theme_classic(base_size = 20)
 
+fig7
 
 
