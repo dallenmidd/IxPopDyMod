@@ -336,3 +336,71 @@ test_that("`get_transition_val()` works with a predictor that varies over time a
 
 })
 
+test_that("`gen_trans_matrix() works with `config_ex_1`", {
+  life_stages <- get_life_stages(config_ex_1$transitions)
+  expected <- matrix(
+    0,
+    4,
+    4,
+    dimnames = list(life_stages, life_stages)
+  )
+  expected["__a", "__e"] <- 1000
+  expected["__e", "__l"] <- 1
+  expected["__l", "__n"] <- 0.01
+  expected["__n", "__a"] <- 0.1
+
+  result <- gen_trans_matrix(
+    1,
+    NULL,
+    NULL,
+    life_stages,
+    add_params_list(config_ex_1$transitions, config_ex_1$parameters),
+    NULL
+  )
+
+  expect_equal(result, expected)
+})
+
+test_that("`gen_trans_matrix()` works with `config_ex_2`", {
+  life_stages <- get_life_stages(config_ex_2$transitions)
+  expected <- matrix(
+    0,
+    4,
+    4,
+    dimnames = list(life_stages, life_stages)
+  )
+  expected["__a", "__e"] <- 489.3045
+
+  result <- gen_trans_matrix(
+    1,
+    NULL,
+    NULL,
+    life_stages,
+    add_params_list(config_ex_2$transitions, config_ex_2$parameters),
+    NULL
+  )
+
+  expect_equal(result, expected)
+})
+
+test_that("`gen_trans_matrix()` works with `ogden2005`", {
+  life_stages <- get_life_stages(ogden2005$transitions)
+
+  population <- empty_population_matrix(life_stages, 200)
+  population[] <- 1
+
+  transitions_with_parameters <- add_params_list(
+    ogden2005$transitions, ogden2005$parameters
+  )
+
+  expect_snapshot(gen_trans_matrix(
+    # Using a time in the middle of the year when temperature is higher and more
+    # of the transitions will have nonzero values.
+    time = 150,
+    N = population,
+    N_developing = population,
+    life_stages = life_stages,
+    tick_transitions = transitions_with_parameters,
+    predictors = ogden2005$predictors
+  ))
+})
