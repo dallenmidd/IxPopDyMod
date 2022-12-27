@@ -77,6 +77,16 @@ get_tick_den <- function(time, N, N_developing, pred, life_stages) {
   sum((N + N_developing)[str_which(life_stages, pred), time])
 }
 
+#' Create an empty (zero population) population matrix
+empty_population_matrix <- function(life_stages, steps) {
+  matrix(
+    data = 0,
+    nrow = length(life_stages),
+    ncol = steps,
+    dimnames = list(life_stages)
+  )
+}
+
 #' Get the value of a predictor
 #'
 #' @param time Numeric vector indicating span of days to get predictor values
