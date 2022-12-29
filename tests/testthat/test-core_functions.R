@@ -25,7 +25,7 @@ test_that("`get_life_stages()` works with `ogden2005` data", {
   expected_life_stages <- c(
     "__e", "e_l", "e_n", "a_l", "a_n", "h_l", "q_l", "e_a", "r_a", "a_a", "q_a",
     "q_n"
-    )
+  )
   expect_equal(get_life_stages(ogden2005$transitions), expected_life_stages)
 })
 
@@ -83,7 +83,6 @@ test_that("`get_tick_den()` works", {
 
   # Assert
   expect_equal(result, 18)
-
 })
 
 test_that("`get_pred()` works for host density data with or without delay", {
@@ -203,7 +202,6 @@ test_that("`get_pred()` works with predictors in table with delay", {
 })
 
 test_that("`get_transition_val()` works with no predictors and no delay", {
-
   # Arrange
   # TODO also test with a custom function?
 
@@ -230,11 +228,9 @@ test_that("`get_transition_val()` works with no predictors and no delay", {
 
   # Assert
   expect_equal(result, 5)
-
 })
 
 test_that("`get_transition_val()` works with no predictors and delay", {
-
   # Arrange
   transition_row_with_parameters <- data.frame(
     from = "a",
@@ -259,12 +255,10 @@ test_that("`get_transition_val()` works with no predictors and delay", {
 
   # Assert
   expect_equal(result, 5)
-
 })
 
 test_that("`get_transition_val()` works with a predictor that varies over time
   and delay", {
-
   # Arrange
 
   transition_row_with_parameters <- data.frame(
@@ -297,12 +291,10 @@ test_that("`get_transition_val()` works with a predictor that varies over time
 
   # Assert
   expect_equal(result, seq(22, 40, by = 2))
-
 })
 
 test_that("`get_transition_val()` works with a predictor that varies over time
  and no delay", {
-
   # Arrange
 
   transition_row_with_parameters <- data.frame(
@@ -335,7 +327,6 @@ test_that("`get_transition_val()` works with a predictor that varies over time
 
   # Assert
   expect_equal(result, 22)
-
 })
 
 test_that("`gen_trans_matrix() works with `config_ex_1`", {
