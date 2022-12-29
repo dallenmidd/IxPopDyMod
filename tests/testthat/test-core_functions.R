@@ -101,14 +101,14 @@ test_that("`get_pred()` works for host density data with or without delay", {
   # is a delay
   result_delay <- get_pred(
     time = 1L, pred = "host_den", is_delay = TRUE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L, life_stages = c("a", "b", "c"),
-    predictors = predictors
+    developing_population = matrix(), max_delay = 365L,
+    life_stages = c("a", "b", "c"), predictors = predictors
   )
 
   result_no_delay <- get_pred(
     time = 1L, pred = "host_den", is_delay = FALSE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L, life_stages = c("a", "b", "c"),
-    predictors = predictors
+    developing_population = matrix(), max_delay = 365L,
+    life_stages = c("a", "b", "c"), predictors = predictors
   )
 
   # Assert
@@ -127,14 +127,14 @@ test_that("`get_pred()` works with tick density data with or without delay", {
   # is a delay
   result_delay <- get_pred(
     time = 1L, pred = "[ab]", is_delay = TRUE, population = population,
-    developing_population = population, max_delay = 365L, life_stages = c("a", "b", "c"),
-    predictors = data.frame()
+    developing_population = population, max_delay = 365L,
+    life_stages = c("a", "b", "c"), predictors = data.frame()
   )
 
   result_no_delay <- get_pred(
     time = 1L, pred = "[ab]", is_delay = FALSE, population = population,
-    developing_population = population, max_delay = 365L, life_stages = c("a", "b", "c"),
-    predictors = data.frame()
+    developing_population = population, max_delay = 365L,
+    life_stages = c("a", "b", "c"), predictors = data.frame()
   )
 
   # Assert
@@ -145,14 +145,14 @@ test_that("`get_pred()` works with tick density data with or without delay", {
 test_that("`get_pred()` works with no predictor with or without delay", {
   result_delay <- get_pred(
     time = 1, pred = NA, is_delay = TRUE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L, life_stages = c("a", "b"),
-    predictors = data.frame()
+    developing_population = matrix(), max_delay = 365L,
+    life_stages = c("a", "b"), predictors = data.frame()
   )
 
   result_no_delay <- get_pred(
     time = 1, pred = NA, is_delay = FALSE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L, life_stages = c("a", "b"),
-    predictors = data.frame()
+    developing_population = matrix(), max_delay = 365L,
+    life_stages = c("a", "b"), predictors = data.frame()
   )
 
   expect_equal(result_delay, NULL)

@@ -18,22 +18,30 @@
 #'
 "config_ex_2"
 
-#' Configuration for Ixodes scapularis population dynamics model from Ogden et al. 2005
+#' Configuration for Ixodes scapularis population dynamics model from Ogden et
+#' al. 2005
 #'
 #' This model configuration recreates the Ixodes scapularis (blacklegged tick)
-#' population dynamics model from Ogden et al. 2005. This is a relatively complete
-#' model of tick population dynamics, including the effects of both temperature and
-#' the host community on tick life-stage transitions. We include this configuration
-#' to show that our package can be used to recreate existing models.
+#' population dynamics model from Ogden et al. 2005. This is a relatively
+#' complete model of tick population dynamics, including the effects of both
+#' temperature and the host community on tick life-stage transitions. We include
+#' this configuration to show that our package can be used to recreate existing
+#' models.
 #'
 #' @format A \code{\link{config}}
 #'
 #' \describe{
-#'   \item{steps}{Number of time steps to run the model. Here each step corresponds to one day.}
-#'   \item{initial_population}{Named vector of initial population size. Here the population starts with 10000 questing adults.}
-#'   \item{transitions}{A \code{\link{tibble}} giving the transitions between tick life stages.}
-#'   \item{parameters}{A \code{\link{tibble}} with the parameters to the life-stage transitions functions.}
-#'   \item{predictors}{A \code{\link{tibble}} with the average temperature for each day, and density of hosts over the model run. Here the host community is stable with 20 deer and 200 rodents.}
+#'   \item{steps}{Number of time steps to run the model. Here each step
+#'   corresponds to one day.}
+#'   \item{initial_population}{Named vector of initial population size. Here
+#'   the population starts with 10000 questing adults.}
+#'   \item{transitions}{A \code{\link{tibble}} giving the transitions between
+#'   tick life stages.}
+#'   \item{parameters}{A \code{\link{tibble}} with the parameters to the
+#'   life-stage transitions functions.}
+#'   \item{predictors}{A \code{\link{tibble}} with the average temperature
+#'   for each day, and density of hosts over the model run. Here the host
+#'   community is stable with 20 deer and 200 rodents.}
 #'   \item{max_delay}{The number of time units used for the delay functions.}
 #' }
 #'
