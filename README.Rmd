@@ -23,6 +23,8 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 
+# TODO delete this is a test
+
 # IxPopDyMod: A framework for Ixodidae Population Dynamics Models
 
 This package is designed to help the user specify, run, and then visualize and analyze the results of Ixodidae (hard-bodied ticks) population dynamics models. Such models exist in the literature, but the source code to run them is not always available. We wanted to provide an easy way for these models to be written and shared.
