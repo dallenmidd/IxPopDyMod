@@ -20,10 +20,9 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/dallenmidd/IxPopDyMod/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dallenmidd/IxPopDyMod/actions/workflows/R-CMD-check.yaml)
+[![CRAN version](http://www.r-pkg.org/badges/version/IxPopDyMod)](https://cran.r-project.org/package=IxPopDyMod)
+[![Codecov test coverage](https://codecov.io/gh/dallenmidd/IxPopDyMod/branch/master/graph/badge.svg)](https://app.codecov.io/gh/dallenmidd/IxPopDyMod?branch=master)
 <!-- badges: end -->
-
-
-# TODO delete this is a test 2
 
 # IxPopDyMod: A framework for Ixodidae Population Dynamics Models
 
@@ -55,7 +54,8 @@ These examples all use and modify preset model configurations. If you wish to cr
 We start with `config_ex_1`, a simple model configuration that doesn't consider infection, and that has four life stages: `__e` for egg, `__l` for larvae, `__n` for nymph, and `__a` for adult.
 
 ```{r}
-library(IxPopDyMod)
+# library(IxPopDyMod)
+devtools::load_all(export_all = FALSE)
 library(readr)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
