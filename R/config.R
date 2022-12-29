@@ -122,17 +122,19 @@ new_config <- function(initial_population, transitions, parameters,
 #'   }
 #' }
 #'
-#' @param predictors Optionally, a `tibble` of input data to be used as predictor
-#' values in transition functions, for example weather or host density.
+#' @param predictors Optionally, a `tibble` of input data to be used as
+#' predictor values in transition functions, for example weather or host
+#' density.
 #'
 #' \describe{
-#'   \item{pred}{String specifying the name of the predictor, e.g. "temp" or "host_den}
+#'   \item{pred}{String specifying the name of the predictor, e.g. "temp" or
+#'   "host_den}
 #'   \item{pred_subcategory}{This column allows specifying predictors for which
 #'   there are multiple values for a given j_day. Predictor values are sorted by
-#'   this column in the config set up. This ensures that when accessing a predictor
-#'   with multiple values for the same j_day, we get a vector of predictor values
-#'   ordered by this column A typical use for this column is to specify the
-#'   host density of each host species.}
+#'   this column in the config set up. This ensures that when accessing a
+#'   predictor with multiple values for the same j_day, we get a vector of
+#'   predictor values ordered by this column A typical use for this column is
+#'   to specify the host density of each host species.}
 #'   \item{j_day}{Integer specifying the Julian day, or NA for predictors with
 #'   constant value over time}
 #'   \item{value}{Numeric value of predictor}
@@ -184,13 +186,14 @@ new_config <- function(initial_population, transitions, parameters,
 #'
 #' @examples
 #'
-#' # We rebuild an example config from its constituent parts. This is successful as
-#' # expected, because we're just making a config that's identical to an example.
+#' # We rebuild an example config from its constituent parts. This is successful
+#' # as expected, because we're just making a config that's identical to an
+#' # example.
 #' do.call(config, config_ex_1)
 #'
-#' # If we modify the config to something unsuitable, the function will complain.
-#' # For example, if we modify the egg to larvae transition to use a different
-#' # function that requires an additional parameter.
+#' # If we modify the config to something unsuitable, the function will
+#' # complain. For example, if we modify the egg to larvae transition to use a
+#' # different function that requires an additional parameter.
 #'
 #' \dontrun{
 #' # We define a super simple function that takes two parameters.
@@ -201,7 +204,8 @@ new_config <- function(initial_population, transitions, parameters,
 #'
 #' # this will throw an error, because a parameter is missing
 #' do.call(config, my_config)
-#' # config() will report that parameter "b" is missing for the exponential function.
+#' # config() will report that parameter "b" is missing for the exponential
+#' # function.
 #'
 #' # Adding the parameter should fix the config
 #' my_config$parameters[9, ] <- list(
@@ -287,7 +291,8 @@ read_config <- function(file) {
 #' @export
 write_config <- function(cfg, config_path, transitions_path, parameters_path,
                          predictors_path) {
-  for (f in c(config_path, transitions_path, parameters_path, predictors_path)) {
+  paths <- c(config_path, transitions_path, parameters_path, predictors_path)
+  for (f in paths) {
     if (file.exists(f)) {
       stop(
         paste0('Cannot write "', f, '", file already exists'),
