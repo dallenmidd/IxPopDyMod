@@ -262,7 +262,8 @@ test_that("`get_transition_val()` works with no predictors and delay", {
 
 })
 
-test_that("`get_transition_val()` works with a predictor that varies over time and delay", {
+test_that("`get_transition_val()` works with a predictor that varies over time
+  and delay", {
 
   # Arrange
 
@@ -299,7 +300,8 @@ test_that("`get_transition_val()` works with a predictor that varies over time a
 
 })
 
-test_that("`get_transition_val()` works with a predictor that varies over time and no delay", {
+test_that("`get_transition_val()` works with a predictor that varies over time
+ and no delay", {
 
   # Arrange
 
@@ -403,4 +405,15 @@ test_that("`gen_trans_matrix()` works with `ogden2005`", {
     tick_transitions = transitions_with_parameters,
     predictors = ogden2005$predictors
   ))
+})
+
+
+test_that("model output for `config_ex_1` stays the same", {
+  expect_snapshot(run(config_ex_1))
+})
+
+test_that("model output for `config_ex_2` stays the same", {
+  # skipped on CRAN because it is long-running
+  testthat::skip_on_cran()
+  expect_snapshot(run(config_ex_2))
 })
