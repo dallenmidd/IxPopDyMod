@@ -15,12 +15,14 @@ has_required_types <- function(cfg, df_name, required_coltypes) {
   actual_coltypes <- sapply(cfg[[df_name]], class)
 
   for (col in names(required_coltypes)) {
-    if (!(required_coltypes[[col]] == actual_coltypes[[col]] |
-      (required_coltypes[[col]] == "numeric" &
-        actual_coltypes[[col]] %in% c("double", "integer")) |
+    actual <- actual_coltypes[[col]]
+    expected <- required_coltypes[[col]]
+    if (!(
+      expected == actual ||
+      (expected == "numeric" && actual %in% c("double", "integer")) ||
       # if missing values were interpreted as type logical
-      (actual_coltypes[[col]] == "logical" &
-        all(is.na(cfg[[df_name]][, col]))))) {
+      (actual == "logical" && all(is.na(cfg[[df_name]][, col])))
+    )) {
       stop(
         "Expected type \"", required_coltypes[col], "\" for column `", col,
         "` in `", df_name,
@@ -425,8 +427,10 @@ validate_config <- function(cfg) {
     }
   }
 
-  if (is.null(names(cfg$initial_population)) |
-    any(names(cfg$initial_population) == "")) {
+  if (
+    is.null(names(cfg$initial_population)) ||
+    any(names(cfg$initial_population) == "")
+  ) {
     stop(
       "all values of `initial_population` must be named",
       call. = FALSE
