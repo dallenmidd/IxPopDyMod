@@ -290,14 +290,14 @@ test_transition_values <- function(cfg) {
 
   # initialize a population matrix with 10 of each tick life_stage on day 1
   # and an empty N_developing matrix
-  N <- matrix(
+  population <- matrix(
     nrow = length(life_stages),
     ncol = cfg$steps + cfg$max_delay,
     data = 0
   )
-  rownames(N) <- life_stages
-  N_developing <- N
-  N[, 1] <- 10
+  rownames(population) <- life_stages
+  developing_population <- population
+  population[, 1] <- 10
 
   funs <- add_params_list(cfg$transitions, cfg$parameters)
 
@@ -314,8 +314,8 @@ test_transition_values <- function(cfg) {
         get_transition_val(
           time = 1,
           transition_row_with_parameters = funs[row_index, ],
-          N = N,
-          N_developing = N_developing,
+          population = population,
+          developing_population = developing_population,
           max_delay = cfg$max_delay,
           life_stages = life_stages,
           predictors = cfg$predictors
@@ -336,8 +336,6 @@ test_transition_values <- function(cfg) {
     invalid_funs <- funs %>%
       dplyr::mutate(row_number = dplyr::row_number()) %>%
       dplyr::filter(!.data$valid)
-
-    n_invalid <- nrow(invalid_funs)
 
     row_to_string <- function(row) {
       paste0(
