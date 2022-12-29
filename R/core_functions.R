@@ -63,17 +63,19 @@ get_pred_from_table <- function(time, pred, table) {
 #' @param time Numeric vector of length one indicating day to get tick density
 #' @param pred Character vector indicating life stages to get tick
 #'   density of
-#' @param N Matrix of number of ticks not currently undergoing development
+#' @param population Matrix of number of ticks not currently undergoing
+#'   development per life stage per day
+#' @param developing_population Matrix of number of currently developing ticks
 #'   per life stage per day
-#' @param N_developing Matrix of number of currently developing ticks per life
-#'   stage per day
 #' @param life_stages Character vector of life stages.
 #' @importFrom stringr str_which
 #' @return Numeric vector of length one indicating current number of ticks in
 #'   given life stages
 #' @noRd
-get_tick_den <- function(time, N, N_developing, pred, life_stages) {
-  sum((N + N_developing)[str_which(life_stages, pred), time])
+get_tick_den <- function(
+    time, population, developing_population, pred, life_stages
+  ) {
+  sum((population + developing_population)[str_which(life_stages, pred), time])
 }
 
 #' Create an empty (zero population) population matrix
@@ -93,9 +95,9 @@ empty_population_matrix <- function(life_stages, steps) {
 #'   'host_den' or NA
 #' @param is_delay Boolean indicating whether the predictor is for a transition
 #'   involving a delay
-#' @param N Tick population matrix. See get_tick_den for details.
-#' @param N_developing Matrix of currently developing ticks. See get_tick_den
-#'   for details.
+#' @param population Tick population matrix. See get_tick_den for details.
+#' @param developing_population Matrix of currently developing ticks.
+#'   See get_tick_den for details.
 #' @param max_delay Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
 #' @param life_stages Character vector of life stages.
@@ -104,8 +106,10 @@ empty_population_matrix <- function(life_stages, steps) {
 #'
 # Return a vector of a predictor at time time.
 # The vector's length is based on whether the transition is_delay.
-get_pred <- function(time, pred, is_delay, N, N_developing, max_delay,
-                     life_stages, predictors) {
+get_pred <- function(
+    time, pred, is_delay, population, developing_population, max_delay,
+    life_stages, predictors
+  ) {
   # we need this in order to determine whether to look in the predictors table
   # or check if the predictor could pattern match with a life_stage string
   # TODO for performance, this should only be computed once
@@ -134,7 +138,7 @@ get_pred <- function(time, pred, is_delay, N, N_developing, max_delay,
   } else if (pred %in% valid_predictors_from_table) {
     get_pred_from_table(time, pred, predictors)
   } else if (any(str_detect(life_stages, pred))) {
-    get_tick_den(time, N, N_developing, pred, life_stages)
+    get_tick_den(time, population, developing_population, pred, life_stages)
   } else {
     stop("failed to match predictor: \"", pred, "\"")
   }
@@ -152,9 +156,9 @@ get_pred <- function(time, pred, is_delay, N, N_developing, max_delay,
 #' @param time Numeric vector indicating span of days to get predictor values
 #' @param transition_row_with_parameters A row from the tick_transitions tibble
 #'   with parameters added.
-#' @param N Tick population matrix. See get_tick_den for details.
-#' @param N_developing Matrix of currently developing ticks. See get_tick_den
-#'   for details.
+#' @param population Tick population matrix. See get_tick_den for details.
+#' @param developing_population Matrix of currently developing ticks. See
+#'   get_tick_den for details.
 #' @param max_delay Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
 #' @param life_stages Character vector of life stages.
@@ -162,8 +166,8 @@ get_pred <- function(time, pred, is_delay, N, N_developing, max_delay,
 #' @noRd
 #'
 #' @return Numeric vector indicating probability or duration of a transition.
-get_transition_val <- function(time, transition_row_with_parameters, N,
-                               N_developing, max_delay, life_stages,
+get_transition_val <- function(time, transition_row_with_parameters, population,
+                               developing_population, max_delay, life_stages,
                                predictors) {
   # get the function
   f <- get(transition_row_with_parameters[["transition_fun"]])
@@ -174,13 +178,13 @@ get_transition_val <- function(time, transition_row_with_parameters, N,
   # get the value of the predictors for the function
   pred1 <- get_pred(
     time, transition_row_with_parameters[["pred1"]],
-    transition_row_with_parameters[["delay"]], N, N_developing,
-    max_delay, life_stages, predictors
+    transition_row_with_parameters[["delay"]], population,
+    developing_population, max_delay, life_stages, predictors
   )
   pred2 <- get_pred(
     time, transition_row_with_parameters[["pred2"]],
-    transition_row_with_parameters[["delay"]], N, N_developing,
-    max_delay, life_stages, predictors
+    transition_row_with_parameters[["delay"]], population,
+    developing_population, max_delay, life_stages, predictors
   )
 
   # evaluate the function
@@ -191,9 +195,9 @@ get_transition_val <- function(time, transition_row_with_parameters, N,
 #' Generate a matrix of transition probabilities between tick life stages
 #'
 #' @param time Numeric vector indicating day to get transition probabilities
-#' @param N Tick population matrix. See get_tick_den for details.
-#' @param N_developing Matrix of currently developing ticks. See get_tick_den
-#'   for details.
+#' @param population Tick population matrix. See get_tick_den for details.
+#' @param developing_population Matrix of currently developing ticks. See
+#'   get_tick_den for details.
 #' @param life_stages Character vector of life stages.
 #' @param tick_transitions Tick transitions tibble
 #' @param predictors Table of predictor values
@@ -207,8 +211,10 @@ get_transition_val <- function(time, transition_row_with_parameters, N,
 #'   transitioning from each stage (axis 1) to each stage (axis 2).
 #'
 #' @noRd
-gen_trans_matrix <- function(time, N, N_developing, life_stages,
-                             tick_transitions, predictors) {
+gen_trans_matrix <- function(
+    time, population, developing_population, life_stages, tick_transitions,
+    predictors
+  ) {
   # initialize the transition matrix with 0s
   n_life_stages <- length(life_stages)
   trans_matrix <- matrix(0,
@@ -233,7 +239,7 @@ gen_trans_matrix <- function(time, N, N_developing, life_stages,
     for (t in seq_len(nrow(transitions))) {
       trans_matrix[transitions[t, ]$from, transitions[t, ]$to] <-
         get_transition_val(
-          time, transitions[t, ], N, N_developing, NULL,
+          time, transitions[t, ], population, developing_population, NULL,
           life_stages, predictors
         )
     }
@@ -244,7 +250,8 @@ gen_trans_matrix <- function(time, N, N_developing, life_stages,
       from_stage <- mort[m, ]$from
 
       mortality <- get_transition_val(
-        time, mort[m, ], N, N_developing, NULL, life_stages, predictors
+        time, mort[m, ], population, developing_population, NULL, life_stages,
+        predictors
       )
 
       # The max(0, 1- ...) structure should ensure that survival is between 0
@@ -265,9 +272,9 @@ gen_trans_matrix <- function(time, N, N_developing, life_stages,
 #'
 #' @param time Numeric vector indicating day to get transition probabilities
 #' @param delay_arr Delay array from previous time step
-#' @param N Tick population matrix. See get_tick_den for details.
-#' @param N_developing Matrix of currently developing ticks. See get_tick_den
-#'   for details.
+#' @param population Tick population matrix. See get_tick_den for details.
+#' @param developing_population Matrix of currently developing ticks. See
+#'   get_tick_den for details.
 #' @param life_stages Character vector of life stages.
 #' @param tick_transitions Tick transitions tibble
 #' @param predictors Table of predictor values
@@ -281,8 +288,10 @@ gen_trans_matrix <- function(time, N, N_developing, life_stages,
 #'   is the day on which the ticks will emerge from the transition. The value
 #'   at a given cell is the number of ticks emerging from the transition.
 #' @noRd
-update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
-                             life_stages, max_delay, predictors) {
+update_delay_arr <- function(
+    time, delay_arr, population, developing_population, tick_transitions,
+    life_stages, max_delay, predictors
+  ) {
   # select all delay transition functions, including mortality
   transitions <- tick_transitions[tick_transitions$delay, ]
 
@@ -297,7 +306,7 @@ update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
 
     # daily probability of transitioning to the next stage
     val <- get_transition_val(
-      time, trans, N, N_developing, max_delay,
+      time, trans, population, developing_population, max_delay,
       life_stages, predictors
     )
 
@@ -309,7 +318,7 @@ update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
 
     if (nrow(mort_tibble) == 1) {
       mort <- get_transition_val(
-        time, mort_tibble[1, ], N, N_developing,
+        time, mort_tibble[1, ], population, developing_population,
         max_delay, life_stages, predictors
       )
     } else if (nrow(mort_tibble) == 0) {
@@ -366,7 +375,7 @@ update_delay_arr <- function(time, delay_arr, N, N_developing, tick_transitions,
       # then plus the current number of ticks in the from_stage * survival
       delay_arr[from_stage, to_stage, time + days_to_next] <-
         delay_arr[from_stage, to_stage, time + days_to_next] +
-        N[from_stage, time] * surv_to_next
+        population[from_stage, time] * surv_to_next
     } else {
       stop(
         "cumsum of daily transition probabilities never reached 1,",
@@ -460,8 +469,8 @@ run <- function(cfg) {
   )
 
   # initialize a population matrix with initial_population
-  N <- matrix(nrow = length(life_stages), ncol = cfg$steps, data = 0)
-  N[, 1] <-
+  population <- matrix(nrow = length(life_stages), ncol = cfg$steps, data = 0)
+  population[, 1] <-
     sapply(life_stages, function(x) {
       if (x %in% names(cfg$initial_population)) {
         cfg$initial_population[[x]]
@@ -469,12 +478,14 @@ run <- function(cfg) {
         0 # life stages not specified in cfg$initial_population
       }
     })
-  rownames(N) <- life_stages
+  rownames(population) <- life_stages
 
   # Initialize a population matrix to keep track of the number of individuals of
   # each stage that are currently developing (currently undergoing a delay)
-  N_developing <- matrix(nrow = length(life_stages), ncol = cfg$steps, data = 0)
-  rownames(N_developing) <- life_stages
+  developing_population <- matrix(
+    nrow = length(life_stages), ncol = cfg$steps, data = 0
+  )
+  rownames(developing_population) <- life_stages
 
   # at each time step:
   # (1) generate a new trans_matrix based on conditions at "time"
@@ -488,23 +499,26 @@ run <- function(cfg) {
     # Calculate the number of ticks currently in delayed development NOT
     # INCLUDING those added on current day, because that would be double
     # counting ticks in the population matrix, N. We exclude those added on
-    # current day by calculating N_developing before updating delay_arr. We
-    # slice the delay array from the current time + 1 to the end. We add 1
-    # because ticks that emerge from delay at current time would have been added
-    # to N on the previous iteration when we update N[, time + 1] by adding
-    # delay_mat[, time + 1]. We sum across to_stage and days to get a vector of
-    # the number of ticks currently developing FROM each life stage.
-    N_developing[, time] <- rowSums(delay_arr[, , (time + 1):dim(delay_arr)[3]])
+    # current day by calculating developing_population before updating
+    # delay_arr. We slice the delay array from the current time + 1 to the end.
+    # We add 1 because ticks that emerge from delay at current time would have
+    # been added to population on the previous iteration when we update
+    # N[, time + 1] by adding delay_mat[, time + 1]. We sum across to_stage and
+    # days to get a vector of the number of ticks currently developing FROM each
+    # life stage.
+    developing_population[, time] <- rowSums(
+      delay_arr[, , (time + 1):dim(delay_arr)[3]]
+    )
 
     # calculate transition probabilities
     trans_matrix <- gen_trans_matrix(
-      time, N, N_developing, life_stages,
+      time, population, developing_population, life_stages,
       transitions_with_params, cfg$predictors
     )
 
     # calculate the number of ticks entering delayed development
     delay_arr <- update_delay_arr(
-      time, delay_arr, N, N_developing,
+      time, delay_arr, population, developing_population,
       transitions_with_params, life_stages,
       cfg$max_delay, cfg$predictors
     )
@@ -516,12 +530,13 @@ run <- function(cfg) {
     # calculate the number of ticks at the next time step, which is
     # current population * transition probabilities + ticks emerging from
     # delayed development
-    N[, time + 1] <- N[, time] %*% trans_matrix + delay_mat[, time + 1]
+    population[, time + 1] <-
+      population[, time] %*% trans_matrix + delay_mat[, time + 1]
   }
 
   # Return the total population of ticks each day. Developing ticks are counted
   # in the FROM stage.
-  (N + N_developing) %>%
+  (population + developing_population) %>%
     t() %>%
     as.data.frame() %>%
     mutate(day = row_number()) %>%
