@@ -1,4 +1,5 @@
-test_that("new_transition() produces expected output with valid input", {
+# new_transition --------------------------------------------------------------
+test_that("produces expected output with valid input", {
   expect_snapshot(new_transition(
     from = "a",
     to = "b",
@@ -10,7 +11,7 @@ test_that("new_transition() produces expected output with valid input", {
   ))
 })
 
-test_that("new_transition() throws error with invalid from input", {
+test_that("throws error with invalid from input", {
   expect_error(new_transition(
     from = "",
     to = "b",
@@ -32,7 +33,7 @@ test_that("new_transition() throws error with invalid from input", {
   ))
 })
 
-test_that("new_transition() throws error with invalid to input", {
+test_that("throws error with invalid to input", {
   expect_error(new_transition(
     from = "a",
     to = "",
@@ -54,7 +55,7 @@ test_that("new_transition() throws error with invalid to input", {
   ))
 })
 
-test_that("new_transition() ensures that either mortality_type or to is NA", {
+test_that("ensures that either mortality_type or to is NA", {
   expect_error(new_transition(
     from = "a",
     to = NA,
