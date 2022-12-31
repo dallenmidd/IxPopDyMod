@@ -16,6 +16,17 @@ new_transition <- function(
   stopifnot(inherits(transition_type, "transition_type"))
   stopifnot(inherits(mortality_type, "mortality_type"))
 
+  if (
+    !is.na(mortality_type) &&
+    mortality_type == "throughout_transition" &&
+    transition_type == "probability"
+  ) {
+    stop(
+      "`probability` transitions only support `per_day` mortality",
+      .call = FALSE
+    )
+  }
+
   # TODO move to helper?
   stopifnot(
     (!is.na(to) && is.na(mortality_type)) ||
