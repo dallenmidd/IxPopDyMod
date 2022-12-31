@@ -1,4 +1,3 @@
-# transition_functions.R
 # Default transition functions. Users may use custom functions by loading them
 # into the environment, e.g. by sourcing a file with function definitions.
 
