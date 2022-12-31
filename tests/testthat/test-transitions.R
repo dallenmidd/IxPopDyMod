@@ -86,3 +86,16 @@ test_that("new_transition() ensures that either mortality_type or to is NA", {
   ), regexp = NA)
 
 })
+
+# transition_is_mortality -----------------------------------------------------
+
+
+# new_transition_type ---------------------------------------------------------
+test_that("transition type cannot be NA", {
+  expect_error(new_transition_type(NA))
+})
+
+# new_mortality_type ----------------------------------------------------------
+test_that("mortality type can be NA", {
+  expect_error(new_mortality_type(NA), regexp = NA)
+})
