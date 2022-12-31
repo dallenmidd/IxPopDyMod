@@ -55,14 +55,14 @@ transition_is_mortality <- function(transition) {
 
 #' Construct a transition type
 new_transition_type <- function(type_name) {
-  levels <- c("probability", "duration")
+  options <- c("probability", "duration")
 
-  stopifnot(is.character(type_name) || is.factor(type_name))
-  stopifnot(type_name %in% levels)
+  stopifnot(is.character(type_name))
+  stopifnot(type_name %in% options)
   stopifnot(length(type_name) == 1)
 
   result <- structure(
-    factor(type_name, levels = levels),
+    type_name,
     class = "transition_type"
   )
 
@@ -72,14 +72,14 @@ new_transition_type <- function(type_name) {
 
 #' Construct a mortality type
 new_mortality_type <- function(type_name) {
-  levels <- c("per_day", "throughout_transition")
+  options <- c("per_day", "throughout_transition")
 
-  stopifnot(is.na(type_name) || is.character(type_name) || is.factor(type_name))
-  stopifnot(is.na(type_name) || (type_name %in% levels))
+  stopifnot(is.na(type_name) || is.character(type_name))
+  stopifnot(is.na(type_name) || (type_name %in% options))
   stopifnot(length(type_name) == 1)
 
   result <- structure(
-    factor(type_name, levels = levels),
+    type_name,
     class = "mortality_type"
   )
   return(result)

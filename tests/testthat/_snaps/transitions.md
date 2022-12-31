@@ -1,4 +1,4 @@
-# new_transition() produces expected output with valid input
+# produces expected output with valid input
 
     Code
       new_transition(from = "a", to = "b", transition_type = new_transition_type(
@@ -12,16 +12,12 @@
       [1] "b"
       
       $transition_type
-      [1] 1
-      attr(,"levels")
-      [1] "probability" "duration"   
+      [1] "probability"
       attr(,"class")
       [1] "transition_type"
       
       $mortality_type
       [1] NA
-      attr(,"levels")
-      [1] "per_day"               "throughout_transition"
       attr(,"class")
       [1] "mortality_type"
       
@@ -39,4 +35,22 @@
       
       attr(,"class")
       [1] "transition"
+
+# works with allowed input
+
+    Code
+      new_transition_type("probability")
+    Output
+      [1] "probability"
+      attr(,"class")
+      [1] "transition_type"
+
+---
+
+    Code
+      new_mortality_type("per_day")
+    Output
+      [1] "per_day"
+      attr(,"class")
+      [1] "mortality_type"
 
