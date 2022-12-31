@@ -29,8 +29,7 @@ new_transition <- function(
 
   # TODO move to helper?
   stopifnot(
-    (!is.na(to) && is.na(mortality_type)) ||
-      (is.na(to) && !is.na(mortality_type))
+    !is.na(to) && is.na(mortality_type) || is.na(to) && !is.na(mortality_type)
   )
 
   # TODO use a custom transition function class?
