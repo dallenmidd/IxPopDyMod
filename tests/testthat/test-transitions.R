@@ -200,6 +200,44 @@ test_that("catches missing predictors needed in transition function", {
   )
 })
 
+# transition() ----------------------------------------------------------------
+test_that("works with defaults", {
+
+  # Need to set the environment so it doesn't change in snapshots
+  f <- function(x, y) {}
+  environment(f) <- emptyenv()
+
+  expect_snapshot(transition(
+    from = "a",
+    to = "b",
+    fun = f,
+    transition_type = "probability"
+  ))
+})
+
+test_that("can handle vector parameters input", {
+  result <- transition(
+    from = "a",
+    to = "b",
+    fun = new_transition_function(constant_fun),
+    transition_type = "probability",
+    parameters = c(a = 1)
+  )
+
+  expect_s3_class(result$parameters, "parameters")
+})
+
+test_that("can coerce input fun to transition_function", {
+  result <- transition(
+    from = "a",
+    to = "b",
+    fun = constant_fun,
+    transition_type = "probability",
+    parameters = new_parameters(a = 1)
+  )
+
+  expect_s3_class(result$fun, "transition_function")
+})
 
 # transition_is_mortality -----------------------------------------------------
 test_that("correctly identifies mortality", {
