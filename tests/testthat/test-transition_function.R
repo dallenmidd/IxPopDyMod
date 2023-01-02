@@ -1,11 +1,20 @@
 # new_transition_function -----------------------------------------------------
 test_that("requires function input", {
-  expect_error(new_transition_function(c("a character vector")))
-  expect_error(new_transition_function(c(constant_fun, expo_fun)))
+  expect_error(
+    new_transition_function(c("a character vector")),
+    "Must be a function, not 'character'"
+  )
+  expect_error(
+    new_transition_function(list(constant_fun, expo_fun)),
+    "Must be a function, not 'list'"
+  )
 })
 
 test_that("requires >= 2 function arguments", {
-  expect_error(new_transition_function(function(x) {}))
+  expect_error(
+    new_transition_function(function(x) {}),
+    "must have at least 2 arguments"
+  )
 })
 
 test_that("does not change function output", {

@@ -1,9 +1,15 @@
 #' Constructor for transition functions
 new_transition_function <- function(raw_function) {
 
-  stopifnot(is.function(raw_function))
+  checkmate::assert_function(raw_function)
 
-  stopifnot(length(formals(raw_function)) >= 2)
+  if (length(formals(raw_function)) < 2) {
+    stop(
+      "transition functions must have at least 2 arguments, but ",
+      "only ", length(formals(raw_function)), " arg(s) were provided.",
+      call. = FALSE
+    )
+  }
 
   structure(
     raw_function,
