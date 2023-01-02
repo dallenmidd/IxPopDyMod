@@ -79,8 +79,8 @@ test_that("ensures that either mortality_type or to is NULL", {
       transition_type = "probability",
       mortality_type = NULL,
       fun = new_transition_function(constant_fun),
-      predictors = "",
-      parameters = new_parameters()
+      predictors = c("x", "y"),
+      parameters = new_parameters(a = 1)
     )),
     "exactly 1 of `to` or `mortality_type` must be non-NULL"
   )
@@ -92,8 +92,8 @@ test_that("ensures that either mortality_type or to is NULL", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = "",
-      parameters = new_parameters()
+      predictors = c("x", "y"),
+      parameters = new_parameters(a = 1)
     )),
     "exactly 1 of `to` or `mortality_type` must be non-NULL"
   )
@@ -104,8 +104,8 @@ test_that("ensures that either mortality_type or to is NULL", {
     transition_type = "probability",
     mortality_type = "per_day",
     fun = new_transition_function(constant_fun),
-    predictors = "",
-    parameters = new_parameters()
+    predictors = c("x", "y"),
+    parameters = new_parameters(a = 1)
   )), regexp = NA)
 
   expect_error(validate_transition(new_transition(
@@ -114,9 +114,75 @@ test_that("ensures that either mortality_type or to is NULL", {
     transition_type = "probability",
     mortality_type = NULL,
     fun = new_transition_function(constant_fun),
-    predictors = "",
-    parameters = new_parameters()
+    predictors = c("x", "y"),
+    parameters = new_parameters(a = 1)
   )), regexp = NA)
+})
+
+test_that("catches extra parameters not needed in transition function", {
+  expect_error(
+    validate_transition(new_transition(
+      from = "a",
+      to = NULL,
+      transition_type = "probability",
+      mortality_type = "per_day",
+      fun = new_transition_function(constant_fun),
+      predictors = c("x", "y"),
+      parameters = new_parameters(a = 1, b = 2)
+    )),
+    regexp = "Must be a permutation of set {'a'}, but has extra elements {'b'}",
+    fixed = TRUE
+  )
+})
+
+test_that("catches missing parameters needed in transition function", {
+  expect_error(
+    validate_transition(new_transition(
+      from = "a",
+      to = NULL,
+      transition_type = "probability",
+      mortality_type = "per_day",
+      fun = new_transition_function(constant_fun),
+      predictors = c("x", "y"),
+      parameters = new_parameters()
+    )),
+    regexp = "Must be setequal to {'a'}, but has different type.",
+    fixed = TRUE
+  )
+})
+
+test_that("catches extra predictors not needed in transition function", {
+  expect_error(
+    validate_transition(new_transition(
+      from = "a",
+      to = NULL,
+      transition_type = "probability",
+      mortality_type = "per_day",
+      fun = new_transition_function(constant_fun),
+      predictors = c("x", "y", "z"),
+      parameters = new_parameters(a = 1)
+    )),
+    regexp = (
+      "Must be a permutation of set {'x','y'}, but has extra elements {'z'}"
+    ),
+    fixed = TRUE
+  )
+})
+
+test_that("catches missing predictors needed in transition function", {
+  expect_error(
+    validate_transition(new_transition(
+      from = "a",
+      to = NULL,
+      transition_type = "probability",
+      mortality_type = "per_day",
+      fun = new_transition_function(constant_fun),
+      predictors = c("x"),
+      parameters = new_parameters(a = 1)
+    )),
+    regexp = "Must be a set equal to {'x','y'}, but is missing elements {'y'}.",
+    fixed = TRUE
+  )
 })
 
 

@@ -51,6 +51,14 @@ validate_transition <- function(transition) {
     )
   }
 
+  # arguments to transition function align with parameters and predictors
+  checkmate::assert_set_equal(
+    names(transition$parameters), get_parameter_names(transition$fun)
+  )
+  checkmate::assert_set_equal(
+    transition$predictors, get_predictor_names(transition$fun)
+  )
+
   return(transition)
 }
 
