@@ -63,13 +63,15 @@ validate_transition <- function(transition) {
 }
 
 transition <- function(
-  from, to, fun, transition_type, mortality_type = NULL, predictors = NULL,
-  parameters = NULL
+  from, to, fun, transition_type, mortality_type = NULL,
+  predictors = get_predictor_names(fun),
+  parameters = new_parameters()
 ) {
 
   # TODO these should be helpers that do any coercion
   fun <- new_transition_function(fun)
-  parameters <- do.call(new_paramters, parameters)
+
+  parameters <- do.call(new_parameters, as.list(parameters))
 
   validate_transition(new_transition(
     from = from,

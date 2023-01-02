@@ -151,6 +151,21 @@ test_that("catches missing parameters needed in transition function", {
   )
 })
 
+test_that("allows transition with zero parameters", {
+  expect_error(
+    validate_transition(new_transition(
+      from = "a",
+      to = NULL,
+      transition_type = "probability",
+      mortality_type = "per_day",
+      fun = new_transition_function(function(x, y) {}),
+      predictors = c("x", "y"),
+      parameters = new_parameters()
+    )),
+    regexp = NA
+  )
+})
+
 test_that("catches extra predictors not needed in transition function", {
   expect_error(
     validate_transition(new_transition(
