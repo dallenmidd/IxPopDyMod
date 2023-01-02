@@ -13,29 +13,6 @@ new_transition <- function(
   checkmate::assert_character(predictors)
   checkmate::assert_class(parameters, "parameters")
 
-  # TODO move to helper?
-  if (
-    !is.null(mortality_type) &&
-    mortality_type == "throughout_transition" &&
-    transition_type == "probability"
-  ) {
-    stop(
-      "`probability` transitions only support `per_day` mortality",
-      call. = FALSE
-    )
-  }
-
-  # TODO move to helper?
-  if (
-    (is.null(to) && is.null(mortality_type)) ||
-    (!is.null(to) && !is.null(mortality_type))
-  ) {
-    stop(
-      "exactly 1 of `to` or `mortality_type` must be non-NULL",
-      call. = FALSE
-    )
-  }
-
   transition <- structure(
     list(
       from = from,
@@ -51,6 +28,33 @@ new_transition <- function(
 
   return(transition)
 }
+
+validate_transition <- function(transition) {
+
+  if (
+    !is.null(transition$mortality_type) &&
+    transition$mortality_type == "throughout_transition" &&
+    transition$transition_type == "probability"
+  ) {
+    stop(
+      "`probability` transitions only support `per_day` mortality",
+      call. = FALSE
+    )
+  }
+
+  if (
+    (is.null(transition$to) && is.null(transition$mortality_type)) ||
+    (!is.null(transition$to) && !is.null(transition$mortality_type))
+  ) {
+    stop(
+      "exactly 1 of `to` or `mortality_type` must be non-NULL",
+      call. = FALSE
+    )
+  }
+
+  return(transition)
+}
+
 
 
 #' Return whether a transition is mortality or a transition between life stages
