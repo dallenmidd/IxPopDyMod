@@ -5,7 +5,7 @@ test_that("produces expected output with valid input", {
     to = "b",
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type(NA),
-    fun = constant_fun,
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   ))
@@ -17,7 +17,7 @@ test_that("throws error with invalid from input", {
     to = "b",
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type(NA),
-    fun = function() {},
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   ))
@@ -27,7 +27,7 @@ test_that("throws error with invalid from input", {
     to = "b",
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type(NA),
-    fun = function() {},
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   ))
@@ -39,7 +39,7 @@ test_that("throws error with invalid to input", {
     to = "",
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type(NA),
-    fun = function() {},
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   ))
@@ -49,7 +49,7 @@ test_that("throws error with invalid to input", {
     to = NULL,
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type(NA),
-    fun = function() {},
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   ))
@@ -61,7 +61,7 @@ test_that("ensures that either mortality_type or to is NA", {
     to = NA,
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type(NA),
-    fun = function() {},
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   ))
@@ -71,7 +71,7 @@ test_that("ensures that either mortality_type or to is NA", {
     to = NA,
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type("per_day"),
-    fun = function() {},
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   ), regexp = NA)
@@ -81,7 +81,7 @@ test_that("ensures that either mortality_type or to is NA", {
     to = "b",
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type(NA),
-    fun = function() {},
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   ), regexp = NA)
@@ -108,7 +108,7 @@ test_that("correctly identifies mortality", {
     to = NA,
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type("per_day"),
-    fun = constant_fun,
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   )
@@ -121,7 +121,7 @@ test_that("correctly identifies no mortality", {
     to = "b",
     transition_type = new_transition_type("probability"),
     mortality_type = new_mortality_type(NA),
-    fun = constant_fun,
+    fun = new_transition_function(constant_fun),
     predictors = "",
     parameters = new_parameters()
   )

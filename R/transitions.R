@@ -33,8 +33,7 @@ new_transition <- function(
       (is.na(to) && !is.na(mortality_type))
   )
 
-  # TODO use a custom transition function class?
-  stopifnot(is.function(fun))
+  stopifnot(inherits(fun, "transition_function"))
 
   # a vector of predictor names
   # TODO should it be named?

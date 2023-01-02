@@ -2,8 +2,8 @@
 
     Code
       new_transition(from = "a", to = "b", transition_type = new_transition_type(
-        "probability"), mortality_type = new_mortality_type(NA), fun = constant_fun,
-      predictors = "", parameters = new_parameters())
+        "probability"), mortality_type = new_mortality_type(NA), fun = new_transition_function(
+        constant_fun), predictors = "", parameters = new_parameters())
     Output
       $from
       [1] "a"
@@ -24,6 +24,8 @@
       $fun
       function(x, y, a) a
       <environment: namespace:IxPopDyMod>
+      attr(,"class")
+      [1] "transition_function"
       
       $predictors
       [1] ""
