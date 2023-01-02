@@ -1,16 +1,15 @@
 new_transition <- function(
-  from, to, transition_type, mortality_type, fun, predictors, parameters
+  from, to, fun, transition_type, mortality_type, predictors, parameters
 ) {
 
   checkmate::assert_string(from, min.chars = 1)
   checkmate::assert_string(to, min.chars = 1, null.ok = TRUE)
+  checkmate::assert_class(fun, "transition_function")
   checkmate::assert_choice(transition_type, c("probability", "duration"))
   checkmate::assert_choice(
     mortality_type, c("per_day", "throughout_transition"), null.ok = TRUE
   )
-  checkmate::assert_class(fun, "transition_function")
-  # a vector of predictor names - TODO should it be named?
-  checkmate::assert_character(predictors)
+  checkmate::assert_character(predictors, null.ok = TRUE)
   checkmate::assert_class(parameters, "parameters")
 
   transition <- structure(
@@ -53,6 +52,26 @@ validate_transition <- function(transition) {
   }
 
   return(transition)
+}
+
+transition <- function(
+  from, to, fun, transition_type, mortality_type = NULL, predictors = NULL,
+  parameters = NULL
+) {
+
+  # TODO these should be helpers that do any coercion
+  fun <- new_transition_function(fun)
+  parameters <- do.call(new_paramters, parameters)
+
+  validate_transition(new_transition(
+    from = from,
+    to = to,
+    transition_type = transition_type,
+    mortality_type = mortality_type,
+    fun = fun,
+    predictors = predictors,
+    parameters = parameters
+  ))
 }
 
 
