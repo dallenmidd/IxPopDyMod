@@ -14,7 +14,10 @@ new_transition <- function(
   checkmate::assert_choice(
     mortality_type, c("per_day", "throughout_transition"), null.ok = TRUE
   )
-  checkmate::assert_character(predictors, null.ok = TRUE)
+  checkmate::assert_character(
+    predictors, names = "unique", min.chars = 1, null.ok = TRUE
+    # TODO might not want to allow NULL values
+  )
   checkmate::assert_class(parameters, "parameters")
 
   transition <- structure(
@@ -61,12 +64,15 @@ validate_transition <- function(transition) {
     )
   }
 
-  # arguments to transition function align with parameters and predictors
-  checkmate::assert_set_equal(
-    names(transition$parameters), get_parameter_names(transition$fun)
+  # there is no overlap between parameter and predictor names
+  checkmate::assert_disjunct(
+    names(transition$parameters), names(transition$predictors)
   )
+
+  # each argument to the function corresponds to a parameter or predictor
   checkmate::assert_set_equal(
-    transition$predictors, get_predictor_names(transition$fun)
+    c(names(transition$parameters), names(transition$predictors)),
+    names(formals(transition$fun))
   )
 
   return(transition)
@@ -93,22 +99,17 @@ validate_transition <- function(transition) {
 #'   `"throughout_transition"`: only valid for `"duration"` type transitions,
 #'     where it indicates that the evaluated transition is the fraction of
 #'     ticks that die throughout the entire transition.
-#' @param predictors Character vector of predictor names to use in evaluating
-#'   `fun`. Predictors are the data inputs to transition functions. Each element
-#'     can be one of:
+#' @param predictors Named character vector of predictors to use in evaluating
+#'   `fun`. Names are matched with the formal args to `fun` to determine which
+#'   input in `fun` each predictor will be passed to. Each value can be one of:
 #'     - A string in the `"pred"` column in the \code{\link{predictors}} table.
-#'       The predictor value passed to `fun` is the corresponding value of that
-#'       predictor in the table.
-#'     - A string that matches at least one life stage name via regex. The value
-#'       passed to `fun` is the sum of the population sizes of all matched life
-#'       stages.
+#'       In this case, the predictor value passed to `fun` is the corresponding
+#'       value of that predictor in the table.
+#'     - A string that matches at least one life stage name via regex. In this
+#'       case, the value passed to `fun` is the sum of the population sizes of
+#'       all matched life stages.
 #' @param parameters Optional, a \code{\link{parameters}} object, or a named
 #'   list of numeric vectors.
-#'
-#' TODO clarify how passing works and order matters for predictors/parameters
-#' IDEA for predictor passing - use a named vector, match args based on names
-#' of vector and names of formals in transition funs, and determine what to pass
-#' based on values of vector.
 #'
 #' TODO need to actually create the helper functions linked in these docs.
 #'
