@@ -99,9 +99,10 @@ validate_transition <- function(transition) {
 #'   `"throughout_transition"`: only valid for `"duration"` type transitions,
 #'     where it indicates that the evaluated transition is the fraction of
 #'     ticks that die throughout the entire transition.
-#' @param predictors Named character vector of predictors to use in evaluating
-#'   `fun`. Names are matched with the formal args to `fun` to determine which
-#'   input in `fun` each predictor will be passed to. Each value can be one of:
+#' @param predictors Optional, named character vector of predictors to use in
+#'   evaluating `fun`. Names are matched with the formal args to `fun` to
+#'   determine which input in `fun` each predictor will be passed to. Each value
+#'   can be one of:
 #'     - A string in the `"pred"` column in the \code{\link{predictors}} table.
 #'       In this case, the predictor value passed to `fun` is the corresponding
 #'       value of that predictor in the table.
@@ -117,9 +118,8 @@ validate_transition <- function(transition) {
 #'
 #' @returns a `transition` object
 transition <- function(
-  from, to, fun, transition_type, mortality_type = NULL,
-  predictors = get_predictor_names(fun),
-  parameters = new_parameters()
+  from, to, fun, transition_type, mortality_type = NULL, predictors = NULL,
+  parameters = list()
 ) {
 
   # TODO these should be helpers that do any coercion
