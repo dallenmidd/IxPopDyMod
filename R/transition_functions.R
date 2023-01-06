@@ -15,7 +15,7 @@
 #' expo_fun(.5, NULL, .1, .3)
 #'
 #' @export
-expo_fun <- function(x, y, a, b) ifelse(x>0, a*x^b, 0)
+expo_fun <- function(x, y, a, b) ifelse(x > 0, a * x^b, 0)
 
 #' Constant function
 #' @param x Predictor 1 in transitions table. Not used in this function
@@ -52,13 +52,12 @@ constant_fun <- function(x, y, a) a
 #'
 #' @export
 find_n_feed <- function(x, y, a, pref, feed_success) {
-
   if (length(pref) %% length(x) != 0) {
-    print(paste('error in find_n_feed, x:', length(x), 'pref:', length(pref)))
+    print(paste("error in find_n_feed, x:", length(x), "pref:", length(pref)))
   }
 
-  (1 - (1-a)^(sum(x * pref)/sum(pref))) *
-    sum(x * pref * feed_success/sum(x*pref))
+  (1 - (1 - a)^(sum(x * pref) / sum(pref))) *
+    sum(x * pref * feed_success / sum(x * pref))
 }
 
 #' Probability of actively questing and then finding a host
@@ -89,13 +88,12 @@ find_n_feed <- function(x, y, a, pref, feed_success) {
 #'
 #' @export
 feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
-
   if (length(pref) %% length(x) != 0) {
-    print(paste('error in feed_fun, x:', length(x), 'pref:', length(pref)))
+    print(paste("error in feed_fun, x:", length(x), "pref:", length(pref)))
   }
 
-  (1 - (1-a)^(sum(x * pref))) *
-    ifelse(y>tmin & y<tmax, q*y*(y-tmin)*sqrt(tmax-y), 0)
+  (1 - (1 - a)^(sum(x * pref))) *
+    ifelse(y > tmin & y < tmax, q * y * (y - tmin) * sqrt(tmax - y), 0)
 }
 
 #' Probability of actively questing times constant host finding probability
@@ -121,8 +119,9 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 #' ogden_feed_fun(30, NULL, .03, .01, 10, 35)
 #'
 #' @export
-ogden_feed_fun <- function(x, y, a, q, tmin, tmax)
-  a * ifelse(x>tmin & x<tmax, q*x*(x-tmin)*sqrt(tmax-x), 0)
+ogden_feed_fun <- function(x, y, a, q, tmin, tmax) {
+  a * ifelse(x > tmin & x < tmax, q * x * (x - tmin) * sqrt(tmax - x), 0)
+}
 
 #' Probability that a feeding tick becomes engorged infected or uninfected
 #'
@@ -156,19 +155,20 @@ ogden_feed_fun <- function(x, y, a, q, tmin, tmax)
 #'
 #' @export
 infect_fun <- function(x, y, from_infected, to_infected, host_rc, pref) {
-
   if (length(pref) %% length(x) != 0) {
-    print(paste('error in infect_fun, x:', length(x), 'pref:', length(pref)))
+    print(paste("error in infect_fun, x:", length(x), "pref:", length(pref)))
   }
 
   n_host_spp <- length(host_rc)
 
   sum(ifelse(rep(from_infected, n_host_spp),
-             1, # stay infected
-             (ifelse(rep(to_infected, n_host_spp),
-                     host_rc, # become infected
-                     1 - host_rc))) * # stay uninfected
-        (x * pref) / sum(x * pref)) # chance a tick is feeding on each host type
+    1, # stay infected
+    (ifelse(rep(to_infected, n_host_spp),
+      host_rc, # become infected
+      1 - host_rc
+    ))
+  ) * # stay uninfected
+    (x * pref) / sum(x * pref)) # chance a tick is feeding on each host type
 }
 
 #' Density dependent mortality
@@ -190,9 +190,10 @@ infect_fun <- function(x, y, from_infected, to_infected, host_rc, pref) {
 #' density_fun(c(10, 20), 100, .1, .3, .2, c(.5, .8))
 #'
 #' @export
-density_fun <- function(x, y, a, b, c, pref)
+density_fun <- function(x, y, a, b, c, pref) {
   sum((a + (b * log((c + y * pref * x / sum(pref * x)) / x)))
-      * pref * x / sum(pref * x))
+  * pref * x / sum(pref * x))
+}
 
 #' Mortality as a function of whether there is a snow on the ground
 #'
@@ -201,12 +202,11 @@ density_fun <- function(x, y, a, b, c, pref)
 #' @param no_snow_mort mortality with no snow on the ground
 #' @param snow_mort mortality with snow on the ground
 snow_cover_fun <- function(x, y, no_snow_mort, snow_mort) {
-
   # only get the snow cover for day 1
   x <- x[1]
 
   if (is.na(x)) {
-    stop('x must not be NA')
+    stop("x must not be NA")
   }
 
   if (x > 0) {
@@ -215,4 +215,3 @@ snow_cover_fun <- function(x, y, no_snow_mort, snow_mort) {
     no_snow_mort
   }
 }
-

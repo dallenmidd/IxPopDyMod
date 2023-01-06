@@ -2,25 +2,32 @@ library(tidyverse)
 library(IxPopDyMod)
 
 set_weather <- function(cfg, weather) {
-  temp_weather <- read_csv(paste0('data-raw/ogden2005/make_ogden_fig7/weather_',
-                                 weather, '.csv'))
+  temp_weather <- read_csv(paste0(
+    "data-raw/ogden2005/make_ogden_fig7/weather_",
+    weather, ".csv"
+  ))
   cfg$predictors <- tibble(
-    value = c(20,200, temp_weather$tmean),
+    value = c(20, 200, temp_weather$tmean),
     j_day = c(NA, NA, temp_weather$j_day),
-    pred = c('host_den', 'host_den', rep('temp', dim(temp_weather)[1])),
-    pred_subcategory = c('deer', 'rodent', rep(NA, dim(temp_weather)[1]))
+    pred = c("host_den", "host_den", rep("temp", dim(temp_weather)[1])),
+    pred_subcategory = c("deer", "rodent", rep(NA, dim(temp_weather)[1]))
   )
 
   return(cfg)
 }
 
-locations <- c("exeter", "hanover", "kapuskasing_cda",
-               "new_glasgow", "point_pelee", "south_baymouth")
+locations <- c(
+  "exeter", "hanover", "kapuskasing_cda",
+  "new_glasgow", "point_pelee", "south_baymouth"
+)
 
 mean_dd_gt_zero <- c(3336, 3100, 2317, 3536, 3791, 2733)
 
-configs <- sapply(locations, function(x) {set_weather(ogden2005, x)},
-                  simplify = FALSE)
+configs <- sapply(locations, function(x) {
+  set_weather(ogden2005, x)
+},
+simplify = FALSE
+)
 
 out <- run_all_configs(configs, parallel = TRUE)
 # write_csv(out, 'outputs/ogden_fig7_output.csv')
@@ -32,7 +39,7 @@ dfs <- lapply(out, function(df) filter(df, age_group == "a", process == "a"))
 
 titles <- paste(locations, mean_dd_gt_zero)
 
-pop_plots <- mapply( function(df) list(graph_population_each_group(df)), dfs)
+pop_plots <- mapply(function(df) list(graph_population_each_group(df)), dfs)
 
 do.call(gridExtra::grid.arrange, pop_plots)
 
@@ -59,5 +66,3 @@ fig7 <- ggplot(fig7_tbl, aes(mean_dd_gt_zero, max_adults)) +
   theme_classic(base_size = 20)
 
 fig7
-
-

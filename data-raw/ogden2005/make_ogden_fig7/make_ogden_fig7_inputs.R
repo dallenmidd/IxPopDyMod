@@ -9,8 +9,9 @@ library(lubridate)
 
 n_locations <- 6
 
-fig7 <-  read_csv(
-  'data-raw/ogden2005/make_ogden_fig7/all_normals.csv') %>%
+fig7 <- read_csv(
+  "data-raw/ogden2005/make_ogden_fig7/all_normals.csv"
+) %>%
   mutate(
     date = ymd(paste("1990", rep(seq(1, 12), n_locations), "01", sep = "-")),
     month = (month(date)),
@@ -18,15 +19,20 @@ fig7 <-  read_csv(
 
 
 days_of_year <- tibble(
-  date = seq(from = min(as.Date(fig7$date)),
-             to = ceiling_date(max(as.Date(fig7$date)), "month") - days(1),
-             by = "1 days"),
-  month = (month(date)))
+  date = seq(
+    from = min(as.Date(fig7$date)),
+    to = ceiling_date(max(as.Date(fig7$date)), "month") - days(1),
+    by = "1 days"
+  ),
+  month = (month(date))
+)
 
 fig7 <- fig7 %>% select(-c(date))
 
 ogden_weather <- full_join(
-  days_of_year, fig7, by = "month") %>%
+  days_of_year, fig7,
+  by = "month"
+) %>%
   arrange(station) %>%
   mutate(j_day = rep(seq(1:365), n_locations)) %>%
   select(-c(month, date))
@@ -34,7 +40,8 @@ ogden_weather <- full_join(
 years <- 11
 ogden_weather_long <- tibble(
   station = rep(ogden_weather$station, years),
-  tmean = rep(ogden_weather$daily_avg_temp, years)) %>%
+  tmean = rep(ogden_weather$daily_avg_temp, years)
+) %>%
   arrange(station) %>%
   mutate(j_day = rep(seq(1, 365 * years), n_locations))
 
@@ -46,8 +53,8 @@ station_names <- unique(ogden_weather_long$station)
 
 for (i in station_names) {
   name <- str_replace_all(i, " ", "_") %>% str_to_lower()
-  write_csv(filter(ogden_weather_long, station == i) %>% select(-c(station)),
-          str_c('data-raw/ogden2005/make_ogden_fig7/weather_', name, '.csv'))
+  write_csv(
+    filter(ogden_weather_long, station == i) %>% select(-c(station)),
+    str_c("data-raw/ogden2005/make_ogden_fig7/weather_", name, ".csv")
+  )
 }
-
-

@@ -10,8 +10,6 @@
 #' @noRd
 new_config <- function(initial_population, transitions, parameters,
                        predictors = NULL, steps, max_delay) {
-
-
   # check that all types are correct
   stopifnot(is.integer(initial_population))
   stopifnot(is.data.frame(transitions))
@@ -20,13 +18,16 @@ new_config <- function(initial_population, transitions, parameters,
   stopifnot(is.integer(steps))
   stopifnot(is.integer(max_delay))
 
-  cfg <- structure(list(
-    steps = steps,
-    initial_population = initial_population,
-    transitions = transitions,
-    parameters = parameters,
-    max_delay = max_delay),
-    class = 'config')
+  cfg <- structure(
+    list(
+      steps = steps,
+      initial_population = initial_population,
+      transitions = transitions,
+      parameters = parameters,
+      max_delay = max_delay
+    ),
+    class = "config"
+  )
 
   if (!missing(predictors)) {
     cfg$predictors <- predictors
@@ -121,17 +122,19 @@ new_config <- function(initial_population, transitions, parameters,
 #'   }
 #' }
 #'
-#' @param predictors Optionally, a `tibble` of input data to be used as predictor
-#' values in transition functions, for example weather or host density.
+#' @param predictors Optionally, a `tibble` of input data to be used as
+#' predictor values in transition functions, for example weather or host
+#' density.
 #'
 #' \describe{
-#'   \item{pred}{String specifying the name of the predictor, e.g. "temp" or "host_den}
+#'   \item{pred}{String specifying the name of the predictor, e.g. "temp" or
+#'   "host_den}
 #'   \item{pred_subcategory}{This column allows specifying predictors for which
 #'   there are multiple values for a given j_day. Predictor values are sorted by
-#'   this column in the config set up. This ensures that when accessing a predictor
-#'   with multiple values for the same j_day, we get a vector of predictor values
-#'   ordered by this column A typical use for this column is to specify the
-#'   host density of each host species.}
+#'   this column in the config set up. This ensures that when accessing a
+#'   predictor with multiple values for the same j_day, we get a vector of
+#'   predictor values ordered by this column A typical use for this column is
+#'   to specify the host density of each host species.}
 #'   \item{j_day}{Integer specifying the Julian day, or NA for predictors with
 #'   constant value over time}
 #'   \item{value}{Numeric value of predictor}
@@ -183,38 +186,39 @@ new_config <- function(initial_population, transitions, parameters,
 #'
 #' @examples
 #'
-#' # We rebuild an example config from its constituent parts. This is successful as
-#' # expected, because we're just making a config that's identical to an example.
+#' # We rebuild an example config from its constituent parts. This is successful
+#' # as expected, because we're just making a config that's identical to an
+#' # example.
 #' do.call(config, config_ex_1)
 #'
-#' # If we modify the config to something unsuitable, the function will complain.
-#' # For example, if we modify the egg to larvae transition to use a different
-#' # function that requires an additional parameter.
+#' # If we modify the config to something unsuitable, the function will
+#' # complain. For example, if we modify the egg to larvae transition to use a
+#' # different function that requires an additional parameter.
 #'
 #' \dontrun{
 #' # We define a super simple function that takes two parameters.
 #' prod_fun <- function(x, y, a, b) a * b
 #'
 #' my_config <- config_ex_1
-#' my_config$transitions[1, 3] <- 'prod_fun'
+#' my_config$transitions[1, 3] <- "prod_fun"
 #'
 #' # this will throw an error, because a parameter is missing
 #' do.call(config, my_config)
-#' # config() will report that parameter "b" is missing for the exponential function.
+#' # config() will report that parameter "b" is missing for the exponential
+#' # function.
 #'
 #' # Adding the parameter should fix the config
-#' my_config$parameters[9,] <- list(from = '__e', to = '__l', param_name = 'b',
-#'                                  param_value = 1)
+#' my_config$parameters[9, ] <- list(
+#'   from = "__e", to = "__l", param_name = "b",
+#'   param_value = 1
+#' )
 #'
 #' # Now, this should run without issues
 #' do.call(config, my_config)
 #' }
 config <- function(initial_population, transitions, parameters,
                    predictors, steps, max_delay = 365L) {
-
-
-
-  if ('host_spp' %in% names(parameters)) {
+  if ("host_spp" %in% names(parameters)) {
     parameters <- dplyr::arrange(parameters, .data$host_spp)
   }
 
@@ -223,8 +227,10 @@ config <- function(initial_population, transitions, parameters,
   max_delay <- ensure_int(max_delay)
 
   # return validated config
-  validate_config(new_config(initial_population, transitions, parameters,
-                             predictors, steps, max_delay))
+  validate_config(new_config(
+    initial_population, transitions, parameters,
+    predictors, steps, max_delay
+  ))
 }
 
 #' create a config object from a YAML file
@@ -235,12 +241,11 @@ config <- function(initial_population, transitions, parameters,
 #'
 #' @examples
 #' \dontrun{
-#' read_config('cfg.yml')
+#' read_config("cfg.yml")
 #' }
 #'
 #' @export
 read_config <- function(file) {
-
   # parse the input config file as a named list
   cfg <- yaml::read_yaml(file)
 
@@ -276,17 +281,18 @@ read_config <- function(file) {
 #' @return None, writes config components to disk
 #'
 #' @examples
-#'
 #' \dontrun{
-#' write_config(config_ex_1, 'cfg.yml', 'trans.csv', 'params.csv',
-#'              'predictors.csv')
+#' write_config(
+#'   config_ex_1, "cfg.yml", "trans.csv", "params.csv",
+#'   "predictors.csv"
+#' )
 #' }
 #'
 #' @export
 write_config <- function(cfg, config_path, transitions_path, parameters_path,
                          predictors_path) {
-
-  for (f in c(config_path, transitions_path, parameters_path, predictors_path)) {
+  paths <- c(config_path, transitions_path, parameters_path, predictors_path)
+  for (f in paths) {
     if (file.exists(f)) {
       stop(
         paste0('Cannot write "', f, '", file already exists'),
@@ -303,7 +309,7 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
       transitions = transitions_path,
       parameters = parameters_path,
       predictors = predictors_path
-      ),
+    ),
     file = config_path
   )
 
@@ -334,11 +340,12 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
 #' outputs <- run_all_configs(list(config_ex_1, config_ex_2))
 #' }
 run_all_configs <- function(configs, parallel = FALSE) {
-
   if (parallel) {
     n_cores <- parallel::detectCores()
-    parallel::mcmapply(run, configs, mc.cores = n_cores,
-                            SIMPLIFY = FALSE)
+    parallel::mcmapply(run, configs,
+      mc.cores = n_cores,
+      SIMPLIFY = FALSE
+    )
   } else {
     sapply(configs, run, simplify = FALSE)
   }
@@ -373,16 +380,15 @@ run_all_configs <- function(configs, parallel = FALSE) {
 #'
 #' # inspect parameter row 2 in each of the new configs to verify that we have
 #' # the new values
-#' lapply(cfgs, function(cfg) cfg$parameters[[2, 'param_value']])
+#' lapply(cfgs, function(cfg) cfg$parameters[[2, "param_value"]])
 #'
 #' @export
-vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
+vary_param <- function(cfg, param_row = NA, to = NA, from = NA, param_name = NA,
                        host_spp = NA, values) {
-
   p <- cfg$parameters
 
   if ((!is.na(param_row) && !all(is.na(c(to, from, param_name, host_spp)))) ||
-      (is.na(param_row) && any(is.na(c(to, from, param_name))))) {
+    (is.na(param_row) && any(is.na(c(to, from, param_name))))) {
     stop(
       "vary_param should be called with either param_row; or with to, from,
       param_name and (optionally) host_spp",
@@ -390,26 +396,26 @@ vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
     )
   }
 
-  if (!is.na(to))
-  {
-    if ('host_spp' %in% names(p) &&
-        depends_on_hosts(cfg$transitions) &&
-        !is.na(host_spp)) {
+  if (!is.na(to)) {
+    if ("host_spp" %in% names(p) &&
+      depends_on_hosts(cfg$transitions) &&
+      !is.na(host_spp)) {
       param_row <- which(p$to == to &
-                           p$from == from &
-                           p$param_name == param_name &
-                           p$host_spp == host_spp)
+        p$from == from &
+        p$param_name == param_name &
+        p$host_spp == host_spp)
     } else {
       param_row <- which(
         p$to == to &
-        p$from == from &
-        p$param_name == param_name)
+          p$from == from &
+          p$param_name == param_name
+      )
     }
 
     if (length(param_row) != 1) {
       stop(
         "to, from, param_name and (optionally) host_spp must identify exactly 1
-        parameter row. Found rows: ", paste(param_row, collapse = ', '),
+        parameter row. Found rows: ", paste(param_row, collapse = ", "),
         call. = FALSE
       )
     }
@@ -417,7 +423,7 @@ vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
 
   list_cfg <- list()
   counter <- 1
-  for (v in values){
+  for (v in values) {
     list_cfg[[counter]] <- set_param(cfg, param_row, v)
     counter <- counter + 1
   }
@@ -425,8 +431,7 @@ vary_param <- function(cfg, param_row= NA, to = NA, from = NA , param_name =NA,
 }
 
 set_param <- function(cfg, param_row, value) {
-
-  cfg$parameters[param_row, 'param_value'] <- value
+  cfg$parameters[param_row, "param_value"] <- value
 
   # The only validation check that changing a parameter value might break
   # is the value of an evaluated transition row. Therefore, we run this check
@@ -437,9 +442,10 @@ set_param <- function(cfg, param_row, value) {
     # add to that behavior by also identifying the offending parameter
     test_transition_values(cfg),
     error = function(e) {
-      e$message <-paste(
+      e$message <- paste(
         "Setting parameter in row", param_row, "to value", value,
-        "resulted in an invalid transition value.", e$message)
+        "resulted in an invalid transition value.", e$message
+      )
       stop(e)
     }
   )
@@ -468,19 +474,19 @@ set_param <- function(cfg, param_row, value) {
 #' # mortality of eggs (which is found in row 2) and that determining
 #' # mortality of larvae (which is found in row 4)
 #' cfgs <- vary_many_params(config_ex_1,
-#'                         param_rows = c(2, 4),
-#'                         values_list = list(c(0, 0.1), c(.99, .98)))
+#'   param_rows = c(2, 4),
+#'   values_list = list(c(0, 0.1), c(.99, .98))
+#' )
 #'
 #' # inspect parameter rows 2 and 4 in each of the new configs to verify that we
 #' # have the new values
-#' lapply(cfgs, function(cfg) cfg$parameters[c(2, 4), 'param_value'])
+#' lapply(cfgs, function(cfg) cfg$parameters[c(2, 4), "param_value"])
 #'
 #' @export
 vary_many_params <- function(cfg, param_rows, values_list) {
-
   if ((l <- length(param_rows)) != length(values_list)) {
     stop(
-      'param_rows and values_list must have equal lengths',
+      "param_rows and values_list must have equal lengths",
       call. = FALSE
     )
   }
@@ -489,11 +495,12 @@ vary_many_params <- function(cfg, param_rows, values_list) {
   cfgs <- list(cfg)
 
   while (i <= l) {
-
     cfgs <- lapply(cfgs, function(x) {
-      vary_param(cfg = x,
-                 param_row = param_rows[[i]],
-                 values = values_list[[i]])
+      vary_param(
+        cfg = x,
+        param_row = param_rows[[i]],
+        values = values_list[[i]]
+      )
     })
 
     cfgs <- unlist(cfgs, recursive = FALSE)

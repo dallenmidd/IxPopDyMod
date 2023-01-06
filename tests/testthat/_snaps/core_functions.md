@@ -1,7 +1,7 @@
 # `gen_trans_matrix()` works with `ogden2005`
 
     Code
-      gen_trans_matrix(time = 150, N = population, N_developing = population,
+      gen_trans_matrix(time = 150, population = population, developing_population = population,
         life_stages = life_stages, tick_transitions = transitions_with_parameters,
         predictors = ogden2005$predictors)
     Output

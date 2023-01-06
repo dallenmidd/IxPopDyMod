@@ -11,17 +11,19 @@
 #'
 #' @export
 graph_population_each_group <- function(output) {
-
   p <- output %>%
     ggplot(
-      aes(x = .data$day,
-          y = .data$pop,
-          group = .data$stage)) +
+      aes(
+        x = .data$day,
+        y = .data$pop,
+        group = .data$stage
+      )
+    ) +
     scale_y_log10() +
     geom_line() +
     geom_point() +
-    ylab('Population') +
-    xlab('Julian day')
+    ylab("Population") +
+    xlab("Julian day")
 
   if (length(unique(output$age_group)) > 1) {
     p <- p +
@@ -44,7 +46,6 @@ graph_population_each_group <- function(output) {
   }
 
   p
-
 }
 
 #' Graph overall trend in population
@@ -72,11 +73,11 @@ graph_population_each_group <- function(output) {
 #' @export
 graph_population_overall_trend <- function(output) {
   output %>%
-    filter(.data$age_group == 'a') %>%
+    filter(.data$age_group == "a") %>%
     group_by(.data$day, .add = TRUE) %>%
     summarise(tot = sum(.data$pop), .groups = "keep") %>%
-    mutate(lambda = .data$tot/lag(.data$tot)) %>%
-    filter(is.finite(.data$lambda) ) %>%
+    mutate(lambda = .data$tot / lag(.data$tot)) %>%
+    filter(is.finite(.data$lambda)) %>%
     ggplot(aes(.data$day, .data$lambda)) +
     geom_path() +
     ylim(0, 2)
@@ -99,10 +100,8 @@ growth_rate <- function(out) {
   out %>%
     group_by(.data$day) %>%
     summarise(tot = sum(.data$pop)) %>%
-    mutate(lambda = .data$tot/lag(.data$tot)) %>%
+    mutate(lambda = .data$tot / lag(.data$tot)) %>%
     filter(is.finite(.data$lambda), .data$lambda > 0) %>%
     summarise(lambda = exp(mean(log(.data$lambda)))) %>%
     as.numeric()
 }
-
-
