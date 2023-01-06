@@ -27,7 +27,8 @@ Depends:
     R (>= 3.2.4)
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 Imports: 
     magrittr,
     rlang,
@@ -40,3 +41,4 @@ Imports:
     yaml,
     tibble
 Language: en-US
+Config/testthat/edition: 3
