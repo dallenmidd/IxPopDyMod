@@ -1,5 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/dallenmidd/IxPopDyMod/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dallenmidd/IxPopDyMod/actions/workflows/R-CMD-check.yaml)
+[![CRAN
+version](http://www.r-pkg.org/badges/version/IxPopDyMod)](https://cran.r-project.org/package=IxPopDyMod)
+[![Codecov test
+coverage](https://codecov.io/gh/dallenmidd/IxPopDyMod/branch/master/graph/badge.svg)](https://app.codecov.io/gh/dallenmidd/IxPopDyMod?branch=master)
+<!-- badges: end -->
 
 # IxPopDyMod: A framework for Ixodidae Population Dynamics Models
 
@@ -42,7 +50,8 @@ consider infection, and that has four life stages: `__e` for egg, `__l`
 for larvae, `__n` for nymph, and `__a` for adult.
 
 ``` r
-library(IxPopDyMod)
+# library(IxPopDyMod)
+devtools::load_all(export_all = FALSE)
 library(readr)
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
@@ -54,8 +63,10 @@ We give a new range of parameter values for number of eggs laid.
 
 ``` r
 eggs_laid <- c(800, 1000, 1200)
-modified_configs <- vary_param(config_ex_1, from = '__a', to = '__e', 
-                               param_name = 'a', values = eggs_laid)
+modified_configs <- vary_param(config_ex_1,
+  from = "__a", to = "__e",
+  param_name = "a", values = eggs_laid
+)
 ```
 
 This gives us a list of three modified model `config`s, which differ
@@ -92,7 +103,7 @@ a list of data frames. Here we inspect only the first.
 ### Calculate growth rate for each of the model outputs
 
 ``` r
-sapply(outputs, growth_rate) 
+sapply(outputs, growth_rate)
 #> [1] 0.9457416 1.0000000 1.0466351
 ```
 
@@ -109,11 +120,11 @@ expected, for each output there is a cycle with a peak in number of
 eggs, followed by peaks in larvae, nymph and then adult population.
 
 ``` r
-names(outputs) <- c('0800 eggs laid', '1000 eggs laid', '1200 eggs laid')
+names(outputs) <- c("0800 eggs laid", "1000 eggs laid", "1200 eggs laid")
 outputs_stacked <- bind_rows(outputs, .id = "id")
 outputs_stacked %>%
   graph_population_each_group() +
-  facet_wrap(~ id)
+  facet_wrap(~id)
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
@@ -149,7 +160,7 @@ exponential function of temperature. We can see the parameters for this
 transition:
 
 ``` r
-temp_example_config$parameters %>% filter(from == '__e', to == 'q_l')
+temp_example_config$parameters %>% filter(from == "__e", to == "q_l")
 #> # A tibble: 2 × 8
 #>   from  to    param_name host_spp param_value param_ci_low param_ci_high source 
 #>   <chr> <chr> <chr>      <lgl>          <dbl> <lgl>        <lgl>         <chr>  
@@ -166,14 +177,15 @@ the model. We make a second `config` in which the daily temperature is
 one degree warmer.
 
 ``` r
+
 cfg2 <- temp_example_config
 cfg2$predictors <- temp_example_config$predictors %>% mutate(value = value + 1)
 
 output1 <- run(temp_example_config)
 output2 <- run(cfg2)
 
-output1 <- output1 %>% mutate(temp = 'cold')
-output2 <- output2 %>% mutate(temp = 'warm')
+output1 <- output1 %>% mutate(temp = "cold")
+output2 <- output2 %>% mutate(temp = "warm")
 ```
 
 Finally, we compare the outputs for a commonly measured aspect of tick
@@ -181,12 +193,12 @@ populations, the number of questing nymphs.
 
 ``` r
 output1 %>%
-  rbind(output2) %>% 
-  filter(stage == 'q_n') %>%
+  rbind(output2) %>%
+  filter(stage == "q_n") %>%
   ggplot(aes(day, pop, col = temp)) +
   geom_line() +
-  scale_color_manual(values = c('cold' = 'blue', 'warm' = 'red')) +
-  ylab('Questing nymphs')
+  scale_color_manual(values = c("cold" = "blue", "warm" = "red")) +
+  ylab("Questing nymphs")
 ```
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
@@ -229,16 +241,18 @@ depends on the `host_den`, which is how the host community is included
 in the transition.
 
 ``` r
-host_example_config$parameters %>% filter(from == 'q.l', to == 'e.l')
+
+host_example_config$parameters %>% filter(from == "q.l", to == "e.l")
 #> # A tibble: 6 × 8
-#>   from  to    param_name  host_spp param_value param_ci_low param_ci_high source
-#>   <chr> <chr> <chr>       <chr>          <dbl> <lgl>        <lgl>         <chr> 
-#> 1 q.l   e.l   pref        deer            0.25 NA           NA            <NA>  
-#> 2 q.l   e.l   feed_succe… deer            0.49 NA           NA            Levi …
-#> 3 q.l   e.l   pref        mouse           1    NA           NA            <NA>  
-#> 4 q.l   e.l   feed_succe… mouse           0.49 NA           NA            Levi …
-#> 5 q.l   e.l   pref        squirrel        0.25 NA           NA            <NA>  
-#> 6 q.l   e.l   feed_succe… squirrel        0.17 NA           NA            Levi …
+#>   from  to    param_name   host_spp param_value param_ci_low param_ci_h…¹ source
+#>   <chr> <chr> <chr>        <chr>          <dbl> <lgl>        <lgl>        <chr> 
+#> 1 q.l   e.l   pref         deer            0.25 NA           NA           <NA>  
+#> 2 q.l   e.l   feed_success deer            0.49 NA           NA           Levi …
+#> 3 q.l   e.l   pref         mouse           1    NA           NA           <NA>  
+#> 4 q.l   e.l   feed_success mouse           0.49 NA           NA           Levi …
+#> 5 q.l   e.l   pref         squirrel        0.25 NA           NA           <NA>  
+#> 6 q.l   e.l   feed_success squirrel        0.17 NA           NA           Levi …
+#> # … with abbreviated variable name ¹​param_ci_high
 ```
 
 Here the parameters of `find_n_feed` get different values for each host
@@ -260,19 +274,19 @@ Here we vary the deer density.
 ``` r
 cfg_lowdeerden <- host_example_config
 cfg_highdeerden <- host_example_config
-cfg_lowdeerden$predictors <- host_example_config$predictors %>% 
-  mutate(value = ifelse(pred == 'host_den' & pred_subcategory == 'deer', 0.1, value))
-cfg_highdeerden$predictors <- host_example_config$predictors %>% 
-  mutate(value = ifelse(pred == 'host_den' & pred_subcategory == 'deer', 5, value))
+cfg_lowdeerden$predictors <- host_example_config$predictors %>%
+  mutate(value = ifelse(pred == "host_den" & pred_subcategory == "deer", 0.1, value))
+cfg_highdeerden$predictors <- host_example_config$predictors %>%
+  mutate(value = ifelse(pred == "host_den" & pred_subcategory == "deer", 5, value))
 
 
 output_middeerden <- run(host_example_config)
 output_lowdeerden <- run(cfg_lowdeerden)
 output_highdeerden <- run(cfg_highdeerden)
 
-output_middeerden <- output_middeerden %>% mutate(deer_den = 'mid')
-output_lowdeerden <- output_lowdeerden %>% mutate(deer_den = 'low')
-output_highdeerden <- output_highdeerden %>% mutate(deer_den = 'high')
+output_middeerden <- output_middeerden %>% mutate(deer_den = "mid")
+output_lowdeerden <- output_lowdeerden %>% mutate(deer_den = "low")
+output_highdeerden <- output_highdeerden %>% mutate(deer_den = "high")
 ```
 
 And then use the `graph_population_each_group()` function to see how the
@@ -281,7 +295,7 @@ deer densities affect the tick population.
 ``` r
 output_lowdeerden %>%
   bind_rows(output_middeerden, output_highdeerden) %>%
-  mutate(deer_den = factor(deer_den, levels = c('low', 'mid', 'high'))) %>%
+  mutate(deer_den = factor(deer_den, levels = c("low", "mid", "high"))) %>%
   graph_population_each_group() +
   facet_wrap(~deer_den)
 ```
@@ -298,9 +312,8 @@ So far all examples have used transition functions loaded into the
 package, here we show how to define our own.
 
 ``` r
-find_host <- function(x, y, a, pref)
-{
-  1-(1-a)^sum(x*pref)
+find_host <- function(x, y, a, pref) {
+  1 - (1 - a)^sum(x * pref)
 }
 ```
 
@@ -347,17 +360,17 @@ results_tib <- tibble(deer = deer_den, nymph_den = 0, nip = 0)
 for (i in 1:5)
 {
   cfg_mod <- infect_example_config
-  cfg_mod$predictors[1,4] <- deer_den[i]
+  cfg_mod$predictors[1, 4] <- deer_den[i]
   out <- run(cfg_mod)
-  
-  nymph_sum <- out %>%
-  filter(stage == 'qin' | stage == 'qun') %>%
-  group_by(stage) %>%
-  summarise(totpop = sum(pop)) 
 
-  results_tib$nip[i] <- unlist(nymph_sum[1,2] /(nymph_sum[1,2] + nymph_sum[2,2]))
+  nymph_sum <- out %>%
+    filter(stage == "qin" | stage == "qun") %>%
+    group_by(stage) %>%
+    summarise(totpop = sum(pop))
+
+  results_tib$nip[i] <- unlist(nymph_sum[1, 2] / (nymph_sum[1, 2] + nymph_sum[2, 2]))
   results_tib$nymph_den[i] <- out %>%
-    filter(stage == 'qin' | stage == 'qun') %>%
+    filter(stage == "qin" | stage == "qun") %>%
     summarise(totpop = sum(pop)) %>%
     unlist()
 }
@@ -372,6 +385,7 @@ results_tib %>%
 <img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
 
 ``` r
+
 results_tib %>%
   ggplot(aes(deer, nymph_den)) +
   geom_point()

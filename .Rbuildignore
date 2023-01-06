@@ -12,3 +12,6 @@
 ^scripts$
 ^doc$
 ^Meta$
+^\.github$
+^\.lintr$
+^codecov\.yml$
