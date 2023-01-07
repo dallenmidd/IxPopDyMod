@@ -1,7 +1,7 @@
 # output test
 
     Code
-      new_life_cycle(list(transition_example_a(), transition_example_b()))
+      new_life_cycle(transition_example_a(), transition_example_b())
     Output
       [[1]]
       $from

@@ -19,9 +19,7 @@ transition_example_b <- function() {
 
 life_cycle_example_a <- function() {
   new_life_cycle(
-    list(
-      transition_example_a(),
-      transition_example_b()
-    )
+    transition_example_a(),
+    transition_example_b()
   )
 }

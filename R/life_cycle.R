@@ -1,17 +1,26 @@
-#' Create a `life_cycle` from a collection of `transition`s
+#' `life_cycle` constructor
 #'
-#' @param transitions a list of `transition`s
+#' @inheritParams life_cycle
 #' @returns a `life_cycle`
 #' @noRd
-new_life_cycle <- function(transitions) {
-
-  checkmate::assert_list(transitions, types = "transition", unique = TRUE)
+new_life_cycle <- function(...) {
 
   life_cycle <- structure(
-    transitions,
+    list(...),
     class = "life_cycle"
   )
 
+  checkmate::assert_list(life_cycle, types = "transition", unique = TRUE)
+
   return(life_cycle)
+
+}
+
+#' Create a `life_cycle` from a collection of `transition`s
+#'
+#' @param ... A set of `transition`s
+#' @returns a `life_cycle`
+#' @export
+life_cycle <- function(...) {
 
 }
