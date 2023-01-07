@@ -5,14 +5,14 @@
 #' @noRd
 new_life_cycle <- function(...) {
 
-  life_cycle <- structure(
+  cycle <- structure(
     list(...),
     class = "life_cycle"
   )
 
-  checkmate::assert_list(life_cycle, types = "transition", unique = TRUE)
+  checkmate::assert_list(cycle, types = "transition", unique = TRUE)
 
-  return(life_cycle)
+  return(cycle)
 
 }
 
