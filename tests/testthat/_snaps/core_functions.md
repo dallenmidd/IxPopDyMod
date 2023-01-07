@@ -36,9 +36,6 @@
 
     Code
       run(config_ex_1)
-    Warning <lifecycle_warning_deprecated>
-      Use of .data in tidyselect expressions was deprecated in tidyselect 1.2.0.
-      i Please use `"day"` instead of `.data$day`
     Output
       # A tibble: 116 x 6
            day stage     pop age_group process infected
@@ -63,10 +60,6 @@
       [1] "day 100"
       [1] "day 200"
       [1] "day 300"
-    Warning <lifecycle_warning_deprecated>
-      Use of .data in tidyselect expressions was deprecated in tidyselect 1.2.0.
-      i Please use `"day"` instead of `.data$day`
-    Output
       # A tibble: 1,460 x 6
            day stage     pop age_group process infected
          <int> <chr>   <dbl> <chr>     <chr>   <lgl>   
