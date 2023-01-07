@@ -122,7 +122,9 @@ transition <- function(
   parameters = list()
 ) {
 
-  # TODO these should be helpers that do any coercion
+  # TODO these should be helpers that do any coercion (unless we don't provide
+  # helpers for transition functions or parameters - so the most granular part
+  # of a config that a user could generate is a transition)
   fun <- new_transition_function(fun)
 
   parameters <- do.call(new_parameters, as.list(parameters))

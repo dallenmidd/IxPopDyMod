@@ -1,3 +1,4 @@
+# TODO do we need a public interface to creating parameters?
 #' Parameters constructor
 #' @noRd
 #' @returns a parameters object
