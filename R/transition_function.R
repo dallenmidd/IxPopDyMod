@@ -1,12 +1,12 @@
 # TODO don't need this as a dedicated class anymore if the only check we're
 # doing is whether the input is a function
 #' Constructor for transition functions
-new_transition_function <- function(raw_function) {
+new_transition_function <- function(fun) {
 
-  checkmate::assert_function(raw_function)
+  checkmate::assert_function(fun)
 
   structure(
-    raw_function,
+    fun,
     class = "transition_function"
   )
 }
