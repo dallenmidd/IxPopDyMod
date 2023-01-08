@@ -46,9 +46,13 @@ life_cycle <- function(...) {
   validate_life_cycle(cycle)
 }
 
-
 #' Attempt to coerce an input to a `transition`, first ensuring that the
 #' required elements of a transition are provided.
+#'
+#' @param index which item in the list to validate
+#' @param transitions a list of (not yet validated) transitions
+#' @returns a validated `transition`, if checks pass
+#' @noRd
 coerce_transition <- function(index, transitions) {
   each_transition <- transitions[[index]]
   expected_args <- names(formals(transition))
