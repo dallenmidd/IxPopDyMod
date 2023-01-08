@@ -54,10 +54,7 @@ validate_transition <- function(transition) {
     )
   }
 
-  if (
-    (is.null(transition$to) && is.null(transition$mortality_type)) ||
-    (!is.null(transition$to) && !is.null(transition$mortality_type))
-  ) {
+  if (is.null(transition$to) == is.null(transition$mortality_type)) {
     stop(
       "exactly 1 of `to` or `mortality_type` must be non-NULL",
       call. = FALSE
