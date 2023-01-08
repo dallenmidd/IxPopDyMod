@@ -97,7 +97,10 @@ coerce_transition <- function(index, transitions) {
 #' @noRd
 query_transitions <- function(cycle, field, value) {
   search_fun <- function(each_transition) each_transition[[field]] == value
-  cycle[vapply(cycle, search_fun, FUN.VALUE = logical(1))]
+  cycle[
+    vapply(cycle, search_fun, FUN.VALUE = logical(1)),
+    drop = FALSE
+  ]
 }
 
 #' Get either mortality or non-mortality `transition`s
