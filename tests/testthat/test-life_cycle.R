@@ -129,7 +129,7 @@ test_that("gets non-mortality transitions", {
 
 })
 
-test_that("gets mortality transitions", {
+test_that("gets single mortality transition", {
   mortality_transition <- transition(
     from = "a",
     to = NULL,
@@ -154,7 +154,11 @@ test_that("gets mortality transitions", {
 })
 
 
-
+# life_stages() ---------------------------------------------------------------
+test_that("output test", {
+  input <- life_cycle(transition_example_a(), transition_example_b())
+  expect_identical(life_stages(input), c("a", "b"))
+})
 
 
 

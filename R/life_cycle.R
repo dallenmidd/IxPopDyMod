@@ -116,3 +116,12 @@ query_transitions_by_mortality <- function(cycle, mortality) {
   ]
 }
 
+#' Get the names of unique life stages
+#'
+#' @param cycle a list of transitions
+#' @returns a character vector
+#' @noRd
+life_stages <- function(cycle) {
+  from_fields <- vapply(cycle, function(x) x$from, FUN.VALUE = character(1))
+  unique(from_fields)
+}
