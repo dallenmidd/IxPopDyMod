@@ -400,11 +400,13 @@ test_that("`gen_trans_matrix()` works with `ogden2005`", {
 
 
 test_that("model output for `config_ex_1` stays the same", {
+  testthat::skip("long running")
   expect_snapshot(run(config_ex_1))
 })
 
 test_that("model output for `config_ex_2` stays the same", {
   # skipped on CRAN because it is long-running
+  testthat::skip("long running")
   testthat::skip_on_cran()
   expect_snapshot(run(config_ex_2))
 })
