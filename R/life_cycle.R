@@ -16,6 +16,15 @@ new_life_cycle <- function(...) {
 
 }
 
+#' Validate a `life_cycle`
+#'
+#' @param cycle a `life_cycle` to validate
+#' @returns the input if it passes checks
+#' @noRd
+validate_life_cycle <- function(cycle) {
+  return(cycle)
+}
+
 #' Create a `life_cycle` from a collection of `transition`s
 #'
 #' @param ... A set of `transition`s
@@ -23,4 +32,13 @@ new_life_cycle <- function(...) {
 #' @export
 life_cycle <- function(...) {
 
+  transitions <- list(...)
+
+  # attempt to coerce each input to a transition
+  transitions <- lapply(transitions, function(x) do.call(transition, x))
+
+  # convert list to `life_cycle` class
+  cycle <- do.call(new_life_cycle, transitions)
+
+  validate_life_cycle(cycle)
 }
