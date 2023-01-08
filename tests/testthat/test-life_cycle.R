@@ -57,3 +57,6 @@ test_that("throws error with an invalid transition input", {
     fixed = TRUE
   )
 })
+
+# validate_life_cycle() -------------------------------------------------------
+# TODO

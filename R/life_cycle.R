@@ -22,6 +22,14 @@ new_life_cycle <- function(...) {
 #' @returns the input if it passes checks
 #' @noRd
 validate_life_cycle <- function(cycle) {
+  # TODO `life_cycle` is simply a list of transitions. This is where we'd add
+  # the specific logic that should apply to a group of transitions/a life cycle
+  #
+  # 1. Do transitions form an actual cycle?
+  # 2. There can only be 1 or 0 mortality type transitions from each stage
+  # 3. Corresponding transitions and mortality transitions must have same
+  #    `transition_type`
+
   return(cycle)
 }
 
@@ -46,8 +54,11 @@ life_cycle <- function(...) {
   validate_life_cycle(cycle)
 }
 
-#' Attempt to coerce an input to a `transition`, first ensuring that the
-#' required elements of a transition are provided.
+#' Attempt to coerce an input to a `transition`
+#'
+#' First ensures that the required elements of a transition are provided, and
+#' throws a more informative error than the missing argument error that would
+#' otherwise be thrown by `do.call()`.
 #'
 #' @param index which item in the list to validate
 #' @param transitions a list of (not yet validated) transitions
