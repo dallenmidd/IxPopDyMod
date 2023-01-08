@@ -99,3 +99,69 @@ test_that("works with from field", {
 
   expect_identical(result, expected)
 })
+
+
+# query_transitions_by_mortality() --------------------------------------------
+test_that("gets non-mortality transitions", {
+
+  mortality_transition <- transition(
+    from = "a",
+    to = NULL,
+    transition_type = "probability",
+    mortality_type = "per_day",
+    fun = function() {1}
+  )
+
+  input <- life_cycle(
+    transition_example_a(),
+    mortality_transition,
+    transition_example_b()
+  )
+
+  expected <- unclass(life_cycle(
+    transition_example_a(),
+    transition_example_b()
+  ))
+
+  result <- query_transitions_by_mortality(input, mortality = FALSE)
+
+  expect_identical(result, expected)
+
+})
+
+test_that("gets mortality transitions", {
+  mortality_transition <- transition(
+    from = "a",
+    to = NULL,
+    transition_type = "probability",
+    mortality_type = "per_day",
+    fun = function() {1}
+  )
+
+  input <- life_cycle(
+    transition_example_a(),
+    mortality_transition,
+    transition_example_b()
+  )
+
+  expected <- list(
+    mortality_transition
+  )
+
+  result <- query_transitions_by_mortality(input, mortality = TRUE)
+
+  expect_identical(result, expected)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+

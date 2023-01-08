@@ -53,6 +53,16 @@ query_transitions <- function(cycle, field, value) {
   cycle[vapply(cycle, search_fun, FUN.VALUE = logical(1))]
 }
 
+#' Get either mortality or non-mortality `transition`s
+#'
+#' @param cycle a list of transitions
+#' @param mortality boolean
+#' @returns a subset of the input life cycle
+#' @noRd
+query_transitions_by_mortality <- function(cycle, mortality) {
+  cycle[vapply(cycle, transition_is_mortality, logical(1)) == mortality, drop = FALSE]
+}
+
 #' Create a `life_cycle` from a collection of `transition`s
 #'
 #' @param ... A set of `transition`s
