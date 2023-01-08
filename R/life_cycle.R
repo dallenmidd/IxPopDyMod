@@ -26,12 +26,19 @@ validate_life_cycle <- function(cycle) {
   # the specific logic that should apply to a group of transitions/a life cycle
   #
   # 1. Do transitions form an actual cycle?
+  assert_transitions_form_a_cycle(cycle)
   # 2. There can only be 1 or 0 mortality type transitions from each stage
+  assert_max_one_mortality_from_each_stage(cycle)
   # 3. Corresponding transitions and mortality transitions must have same
   #    `transition_type`
+  assert_consistent_transition_types(cycle)
 
   return(cycle)
 }
+
+assert_transitions_form_a_cycle <- function(cycle) {}
+assert_max_one_mortality_from_each_stage <- function(cycle) {}
+assert_consistent_transition_types <- function(cycle) {}
 
 #' Create a `life_cycle` from a collection of `transition`s
 #'
