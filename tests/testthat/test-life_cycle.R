@@ -60,3 +60,42 @@ test_that("throws error with an invalid transition input", {
 
 # validate_life_cycle() -------------------------------------------------------
 # TODO
+
+
+# query_transitions() ---------------------------------------------------------
+test_that("works with transition_type field", {
+
+  duration_transition <- transition_example_b()
+  duration_transition$transition_type <- "duration"
+
+  input <- life_cycle(
+    transition_example_a(),
+    duration_transition
+  )
+
+  # Note that `query_transitions()` strips class attribute
+  expected <- unclass(life_cycle(
+    duration_transition
+  ))
+
+  result <- query_transitions(input, "transition_type", "duration")
+
+  expect_identical(result, expected)
+
+
+})
+
+test_that("works with from field", {
+  input <- life_cycle(
+    transition_example_a(),
+    transition_example_b()
+  )
+
+  expected <- unclass(life_cycle(
+    transition_example_a()
+  ))
+
+  result <- query_transitions(input, "from", "a")
+
+  expect_identical(result, expected)
+})

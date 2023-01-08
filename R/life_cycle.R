@@ -40,6 +40,19 @@ assert_transitions_form_a_cycle <- function(cycle) {}
 assert_max_one_mortality_from_each_stage <- function(cycle) {}
 assert_consistent_transition_types <- function(cycle) {}
 
+
+#' Get `transition`s in a list where the `field` is `value`
+#'
+#' @param cycle a list of transitions
+#' @param field name of the field to search in each `transition`
+#' @param value value to search for in the specified field
+#' @returns a subset of the input cycle
+#' @noRd
+query_transitions <- function(cycle, field, value) {
+  search_fun <- function(each_transition) each_transition[[field]] == value
+  cycle[vapply(cycle, search_fun, FUN.VALUE = logical(1))]
+}
+
 #' Create a `life_cycle` from a collection of `transition`s
 #'
 #' @param ... A set of `transition`s
