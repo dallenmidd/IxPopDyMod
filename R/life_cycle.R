@@ -66,7 +66,20 @@ assert_transition_accompanies_each_mortality <- function(cycle) {}
 
 assert_max_one_mortality_from_each_stage <- function(cycle) {}
 
-assert_consistent_transition_types <- function(cycle) {}
+assert_consistent_transition_types <- function(cycle) {
+  for (stage in life_stages(cycle)) {
+    transitions <- query_transitions(cycle, field = "from", value = stage)
+    transition_types <- vapply(
+      transitions, function(x) x[["transition_type"]], FUN.VALUE = character(1)
+    )
+    if (length(unique(transition_types)) > 1) {
+      stop(
+        "All transitions from a given stage must have the same transition_type",
+        call. = FALSE
+      )
+    }
+  }
+}
 
 
 #' Create a `life_cycle` from a collection of `transition`s

@@ -73,6 +73,26 @@ test_that("catches transitions with duplicate from and to", {
   )
 })
 
+test_that("catches mixed `transition_type`s from the same stage", {
+
+  problem_transition <- transition(
+    from = "a",
+    to = NULL,
+    fun = function() {},
+    transition_type = "duration",
+    mortality_type = "per_day"
+  )
+
+  expect_error(
+    life_cycle(
+      transition_example_a(),
+      problem_transition,
+      transition_example_b()
+    ),
+    "must have the same transition_type"
+  )
+})
+
 # query_transitions() ---------------------------------------------------------
 test_that("works with transition_type field", {
 
