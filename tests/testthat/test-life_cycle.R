@@ -93,6 +93,24 @@ test_that("catches mixed `transition_type`s from the same stage", {
   )
 })
 
+test_that("catches only mortality transitions from a given stage", {
+  problem_transition <- transition(
+    from = "a",
+    to = NULL,
+    fun = function() {},
+    transition_type = "duration",
+    mortality_type = "per_day"
+  )
+
+  expect_error(
+    life_cycle(
+      problem_transition,
+      transition_example_b()
+    ),
+    "must have at least one non-mortality transition from each stage"
+  )
+})
+
 # query_transitions() ---------------------------------------------------------
 test_that("works with transition_type field", {
 

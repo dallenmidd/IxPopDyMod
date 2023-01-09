@@ -62,7 +62,19 @@ assert_no_duplicate_transitions <- function(cycle) {
 
 assert_transitions_form_a_cycle <- function(cycle) {}
 
-assert_transition_accompanies_each_mortality <- function(cycle) {}
+assert_transition_accompanies_each_mortality <- function(cycle) {
+  for (stage in life_stages(cycle)) {
+    transitions <- query_transitions(cycle, field = "from", value = stage)
+    non_mortality <- query_transitions_by_mortality(transitions, FALSE)
+    if (length(non_mortality) == 0) {
+      stop(
+        "Life cycles must have at least one non-mortality transition from ",
+        "each stage, but found only mortality transition(s) from stage ", stage,
+        call. = FALSE
+      )
+    }
+  }
+}
 
 assert_max_one_mortality_from_each_stage <- function(cycle) {}
 
