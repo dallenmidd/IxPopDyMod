@@ -25,21 +25,10 @@ new_life_cycle <- function(...) {
 #' @returns the input if it passes checks
 #' @noRd
 validate_life_cycle <- function(cycle) {
-  # TODO `life_cycle` is simply a list of transitions. This is where we'd add
-  # the specific logic that should apply to a group of transitions/a life cycle
-  #
-  # 1. there cannot be more than one transition between the same pair of life stages
   assert_no_duplicate_transitions(cycle)
-  # 2. Do transitions form an actual cycle?
-  assert_transitions_form_a_cycle(cycle)
-
-  # NOTE 3 and 4 are similar/related
-  # 3. there cannot be mortality from a stage that doesn't have another transition
-  #    to a stage
   assert_transition_accompanies_each_mortality(cycle)
-  # 5. All transitions/mortality from a stage must have same `transition_type`
   assert_consistent_transition_types(cycle)
-
+  # assert_transitions_form_a_cycle(cycle)
   return(cycle)
 }
 
@@ -58,7 +47,8 @@ assert_no_duplicate_transitions <- function(cycle) {
   }
 }
 
-assert_transitions_form_a_cycle <- function(cycle) {}
+# TODO implement
+# assert_transitions_form_a_cycle <- function(cycle) {}
 
 assert_transition_accompanies_each_mortality <- function(cycle) {
   for (stage in life_stages(cycle)) {
