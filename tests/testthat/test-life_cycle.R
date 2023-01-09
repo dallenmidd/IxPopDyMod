@@ -111,6 +111,31 @@ test_that("catches only mortality transitions from a given stage", {
   )
 })
 
+test_that("catches duplicate mortality", {
+  mort_a <- transition(
+    from = "a",
+    to = NULL,
+    fun = function() {},
+    transition_type = "duration",
+    mortality_type = "per_day"
+  )
+
+  # create a second mortality transition from the same stage
+  mort_b <- mort_a
+  mort_b$fun <- function() {1}
+
+  expect_error(
+    life_cycle(
+      transition_example_a(),
+      mort_a,
+      mort_b,
+      transition_example_b()
+    ),
+    "cannot be more than one transition between a pair of life stages"
+  )
+
+})
+
 # query_transitions() ---------------------------------------------------------
 test_that("works with transition_type field", {
 

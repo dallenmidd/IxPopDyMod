@@ -76,7 +76,18 @@ assert_transition_accompanies_each_mortality <- function(cycle) {
   }
 }
 
-assert_max_one_mortality_from_each_stage <- function(cycle) {}
+assert_max_one_mortality_from_each_stage <- function(cycle) {
+  for (stage in life_stages(cycle)) {
+    transitions <- query_transitions(cycle, field = "from", value = stage)
+    mortality <- query_transitions_by_mortality(transitions, TRUE)
+    if (length(mortality) > 1) {
+      stop(
+        "duplicate mortality",
+        call. = FALSE
+      )
+    }
+  }
+}
 
 assert_consistent_transition_types <- function(cycle) {
   for (stage in life_stages(cycle)) {
