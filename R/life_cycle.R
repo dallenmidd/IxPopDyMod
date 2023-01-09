@@ -37,8 +37,6 @@ validate_life_cycle <- function(cycle) {
   # 3. there cannot be mortality from a stage that doesn't have another transition
   #    to a stage
   assert_transition_accompanies_each_mortality(cycle)
-  # 4. There can only be 1 or 0 mortality type transitions from each stage
-  assert_max_one_mortality_from_each_stage(cycle)
   # 5. All transitions/mortality from a stage must have same `transition_type`
   assert_consistent_transition_types(cycle)
 
@@ -70,19 +68,6 @@ assert_transition_accompanies_each_mortality <- function(cycle) {
       stop(
         "Life cycles must have at least one non-mortality transition from ",
         "each stage, but found only mortality transition(s) from stage ", stage,
-        call. = FALSE
-      )
-    }
-  }
-}
-
-assert_max_one_mortality_from_each_stage <- function(cycle) {
-  for (stage in life_stages(cycle)) {
-    transitions <- query_transitions(cycle, field = "from", value = stage)
-    mortality <- query_transitions_by_mortality(transitions, TRUE)
-    if (length(mortality) > 1) {
-      stop(
-        "duplicate mortality",
         call. = FALSE
       )
     }
