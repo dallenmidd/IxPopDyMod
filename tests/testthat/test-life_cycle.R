@@ -59,8 +59,19 @@ test_that("throws error with an invalid transition input", {
 })
 
 # validate_life_cycle() -------------------------------------------------------
-# TODO
+test_that("catches transitions with duplicate from and to", {
+  a_modified <- transition_example_a()
+  a_modified$fun <- function(a, x, y) {1}
 
+  expect_error(
+    life_cycle(
+      transition_example_a(),
+      a_modified,
+      transition_example_b()
+    ),
+    regexp = "cannot be more than one transition between a pair of life stages"
+  )
+})
 
 # query_transitions() ---------------------------------------------------------
 test_that("works with transition_type field", {
