@@ -174,6 +174,28 @@ test_that("catches when a predictor spans a shorter time range than another", {
   )
 })
 
+test_that(paste0(
+  "one `pred` cannot have a mix of constant and variable values ",
+  "for different `pred_subcategories` "
+  ), {
+  expect_error(
+    predictors(data.frame(
+      pred = "host_den",
+      pred_subcategory = c("mouse", "deer", "deer"),
+      j_day = c(NA, 1, 2),
+      value = 1
+    )),
+    regexp = "mix of NA and non-NA `j_day` values"
+  )
+})
 
-
-
+test_that("output test", {
+  expect_snapshot(
+    predictors(data.frame(
+      pred = c(rep("host_den", 4), "temp"),
+      pred_subcategory = c("mouse", "mouse", "deer", "deer", NA),
+      j_day = c(1, 2, 1, 2, NA),
+      value = 1:5
+    ))
+  )
+})
