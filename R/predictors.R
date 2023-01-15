@@ -40,8 +40,8 @@ validate_predictors <- function(df) {
     na_days <- is.na(subset$j_day)
 
     if (any(na_days)) {
+      # condition with constant predictor
       if (!(all(na_days))) {
-        # constant predictor
         stop(
           "The `j_day` column for each `pred` must be entirely NA (indicating ",
           "a constant value) or entirely non-NA (variable value), but ",
