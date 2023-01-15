@@ -36,7 +36,7 @@ validate_predictors <- function(df) {
 
   for (pred in unique(df$pred)) {
 
-    subset <- dplyr::filter(df, pred == pred)
+    subset <- df[df[["pred"]] == pred, ]
     na_days <- is.na(subset$j_day)
 
     if (any(na_days)) {
