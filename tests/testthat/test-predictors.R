@@ -106,3 +106,74 @@ test_that("catches missing value in `value` column", {
     fixed = TRUE
   )
 })
+
+test_that("works with NA jday", {
+  expect_error(
+    predictors(data.frame(
+      pred = "host_den",
+      pred_subcategory = NA,
+      j_day = NA,
+      value = 1
+    )),
+    regexp = NA
+  )
+})
+
+test_that("catches a mix of NA and non-NA j_day for a single predictor", {
+  expect_error(
+    predictors(data.frame(
+      pred = "host_den",
+      pred_subcategory = NA,
+      j_day = c(NA, 1),
+      value = c(1, 2)
+    )),
+    regexp = paste0(
+      "The `j_day` column for each `pred` must be entirely NA (indicating a ",
+      "constant value) or entirely non-NA "
+    ),
+    fixed = TRUE
+  )
+})
+
+test_that("catches missing j_days for a single predictor", {
+  expect_error(
+    predictors(data.frame(
+      pred = "host_den",
+      pred_subcategory = NA,
+      j_day = c(1, 3),
+      value = c(1, 2)
+    )),
+    regexp = "is missing day(s): 2",
+    fixed = TRUE
+  )
+})
+
+test_that("catches missing first day", {
+  expect_error(
+    predictors(data.frame(
+      pred = "host_den",
+      pred_subcategory = NA,
+      j_day = 2,
+      value = 1
+    )),
+    regexp = "is missing day(s): 1",
+    fixed = TRUE
+  )
+})
+
+test_that("catches when a predictor spans a shorter time range than another", {
+  expect_error(
+    predictors(data.frame(
+      pred = "host_den",
+      pred_subcategory = c("mouse", "deer", "deer"),
+      j_day = c(1, 1, 2),
+      value = 1
+    )),
+    regexp = "is missing day(s): 2",
+    fixed = TRUE
+  )
+})
+
+
+
+

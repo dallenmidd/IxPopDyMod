@@ -24,15 +24,54 @@ new_predictors <- function(df) {
 #' Validate `predictors`
 #'
 #'
-validate_predictors <- function(preds) {
+validate_predictors <- function(df) {
 
-  # TODO if a pred has subcategories, it must have the same subcategories for each day
+  # get the maximum day for any predictor
+  if (!all(is.na(df$j_day))) {
+    max_day <- max(df$j_day, na.rm = TRUE)
+    expected_days <- 1:max_day
+  }
 
-  # TODO each pred/pred_subcategory group must either
-  # - have a NA jday and have exactly one row
-  # - have all the jdays in the range
+  for (pred in unique(df$pred)) {
 
-  return(preds)
+    subset <- dplyr::filter(df, pred == pred)
+    na_days <- is.na(subset$j_day)
+
+    if (any(na_days)) {
+      if (!(all(na_days))) {
+        # constant predictor
+        stop(
+          "The `j_day` column for each `pred` must be entirely NA (indicating ",
+          "a constant value) or entirely non-NA (variable value), but ",
+          "the `pred` '", pred, "' has a mix of NA and non-NA `j_day` values.",
+          call. = FALSE
+        )
+      }
+    } else {
+      # condition with no NA j_days, meaning predictor is variable over time
+      # each subcategory's j_day range must be set equal to 1:max_day
+      for (subcategory in unique(subset$pred_subcategory)) {
+        subcategory_subset <- dplyr::filter(
+          df,
+          (pred_subcategory == subcategory) |
+            (is.na(pred_subcategory) & is.na(subcategory))
+        )
+        actual_days <- subcategory_subset$j_day
+        if (!setequal(expected_days, actual_days)) {
+          missing_days <- setdiff(expected_days, actual_days)
+          stop(
+            "Variable predictors must have a row for each `j_day` between 1 ",
+            "and the final day when there is any predictor data, but ",
+            "the `pred` '", pred, "' and the subcategory '", subcategory,
+            "' is missing day(s): ", to_short_string(missing_days),
+            call. = FALSE
+          )
+        }
+      }
+    }
+  }
+
+  return(df)
 }
 
 #' Create a table of `predictors`
