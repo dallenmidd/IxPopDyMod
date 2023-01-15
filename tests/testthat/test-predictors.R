@@ -211,3 +211,17 @@ test_that("doesn't allow zero length predictors", {
     "Must have at least 1 row"
   )
 })
+
+# valid_predictors_from_table() -----------------------------------------------
+test_that("output test", {
+
+  preds <- predictors(data.frame(
+    pred = c(rep("host_den", 4), "temp"),
+    pred_subcategory = c("mouse", "mouse", "deer", "deer", NA),
+    j_day = c(1, 2, 1, 2, NA),
+    value = 1:5
+  ))
+
+  expect_identical(valid_predictors_from_table(preds), c("host_den", "temp"))
+})
+

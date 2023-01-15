@@ -107,3 +107,17 @@ predictors <- function(df) {
 
   validate_predictors(new_predictors(df))
 }
+
+
+#' Get the predictor options for a `transition` based on a `predictors` table
+#'
+#' In addition to the options returned by this function, `transition`s can use
+#' a string that matches one or more tick life stage names via regex, in order
+#' to use tick density as a predictor value.
+#'
+#' @param df A `predictors` object
+#' @returns A character vector
+#' @noRd
+valid_predictors_from_table <- function(df) {
+  unique(df$pred)
+}
