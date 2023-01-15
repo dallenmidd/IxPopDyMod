@@ -199,3 +199,15 @@ test_that("output test", {
     ))
   )
 })
+
+test_that("doesn't allow zero length predictors", {
+  expect_error(
+    predictors(data.frame(
+      pred = c(),
+      pred_subcategory = c(),
+      j_day = c(),
+      value = c()
+    )),
+    "Must have at least 1 row"
+  )
+})
