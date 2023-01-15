@@ -53,11 +53,10 @@ validate_predictors <- function(df) {
       # condition with no NA j_days, meaning predictor is variable over time
       # each subcategory's j_day range must be set equal to 1:max_day
       for (subcategory in unique(subset$pred_subcategory)) {
-        subcategory_subset <- dplyr::filter(
-          df,
-          (pred_subcategory == subcategory) |
-            (is.na(pred_subcategory) & is.na(subcategory))
-        )
+        subcategory_subset <- subset[
+          (subset[["pred_subcategory"]] == subcategory) |
+            (is.na(subset[["pred_subcategory"]]) & is.na(subcategory)),
+        ]
         actual_days <- subcategory_subset$j_day
         if (!setequal(expected_days, actual_days)) {
           missing_days <- setdiff(expected_days, actual_days)
