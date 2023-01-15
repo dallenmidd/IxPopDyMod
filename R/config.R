@@ -543,7 +543,7 @@ graph_lifecycle <- function(transitions) {
 #' equivalent integer. Otherwise, return x
 #' @noRd
 ensure_int <- function(x) {
-  if (is.double(x) && all(x == as.integer(x))) {
+  if (is.double(x) && all((x == as.integer(x)) | (is.na(x)))) {
     return(stats::setNames(as.integer(x), names(x)))
   }
   x
