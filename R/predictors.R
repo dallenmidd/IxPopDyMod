@@ -3,7 +3,7 @@
 #' @returns a `predictors` object
 #' @noRd
 new_predictors <- function(df) {
-  checkmate::assert_data_frame(df)
+  checkmate::assert_data_frame(df, min.rows = 1)
 
   # check column names
   checkmate::assert_names(
