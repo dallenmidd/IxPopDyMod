@@ -23,7 +23,9 @@ new_predictors <- function(df) {
 
 #' Validate `predictors`
 #'
-#'
+#' @param df the `predictors` object to validate
+#' @returns the input, if checks pass
+#' @noRd
 validate_predictors <- function(df) {
 
   # get the maximum day for any predictor
