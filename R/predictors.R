@@ -61,7 +61,9 @@ validate_predictors <- function(preds) {
 predictors <- function(df) {
 
   # coerce j_day column to integer (from double)
-  df$j_day <- ensure_int(df$j_day)
+  if (is.data.frame(df) && utils::hasName(df, "j_day")) {
+    df$j_day <- ensure_int(df$j_day)
+  }
 
   validate_predictors(new_predictors(df))
 }
