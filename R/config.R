@@ -123,21 +123,30 @@ new_config <- function(initial_population, transitions, parameters,
 #' # Now, this should run without issues
 #' do.call(config, my_config)
 #' }
-config <- function(initial_population, transitions, parameters,
-                   predictors, steps, max_delay = 365L) {
-  if ("host_spp" %in% names(parameters)) {
-    parameters <- dplyr::arrange(parameters, .data$host_spp)
-  }
+config <- function(
+    cycle, initial_population, preds = NULL, steps, max_delay = 365L
+  ) {
+
+  # coerce input types
+
+  # TODO check if do.call() introduces a new way to fail... see transition()
+  cycle <- do.call(life_cycle, cycle)
+  preds <- do.call(predictors, preds)
 
   initial_population <- ensure_int(initial_population)
   steps <- ensure_int(steps)
   max_delay <- ensure_int(max_delay)
 
   # return validated config
-  validate_config(new_config(
-    initial_population, transitions, parameters,
-    predictors, steps, max_delay
-  ))
+  validate_config(
+    new_config(
+      cycle = cycle,
+      initial_population = initial_population,
+      predictors = predictors,
+      steps = steps,
+      max_delay = max_delay
+    )
+  )
 }
 
 #' create a config object from a YAML file
