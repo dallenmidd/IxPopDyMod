@@ -18,3 +18,10 @@ test_that("new_parameters() allows zero parameters", {
 test_that("new_parameters() throws error if names are duplicated", {
   expect_error(new_parameters(a = 1, a = 2), "element 2 is duplicated")
 })
+
+test_that("parameters() output test", {
+  result <- parameters(a = 1, b = 2)
+  expected <- list(a = 1, b = 2)
+  class(expected) <- "parameters"
+  expect_equal(result, expected)
+})
