@@ -82,7 +82,7 @@ assert_consistent_transition_types <- function(cycle) {
 
 #' Create a `life_cycle` from a collection of `transition`s
 #'
-#' @param ... A set of `transition`s
+#' @param ... A set of \code{\link{transition}}s
 #' @returns a `life_cycle`
 #' @export
 life_cycle <- function(...) {

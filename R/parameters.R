@@ -27,7 +27,7 @@ new_parameters <- function(...) {
 #'
 #' @param ... A set of named numeric vectors, each corresponding to a parameter.
 #'   If a parameter is of length > 1, each element must be named.
-#' @returns a parameters object
+#' @returns a `parameters` object
 #' @export
 #' @examples
 #' # create a set of scalar parameters
