@@ -120,6 +120,19 @@ new_config <- function(
 #' # Now, this should run without issues
 #' do.call(config, my_config)
 #' }
+#'
+#' # TODO this only works currently with new_config(), should be config()
+#' config(
+#'   cycle = life_cycle(
+#'     transition("a", "b", function() 0.1, "probability"),
+#'     transition("b", "a", function() 10, "probability")
+#'   ),
+#'   preds = NULL,
+#'   initial_population = c(a = 1L, b = 0L),
+#'   steps = 10,
+#'   max_delay = 365L
+#' )
+#'
 config <- function(
     cycle, initial_population, preds = NULL, steps, max_delay = 365L
   ) {
