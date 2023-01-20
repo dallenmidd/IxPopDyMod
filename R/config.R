@@ -18,8 +18,8 @@ new_config <- function(
     initial_population, lower = 0, min.len = 1, names = "unique"
   )
   checkmate::assert_class(preds, "predictors", null.ok = TRUE)
-  checkmate::assert_int(steps, lower = 0)
-  checkmate::assert_int(max_delay, lower = 1)
+  checkmate::assert_integer(steps, lower = 0, len = 1, any.missing = FALSE)
+  checkmate::assert_integer(max_delay, lower = 1, len = 1, any.missing = FALSE)
 
   structure(
     list(
