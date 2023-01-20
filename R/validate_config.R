@@ -1,44 +1,3 @@
-has_required_cols <- function(cfg, df_name, required_colnames) {
-  if (!all(rlang::has_name(cfg[[df_name]], required_colnames))) {
-    missing_cols <- required_colnames[!rlang::has_name(
-      cfg[[df_name]],
-      required_colnames
-    )]
-    stop("`", df_name, "` is missing required columns: ",
-      paste(missing_cols, collapse = ", "),
-      call. = FALSE
-    )
-  }
-}
-
-has_required_types <- function(cfg, df_name, required_coltypes) {
-  actual_coltypes <- sapply(cfg[[df_name]], class)
-
-  for (col in names(required_coltypes)) {
-    actual <- actual_coltypes[[col]]
-    expected <- required_coltypes[[col]]
-    if (!(
-      expected == actual ||
-      (expected == "numeric" && actual %in% c("double", "integer")) ||
-      # if missing values were interpreted as type logical
-      (actual == "logical" && all(is.na(cfg[[df_name]][, col])))
-    )) {
-      stop(
-        "Expected type \"", required_coltypes[col], "\" for column `", col,
-        "` in `", df_name,
-        "` but found type \"", actual_coltypes[col], "\"",
-        call. = FALSE
-      )
-    }
-  }
-}
-
-# return whether parameters are sorted by host_spp column
-parameters_are_sorted <- function(parameters) {
-  actual <- parameters$host_spp[!is.na(parameters$host_spp)]
-  all(actual == sort(actual)) | all(actual == sort(actual, decreasing = TRUE))
-}
-
 set_all_names <- function(name) {
   function(v) {
     if (!is.null(v)) {
@@ -97,101 +56,6 @@ error_df_to_list <- function(error_df, row_to_string) {
   }
 }
 
-
-parameter_pattern_matching_is_valid <- function(parameters, life_stages) {
-  is_valid <- function(s) {
-    any(stringr::str_detect(life_stages, s) |
-      s %in% c("m", "per_capita_m"))
-  }
-
-  # get name and index of invalid `from` or `to` fields
-  invalid_from <- which(!sapply(parameters$from, is_valid))
-  invalid_to <- which(!sapply(parameters$to, is_valid))
-
-  invalid <- tibble::tibble(
-    string = c(
-      names(invalid_from),
-      names(invalid_to)
-    ),
-    row = c(
-      invalid_from,
-      invalid_to
-    ),
-    col = c(
-      rep("from", length(invalid_from)),
-      rep("to", length(invalid_to))
-    )
-  )
-
-  row_to_string <- function(row) {
-    paste0(
-      '"', row[["string"]], '" in col "', row[["col"]], '", row ',
-      row[["row"]]
-    )
-  }
-
-  problem_list <- error_df_to_list(invalid, row_to_string)
-  print_errors(
-    error_header = "Strings in `parameters` `from` and `to` columns must
-      either be regex patterns that match life stages, or strings \"m\" or
-      \"per_capita_m\" indicating mortality. Found exceptions:",
-    problem_list = problem_list
-  )
-}
-
-
-transition_fun_exists <- function(row_index, transitions) {
-  tryCatch(
-    {
-      function_name <- transitions[[row_index, "transition_fun"]]
-      get(function_name)
-      NULL # indicate that there was no error
-    },
-    error = function(e) {
-      paste0(
-        "Can't find function `", function_name, "` from row ", row_index,
-        " of `transitions`"
-      )
-    }
-  )
-}
-
-# return a string with the following information for a problematic transition:
-# function name and row in transition table (to locate the error)
-# list of missing parameters
-# list of extra parameters
-missing_and_extra_params <- function(row_index, transitions_with_parameters) {
-  transition_row <- transitions_with_parameters[row_index, ]
-  expected <- as.list(args(get(transition_row[["transition_fun"]])))
-  expected <- names(expected[!(names(expected) %in% c("x", "y", ""))])
-  # need empty string to get rid of unnamed NULL value at end of list
-  actual <- names(transition_row$params_list[[1]])
-  missing <- setdiff(expected, actual)
-  extra <- setdiff(actual, expected)
-
-  param_to_string <- function(param, problem) {
-    paste0(
-      problem, ' param "', param,
-      '" in function "', transition_row[["transition_fun"]],
-      '" in row ', row_index, " of `transitions`"
-    )
-  }
-
-  params_to_string_list <- function(params, problem) {
-    if (length(params) > 0) {
-      lapply(
-        params,
-        function(p) param_to_string(p, problem)
-      )
-    }
-  }
-
-  c(
-    params_to_string_list(missing, "Missing"),
-    params_to_string_list(extra, "Extra")
-  )
-}
-
 test_predictors <- function(transitions, predictors) {
   # return whether a predictor value is supported by get_pred()
   predictor_is_valid <- function(pred) {
@@ -226,14 +90,6 @@ test_predictors <- function(transitions, predictors) {
   )
 }
 
-# determine whether transitions depend on given predictors
-depends_on <- function(predictors) {
-  function(transitions) {
-    any(predictors %in% unlist(transitions[, c("pred1", "pred2")]))
-  }
-}
-
-depends_on_hosts <- depends_on("host_den")
 
 to_short_string <- function(v, max = 3) {
   l <- length(v)
@@ -360,82 +216,19 @@ test_transition_values <- function(cfg) {
 #' @return Returns the input config object if it passes all the checks
 #' @noRd
 validate_config <- function(cfg) {
-  if (length(cfg$steps) != 1) {
-    stop(
-      "`steps` must have length 1",
-      call. = FALSE
-    )
-  }
 
-  if (cfg$steps < 1) {
-    stop(
-      "`steps` must be at least 1",
-      call. = FALSE
-    )
-  }
-
-  if (length(cfg$max_delay) != 1) {
-    stop(
-      "`max_delay` must have length 1",
-      call. = FALSE
-    )
-  }
-
-  if (cfg$max_delay < 365L) {
-    stop(stringr::str_squish("`max_delay` should be at least 365 or developing
-                             ticks may not emerge from delay transitions"),
-      call. = FALSE
-    )
-  }
-
-  transitions_coltypes <- c(
-    from = "character", to = "character", transition_fun = "character",
-    delay = "logical", pred1 = "character", pred2 = "character"
-  )
-  has_required_cols(cfg, "transitions", names(transitions_coltypes))
-  has_required_types(cfg, "transitions", transitions_coltypes)
-
-  test_predictors(cfg$transitions, cfg$predictors)
-
-  predictors_coltypes <- c(
-    pred = "character",
-    pred_subcategory = "character",
-    j_day = "numeric",
-    value = "numeric"
-  )
 
   if (!is.null(cfg$predictors)) {
-    has_required_cols(cfg, "predictors", names(predictors_coltypes))
+    # TODO for brevity/separation of concerns only need to test that max day in
+    # predictors is equal to steps + max_delay, because predictors() handles
+    # the check that days form a continuous sequence
     test_missing_days(cfg$predictors, cfg$steps, cfg$max_delay)
-    has_required_types(cfg, "predictors", predictors_coltypes)
   }
 
-  parameters_coltypes <- c(
-    from = "character", to = "character", param_name = "character",
-    param_value = "numeric"
-  )
-
-  has_required_cols(cfg, "parameters", names(parameters_coltypes))
-  has_required_types(cfg, "parameters", parameters_coltypes)
-
-  if (depends_on_hosts(cfg$transitions)) {
-    if (!parameters_are_sorted(cfg$parameters)) {
-      stop(
-        "`parameters` must be sorted by the column `host_spp`",
-        call. = FALSE
-      )
-    }
-  }
-
-  if (
-    is.null(names(cfg$initial_population)) ||
-    any(names(cfg$initial_population) == "")
-  ) {
-    stop(
-      "all values of `initial_population` must be named",
-      call. = FALSE
-    )
-  }
+  # TODO need some checks on the relationships between transitions and
+  # predictors data. And that each argument to each transition_function has a
+  # corresponding parameter or predictor.
+  test_predictors(cfg$transitions, cfg$predictors)
 
   life_stages <- get_life_stages(cfg$transitions)
   life_stages_found <- names(cfg$initial_population)
@@ -456,41 +249,6 @@ validate_config <- function(cfg) {
       call. = FALSE
     )
   }
-
-  if (any(cfg$initial_population < 0)) {
-    stop(
-      "`initial_population` may not be negative for any life stage",
-      call. = FALSE
-    )
-  }
-
-  parameter_pattern_matching_is_valid(cfg$parameters, life_stages)
-
-  transition_fun_errors <-
-    seq_len(nrow(cfg$transitions)) %>%
-    lapply(function(x) transition_fun_exists(x, cfg$transitions)) %>%
-    unlist()
-
-  print_errors(
-    "Strings in the `transition_fun` column of `transitions` must be the names
-     of functions:",
-    transition_fun_errors,
-    "If you're using custom functions, make sure you've loaded your
-      functions into the environment, e.g. by sourcing a file with
-      function definitions."
-  )
-
-  transitions_with_parameters <- add_params_list(
-    cfg$transitions,
-    cfg$parameters
-  )
-
-  errors <- unlist(lapply(
-    seq_len(nrow(transitions_with_parameters)),
-    function(i) missing_and_extra_params(i, transitions_with_parameters)
-  ))
-
-  print_errors("Extra and/or missing parameters found: \n", errors)
 
   test_transition_values(cfg)
 
