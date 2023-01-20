@@ -1,6 +1,5 @@
-# TODO do we need a public interface to creating parameters?
 #' Parameters constructor
-#' @param ... A set of named numeric vectors
+#' @inheritParams parameters
 #' @noRd
 #' @returns a parameters object
 new_parameters <- function(...) {
@@ -24,4 +23,13 @@ new_parameters <- function(...) {
 
   return(parameters)
 
+}
+
+#' Create a set of parameters
+#'
+#' @param ... A set of named numeric vectors
+#' @returns a parameters object
+#' @export
+parameters <- function(...) {
+  new_parameters(...)
 }
