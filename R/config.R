@@ -8,32 +8,29 @@
 #' @return a `config` object
 #'
 #' @noRd
-new_config <- function(initial_population, transitions, parameters,
-                       predictors = NULL, steps, max_delay) {
-  # check that all types are correct
-  stopifnot(is.integer(initial_population))
-  stopifnot(is.data.frame(transitions))
-  stopifnot(is.data.frame(parameters))
-  stopifnot(missing(predictors) || is.data.frame(predictors))
-  stopifnot(is.integer(steps))
-  stopifnot(is.integer(max_delay))
+new_config <- function(
+    cycle, initial_population, preds, steps, max_delay
+  ) {
 
-  cfg <- structure(
+  # check that all types are correct
+  checkmate::assert_class(cycle, "life_cycle")
+  checkmate::assert_integer(
+    initial_population, lower = 0, min.len = 1, names = "unique"
+  )
+  checkmate::assert_class(preds, "predictors", null.ok = TRUE)
+  checkmate::assert_int(steps, lower = 0)
+  checkmate::assert_int(max_delay, lower = 1)
+
+  structure(
     list(
-      steps = steps,
+      cycle = cycle,
       initial_population = initial_population,
-      transitions = transitions,
-      parameters = parameters,
+      preds = preds,
+      steps = steps,
       max_delay = max_delay
     ),
     class = "config"
   )
-
-  if (!missing(predictors)) {
-    cfg$predictors <- predictors
-  }
-
-  cfg
 }
 
 #' Create a `config` object
