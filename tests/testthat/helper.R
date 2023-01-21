@@ -23,3 +23,24 @@ life_cycle_example_a <- function() {
     transition_example_b()
   )
 }
+
+predictors_example_a <- function() {
+  new_predictors(data.frame(
+    pred = "temp",
+    pred_subcategory = NA,
+    j_day = NA,
+    value = 1
+  ))
+}
+
+config_example_a <- function() {
+
+  new_config(
+    cycle = life_cycle_example_a(),
+    preds = predictors_example_a(),
+    initial_population = c(a = 1L, b = 0L),
+    steps = 10L,
+    max_delay = 365L
+  )
+
+}
