@@ -7,7 +7,7 @@ test_that("output test", {
   environment(f2) <- emptyenv()
 
   expect_snapshot(
-      new_config(
+    new_config(
       cycle = life_cycle(
         transition("a", "b", f1, "probability"),
         transition("b", "a", f2, "probability")
@@ -19,4 +19,3 @@ test_that("output test", {
     )
   )
 })
-
