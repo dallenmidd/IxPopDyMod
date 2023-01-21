@@ -134,7 +134,7 @@ new_config <- function(
 #' )
 #'
 config <- function(
-    cycle, initial_population, preds = NULL, steps, max_delay = 365L
+    cycle, initial_population, preds = NULL, steps = 365L, max_delay = 365L
   ) {
 
   # coerce input types
