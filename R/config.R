@@ -139,8 +139,9 @@ config <- function(
 
   # coerce input types
 
-  # TODO check if do.call() introduces a new way to fail... see transition()
-  cycle <- do.call(life_cycle, cycle)
+  # life_cycle() will attempt to coerce each input to a valid `transition`
+  cycle <- do.call(life_cycle, as.list(cycle))
+
   if (!is.null(preds)) {
     preds <- predictors(preds)
   }
