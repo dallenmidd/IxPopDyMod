@@ -33,6 +33,8 @@ predictors_example_a <- function() {
   ))
 }
 
+# TODO there are also (old) example configs loaded with the package - need to
+# think about what to put in data/ vs tests/helper.R
 config_example_a <- function() {
 
   new_config(

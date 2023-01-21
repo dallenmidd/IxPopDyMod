@@ -49,6 +49,8 @@ test_that("output test with non-NULL predictors", {
 })
 
 # test simple checks on vector inputs -----------------------------------------
+# TODO left off here - implement these tests (using example_config_a()) and
+# update validate_config() to reflect the checks described here
 test_that("works with integerish steps value", {})
 test_that("catches decimal steps value", {})
 test_that("catches negative steps value", {})
