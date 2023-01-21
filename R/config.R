@@ -141,7 +141,9 @@ config <- function(
 
   # TODO check if do.call() introduces a new way to fail... see transition()
   cycle <- do.call(life_cycle, cycle)
-  preds <- do.call(predictors, preds)
+  if (!is.null(preds)) {
+    preds <- predictors(preds)
+  }
 
   initial_population <- ensure_int(initial_population)
   steps <- ensure_int(steps)
