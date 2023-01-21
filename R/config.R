@@ -154,7 +154,7 @@ config <- function(
     new_config(
       cycle = cycle,
       initial_population = initial_population,
-      predictors = predictors,
+      preds = preds,
       steps = steps,
       max_delay = max_delay
     )
