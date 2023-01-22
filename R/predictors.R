@@ -122,10 +122,20 @@ valid_predictors_from_table <- function(df) {
   unique(df$pred)
 }
 
+#' Return whether input contains any predictors that are variable over time
+#'
+#' @param df A `predictors` object
+#' @returns boolean
+#' @noRd
 predictor_data_varies_over_time <- function(df) {
   !all(is.na(df$j_day))
 }
 
+#' Return the max `j_day` in a `predictors` table
+#'
+#' @param df A `predictors` object
+#' @returns An integer, or `-Inf` if the `j_day` column is entirely NA
+#' @noRd
 max_day_in_predictors_table <- function(df) {
   max(df$j_day, na.rm = TRUE)
 }
