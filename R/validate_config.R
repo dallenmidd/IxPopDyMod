@@ -105,43 +105,6 @@ to_short_string <- function(v, max = 3) {
   )
 }
 
-# Ensure that there predictor data for the entire j_day range that we are
-# running the model, plus the max_delay, OR that the predictor values are
-# constant over time (indicated by NA j_day).
-# We add max_delay because if input data is missing for time in between
-# steps and steps+max_delay, we could incorrectly get delay transitions that
-# do not cumsum to 1
-test_missing_days <- function(tbl, steps, max_delay) {
-  day_range <- 1:(steps + max_delay)
-
-  f <- function(group, ...) {
-    j_days <- group$j_day
-    if (all(is.na(j_days))) {
-      return(integer(0))
-    }
-    setdiff(
-      day_range,
-      intersect(day_range, group$j_day)
-    )
-  }
-
-  missing_days <- tbl %>%
-    group_by(.data$pred, .data$pred_subcategory) %>%
-    dplyr::group_map(f) %>%
-    unlist()
-
-  if (length(missing_days) > 0) {
-    stop(
-      stringr::str_squish(paste0(
-        "each pred in the `predictors` table must have a row for each `j_day`
-        from 1 to `steps` + `max_delay`, OR have a single row with NA in the
-        `j_day` column. Missing `j_day` values: "
-      )), " ",
-      to_short_string(missing_days),
-      call. = FALSE
-    )
-  }
-}
 
 test_transition_values <- function(cfg) {
   life_stages <- get_life_stages(cfg$transitions)
@@ -217,13 +180,30 @@ test_transition_values <- function(cfg) {
 #' @noRd
 validate_config <- function(cfg) {
 
+  # Note that we only need to test that max day in predictors is >= to
+  # steps + max_delay, because predictors() handles the check that days
+  # form a continuous sequence starting at day 1, and that all predictors
+  # extend to the same day.
 
-  # if (!is.null(cfg$predictors)) {
-  #   # TODO for brevity/separation of concerns only need to test that max day in
-  #   # predictors is equal to steps + max_delay, because predictors() handles
-  #   # the check that days form a continuous sequence
-  #   test_missing_days(cfg$predictors, cfg$steps, cfg$max_delay)
-  # }
+  # TODO check this logic... does it matter if cumsum doesn't reach 1 if it's
+  # after the steps are complete?
+  # We add max_delay because if input data is missing for time in between
+  # steps and steps+max_delay, we could incorrectly get delay transitions that
+  # do not cumsum to 1.
+  if (!is.null(cfg$preds) && predictor_data_varies_over_time(cfg$preds)) {
+    # the days that predictor data should and actually extends to
+    expected_max_day <- cfg$steps + cfg$max_delay
+    actual_max_day <- max_day_in_predictors_table(cfg$preds)
+    if (actual_max_day < expected_max_day) {
+      stop(
+        "Predictor data should extend to at least", expected_max_day,
+        ", the sum of `max_delay` and `steps`, but the final day in the ",
+        "predictor data was ", actual_max_day,
+        call. = FALSE
+      )
+    }
+  }
+
   #
   # # TODO need some checks on the relationships between transitions and
   # # predictors data. And that each argument to each transition_function has a
@@ -250,7 +230,7 @@ validate_config <- function(cfg) {
       call. = FALSE
     )
   }
-  #
+
   # test_transition_values(cfg)
 
   cfg

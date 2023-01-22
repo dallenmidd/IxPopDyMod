@@ -121,3 +121,11 @@ predictors <- function(df) {
 valid_predictors_from_table <- function(df) {
   unique(df$pred)
 }
+
+predictor_data_varies_over_time <- function(df) {
+  !all(is.na(df$j_day))
+}
+
+max_day_in_predictors_table <- function(df) {
+  max(df$j_day, na.rm = TRUE)
+}
