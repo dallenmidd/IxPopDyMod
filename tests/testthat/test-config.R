@@ -130,7 +130,11 @@ test_that("catches initial_population of length zero", {
   cfg$initial_population <- as.integer()
   expect_error(do.call(config, cfg), "Must have length >= 1")
 })
-# TODO don't allow NA values?
+test_that("catches NA initial_population values", {
+  cfg <- config_example_a()
+  cfg$initial_population <- c(a = 1L, b = NA)
+  expect_error(do.call(config, cfg))
+})
 test_that("catches duplicate life stage names in initial_population", {
   cfg <- config_example_a()
   cfg$initial_population <- c(a = 1, a = 2, b = 0)
