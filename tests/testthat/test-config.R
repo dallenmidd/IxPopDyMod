@@ -165,7 +165,18 @@ test_that("catches initial_population names that are not valid life stages", {
     "had names that are not valid life stages"
   )
 })
-test_that("catches predictor data that does not extend to steps + max_delay", {})
+test_that("catches predictor data that does not extend to steps + max_delay", {
+  cfg <- config_example_a()
+  cfg$preds <- predictors(data.frame(
+    pred = "temp",
+    pred_subcategory = NA,
+    j_day = 1:3,
+    value = 1
+  ))
+  cfg$steps <- 2
+  cfg$max_delay <- 2
+  expect_error(do.call(config, cfg), "data should extend to at least 4")
+})
 test_that("catches args in transition functions that don't correspond to a parameter or predictor", {})
 
 # TODO unsure if this is really feasible or should just be a runtime check
