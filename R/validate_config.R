@@ -244,12 +244,12 @@ validate_config <- function(cfg) {
   #   )
   # }
   #
-  # if (!any(cfg$initial_population > 0)) {
-  #   stop(
-  #     "`initial_population` must be greater than 0 for at least one life stage",
-  #     call. = FALSE
-  #   )
-  # }
+  if (!any(cfg$initial_population > 0)) {
+    stop(
+      "`initial_population` must be greater than 0 for at least one life stage",
+      call. = FALSE
+    )
+  }
   #
   # test_transition_values(cfg)
 

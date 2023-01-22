@@ -142,8 +142,21 @@ test_that("catches duplicate life stage names in initial_population", {
 })
 
 # test more complicated checks / checks depending on multiple inputs ----------
-test_that("initial_population is set to zero for any unspecified life stages", {})
-test_that("catches initial_population with no values > 0", {})
+
+test_that("initial_population is set to zero for any unspecified life stages", {
+  # TODO may not want to implement this because it involves coercion using
+  # both initial_population and life_cycle... tricky to do this on un-validated
+  # inputs, and breaks the recommended S3 pattern to do this at the end of
+  # helper method. Instead, could do this at model run time.
+})
+test_that("catches initial_population with no values > 0", {
+  cfg <- config_example_a()
+  cfg$initial_population <- c(a = 0, b = 0)
+  expect_error(
+    do.call(config, cfg),
+    "must be greater than 0 for at least one life stage"
+  )
+})
 test_that("catches initial_population names that are not valid life statges", {})
 test_that("catches predictor data that does not extend to steps + max_delay", {})
 test_that("catches args in transition functions that don't correspond to a parameter or predictor", {})
