@@ -52,12 +52,10 @@ test_that("output test with non-NULL predictors", {
 # TODO left off here - implement these tests (using example_config_a()) and
 # update validate_config() to reflect the checks described here
 test_that("integerish steps value is coerced to integer", {
-  # `original$steps` is the integer 10
-  original <- config_example_a()
-  result <- original
-  result$steps <- as.double(10)
-  result <- do.call(config, result)
-  expect_identical(original, result)
+  cfg <- config_example_a()
+  cfg$steps <- as.double(10)
+  cfg <- do.call(config, cfg)
+  expect_identical(cfg$steps, 10L)
 })
 
 test_that("catches decimal steps value", {})
