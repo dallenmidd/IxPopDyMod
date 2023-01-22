@@ -113,7 +113,7 @@ test_transition_values <- function(cfg) {
   # and an empty N_developing matrix
   population <- matrix(
     nrow = length(life_stages),
-    ncol = cfg$steps + cfg$max_delay,
+    ncol = cfg$steps + cfg$max_duration,
     data = 0
   )
   rownames(population) <- life_stages
@@ -137,7 +137,7 @@ test_transition_values <- function(cfg) {
           transition_row_with_parameters = funs[row_index, ],
           population = population,
           developing_population = developing_population,
-          max_delay = cfg$max_delay,
+          max_duration = cfg$max_duration,
           life_stages = life_stages,
           predictors = cfg$predictors
         )
@@ -174,26 +174,25 @@ test_transition_values <- function(cfg) {
   }
 }
 
-
 #' Check that a `config` object is valid
 #' @return Returns the input config object if it passes all the checks
 #' @noRd
 validate_config <- function(cfg) {
 
-  # Note that we only test that max day in predictors >= steps + max_delay,
+  # Note that we only test that max day in predictors >= steps + max_duration,
   # because the predictors class handles the check that days form a continuous
   # sequence starting at day 1, and that all predictors extend to the same day.
-  # We add max_delay out of caution, to ensure that there is predictors data for
-  # any day between steps:(steps + max_delay), when we might evaluate a
+  # We add max_duration out of caution, to ensure that there is predictors data
+  # for any day between steps:(steps + max_duration), when we might evaluate a
   # transition, even though the model output only extends to `steps` days.
   if (!is.null(cfg$preds) && predictor_data_varies_over_time(cfg$preds)) {
     # the days that predictor data should, and actually, extend to
-    expected_max_day <- cfg$steps + cfg$max_delay
+    expected_max_day <- cfg$steps + cfg$max_duration
     actual_max_day <- max_day_in_predictors_table(cfg$preds)
     if (actual_max_day < expected_max_day) {
       stop(
         "Predictor data should extend to at least ", expected_max_day,
-        ", the sum of `max_delay` and `steps`, but the final day in the ",
+        ", the sum of `max_duration` and `steps`, but the final day in the ",
         "predictor data is ", actual_max_day,
         call. = FALSE
       )

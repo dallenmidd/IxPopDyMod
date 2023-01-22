@@ -16,7 +16,7 @@ test_that("output test with NULL predictors", {
       preds = NULL,
       initial_population = c(a = 1L, b = 0L),
       steps = 10L,
-      max_delay = 365L
+      max_duration = 365L
     )
   )
 })
@@ -43,7 +43,7 @@ test_that("output test with non-NULL predictors", {
       )),
       initial_population = c(a = 1L, b = 0L),
       steps = 10L,
-      max_delay = 365L
+      max_duration = 365L
     )
   )
 })
@@ -80,31 +80,31 @@ test_that("catches steps of length > 1", {
   expect_error(do.call(config, cfg), "Must have length 1")
 })
 
-# tests on `max_delay`
-test_that("integerish max_delay value is coerced to integer", {
+# tests on `max_duration`
+test_that("integerish max_duration value is coerced to integer", {
   cfg <- config_example_a()
-  cfg$max_delay <- as.double(10)
+  cfg$max_duration <- as.double(10)
   cfg <- do.call(config, cfg)
-  expect_identical(cfg$max_delay, 10L)
+  expect_identical(cfg$max_duration, 10L)
 })
-test_that("catches decimal max_delay value", {
+test_that("catches decimal max_duration value", {
   cfg <- config_example_a()
-  cfg$max_delay <- 10.5
+  cfg$max_duration <- 10.5
   expect_error(do.call(config, cfg), "Must be of type 'integer'")
 })
-test_that("catches max_delay value < 1", {
+test_that("catches max_duration value < 1", {
   cfg <- config_example_a()
-  cfg$max_delay <- 0
+  cfg$max_duration <- 0
   expect_error(do.call(config, cfg), "not >= 1")
 })
-test_that("catches missing max_delay value", {
+test_that("catches missing max_duration value", {
   cfg <- config_example_a()
-  cfg$max_delay <- NA
+  cfg$max_duration <- NA
   expect_error(do.call(config, cfg), "Contains missing values")
 })
-test_that("catches max_delay of length > 1", {
+test_that("catches max_duration of length > 1", {
   cfg <- config_example_a()
-  cfg$max_delay <- c(10L, 10L)
+  cfg$max_duration <- c(10L, 10L)
   expect_error(do.call(config, cfg), "Must have length 1")
 })
 
@@ -149,6 +149,7 @@ test_that("initial_population is set to zero for any unspecified life stages", {
   # inputs, and breaks the recommended S3 pattern to do this at the end of
   # helper method. Instead, could do this at model run time.
 })
+
 test_that("catches initial_population with no values > 0", {
   cfg <- config_example_a()
   cfg$initial_population <- c(a = 0, b = 0)
@@ -157,6 +158,7 @@ test_that("catches initial_population with no values > 0", {
     "must be greater than 0 for at least one life stage"
   )
 })
+
 test_that("catches initial_population names that are not valid life stages", {
   cfg <- config_example_a()
   cfg$initial_population <- c(a = 1, b = 0, c = 2)
@@ -165,18 +167,22 @@ test_that("catches initial_population names that are not valid life stages", {
     "had names that are not valid life stages"
   )
 })
-test_that("catches predictor data that does not extend to steps + max_delay", {
-  cfg <- config_example_a()
-  cfg$preds <- predictors(data.frame(
-    pred = "temp",
-    pred_subcategory = NA,
-    j_day = 1:3,
-    value = 1
-  ))
-  cfg$steps <- 2
-  cfg$max_delay <- 2
-  expect_error(do.call(config, cfg), "data should extend to at least 4")
-})
+
+test_that(
+  "catches predictor data that does not extend to steps + max_duration", {
+    cfg <- config_example_a()
+    cfg$preds <- predictors(data.frame(
+      pred = "temp",
+      pred_subcategory = NA,
+      j_day = 1:3,
+      value = 1
+    ))
+    cfg$steps <- 2
+    cfg$max_duration <- 2
+    expect_error(do.call(config, cfg), "data should extend to at least 4")
+  }
+)
+
 test_that("catches args in transition functions that don't correspond to a parameter or predictor", {})
 
 # TODO unsure if this is really feasible or should just be a runtime check

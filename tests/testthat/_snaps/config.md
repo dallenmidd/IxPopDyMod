@@ -3,7 +3,7 @@
     Code
       new_config(cycle = life_cycle(transition("a", "b", f1, "probability"),
       transition("b", "a", f2, "probability")), preds = NULL, initial_population = c(
-        a = 1L, b = 0L), steps = 10L, max_delay = 365L)
+        a = 1L, b = 0L), steps = 10L, max_duration = 365L)
     Output
       $cycle
       [[1]]
@@ -79,7 +79,7 @@
       $steps
       [1] 10
       
-      $max_delay
+      $max_duration
       [1] 365
       
       attr(,"class")
@@ -91,7 +91,7 @@
       new_config(cycle = life_cycle(transition("a", "b", f1, "probability"),
       transition("b", "a", f2, "probability")), preds = predictors(data.frame(pred = "temp",
         pred_subcategory = NA, j_day = NA, value = 1)), initial_population = c(a = 1L,
-        b = 0L), steps = 10L, max_delay = 365L)
+        b = 0L), steps = 10L, max_duration = 365L)
     Output
       $cycle
       [[1]]
@@ -168,7 +168,7 @@
       $steps
       [1] 10
       
-      $max_delay
+      $max_duration
       [1] 365
       
       attr(,"class")

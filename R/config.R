@@ -9,7 +9,7 @@
 #'
 #' @noRd
 new_config <- function(
-    cycle, initial_population, preds, steps, max_delay
+    cycle, initial_population, preds, steps, max_duration
   ) {
 
   # check that all types are correct
@@ -23,7 +23,9 @@ new_config <- function(
   )
   checkmate::assert_class(preds, "predictors", null.ok = TRUE)
   checkmate::assert_integer(steps, lower = 0, len = 1, any.missing = FALSE)
-  checkmate::assert_integer(max_delay, lower = 1, len = 1, any.missing = FALSE)
+  checkmate::assert_integer(
+    max_duration, lower = 1, len = 1, any.missing = FALSE
+  )
 
   structure(
     list(
@@ -31,7 +33,7 @@ new_config <- function(
       initial_population = initial_population,
       preds = preds,
       steps = steps,
-      max_delay = max_delay
+      max_duration = max_duration
     ),
     class = "config"
   )
@@ -51,7 +53,7 @@ new_config <- function(
 #' @param steps Numeric vector of length one indicating the duration to run the
 #'   model over in days.
 #'
-#' @param max_delay Numeric vector of length one. Determines the maximum
+#' @param max_duration Numeric vector of length one. Determines the maximum
 #'   number of days that a duration-based transition can last, after which ticks
 #'   are removed from the model/die. Default of 365 is likely sensible for most
 #'   cases.
@@ -80,9 +82,9 @@ new_config <- function(
 #' "to" stage, or die - there is no survival. In this case, `t` is used to
 #' determine the number of days until ticks in the "from" stage will emerge as
 #' ticks in the "to" stage. `t` will be vectorized over each day from the
-#' current time step to `max_delay` days ahead. The duration of the transition
-#' (in days) will be the index `i` of the first element in `t` where the
-#' cumulative sum of `t[1:i]` is greater than or equal to 1.
+#' current time step to `max_duration` days ahead. The duration of the
+#' transition (in days) will be the index `i` of the first element in `t` where
+#' the cumulative sum of `t[1:i]` is greater than or equal to 1.
 #'
 #' Delay transitions support two modes of mortality, "m" and "per_capita_m".
 #' For transitions to "m", the mortality value `m` is interpreted as a daily
@@ -134,11 +136,11 @@ new_config <- function(
 #'   preds = NULL,
 #'   initial_population = c(a = 1L, b = 0L),
 #'   steps = 10,
-#'   max_delay = 365L
+#'   max_duration = 365L
 #' )
 #'
 config <- function(
-    cycle, initial_population, preds = NULL, steps = 365L, max_delay = 365L
+    cycle, initial_population, preds = NULL, steps = 365L, max_duration = 365L
   ) {
 
   # coerce input types
@@ -152,7 +154,7 @@ config <- function(
 
   initial_population <- ensure_int(initial_population)
   steps <- ensure_int(steps)
-  max_delay <- ensure_int(max_delay)
+  max_duration <- ensure_int(max_duration)
 
   # return validated config
   validate_config(
@@ -161,7 +163,7 @@ config <- function(
       initial_population = initial_population,
       preds = preds,
       steps = steps,
-      max_delay = max_delay
+      max_duration = max_duration
     )
   )
 }
@@ -237,7 +239,7 @@ write_config <- function(cfg, config_path, transitions_path, parameters_path,
   yaml::write_yaml(
     x = list(
       steps = ensure_int(cfg$steps),
-      max_delay = cfg$max_delay,
+      max_duration = cfg$max_duration,
       initial_population = as.list(ensure_int(cfg$initial_population)),
       transitions = transitions_path,
       parameters = parameters_path,
