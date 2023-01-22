@@ -18,7 +18,7 @@ new_predictors <- function(df) {
   checkmate::assert_integer(df$j_day, lower = 0)
   checkmate::assert_numeric(df$value, any.missing = FALSE)
 
-  structure(df, class = c("predictors", class(df)))
+  structure(df, class = unique(c("predictors", class(df))))
 }
 
 #' Validate `predictors`
