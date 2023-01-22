@@ -180,36 +180,31 @@ test_transition_values <- function(cfg) {
 #' @noRd
 validate_config <- function(cfg) {
 
-  # Note that we only need to test that max day in predictors is >= to
-  # steps + max_delay, because predictors() handles the check that days
-  # form a continuous sequence starting at day 1, and that all predictors
-  # extend to the same day.
-
-  # TODO check this logic... does it matter if cumsum doesn't reach 1 if it's
-  # after the steps are complete?
-  # We add max_delay because if input data is missing for time in between
-  # steps and steps+max_delay, we could incorrectly get delay transitions that
-  # do not cumsum to 1.
+  # Note that we only test that max day in predictors >= steps + max_delay,
+  # because the predictors class handles the check that days form a continuous
+  # sequence starting at day 1, and that all predictors extend to the same day.
+  # We add max_delay out of caution, to ensure that there is predictors data for
+  # any day between steps:(steps + max_delay), when we might evaluate a
+  # transition, even though the model output only extends to `steps` days.
   if (!is.null(cfg$preds) && predictor_data_varies_over_time(cfg$preds)) {
-    # the days that predictor data should and actually extends to
+    # the days that predictor data should, and actually, extend to
     expected_max_day <- cfg$steps + cfg$max_delay
     actual_max_day <- max_day_in_predictors_table(cfg$preds)
     if (actual_max_day < expected_max_day) {
       stop(
-        "Predictor data should extend to at least", expected_max_day,
+        "Predictor data should extend to at least ", expected_max_day,
         ", the sum of `max_delay` and `steps`, but the final day in the ",
-        "predictor data was ", actual_max_day,
+        "predictor data is ", actual_max_day,
         call. = FALSE
       )
     }
   }
 
-  #
   # # TODO need some checks on the relationships between transitions and
   # # predictors data. And that each argument to each transition_function has a
   # # corresponding parameter or predictor.
   # test_predictors(cfg$transitions, cfg$predictors)
-  #
+
   valid_life_stages <- life_stages(cfg$cycle)
   initial_life_stages <- names(cfg$initial_population)
 
