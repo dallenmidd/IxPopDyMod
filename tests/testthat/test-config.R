@@ -51,29 +51,91 @@ test_that("output test with non-NULL predictors", {
 # test simple checks on vector inputs -----------------------------------------
 # TODO left off here - implement these tests (using example_config_a()) and
 # update validate_config() to reflect the checks described here
+
+# tests on `steps`
 test_that("integerish steps value is coerced to integer", {
   cfg <- config_example_a()
   cfg$steps <- as.double(10)
   cfg <- do.call(config, cfg)
   expect_identical(cfg$steps, 10L)
 })
+test_that("catches decimal steps value", {
+  cfg <- config_example_a()
+  cfg$steps <- 10.5
+  expect_error(do.call(config, cfg), "Must be of type 'integer'")
+})
+test_that("catches negative steps value", {
+  cfg <- config_example_a()
+  cfg$steps <- -1
+  expect_error(do.call(config, cfg), "Element 1 is not >= 0")
+})
+test_that("catches missing steps value", {
+  cfg <- config_example_a()
+  cfg$steps <- NA
+  expect_error(do.call(config, cfg), "Contains missing values")
+})
+test_that("catches steps of length > 1", {
+  cfg <- config_example_a()
+  cfg$steps <- c(10L, 10L)
+  expect_error(do.call(config, cfg), "Must have length 1")
+})
 
-test_that("catches decimal steps value", {})
-test_that("catches negative steps value", {})
-test_that("catches missing steps value", {})
-test_that("catches steps of length > 1", {})
+# tests on `max_delay`
+test_that("integerish max_delay value is coerced to integer", {
+  cfg <- config_example_a()
+  cfg$max_delay <- as.double(10)
+  cfg <- do.call(config, cfg)
+  expect_identical(cfg$max_delay, 10L)
+})
+test_that("catches decimal max_delay value", {
+  cfg <- config_example_a()
+  cfg$max_delay <- 10.5
+  expect_error(do.call(config, cfg), "Must be of type 'integer'")
+})
+test_that("catches max_delay value < 1", {
+  cfg <- config_example_a()
+  cfg$max_delay <- 0
+  expect_error(do.call(config, cfg), "not >= 1")
+})
+test_that("catches missing max_delay value", {
+  cfg <- config_example_a()
+  cfg$max_delay <- NA
+  expect_error(do.call(config, cfg), "Contains missing values")
+})
+test_that("catches max_delay of length > 1", {
+  cfg <- config_example_a()
+  cfg$max_delay <- c(10L, 10L)
+  expect_error(do.call(config, cfg), "Must have length 1")
+})
 
-test_that("works with integerish max_delay value", {})
-test_that("catches decimal max_delay value", {})
-test_that("catches max_delay value < 1", {})
-test_that("catches missing max_delay value", {})
-test_that("catches max_delay of length > 1", {})
-
-test_that("works with integerish initial_population values", {})
-test_that("catches decimal initial_population values", {})
-test_that("catches negative initial_population values", {})
-test_that("catches initial_population of length zero", {})
-test_that("catches duplicate life stage names in initial_population", {})
+# tests on `initial_population`
+test_that("works with integerish initial_population values", {
+  cfg <- config_example_a()
+  cfg$initial_population <- stats::setNames(as.double(c(1.0, 0.0)), c("a", "b"))
+  cfg <- do.call(config, cfg)
+  expect_identical(cfg$initial_population, c(a = 1L, b = 0L))
+})
+test_that("catches decimal initial_population values", {
+  cfg <- config_example_a()
+  cfg$initial_population <- c(a = 1.5, 0)
+  expect_error(do.call(config, cfg), "Must be of type 'integer'")
+})
+test_that("catches negative initial_population values", {
+  cfg <- config_example_a()
+  cfg$initial_population <- c(a = 2, b = -1)
+  expect_error(do.call(config, cfg), "Element 2 is not >= 0")
+})
+test_that("catches initial_population of length zero", {
+  cfg <- config_example_a()
+  cfg$initial_population <- as.integer()
+  expect_error(do.call(config, cfg), "Must have length >= 1")
+})
+# TODO don't allow NA values?
+test_that("catches duplicate life stage names in initial_population", {
+  cfg <- config_example_a()
+  cfg$initial_population <- c(a = 1, a = 2, b = 0)
+  expect_error(do.call(config, cfg), "Must have unique names")
+})
 
 # test more complicated checks / checks depending on multiple inputs ----------
 test_that("initial_population is set to zero for any unspecified life stages", {})
