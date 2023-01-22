@@ -237,7 +237,7 @@ validate_config <- function(cfg) {
     stop(
       "`initial_population` had names that are not valid life stages: ",
       paste(
-        initial_life_stages[!(initial_life_stages %in% valid_life_stages)],
+        setdiff(initial_life_stages, valid_life_stages),
         collapse = ", "
       ),
       call. = FALSE
