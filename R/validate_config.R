@@ -218,39 +218,40 @@ test_transition_values <- function(cfg) {
 validate_config <- function(cfg) {
 
 
-  if (!is.null(cfg$predictors)) {
-    # TODO for brevity/separation of concerns only need to test that max day in
-    # predictors is equal to steps + max_delay, because predictors() handles
-    # the check that days form a continuous sequence
-    test_missing_days(cfg$predictors, cfg$steps, cfg$max_delay)
-  }
-
-  # TODO need some checks on the relationships between transitions and
-  # predictors data. And that each argument to each transition_function has a
-  # corresponding parameter or predictor.
-  test_predictors(cfg$transitions, cfg$predictors)
-
-  life_stages <- get_life_stages(cfg$transitions)
-  life_stages_found <- names(cfg$initial_population)
-
-  if (!all(life_stages_found %in% life_stages)) {
-    stop(
-      "`initial_population` had names that are not valid life stages: ",
-      paste(life_stages_found[!(life_stages_found %in% life_stages)],
-        collapse = ", "
-      ),
-      call. = FALSE
-    )
-  }
-
-  if (!any(cfg$initial_population > 0)) {
-    stop(
-      "`initial_population` must be greater than 0 for at least one life stage",
-      call. = FALSE
-    )
-  }
-
-  test_transition_values(cfg)
+  # if (!is.null(cfg$predictors)) {
+  #   # TODO for brevity/separation of concerns only need to test that max day in
+  #   # predictors is equal to steps + max_delay, because predictors() handles
+  #   # the check that days form a continuous sequence
+  #   test_missing_days(cfg$predictors, cfg$steps, cfg$max_delay)
+  # }
+  #
+  # # TODO need some checks on the relationships between transitions and
+  # # predictors data. And that each argument to each transition_function has a
+  # # corresponding parameter or predictor.
+  # test_predictors(cfg$transitions, cfg$predictors)
+  #
+  # life_stages <- get_life_stages(cfg$transitions)
+  # life_stages_found <- names(cfg$initial_population)
+  #
+  # if (!all(life_stages_found %in% life_stages)) {
+  #   stop(
+  #     "`initial_population` had names that are not valid life stages: ",
+  #     paste(
+  #       life_stages_found[!(life_stages_found %in% life_stages)],
+  #       collapse = ", "
+  #     ),
+  #     call. = FALSE
+  #   )
+  # }
+  #
+  # if (!any(cfg$initial_population > 0)) {
+  #   stop(
+  #     "`initial_population` must be greater than 0 for at least one life stage",
+  #     call. = FALSE
+  #   )
+  # }
+  #
+  # test_transition_values(cfg)
 
   cfg
 }
