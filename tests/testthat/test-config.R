@@ -157,7 +157,14 @@ test_that("catches initial_population with no values > 0", {
     "must be greater than 0 for at least one life stage"
   )
 })
-test_that("catches initial_population names that are not valid life statges", {})
+test_that("catches initial_population names that are not valid life stages", {
+  cfg <- config_example_a()
+  cfg$initial_population <- c(a = 1, b = 0, c = 2)
+  expect_error(
+    do.call(config, cfg),
+    "had names that are not valid life stages"
+  )
+})
 test_that("catches predictor data that does not extend to steps + max_delay", {})
 test_that("catches args in transition functions that don't correspond to a parameter or predictor", {})
 

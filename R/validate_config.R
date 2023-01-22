@@ -230,20 +230,20 @@ validate_config <- function(cfg) {
   # # corresponding parameter or predictor.
   # test_predictors(cfg$transitions, cfg$predictors)
   #
-  # life_stages <- get_life_stages(cfg$transitions)
-  # life_stages_found <- names(cfg$initial_population)
-  #
-  # if (!all(life_stages_found %in% life_stages)) {
-  #   stop(
-  #     "`initial_population` had names that are not valid life stages: ",
-  #     paste(
-  #       life_stages_found[!(life_stages_found %in% life_stages)],
-  #       collapse = ", "
-  #     ),
-  #     call. = FALSE
-  #   )
-  # }
-  #
+  valid_life_stages <- life_stages(cfg$cycle)
+  initial_life_stages <- names(cfg$initial_population)
+
+  if (!all(initial_life_stages %in% valid_life_stages)) {
+    stop(
+      "`initial_population` had names that are not valid life stages: ",
+      paste(
+        initial_life_stages[!(initial_life_stages %in% valid_life_stages)],
+        collapse = ", "
+      ),
+      call. = FALSE
+    )
+  }
+
   if (!any(cfg$initial_population > 0)) {
     stop(
       "`initial_population` must be greater than 0 for at least one life stage",
