@@ -133,7 +133,7 @@ test_that("catches initial_population of length zero", {
 test_that("catches NA initial_population values", {
   cfg <- config_example_a()
   cfg$initial_population <- c(a = 1L, b = NA)
-  expect_error(do.call(config, cfg))
+  expect_error(do.call(config, cfg), "Contains missing values")
 })
 test_that("catches duplicate life stage names in initial_population", {
   cfg <- config_example_a()

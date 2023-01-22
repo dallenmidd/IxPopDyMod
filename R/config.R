@@ -15,7 +15,11 @@ new_config <- function(
   # check that all types are correct
   checkmate::assert_class(cycle, "life_cycle")
   checkmate::assert_integer(
-    initial_population, lower = 0, min.len = 1, names = "unique"
+    initial_population,
+    lower = 0,
+    min.len = 1,
+    names = "unique",
+    any.missing = FALSE
   )
   checkmate::assert_class(preds, "predictors", null.ok = TRUE)
   checkmate::assert_integer(steps, lower = 0, len = 1, any.missing = FALSE)
