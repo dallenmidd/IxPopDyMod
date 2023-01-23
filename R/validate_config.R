@@ -3,6 +3,21 @@
 #' @noRd
 validate_config <- function(cfg) {
 
+  assert_predictor_data_extends_over_required_days(cfg)
+  assert_initial_population_has_valid_life_stages(cfg)
+  assert_initial_population_non_zero(cfg)
+
+  # # TODO need some checks on the relationships between transitions and
+  # # predictors data. And that each argument to each transition_function has a
+  # # corresponding parameter or predictor.
+  # test_predictors(cfg$transitions, cfg$predictors)
+
+  # test_transition_values(cfg)
+
+  cfg
+}
+
+assert_predictor_data_extends_over_required_days <- function(cfg) {
   # Note that we only test that max day in predictors >= steps + max_duration,
   # because the predictors class handles the check that days form a continuous
   # sequence starting at day 1, and that all predictors extend to the same day.
@@ -22,12 +37,9 @@ validate_config <- function(cfg) {
       )
     }
   }
+}
 
-  # # TODO need some checks on the relationships between transitions and
-  # # predictors data. And that each argument to each transition_function has a
-  # # corresponding parameter or predictor.
-  # test_predictors(cfg$transitions, cfg$predictors)
-
+assert_initial_population_has_valid_life_stages <- function(cfg) {
   valid_life_stages <- life_stages(cfg$cycle)
   initial_life_stages <- names(cfg$initial_population)
 
@@ -41,15 +53,14 @@ validate_config <- function(cfg) {
       call. = FALSE
     )
   }
+}
 
+assert_initial_population_non_zero <- function(cfg) {
   if (!any(cfg$initial_population > 0)) {
     stop(
       "`initial_population` must be greater than 0 for at least one life stage",
       call. = FALSE
     )
   }
-
-  # test_transition_values(cfg)
-
-  cfg
 }
+
