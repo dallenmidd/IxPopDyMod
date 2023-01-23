@@ -6,13 +6,7 @@ validate_config <- function(cfg) {
   assert_predictor_data_extends_over_required_days(cfg)
   assert_initial_population_has_valid_life_stages(cfg)
   assert_initial_population_non_zero(cfg)
-
-  # # TODO need some checks on the relationships between transitions and
-  # # predictors data. And that each argument to each transition_function has a
-  # # corresponding parameter or predictor.
-  # test_predictors(cfg$transitions, cfg$predictors)
-
-  # test_transition_values(cfg)
+  assert_predictors_strings_in_transitions_are_valid(cfg)
 
   cfg
 }
@@ -64,3 +58,46 @@ assert_initial_population_non_zero <- function(cfg) {
   }
 }
 
+assert_predictors_strings_in_transitions_are_valid <- function(cfg) {
+  # for each transition, each value in the predictors vector must either be
+  # a value in the predictors table or a pattern that matches 1 or more
+  # life stages via regex
+
+  # so, the names of each life stage must be disjoint with the names of
+  # predictors in the predictors table
+  stages <- life_stages(cfg$cycle)
+  predictors_in_table <- valid_predictors_from_table(cfg$preds)
+  checkmate::assert_disjunct(stages, predictors_in_table)
+
+  # and so, if a value in the predictors vector is not a value in the predictors
+  # table, then it should pattern match with at least one life stage
+  predictors_in_transitions <- unlist(lapply(
+    cfg$cycle, function(transition) transition$predictors
+  ))
+
+  predictors_not_in_table <- setdiff(
+    predictors_in_transitions, predictors_in_table
+  )
+
+  if (length(predictors_not_in_table) == 0) {
+    return()
+  }
+
+  # whether each predictor that's not in the table matches >= 1 life stage
+  matches <- vapply(
+    predictors_not_in_table,
+    function(predictor) any(grepl(pattern = predictor, x = stages)),
+    FUN.VALUE = logical(1)
+  )
+
+  if (!all(matches)) {
+    unmatched_predictors <- names(matches[!matches])
+    stop(
+      "All predictors in transitions must be either a value in the `pred` ",
+      "column of the predictors table, or a pattern that matches the name of ",
+      "at least one life stage. Found these invalid predictor names: ",
+      paste(unmatched_predictors, collapse = ", "),
+      call. = FALSE
+    )
+  }
+}
