@@ -124,6 +124,7 @@ transition <- function(
   # of a config that a user could generate is a transition)
   fun <- new_transition_function(fun)
 
+  # TODO use parameters()
   parameters <- do.call(new_parameters, as.list(parameters))
 
   validate_transition(new_transition(

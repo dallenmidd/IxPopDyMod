@@ -178,10 +178,10 @@ test_that(
 
 test_that(
   paste(
-    "catches args in transition functions that don't correspond to",
-    "a parameter or predictor"
+    "catches transitions with predictor values that don't correspond to a ",
+    "a pred in the predictors table or a tick life stage"
   ), {
-
+    # TODO resume here
   })
 
 test_that("catches transition functions that don't evaluate to a numeric", {
