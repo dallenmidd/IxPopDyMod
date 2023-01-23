@@ -1,17 +1,3 @@
-to_short_string <- function(v, max = 3) {
-  l <- length(v)
-  string <- paste(v[1:min(max, l)],
-    collapse = ", "
-  )
-  paste0(
-    string,
-    ifelse(l > max,
-      paste("... and", l - max, "more values"),
-      ""
-    )
-  )
-}
-
 #' Check that a `config` object is valid
 #' @return Returns the input config object if it passes all the checks
 #' @noRd
