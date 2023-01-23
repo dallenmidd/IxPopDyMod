@@ -33,12 +33,21 @@ predictors_example_a <- function() {
   ))
 }
 
+predictors_example_b <- function() {
+  new_predictors(data.frame(
+    pred = c("temp", "host_density"),
+    pred_subcategory = NA,
+    j_day = NA,
+    value = 1
+  ))
+}
+
 # TODO there are also (old) example configs loaded with the package - need to
 # think about what to put in data/ vs tests/helper.R
 config_example_a <- function() {
   new_config(
     cycle = life_cycle_example_a(),
-    preds = predictors_example_a(),
+    preds = predictors_example_b(),
     initial_population = c(a = 1L, b = 0L),
     steps = 10L,
     max_duration = 365L
