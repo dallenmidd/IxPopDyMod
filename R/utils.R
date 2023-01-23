@@ -14,3 +14,16 @@ to_short_string <- function(v, max = 3) {
     )
   )
 }
+
+#' Convert doubles to integers and preserve names
+#'
+#' @param x A double
+#' @return If x is a double whose value is equal to an integer, return the
+#' equivalent integer. Otherwise, return x
+#' @noRd
+ensure_int <- function(x) {
+  if (is.double(x) && all((x == as.integer(x)) | (is.na(x)))) {
+    return(stats::setNames(as.integer(x), names(x)))
+  }
+  x
+}
