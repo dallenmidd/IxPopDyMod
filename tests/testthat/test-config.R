@@ -181,7 +181,13 @@ test_that(
     "catches transitions with predictor values that don't correspond to a ",
     "a pred in the predictors table or a tick life stage"
   ), {
-    # TODO resume here
+    # start with a valid config
+    cfg <- config_example_a()
+
+    # replace a predictor with an invalid value
+    cfg$cycle[[1]]$predictors[["y"]] <- "not_in_predictors_table"
+
+    expect_error(do.call(config, cfg), "invalid predictor names")
   })
 
 test_that("catches transition functions that don't evaluate to a numeric", {
