@@ -447,6 +447,18 @@ empty_population_matrix <- function(life_stages, steps) {
   )
 }
 
+#' Set initial population for each life stage - zero if not specified in cfg
+set_initial_population <- function(population, initial_population) {
+  population[, 1] <-
+    sapply(rownames(population), function(x) {
+      if (x %in% names(initial_population)) {
+        initial_population[[x]]
+      } else {
+        0 # life stages not specified in cfg$initial_population
+      }
+    })
+  population
+}
 
 #' Run the model
 #'
@@ -479,14 +491,9 @@ run <- function(cfg) {
 
   # 03 initialize a population matrix with initial_population
   population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
-  population[, 1] <-
-    sapply(life_stages, function(x) {
-      if (x %in% names(cfg$initial_population)) {
-        cfg$initial_population[[x]]
-      } else {
-        0 # life stages not specified in cfg$initial_population
-      }
-    })
+  population <- set_initial_population(
+    population = population, initial_population = cfg$initial_population
+  )
 
   # Initialize a population matrix to keep track of the number of individuals of
   # each stage that are currently developing (currently undergoing a delay)
