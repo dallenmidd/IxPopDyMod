@@ -426,6 +426,9 @@ add_params_list <- function(tick_transitions, parameters) {
 }
 
 #' Generate an empty delay array
+#' TODO dimensions are one of...
+#' dimensions: to, from, time
+#' dimensions: from, to, time
 empty_delay_array <- function(life_stages, steps, max_duration) {
   array(
     dim = c(length(life_stages), length(life_stages), steps + max_duration),
@@ -468,9 +471,6 @@ run <- function(cfg) {
   transitions_with_params <- add_params_list(cfg$transitions, cfg$parameters)
 
   # 02 initialize a delay array of all zeros
-  # TODO should be extracted as empty_delay_array()
-  # dimensions: to, from, time
-  # dimensions: from, to, time
   delay_arr <- empty_delay_array(
     life_stages = life_stages,
     steps = cfg$steps,
@@ -478,8 +478,7 @@ run <- function(cfg) {
   )
 
   # 03 initialize a population matrix with initial_population
-  # TODO extract as empty_developing_population_matrix()
-  population <- matrix(nrow = length(life_stages), ncol = cfg$steps, data = 0)
+  population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
   population[, 1] <-
     sapply(life_stages, function(x) {
       if (x %in% names(cfg$initial_population)) {
@@ -488,10 +487,10 @@ run <- function(cfg) {
         0 # life stages not specified in cfg$initial_population
       }
     })
-  rownames(population) <- life_stages
 
   # Initialize a population matrix to keep track of the number of individuals of
   # each stage that are currently developing (currently undergoing a delay)
+  # TODO extract as empty_developing_population_matrix()
   developing_population <- matrix(
     nrow = length(life_stages), ncol = cfg$steps, data = 0
   )
