@@ -490,11 +490,7 @@ run <- function(cfg) {
 
   # Initialize a population matrix to keep track of the number of individuals of
   # each stage that are currently developing (currently undergoing a delay)
-  # TODO extract as empty_developing_population_matrix()
-  developing_population <- matrix(
-    nrow = length(life_stages), ncol = cfg$steps, data = 0
-  )
-  rownames(developing_population) <- life_stages
+  developing_population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
 
   # at each time step:
   # (1) generate a new trans_matrix based on conditions at "time"
