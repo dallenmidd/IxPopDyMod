@@ -78,16 +78,6 @@ get_tick_den <- function(
   sum((population + developing_population)[str_which(life_stages, pred), time])
 }
 
-#' Create an empty (zero population) population matrix
-empty_population_matrix <- function(life_stages, steps) {
-  matrix(
-    data = 0,
-    nrow = length(life_stages),
-    ncol = steps,
-    dimnames = list(life_stages)
-  )
-}
-
 #' Get the value of a predictor
 #'
 #' @param time Numeric vector indicating span of days to get predictor values
@@ -435,6 +425,25 @@ add_params_list <- function(tick_transitions, parameters) {
   mutate(tick_transitions, params_list = params_list)
 }
 
+#' Generate an empty delay array
+empty_delay_array <- function(life_stages, steps, max_duration) {
+  array(
+    dim = c(length(life_stages), length(life_stages), steps + max_duration),
+    dimnames = list(life_stages, life_stages, NULL),
+    data = 0
+  )
+}
+
+#' Create an empty (zero population) population matrix
+empty_population_matrix <- function(life_stages, steps) {
+  matrix(
+    data = 0,
+    nrow = length(life_stages),
+    ncol = steps,
+    dimnames = list(life_stages)
+  )
+}
+
 
 #' Run the model
 #'
@@ -450,25 +459,26 @@ add_params_list <- function(tick_transitions, parameters) {
 #'
 #' @export
 run <- function(cfg) {
+
+  # 00 get valid life stages
   life_stages <- get_life_stages(cfg$transitions)
 
-  # combine transitions and parameters
+  # 01 combine transitions and parameters
+  # TODO no longer relevant with new (these are already combined in new config)
   transitions_with_params <- add_params_list(cfg$transitions, cfg$parameters)
 
-  # initialize a delay array of all zeros
+  # 02 initialize a delay array of all zeros
+  # TODO should be extracted as empty_delay_array()
   # dimensions: to, from, time
   # dimensions: from, to, time
-  delay_arr <- array(
-    dim = c(
-      length(life_stages),
-      length(life_stages),
-      cfg$steps + cfg$max_delay
-    ),
-    dimnames = list(life_stages, life_stages, NULL),
-    data = 0
+  delay_arr <- empty_delay_array(
+    life_stages = life_stages,
+    steps = cfg$steps,
+    max_duration = cfg$max_delay
   )
 
-  # initialize a population matrix with initial_population
+  # 03 initialize a population matrix with initial_population
+  # TODO extract as empty_developing_population_matrix()
   population <- matrix(nrow = length(life_stages), ncol = cfg$steps, data = 0)
   population[, 1] <-
     sapply(life_stages, function(x) {
