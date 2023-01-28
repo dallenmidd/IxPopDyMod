@@ -75,3 +75,39 @@
       10     3 __l   484411. l         _       FALSE   
       # ... with 1,450 more rows
 
+# empty_delay_array snapshot
+
+    Code
+      empty_delay_array(c("a", "b"), 1, 1)
+    Output
+      , , 1
+      
+        a b
+      a 0 0
+      b 0 0
+      
+      , , 2
+      
+        a b
+      a 0 0
+      b 0 0
+      
+
+# empty_population_matrix snapshot
+
+    Code
+      empty_population_matrix(c("a", "b"), 3)
+    Output
+        [,1] [,2] [,3]
+      a    0    0    0
+      b    0    0    0
+
+# set_initial_population snapshot
+
+    Code
+      set_initial_population(population, c(b = 10))
+    Output
+        [,1] [,2] [,3]
+      a    0    0    0
+      b   10    0    0
+

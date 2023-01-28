@@ -410,3 +410,17 @@ test_that("model output for `config_ex_2` stays the same", {
   testthat::skip_on_cran()
   expect_snapshot(run(config_ex_2))
 })
+
+# NOTE tests on new core_functions.R methods ----------------------------------
+test_that("empty_delay_array snapshot", {
+  expect_snapshot(empty_delay_array(c("a", "b"), 1, 1))
+})
+
+test_that("empty_population_matrix snapshot", {
+  expect_snapshot(empty_population_matrix(c("a", "b"), 3))
+})
+
+test_that("set_initial_population snapshot", {
+  population <- empty_population_matrix(c("a", "b"), 3)
+  expect_snapshot(set_initial_population(population, c("b" = 10)))
+})
