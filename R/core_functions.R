@@ -449,14 +449,13 @@ empty_population_matrix <- function(life_stages, steps) {
 
 #' Set initial population for each life stage - zero if not specified in cfg
 set_initial_population <- function(population, initial_population) {
-  population[, 1] <-
-    sapply(rownames(population), function(x) {
-      if (x %in% names(initial_population)) {
-        initial_population[[x]]
-      } else {
-        0 # life stages not specified in cfg$initial_population
-      }
-    })
+  population[, 1] <- vapply(
+    rownames(population),
+    function(stage) {
+      ifelse(stage %in% names(initial_population), initial_population[[stage]], 0)
+    },
+    FUN.VALUE = numeric(1L)
+  )
   population
 }
 
