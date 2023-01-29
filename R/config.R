@@ -94,46 +94,27 @@ new_config <- function(
 #'
 #' @export
 #'
-#' @examples TODO update
-#'
-#' # We rebuild an example config from its constituent parts. This is successful
-#' # as expected, because we're just making a config that's identical to an
-#' # example.
-#' do.call(config, config_ex_1)
-#'
-#' # If we modify the config to something unsuitable, the function will
-#' # complain. For example, if we modify the egg to larvae transition to use a
-#' # different function that requires an additional parameter.
-#'
-#' \dontrun{
-#' # We define a super simple function that takes two parameters.
-#' prod_fun <- function(x, y, a, b) a * b
-#'
-#' my_config <- config_ex_1
-#' my_config$transitions[1, 3] <- "prod_fun"
-#'
-#' # this will throw an error, because a parameter is missing
-#' do.call(config, my_config)
-#' # config() will report that parameter "b" is missing for the exponential
-#' # function.
-#'
-#' # Adding the parameter should fix the config
-#' my_config$parameters[9, ] <- list(
-#'   from = "__e", to = "__l", param_name = "b",
-#'   param_value = 1
-#' )
-#'
-#' # Now, this should run without issues
-#' do.call(config, my_config)
-#' }
-#'
-#' config(
+#' @examples
+#' # We build a simple example config
+#' my_config <- config(
 #'   cycle = life_cycle(
 #'     transition("a", "b", function() 0.1, "probability"),
 #'     transition("b", "a", function() 10, "probability")
 #'   ),
-#'   initial_population = c(a = 1L, b = 0L),
+#'   initial_population = c(a = 1)
 #' )
+#'
+#' # If we make a change to an existing `config`, it is a good idea to check
+#' # whether it is still valid by calling `config()` on it again. For example,
+#' # here we set the initial_population of a life stage that is not included in
+#' # the life cycle.
+#' my_config$initial_population <- c(a = 1, c = 1)
+#'
+#' \dontrun{
+#' # Now, we re-run the validations, which will throw an error
+#' do.call(config, my_config)
+#' }
+#'
 config <- function(
     cycle, initial_population, preds = NULL, steps = 365L, max_duration = 365L
   ) {
