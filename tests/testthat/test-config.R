@@ -49,8 +49,6 @@ test_that("output test with non-NULL predictors", {
 })
 
 # test simple checks on vector inputs -----------------------------------------
-# TODO left off here - implement these tests (using example_config_a()) and
-# update validate_config() to reflect the checks described here
 
 # tests on `steps`
 test_that("integerish steps value is coerced to integer", {
@@ -178,7 +176,7 @@ test_that(
 
 test_that(
   paste(
-    "catches transitions with predictor values that don't correspond to a ",
+    "catches transitions with predictor values that don't correspond to a",
     "a pred in the predictors table or a tick life stage"
   ), {
     # start with a valid config
@@ -192,7 +190,7 @@ test_that(
 
 test_that("catches transition function that doesn't evaluate to a numeric", {
   # TODO unsure if this is really feasible or should just be a runtime check
-  testthat::skip("TODO will fail until more validation is implemented")
+  testthat::skip("will fail until more validation is implemented")
   cfg <- config_example_a()
   # modify a transition function to take the same args but return a character
   cfg$cycle[[1]]$fun <- function(x, y, a) "5"
@@ -201,7 +199,7 @@ test_that("catches transition function that doesn't evaluate to a numeric", {
 
 test_that("catches transition function that evaluates to non-finite number", {
   # TODO unsure if this is really feasible or should just be a runtime check
-  testthat::skip("TODO will fail until more validation is implemented")
+  testthat::skip("will fail until more validation is implemented")
   cfg <- config_example_a()
   # modify a transition function to take the same args but return `Inf`
   cfg$cycle[[1]]$fun <- function(x, y, a) Inf
