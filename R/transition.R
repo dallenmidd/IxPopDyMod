@@ -16,7 +16,6 @@ new_transition <- function(
   )
   checkmate::assert_character(
     predictors, names = "unique", min.chars = 1, null.ok = TRUE
-    # TODO might not want to allow NULL values
   )
   checkmate::assert_class(parameters, "parameters")
 
@@ -86,9 +85,13 @@ validate_transition <- function(transition) {
 #' @param fun The \code{\link{transition_function}} to evaluate.
 #' @param transition_type One of:
 #'   `"probability"`: the evaluated transition is interpreted as the daily
-#'     fraction of ticks that complete the transition.
+#'     fraction of ticks that complete the transition. Ticks remain in the
+#'     original life stage if they do not complete a transition or undergo
+#'     mortality.
 #'   `"duration"`: the transition is complete on the first day that the
 #'     cumulative sum of the evaluated transition is greater than or equal to 1.
+#'     No ticks remain in the original life stage at the end of a transition -
+#'     they either complete the transition or die.
 #' @param mortality_type One of:
 #'   `NULL`: the default, indicating that the transition is not mortality.
 #'   `"per_day"`: indicates that the evaluated transition is the fraction of
@@ -124,7 +127,8 @@ transition <- function(
   # of a config that a user could generate is a transition)
   fun <- new_transition_function(fun)
 
-  # TODO use parameters()
+  # TODO use parameters() - note conflict between parameters() the function
+  # and parameters the formal argument for this function
   parameters <- do.call(new_parameters, as.list(parameters))
 
   validate_transition(new_transition(
