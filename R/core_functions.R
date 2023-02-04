@@ -262,6 +262,54 @@ gen_trans_matrix <- function(
   return(trans_matrix)
 }
 
+
+gen_transition_matrix <- function(
+  time, population, developing_population, tick_transitions, predictors
+) {
+  life_stages <- rownames(population)
+  trans_matrix <- empty_transition_matrix(life_stages)
+
+  transitions <- tick_transitions %>%
+    query_transitions_by_mortality(mortality = FALSE) %>%
+    query_transitions("transition_type", "probability")
+
+  mort <- tick_transitions %>%
+    query_transitions_by_mortality(mortality = TRUE) %>%
+    query_transitions("transition_type", "probability")
+
+  for (i in transitions) {
+    trans_matrix[i$from, i$to] <- get_transition_value(
+      time = time,
+      transition = i,
+      predictors = predictors,
+      max_duration = NULL,
+      population = population,
+      developing_population = developing_population
+    )
+  }
+
+  for (i in mort) {
+    mortality <- get_transition_value(
+      time = time,
+      transition = i,
+      predictors = predictors,
+      max_duration = NULL,
+      population = population,
+      developing_population = developing_population
+    )
+
+    # The max(0, 1- ...) structure should ensure that survival is between 0
+    # and 1. This line also ensures that when a reproductive tick lays
+    # (multiple) eggs, the reproductive tick will not survive to the next
+    # stage. This is the desired behavior because all ticks are semelparous.
+    mortality <- max(0, 1 - sum(trans_matrix[i$from, ]) - mortality)
+
+    trans_matrix[i$from, i$from] <- mortality
+  }
+
+  trans_matrix
+}
+
 #' Update the delay array for the current time
 #'
 #' @details

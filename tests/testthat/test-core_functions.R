@@ -496,6 +496,24 @@ test_that("`gen_trans_matrix()` works with `ogden2005`", {
 })
 
 
+test_that("`gen_transition_matrix()` works with life_cycle_example_a()", {
+  life_stages <- life_stages(life_cycle_example_a())
+  result <- gen_transition_matrix(
+    time = 1,
+    population = empty_population_matrix(life_stages = life_stages, steps = 1),
+    developing_population = empty_population_matrix(life_stages = life_stages, steps = 1),
+    tick_transitions = life_cycle_example_a(),
+    predictors = predictors_example_b()
+  )
+  expect_identical(
+    result,
+    matrix(
+      c(0, 1, 1, 0),
+      ncol = 2,
+      dimnames = list(c("a", "b"), c("a", "b")))
+  )
+})
+
 test_that("model output for `config_ex_1` stays the same", {
   # testthat::skip("long running")
   expect_snapshot(run(config_ex_1))
