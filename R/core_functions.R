@@ -137,16 +137,11 @@ get_pred <- function(
     life_stages = life_stages
   )
 
-  # we need this in order to determine whether to look in the predictors table
-  # or check if the predictor could pattern match with a life_stage string
-  # TODO for performance, this should only be computed once
-  valid_predictors_from_table <- valid_predictors_from_table(predictors)
-
   if (is.na(pred)) {
     NULL
-  } else if (pred %in% valid_predictors_from_table) {
+  } else if (pred %in% valid_predictors_from_table(predictors)) {
     get_pred_from_table(time, pred, predictors)
-  } else if (any(str_detect(life_stages, pred))) {
+  } else if (any(stringr::str_detect(life_stages, pred))) {
     get_tick_den(time, population, developing_population, pred, life_stages)
   } else {
     stop("failed to match predictor: \"", pred, "\"")
