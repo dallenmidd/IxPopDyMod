@@ -78,6 +78,32 @@ get_tick_den <- function(
   sum((population + developing_population)[str_which(life_stages, pred), time])
 }
 
+get_pred_time_period <- function(time, pred, is_delay, max_delay, life_stages) {
+
+  # if is_delay, we want a long vector so the cumsum will reach 1
+  # otherwise, we want a vector of length 1
+  if (is_delay) {
+    time <- time:(time + max_delay)
+  }
+
+  # If the predictor is the density of ticks or hosts,
+  # we only want the predictor value(s) at the starting time of the transition.
+  # This is a vector of length 1 for tick density - indicating the total number
+  # of ticks of the given life stages.
+  # This is a vector of length equal to the number of host species for host
+  # density - indicating the density of each host species.
+  # TODO "host_den" is hardcoded here as the only predictor from the predictors
+  # table for which we only use the predictor value at the first day of the
+  # transition. Should this be part of the configuration for each predictor?
+  # The current behavior is indeed likely what we want for tick density as a pred.
+  if (!is.na(pred)) {
+    if ((pred == "host_den") || any(stringr::str_detect(life_stages, pred))) {
+      time <- time[1]
+    }
+  }
+  time
+}
+
 #' Get the value of a predictor
 #'
 #' @param time Numeric vector indicating span of days to get predictor values
@@ -94,34 +120,24 @@ get_tick_den <- function(
 #' @param predictors Table of predictor values
 #' @noRd
 #'
-# Return a vector of a predictor at time time.
-# The vector's length is based on whether the transition is_delay.
+#' @returns a vector of a predictor at time time. The vector's length is based
+#' on whether the transition is_delay.
 get_pred <- function(
     time, pred, is_delay, population, developing_population, max_delay,
     life_stages, predictors
   ) {
+  time <- get_pred_time_period(
+    time = time,
+    pred = pred,
+    is_delay = is_delay,
+    max_delay = max_delay,
+    life_stages = life_stages
+  )
+
   # we need this in order to determine whether to look in the predictors table
   # or check if the predictor could pattern match with a life_stage string
   # TODO for performance, this should only be computed once
-  valid_predictors_from_table <- unique(predictors$pred)
-
-  # if is_delay, we want a long vector so the cumsum will reach 1
-  # otherwise, we want a vector of length 1
-  if (is_delay) {
-    time <- time:(time + max_delay)
-  }
-
-  # If the predictor is the density of ticks or hosts,
-  # we only want the predictor value(s) at the starting time of the transition.
-  # This is a vector of length 1 for tick density - indicating the total number
-  # of ticks of the given life stages.
-  # This is a vector of length equal to the number of host species for host
-  # density - indicating the density of each host species.
-  if (!is.na(pred)) {
-    if ((pred == "host_den") || any(str_detect(life_stages, pred))) {
-      time <- time[1]
-    }
-  }
+  valid_predictors_from_table <- valid_predictors_from_table(predictors)
 
   if (is.na(pred)) {
     NULL
