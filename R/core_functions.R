@@ -75,6 +75,7 @@ get_pred_from_table <- function(time, pred, table) {
 get_tick_den <- function(
     time, population, developing_population, pred, life_stages
   ) {
+  stopifnot(length(time) == 1)
   # TODO can we get life_stages from indices of population/developing_population
   # and reduce params to this function?
   sum((population + developing_population)[str_which(life_stages, pred), time])
