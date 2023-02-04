@@ -111,3 +111,26 @@
       a    0    0    0
       b   10    0    0
 
+# model output for ogden config stays the same
+
+    Code
+      run(cfg)
+    Output
+      [1] "day 100"
+      [1] "day 200"
+      [1] "day 300"
+      # A tibble: 4,380 x 6
+           day stage   pop age_group process infected
+         <int> <chr> <dbl> <chr>     <chr>   <lgl>   
+       1     1 __e       0 e         _       FALSE   
+       2     1 e_l       0 l         e       FALSE   
+       3     1 e_n       0 n         e       FALSE   
+       4     1 a_l       0 l         a       FALSE   
+       5     1 a_n       0 n         a       FALSE   
+       6     1 h_l       0 l         h       FALSE   
+       7     1 q_l       0 l         q       FALSE   
+       8     1 e_a       0 a         e       FALSE   
+       9     1 r_a       0 a         r       FALSE   
+      10     1 a_a       0 a         a       FALSE   
+      # ... with 4,370 more rows
+

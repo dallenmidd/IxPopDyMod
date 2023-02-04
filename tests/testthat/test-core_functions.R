@@ -424,3 +424,12 @@ test_that("set_initial_population snapshot", {
   population <- empty_population_matrix(c("a", "b"), 3)
   expect_snapshot(set_initial_population(population, c("b" = 10)))
 })
+
+test_that("model output for ogden config stays the same", {
+  testthat::skip_on_cran()
+
+  # reducing steps to a year for faster runtime
+  cfg <- ogden2005
+  cfg$steps <- 365
+  expect_snapshot(run(cfg))
+})
