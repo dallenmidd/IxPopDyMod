@@ -75,10 +75,9 @@ test_that("`get_tick_den()` works", {
   # Act
   result <- get_tick_den(
     time = 2,
-    population = population,
-    developing_population = population,
     pred = "a|b",
-    life_stages = life_stages
+    population = population,
+    developing_population = population
   )
 
   # Assert

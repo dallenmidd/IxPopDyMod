@@ -61,24 +61,20 @@ get_pred_from_table <- function(time, pred, table) {
 #' Get tick density for specified time and life stages
 #'
 #' @param time Numeric vector of length one indicating day to get tick density
-#' @param pred Character vector indicating life stages to get tick
-#'   density of
+#' @param pred Character vector indicating life stages to get tick density of
 #' @param population Matrix of number of ticks not currently undergoing
 #'   development per life stage per day
 #' @param developing_population Matrix of number of currently developing ticks
 #'   per life stage per day
-#' @param life_stages Character vector of life stages.
-#' @importFrom stringr str_which  # TODO remove
-#' @return Numeric vector of length one indicating current number of ticks in
+#' @returns Numeric vector of length one indicating current number of ticks in
 #'   given life stages
 #' @noRd
-get_tick_den <- function(
-    time, population, developing_population, pred, life_stages
-  ) {
+get_tick_den <- function(time, pred, population, developing_population) {
   stopifnot(length(time) == 1)
-  # TODO can we get life_stages from indices of population/developing_population
-  # and reduce params to this function?
-  sum((population + developing_population)[str_which(life_stages, pred), time])
+  life_stages <- rownames(population)
+  life_stages_to_sum <- stringr::str_which(life_stages, pred)
+  total_population <- population + developing_population
+  sum(total_population[life_stages_to_sum, time])
 }
 
 get_pred_time_period <- function(time, pred, is_delay, max_delay, life_stages) {
@@ -142,7 +138,7 @@ get_pred <- function(
   } else if (pred %in% valid_predictors_from_table(predictors)) {
     get_pred_from_table(time, pred, predictors)
   } else if (any(stringr::str_detect(life_stages, pred))) {
-    get_tick_den(time, population, developing_population, pred, life_stages)
+    get_tick_den(time, pred, population, developing_population)
   } else {
     stop("failed to match predictor: \"", pred, "\"")
   }
