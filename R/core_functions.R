@@ -189,12 +189,7 @@ gen_trans_matrix <- function(
   ) {
   # initialize the transition matrix with 0s
   life_stages <- rownames(population)
-  n_life_stages <- length(life_stages)
-  trans_matrix <- matrix(0,
-    ncol = n_life_stages, nrow = n_life_stages,
-    dimnames = list(life_stages, life_stages)
-  )
-
+  trans_matrix <- empty_transition_matrix(life_stages)
 
   transitions <- tick_transitions %>%
     filter(
@@ -424,6 +419,18 @@ empty_population_matrix <- function(life_stages, steps) {
     nrow = length(life_stages),
     ncol = steps,
     dimnames = list(life_stages)
+  )
+}
+
+#' Create an empty matrix of transition probabilities between life stages
+#' TODO write unit test(s)
+empty_transition_matrix <- function(life_stages) {
+  n_life_stages <- length(life_stages)
+  matrix(
+    0,
+    ncol = n_life_stages,
+    nrow = n_life_stages,
+    dimnames = list(life_stages, life_stages)
   )
 }
 
