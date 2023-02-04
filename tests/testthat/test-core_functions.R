@@ -62,22 +62,17 @@ test_that("`get_pred_from_table()` works with variable predictors", {
 })
 
 test_that("`get_tick_den()` works", {
-  # TODO too much work to setup test... evidence of refactor need, specifically
-  # extracting pop matrix setup into function
 
   # Arrange
-  steps <- 3
-  life_stages <- c("a", "b", "c")
-  num_life_stages <- length(life_stages)
-  population <- matrix(1:9, nrow = num_life_stages, ncol = steps)
-  rownames(population) <- life_stages
+  pop <- empty_population_matrix(life_stages = c("a", "b", "c"), steps = 3)
+  pop[] <- 1:9
 
   # Act
   result <- get_tick_den(
     time = 2,
     pred = "a|b",
-    population = population,
-    developing_population = population
+    population = pop,
+    developing_population = pop
   )
 
   # Assert
