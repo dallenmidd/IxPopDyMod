@@ -47,10 +47,8 @@ get_life_stages <- function(transitions) {
 get_pred_from_table <- function(time, pred, table) {
   # NA entry in the j_day column indicates that the predictor does not vary
   # over time
-  rows <-
-    (is.na(table$j_day) |
-      (table$j_day %in% time)) &
-      (table$pred == pred)
+  rows <- (is.na(table$j_day) | (table$j_day %in% time)) &
+          (table$pred == pred)
 
   subset <- table[rows, "value"]
 
