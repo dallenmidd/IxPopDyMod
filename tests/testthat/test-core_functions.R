@@ -312,7 +312,7 @@ test_that("`get_transition_val()` works with a predictor that varies over time
 })
 
 ##################################### -----------------------------
-test_that("`get_transition_value()` works with no predictors and no delay", {
+test_that("`get_transition_value()` works with no predictors and probability-based transition", {
   # TODO duplicate test until core_functions.R is fully updated to reflect new config structure
   # Arrange
   t <- transition(
@@ -327,8 +327,8 @@ test_that("`get_transition_value()` works with no predictors and no delay", {
   result <- get_transition_value(
     time = 1,
     transition = t,
-    population = empty_transition_matrix(c("a", "b")),
-    developing_population = empty_transition_matrix(c("a", "b")),
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
     max_duration = 365L,
     predictors = data.frame()
   )
@@ -337,8 +337,96 @@ test_that("`get_transition_value()` works with no predictors and no delay", {
   expect_equal(result, 5)
 })
 
-# TODO resume here - port rest of get_transition_val tests to new structure.
-# Next, update get_trans_matrix, update_delay_arr, and run()
+test_that("`get_transition_value()` works with no predictors and duration-based transition", {
+  # Arrange
+  t <- transition(
+    from = "a",
+    to = "b",
+    fun = function(c) c,
+    transition_type = "duration",
+    parameters = c("c" = 5)
+  )
+
+  # Act
+  result <- get_transition_value(
+    time = 1,
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
+    predictors = data.frame()
+  )
+
+  # Assert
+  # TODO should be a vector of length > 1
+  expect_equal(result, 5)
+})
+
+test_that("`get_transition_value()` works with a predictor that varies over time
+  and a duration-based transition", {
+  # Arrange
+  t <- transition(
+    from = "a",
+    to = "b",
+    fun = function(x) x,
+    transition_type = "duration",
+    predictors = c(x = "temp")
+  )
+
+  predictors <- new_predictors(data.frame(
+    pred = "temp",
+    pred_subcategory = NA,
+    j_day = 1:10,
+    value = 11:20
+  ))
+
+
+  # Act
+  result <- get_transition_value(
+    time = 1,
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
+    predictors = predictors
+  )
+
+  # Assert
+  expect_equal(result, 11:20)
+})
+
+test_that("`get_transition_value()` works with a predictor that varies over time
+ and a probability-based transition", {
+  # Arrange
+  t <- transition(
+    from = "a",
+    to = "b",
+    fun = function(x) x,
+    transition_type = "probability",
+    predictors = c(x = "temp")
+  )
+
+  predictors <- new_predictors(data.frame(
+    pred = "temp",
+    pred_subcategory = NA,
+    j_day = 1:10,
+    value = 11:20
+  ))
+
+
+  # Act
+  result <- get_transition_value(
+    time = 1,
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
+    predictors = predictors
+  )
+
+  # Assert
+  expect_equal(result, 11)
+})
 
 
 test_that("`gen_trans_matrix() works with `config_ex_1`", {

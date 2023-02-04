@@ -329,6 +329,7 @@ update_delay_arr <- function(
     # We increase the length so that we can do a cumsum over the vector
     # We add 1 for consistency with output vector length from non-constant fxns,
     # which is determined by time:(time + max_delay) in get_pred()
+    # TODO move this to get_transition_value() ?
     if (length(val) == 1) val <- rep(val, max_delay + 1)
 
     days <- cumsum(val) >= 1
