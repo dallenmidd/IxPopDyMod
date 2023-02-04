@@ -311,6 +311,36 @@ test_that("`get_transition_val()` works with a predictor that varies over time
   expect_equal(result, 22)
 })
 
+##################################### -----------------------------
+test_that("`get_transition_value()` works with no predictors and no delay", {
+  # TODO duplicate test until core_functions.R is fully updated to reflect new config structure
+  # Arrange
+  t <- transition(
+    from = "a",
+    to = "b",
+    fun = function(c) c,
+    transition_type = "probability",
+    parameters = c("c" = 5)
+  )
+
+  # Act
+  result <- get_transition_value(
+    time = 1,
+    transition = t,
+    population = empty_transition_matrix(c("a", "b")),
+    developing_population = empty_transition_matrix(c("a", "b")),
+    max_duration = 365L,
+    predictors = data.frame()
+  )
+
+  # Assert
+  expect_equal(result, 5)
+})
+
+# TODO resume here - port rest of get_transition_val tests to new structure.
+# Next, update get_trans_matrix, update_delay_arr, and run()
+
+
 test_that("`gen_trans_matrix() works with `config_ex_1`", {
   life_stages <- get_life_stages(config_ex_1$transitions)
   expected <- matrix(

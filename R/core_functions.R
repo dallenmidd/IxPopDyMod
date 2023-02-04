@@ -102,6 +102,7 @@ get_pred <- function(
   life_stages <- rownames(population)
 
   if (is.na(pred)) {
+    # TODO no longer a possible case with new structure
     NULL
   } else if (pred %in% valid_predictors_from_table(predictors)) {
     # TODO "host_den" is hardcoded here as the only predictor from the predictors
@@ -114,9 +115,38 @@ get_pred <- function(
   } else if (any(stringr::str_detect(life_stages, pred))) {
     get_tick_den(time, pred, population, developing_population)
   } else {
+    # TODO no longer a possible case with new structure
     stop("failed to match predictor: \"", pred, "\"")
   }
 }
+
+# This is a version of get_transition_val() that works with new structure
+# TODO remove old function once rest of new core-functions is implemented
+get_transition_value <- function(
+    time, transition, predictors, max_duration, population, developing_population
+) {
+   stopifnot(inherits(transition, "transition"))
+
+   f <- transition$fun
+   params <- transition$parameters
+
+   predictor_values <- lapply(
+     transition$predictors,
+     function(pred) {
+       get_pred(
+         time = time,
+         pred = pred,
+         is_delay = transition$transition_type == "duration",
+         population = population,
+         developing_population = developing_population,
+         max_delay = max_duration,
+         predictors = predictors
+       )
+     }
+   )
+
+   do.call(f, c(params, predictor_values))
+ }
 
 #' Get the value determining probability or duration of a transition
 #'
