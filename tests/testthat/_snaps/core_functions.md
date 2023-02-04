@@ -2,8 +2,8 @@
 
     Code
       gen_trans_matrix(time = 150, population = population, developing_population = population,
-        life_stages = life_stages, tick_transitions = transitions_with_parameters,
-        predictors = ogden2005$predictors)
+        tick_transitions = transitions_with_parameters, predictors = ogden2005$
+          predictors)
     Output
            __e e_l e_n         a_l         a_n h_l       q_l e_a r_a        a_a
       __e    0   0   0 0.000000000 0.000000000   0 0.0000000   0   0 0.00000000

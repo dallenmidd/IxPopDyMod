@@ -95,14 +95,12 @@ test_that("`get_pred()` works for host density data with or without delay", {
   # is a delay
   result_delay <- get_pred(
     time = 1L, pred = "host_den", is_delay = TRUE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L,
-    life_stages = c("a", "b", "c"), predictors = predictors
+    developing_population = matrix(), max_delay = 365L, predictors = predictors
   )
 
   result_no_delay <- get_pred(
     time = 1L, pred = "host_den", is_delay = FALSE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L,
-    life_stages = c("a", "b", "c"), predictors = predictors
+    developing_population = matrix(), max_delay = 365L, predictors = predictors
   )
 
   # Assert
@@ -121,14 +119,12 @@ test_that("`get_pred()` works with tick density data with or without delay", {
   # is a delay
   result_delay <- get_pred(
     time = 1L, pred = "[ab]", is_delay = TRUE, population = population,
-    developing_population = population, max_delay = 365L,
-    life_stages = c("a", "b", "c"), predictors = data.frame()
+    developing_population = population, max_delay = 365L, predictors = data.frame()
   )
 
   result_no_delay <- get_pred(
     time = 1L, pred = "[ab]", is_delay = FALSE, population = population,
-    developing_population = population, max_delay = 365L,
-    life_stages = c("a", "b", "c"), predictors = data.frame()
+    developing_population = population, max_delay = 365L, predictors = data.frame()
   )
 
   # Assert
@@ -139,14 +135,12 @@ test_that("`get_pred()` works with tick density data with or without delay", {
 test_that("`get_pred()` works with no predictor with or without delay", {
   result_delay <- get_pred(
     time = 1, pred = NA, is_delay = TRUE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L,
-    life_stages = c("a", "b"), predictors = data.frame()
+    developing_population = matrix(), max_delay = 365L, predictors = data.frame()
   )
 
   result_no_delay <- get_pred(
     time = 1, pred = NA, is_delay = FALSE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L,
-    life_stages = c("a", "b"), predictors = data.frame()
+    developing_population = matrix(), max_delay = 365L, predictors = data.frame()
   )
 
   expect_equal(result_delay, NULL)
@@ -167,7 +161,6 @@ test_that("`get_pred()` works with predictors in table with no delay", {
     population = matrix(),
     developing_population = matrix(),
     max_delay = 365L,
-    life_stages = c(),
     predictors = predictors
   )
 
@@ -188,7 +181,6 @@ test_that("`get_pred()` works with predictors in table with delay", {
     population = matrix(),
     developing_population = matrix(),
     max_delay = 365L,
-    life_stages = c(),
     predictors = predictors
   )
 
@@ -216,7 +208,6 @@ test_that("`get_transition_val()` works with no predictors and no delay", {
     population = matrix(),
     developing_population = matrix(),
     max_delay = 365L,
-    life_stages = c("a", "b", "c"),
     predictors = data.frame()
   )
 
@@ -243,7 +234,6 @@ test_that("`get_transition_val()` works with no predictors and delay", {
     population = matrix(),
     developing_population = matrix(),
     max_delay = 365L,
-    life_stages = c("a", "b", "c"),
     predictors = data.frame()
   )
 
@@ -279,7 +269,6 @@ test_that("`get_transition_val()` works with a predictor that varies over time
     population = matrix(),
     developing_population = matrix(),
     max_delay = 365L,
-    life_stages = c("a", "b", "c"),
     predictors = predictors
   )
 
@@ -315,7 +304,6 @@ test_that("`get_transition_val()` works with a predictor that varies over time
     population = matrix(),
     developing_population = matrix(),
     max_delay = 365L,
-    life_stages = c("a", "b", "c"),
     predictors = predictors
   )
 
@@ -338,9 +326,8 @@ test_that("`gen_trans_matrix() works with `config_ex_1`", {
 
   result <- gen_trans_matrix(
     1,
-    NULL,
-    NULL,
-    life_stages,
+    empty_population_matrix(life_stages = life_stages, steps = 1),
+    empty_population_matrix(life_stages = life_stages, steps = 1),
     add_params_list(config_ex_1$transitions, config_ex_1$parameters),
     NULL
   )
@@ -360,9 +347,8 @@ test_that("`gen_trans_matrix()` works with `config_ex_2`", {
 
   result <- gen_trans_matrix(
     1,
-    NULL,
-    NULL,
-    life_stages,
+    empty_population_matrix(life_stages = life_stages, steps = 1),
+    empty_population_matrix(life_stages = life_stages, steps = 1),
     add_params_list(config_ex_2$transitions, config_ex_2$parameters),
     NULL
   )
@@ -386,7 +372,6 @@ test_that("`gen_trans_matrix()` works with `ogden2005`", {
     time = 150,
     population = population,
     developing_population = population,
-    life_stages = life_stages,
     tick_transitions = transitions_with_parameters,
     predictors = ogden2005$predictors
   ))
