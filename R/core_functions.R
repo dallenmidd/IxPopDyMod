@@ -77,36 +77,10 @@ get_tick_den <- function(time, pred, population, developing_population) {
   sum(total_population[life_stages_to_sum, time])
 }
 
-get_pred_time_period <- function(time, pred, is_delay, max_delay, life_stages) {
-
-  # if is_delay, we want a long vector so the cumsum will reach 1
-  # otherwise, we want a vector of length 1
-  if (is_delay) {
-    time <- time:(time + max_delay)
-  }
-
-  # If the predictor is the density of ticks or hosts,
-  # we only want the predictor value(s) at the starting time of the transition.
-  # This is a vector of length 1 for tick density - indicating the total number
-  # of ticks of the given life stages.
-  # This is a vector of length equal to the number of host species for host
-  # density - indicating the density of each host species.
-  # TODO "host_den" is hardcoded here as the only predictor from the predictors
-  # table for which we only use the predictor value at the first day of the
-  # transition. Should this be part of the configuration for each predictor?
-  # The current behavior is indeed likely what we want for tick density as a pred.
-  if (!is.na(pred)) {
-    if ((pred == "host_den") || any(stringr::str_detect(life_stages, pred))) {
-      time <- time[1]
-    }
-  }
-  time
-}
-
 #' Get the value of a predictor
 #'
 #' TODO docs are out of date
-#' @param time Numeric vector indicating span of days to get predictor values
+#' @param time First day to get predictor value(s)
 #' @param pred String indicating which predictor, one of: 'temp', 'vpd',
 #'   'host_den' or NA
 #' @param is_delay Boolean indicating whether the predictor is for a transition
@@ -126,17 +100,16 @@ get_pred <- function(
     predictors
   ) {
   life_stages <- rownames(population)
-  time <- get_pred_time_period(
-    time = time,
-    pred = pred,
-    is_delay = is_delay,
-    max_delay = max_delay,
-    life_stages = life_stages
-  )
 
   if (is.na(pred)) {
     NULL
   } else if (pred %in% valid_predictors_from_table(predictors)) {
+    # TODO "host_den" is hardcoded here as the only predictor from the predictors
+    # table for which we only use the predictor value at the first day of the
+    # transition. Should this be part of the configuration for each predictor?
+    if (is_delay && pred != "host_den") {
+      time <- time:(time + max_delay)
+    }
     get_pred_from_table(time, pred, predictors)
   } else if (any(stringr::str_detect(life_stages, pred))) {
     get_tick_den(time, pred, population, developing_population)
