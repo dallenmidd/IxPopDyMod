@@ -44,6 +44,8 @@ get_life_stages <- function(transitions) {
 #'   over time (as indicated by NA value in 'j_day' column)
 #' @param table input predictors table
 #' @param pred string specifying the name of the predictor, e.g. "host_den"
+#'
+#' @returns a numeric vector of predictor values, TODO named by `pred_subcategory`
 get_pred_from_table <- function(time, pred, table) {
   # NA entry in the j_day column indicates that the predictor does not vary
   # over time
@@ -52,7 +54,7 @@ get_pred_from_table <- function(time, pred, table) {
 
   subset <- table[rows, "value"]
 
-  # convert subsetted tibble to an unnamed vector
+  # convert subsetted tibble to a vector # TODO should be named
   unname(unlist(subset))
 }
 
@@ -66,13 +68,15 @@ get_pred_from_table <- function(time, pred, table) {
 #' @param developing_population Matrix of number of currently developing ticks
 #'   per life stage per day
 #' @param life_stages Character vector of life stages.
-#' @importFrom stringr str_which
+#' @importFrom stringr str_which  # TODO remove
 #' @return Numeric vector of length one indicating current number of ticks in
 #'   given life stages
 #' @noRd
 get_tick_den <- function(
     time, population, developing_population, pred, life_stages
   ) {
+  # TODO can we get life_stages from indices of population/developing_population
+  # and reduce params to this function?
   sum((population + developing_population)[str_which(life_stages, pred), time])
 }
 
@@ -158,6 +162,8 @@ get_pred <- function(
 #' rows with the same 'from' and 'to'.
 #'
 #' @param time Numeric vector indicating span of days to get predictor values
+#' # TODO seems like at this point, time can only be a numeric vector of length
+#' # 1; it grows in length for certain delay transitions in get_pred().
 #' @param transition_row_with_parameters A row from the tick_transitions tibble
 #'   with parameters added.
 #' @param population Tick population matrix. See get_tick_den for details.
@@ -300,7 +306,7 @@ update_delay_arr <- function(
   transitions <- tick_transitions[tick_transitions$delay, ]
 
   # loop through these transitions by from_stage
-  from_stages <- unique(pull(transitions, .data$from))
+  from_stages <- unique(pull(transitions, .data$from)) # TODO should use $ rather than pull
   for (from_stage in from_stages) {
     # for a given delay transition, every "from" stage has a unique "to" stage
     trans <- transitions[transitions$from == from_stage &

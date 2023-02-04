@@ -14,6 +14,10 @@ new_transition <- function(
   checkmate::assert_choice(
     mortality_type, c("per_day", "throughout_transition"), null.ok = TRUE
   )
+  # TODO if transition is duration-based, allow user to specify whether to use
+  # the scalar value of a predictor on first day of transition, or vector of
+  # predictor values over time? Would require changing data structure from
+  # named vector
   checkmate::assert_character(
     predictors, names = "unique", min.chars = 1, null.ok = TRUE
   )
