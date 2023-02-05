@@ -334,41 +334,60 @@ gen_transition_matrix <- function(
 update_delay_arr <- function(
     time, delay_arr, population, developing_population, tick_transitions,
     max_delay, predictors
-  ) {
+) {
   life_stages <- rownames(population)
   # select all delay transition functions, including mortality
-  transitions <- tick_transitions[tick_transitions$delay, ]
+  transitions <- query_transitions(tick_transitions, "transition_type", "duration")
 
   # loop through these transitions by from_stage
-  from_stages <- unique(pull(transitions, .data$from)) # TODO should use $ rather than pull
+  from_stages <- life_stages(transitions)
   for (from_stage in from_stages) {
     # for a given delay transition, every "from" stage has a unique "to" stage
-    trans <- transitions[transitions$from == from_stage &
-      transitions$to %in% life_stages, ]
+    # TODO is this a requirement that should be validated? i.e. not allowed to
+    # have two destination life stages from one for delay transitions?
+    trans <- transitions %>%
+      query_transitions("from", from_stage) %>%
+      query_transitions_by_mortality(mortality = FALSE)
+
+    # TODO cleanup these assertions - shouldn't live here this is just for developing
+    stopifnot(length(trans) != 1)
+    trans <- trans[[1]]
+    stopifnot(inherits(trans, "transition"))
 
     to_stage <- trans[["to"]]
 
     # daily probability of transitioning to the next stage
-    val <- get_transition_val(
-      time, trans, population, developing_population, max_delay, predictors
+    val <- get_transition_value(
+      time = time,
+      transition = trans,
+      predictors = predictors,
+      max_duration = max_delay,
+      population = population,
+      developing_population = developing_population
     )
 
     # daily or per capita mortality during the delayed transition
     # each "from" stage has either 1 or 0 corresponding mortality transitions
 
-    mort_tibble <- transitions[transitions$from == from_stage &
-      !(transitions$to %in% life_stages), ]
+    mort_tibble <- transitions %>%
+      query_transitions("from", from_stage) %>%
+      query_transitions_by_mortality(mortality = FALSE)
 
-    if (nrow(mort_tibble) == 1) {
-      mort <- get_transition_val(
-        time, mort_tibble[1, ], population, developing_population,
-        max_delay, predictors
+    if (length(mort_tibble) == 1) {
+      mort <- get_transition_value(
+        time = time,
+        transition = mort_tibble[[1]],
+        predictors = predictors,
+        max_duration = max_delay,
+        population = population,
+        developing_population = developing_population
       )
-    } else if (nrow(mort_tibble) == 0) {
+    } else if (length(mort_tibble) == 0) {
       mort <- 0
     } else {
+      # TODO this assertion should live in validation code
       stop(
-        nrow(mort_tibble),
+        length(mort_tibble),
         " mortality transitions found from a single stage, should be 1 or 0"
       )
     }
@@ -377,7 +396,7 @@ update_delay_arr <- function(
     # We increase the length so that we can do a cumsum over the vector
     # We add 1 for consistency with output vector length from non-constant fxns,
     # which is determined by time:(time + max_delay) in get_pred()
-    # TODO move this to get_transition_value() ?
+    # TODO move this to get_transition_value() - but it shouldn't apply to mortality?
     if (length(val) == 1) val <- rep(val, max_delay + 1)
 
     days <- cumsum(val) >= 1
@@ -396,7 +415,7 @@ update_delay_arr <- function(
         # of length 1, so we shouldn't ever get to this case.
         stop("Found non-constant mortality for a delay transition. This
              functionality has not been tested",
-          call. = FALSE
+             call. = FALSE
         )
 
         # in this case, mort is a vector of length max_delay. we subset it for
@@ -404,8 +423,8 @@ update_delay_arr <- function(
         # to get vector of daily survival rate, and take product to get the
         # overall survival rate throughout the delay
         surv_to_next <- prod(1 - mort[1:days_to_next])
-      } else if (nrow(mort_tibble) == 1 &&
-        mort_tibble["to"] == "per_capita_m") {
+      } else if (length(mort_tibble) == 1 &&
+                 mort_tibble["to"] == "per_capita_m") {
         # Apply per capita mortality once during transition, rather than every
         # day
         surv_to_next <- 1 - mort

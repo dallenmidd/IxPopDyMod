@@ -543,8 +543,26 @@ test_that("set_initial_population snapshot", {
 test_that("model output for ogden config stays the same", {
   testthat::skip_on_cran()
 
-  # reducing steps to a year for faster runtime
+  # reducing steps to a year to reduce run time
   cfg <- ogden2005
   cfg$steps <- 365
   expect_snapshot(run(cfg))
+})
+
+
+
+test_that("update_delay_arr works", {
+  cfg <- config_example_a()
+  cfg$steps <- 2
+  cfg$max_duration <- 2
+  life_stages <- life_stages(cfg$cycle)
+  expect_snapshot(update_delay_arr(
+    time = 2,
+    delay_arr = empty_delay_array(life_stages, cfg$steps, cfg$max_duration),
+    population = empty_population_matrix(life_stages, cfg$steps),
+    developing_population = empty_population_matrix(life_stages, cfg$steps),
+    tick_transitions = cfg$cycle,
+    max_delay = cfg$max_duration,
+    predictors = cfg$predictors
+  ))
 })

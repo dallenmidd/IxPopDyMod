@@ -134,3 +134,37 @@
       10     1 a_a       0 a         a       FALSE   
       # ... with 4,370 more rows
 
+# update_delay_arr works
+
+    Code
+      update_delay_arr(time = 2, delay_arr = empty_delay_array(life_stages, cfg$steps,
+      cfg$max_duration), population = empty_population_matrix(life_stages, cfg$steps),
+      developing_population = empty_population_matrix(life_stages, cfg$steps),
+      tick_transitions = cfg$cycle, max_delay = cfg$max_duration, predictors = cfg$
+        predictors)
+    Output
+      , , 1
+      
+        a b
+      a 0 0
+      b 0 0
+      
+      , , 2
+      
+        a b
+      a 0 0
+      b 0 0
+      
+      , , 3
+      
+        a b
+      a 0 0
+      b 0 0
+      
+      , , 4
+      
+        a b
+      a 0 0
+      b 0 0
+      
+
