@@ -560,17 +560,13 @@ set_initial_population <- function(population, initial_population) {
 run <- function(cfg) {
 
   # 00 get valid life stages
-  life_stages <- get_life_stages(cfg$transitions)
-
-  # 01 combine transitions and parameters
-  # TODO no longer relevant with new (these are already combined in new config)
-  transitions_with_params <- add_params_list(cfg$transitions, cfg$parameters)
+  life_stages <- life_stages(cfg$cycle)
 
   # 02 initialize a delay array of all zeros
   delay_arr <- empty_delay_array(
     life_stages = life_stages,
     steps = cfg$steps,
-    max_duration = cfg$max_delay
+    max_duration = cfg$max_duration
   )
 
   # 03 initialize a population matrix with initial_population
@@ -607,15 +603,23 @@ run <- function(cfg) {
     )
 
     # calculate transition probabilities
-    trans_matrix <- gen_trans_matrix(
-      time, population, developing_population,
-      transitions_with_params, cfg$predictors
+    trans_matrix <- gen_transition_matrix(
+      time = time,
+      population = population,
+      developing_population = developing_population,
+      tick_transitions = cfg$cycle,
+      predictors = cfg$predictors
     )
 
     # calculate the number of ticks entering delayed development
     delay_arr <- update_delay_arr(
-      time, delay_arr, population, developing_population,
-      transitions_with_params, cfg$max_delay, cfg$predictors
+      time = time,
+      delay_arr = delay_arr,
+      population = population,
+      developing_population = developing_population,
+      tick_transitions = cfg$cycle,
+      max_delay = cfg$max_duration,
+      predictors = cfg$predictors
     )
 
     # collapse the delay_arr by summing across 'from', giving a matrix with
