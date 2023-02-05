@@ -34,9 +34,9 @@ test_that("`life_stages()` works with `config_ex_1` data", {
   expect_equal(life_stages(config_ex_1$cycle), expected_life_stages)
 })
 
-test_that("`get_life_stages()` works with `config_ex_2` data", {
+test_that("`life_stages()` works with `config_ex_2` data", {
   expected_life_stages <- c("__e", "__l", "__n", "__a")
-  expect_equal(get_life_stages(config_ex_2$transitions), expected_life_stages)
+  expect_equal(life_stages(config_ex_2$cycle), expected_life_stages)
 })
 
 test_that("`get_pred_from_table()` works with constant predictors", {
@@ -429,7 +429,7 @@ test_that("`get_transition_value()` works with a predictor that varies over time
 })
 
 
-test_that("`gen_trans_matrix() works with `config_ex_1`", {
+test_that("`gen_transition_matrix() works with `config_ex_1`", {
   life_stages <- life_stages(config_ex_1$cycle)
 
   expected <- empty_transition_matrix(life_stages)
@@ -449,21 +449,16 @@ test_that("`gen_trans_matrix() works with `config_ex_1`", {
   expect_equal(result, expected)
 })
 
-test_that("`gen_trans_matrix()` works with `config_ex_2`", {
-  life_stages <- get_life_stages(config_ex_2$transitions)
-  expected <- matrix(
-    0,
-    4,
-    4,
-    dimnames = list(life_stages, life_stages)
-  )
+test_that("`gen_transition_matrix()` works with `config_ex_2`", {
+  life_stages <- life_stages(config_ex_2$cycle)
+  expected <- empty_transition_matrix(life_stages)
   expected["__a", "__e"] <- 489.3045
 
-  result <- gen_trans_matrix(
+  result <- gen_transition_matrix(
     1,
     empty_population_matrix(life_stages = life_stages, steps = 1),
     empty_population_matrix(life_stages = life_stages, steps = 1),
-    add_params_list(config_ex_2$transitions, config_ex_2$parameters),
+    config_ex_2$cycle,
     NULL
   )
 
