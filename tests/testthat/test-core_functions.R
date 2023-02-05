@@ -26,7 +26,7 @@ test_that("`get_life_stages()` works with `ogden2005` data", {
     "__e", "e_l", "e_n", "a_l", "a_n", "h_l", "q_l", "e_a", "r_a", "a_a", "q_a",
     "q_n"
   )
-  expect_equal(get_life_stages(ogden2005$transitions), expected_life_stages)
+  expect_equal(life_stages(ogden2005$cycle), expected_life_stages)
 })
 
 test_that("`life_stages()` works with `config_ex_1` data", {
@@ -41,22 +41,22 @@ test_that("`life_stages()` works with `config_ex_2` data", {
 
 test_that("`get_pred_from_table()` works with constant predictors", {
   expect_equal(
-    get_pred_from_table(1, "host_den", ogden2005$predictors),
+    get_pred_from_table(1, "host_den", ogden2005$preds),
     c(20, 200)
   )
   expect_equal(
-    get_pred_from_table(1:10, "host_den", ogden2005$predictors),
+    get_pred_from_table(1:10, "host_den", ogden2005$preds),
     c(20, 200)
   )
 })
 
 test_that("`get_pred_from_table()` works with variable predictors", {
   expect_equal(
-    get_pred_from_table(1, "temp", ogden2005$predictors),
+    get_pred_from_table(1, "temp", ogden2005$preds),
     0
   )
   expect_equal(
-    get_pred_from_table(1:10, "temp", ogden2005$predictors),
+    get_pred_from_table(1:10, "temp", ogden2005$preds),
     rep(0, 10)
   )
 })
