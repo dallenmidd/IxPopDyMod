@@ -465,24 +465,20 @@ test_that("`gen_transition_matrix()` works with `config_ex_2`", {
   expect_equal(result, expected)
 })
 
-test_that("`gen_trans_matrix()` works with `ogden2005`", {
-  life_stages <- get_life_stages(ogden2005$transitions)
+test_that("`gen_transition_matrix()` works with `ogden2005`", {
+  life_stages <- life_stages(ogden2005$cycle)
 
   population <- empty_population_matrix(life_stages, 200)
   population[] <- 1
 
-  transitions_with_parameters <- add_params_list(
-    ogden2005$transitions, ogden2005$parameters
-  )
-
-  expect_snapshot(gen_trans_matrix(
+  expect_snapshot(gen_transition_matrix(
     # Using a time in the middle of the year when temperature is higher and more
     # of the transitions will have nonzero values.
     time = 150,
     population = population,
     developing_population = population,
-    tick_transitions = transitions_with_parameters,
-    predictors = ogden2005$predictors
+    tick_transitions = ogden2005$cycle,
+    predictors = ogden2005$preds
   ))
 })
 

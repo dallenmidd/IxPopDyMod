@@ -1,9 +1,9 @@
-# `gen_trans_matrix()` works with `ogden2005`
+# `gen_transition_matrix()` works with `ogden2005`
 
     Code
-      gen_trans_matrix(time = 150, population = population, developing_population = population,
-        tick_transitions = transitions_with_parameters, predictors = ogden2005$
-          predictors)
+      gen_transition_matrix(time = 150, population = population,
+        developing_population = population, tick_transitions = ogden2005$cycle,
+        predictors = ogden2005$preds)
     Output
            __e e_l e_n         a_l         a_n h_l       q_l e_a r_a        a_a
       __e    0   0   0 0.000000000 0.000000000   0 0.0000000   0   0 0.00000000
