@@ -608,7 +608,7 @@ run <- function(cfg) {
       population = population,
       developing_population = developing_population,
       tick_transitions = cfg$cycle,
-      predictors = cfg$predictors
+      predictors = cfg$preds
     )
 
     # calculate the number of ticks entering delayed development
@@ -619,7 +619,7 @@ run <- function(cfg) {
       developing_population = developing_population,
       tick_transitions = cfg$cycle,
       max_delay = cfg$max_duration,
-      predictors = cfg$predictors
+      predictors = cfg$preds
     )
 
     # collapse the delay_arr by summing across 'from', giving a matrix with
