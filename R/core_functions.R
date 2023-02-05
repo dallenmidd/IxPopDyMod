@@ -120,35 +120,10 @@ get_pred <- function(
   }
 }
 
-# This is a version of get_transition_val() that works with new structure
-# TODO remove old function once rest of new core-functions is implemented
-get_transition_value <- function(
-    time, transition, predictors, max_duration, population, developing_population
-) {
-   stopifnot(inherits(transition, "transition"))
 
-   f <- transition$fun
-   params <- transition$parameters
-
-   predictor_values <- lapply(
-     transition$predictors,
-     function(pred) {
-       get_pred(
-         time = time,
-         pred = pred,
-         is_delay = transition$transition_type == "duration",
-         population = population,
-         developing_population = developing_population,
-         max_delay = max_duration,
-         predictors = predictors
-       )
-     }
-   )
-
-   do.call(f, c(params, predictor_values))
- }
 
 #' Get the value determining probability or duration of a transition
+#' # TODO update docs
 #'
 #' @details
 #' This generic function pulls out the functional form and parameters needed to
@@ -171,30 +146,31 @@ get_transition_value <- function(
 #' @noRd
 #'
 #' @return Numeric vector indicating probability or duration of a transition.
-get_transition_val <- function(time, transition_row_with_parameters, population,
-                               developing_population, max_delay, predictors) {
-  # get the function
-  f <- get(transition_row_with_parameters[["transition_fun"]])
+get_transition_value <- function(
+    time, transition, predictors, max_duration, population, developing_population
+) {
+  stopifnot(inherits(transition, "transition"))
 
-  # get the parameters for the function
-  params <- transition_row_with_parameters[["params_list"]]
+  f <- transition$fun
+  params <- transition$parameters
 
-  # get the value of the predictors for the function
-  pred1 <- get_pred(
-    time, transition_row_with_parameters[["pred1"]],
-    transition_row_with_parameters[["delay"]], population,
-    developing_population, max_delay, predictors
+  predictor_values <- lapply(
+    transition$predictors,
+    function(pred) {
+      get_pred(
+        time = time,
+        pred = pred,
+        is_delay = transition$transition_type == "duration",
+        population = population,
+        developing_population = developing_population,
+        max_delay = max_duration,
+        predictors = predictors
+      )
+    }
   )
-  pred2 <- get_pred(
-    time, transition_row_with_parameters[["pred2"]],
-    transition_row_with_parameters[["delay"]], population,
-    developing_population, max_delay, predictors
-  )
 
-  # evaluate the function
-  do.call(f, c(list(pred1, pred2), params[[1]]))
+  do.call(f, c(params, predictor_values))
 }
-
 
 #' Generate a matrix of transition probabilities between tick life stages
 #'
@@ -214,55 +190,6 @@ get_transition_val <- function(time, transition_row_with_parameters, population,
 #'   transitioning from each stage (axis 1) to each stage (axis 2).
 #'
 #' @noRd
-gen_trans_matrix <- function(
-    time, population, developing_population, tick_transitions, predictors
-  ) {
-  # initialize the transition matrix with 0s
-  life_stages <- rownames(population)
-  trans_matrix <- empty_transition_matrix(life_stages)
-
-  transitions <- tick_transitions %>%
-    filter(
-      !.data$delay,
-      .data$to %in% life_stages
-    ) # exclude mortality
-
-  mort <- tick_transitions %>%
-    filter(
-      !.data$delay,
-      !(.data$to %in% life_stages)
-    )
-
-  if (nrow(transitions) > 0) {
-    for (t in seq_len(nrow(transitions))) {
-      trans_matrix[transitions[t, ]$from, transitions[t, ]$to] <-
-        get_transition_val(
-          time, transitions[t, ], population, developing_population, NULL, predictors
-        )
-    }
-  }
-
-  if (nrow(mort) > 0) {
-    for (m in seq_len(nrow(mort))) {
-      from_stage <- mort[m, ]$from
-
-      mortality <- get_transition_val(
-        time, mort[m, ], population, developing_population, NULL, predictors
-      )
-
-      # The max(0, 1- ...) structure should ensure that survival is between 0
-      # and 1. This line also ensures that when a reproductive tick lays
-      # (multiple) eggs, the reproductive tick will not survive to the next
-      # stage. This is the desired behavior because all ticks are semelparous.
-      trans_matrix[from_stage, from_stage] <-
-        max(0, 1 - sum(trans_matrix[from_stage, ]) - mortality)
-    }
-  }
-
-  return(trans_matrix)
-}
-
-
 gen_transition_matrix <- function(
   time, population, developing_population, tick_transitions, predictors
 ) {
