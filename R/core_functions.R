@@ -350,7 +350,7 @@ update_delay_arr <- function(
       query_transitions_by_mortality(mortality = FALSE)
 
     # TODO cleanup these assertions - shouldn't live here this is just for developing
-    stopifnot(length(trans) != 1)
+    stopifnot(length(trans) == 1)
     trans <- trans[[1]]
     stopifnot(inherits(trans, "transition"))
 
