@@ -371,7 +371,7 @@ update_delay_arr <- function(
 
     mort_tibble <- transitions %>%
       query_transitions("from", from_stage) %>%
-      query_transitions_by_mortality(mortality = FALSE)
+      query_transitions_by_mortality(mortality = TRUE)
 
     if (length(mort_tibble) == 1) {
       mort <- get_transition_value(
