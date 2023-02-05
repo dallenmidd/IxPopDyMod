@@ -38,6 +38,37 @@ usethis::use_data(config_ex_2, overwrite = TRUE)
 
 # recreate ogden et al. 2005 model in our package framework
 ogden2005 <- read_config("data-raw/ogden2005/ogden_config.yml")
+ogden2005 <- config(
+  life_cycle(
+  # from, to, fun, transition_type, mortality_type = NULL, predictors = NULL, parameters = list()
+    transition("__e", "h_l", expo_fun, "duration", predictors = c(x = "temp"), parameters = list(a = 2.92e-05, b = 2.27)),
+    transition("__e", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 0.002)),
+    transition("e_l", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 0.003)),
+    transition("e_l", "q_n", expo_fun, "duration", predictors = c(x = "temp"), parameters = list(a = 9.883278e-06, b = 2.55)),
+    transition("e_n", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 0.002)),
+    transition("e_n", "q_a", expo_fun, "duration", predictors = c(x = "temp"), parameters = list(a = 0.0006265664, b = 1.21)),
+    transition("a_l", "e_l", constant_fun, "duration", parameters = list(a = 0.5)),
+    transition("a_n", "e_n", constant_fun, "duration", parameters = list(a = 0.25)),
+    transition("h_l", "q_l", constant_fun, "duration", parameters = list(a = 0.0476)),
+    transition("h_l", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 0.006)),
+    transition("q_l", NULL, constant_fun, "probability", mortality_type = "per_day", parameters = list(a = 0.006)),
+    transition("e_a", "r_a", expo_fun, "duration", predictors = c(x = "temp"), parameters = list(a = 0.0007692308, b = 1.42)),
+    transition("r_a", "__e", constant_fun, "probability", parameters = list(a = 3000)),
+    transition("e_a", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 1e-04)),
+    transition("a_a", "e_a", constant_fun, "duration", parameters = list(a = 0.111)),
+    transition("q_a", NULL, constant_fun, "probability", mortality_type = "per_day", parameters = list(a = 0.006)),
+    transition("q_n", NULL, constant_fun, "probability", mortality_type = "per_day", parameters = list(a = 0.006)),
+    transition("q_l", "a_l", ogden_feed_fun, "probability", predictors = c(x = "temp"), parameters = list(a = 0.0207, q = 7e-04, tmax = 35, tmin = 10)),
+    transition("q_n", "a_n", ogden_feed_fun, "probability", predictors = c(x = "temp"), parameters = list(a = 0.0207, q = 7e-04, tmax = 35, tmin = 10)),
+    transition("q_a", "a_a", ogden_feed_fun, "probability", predictors = c(x = "temp"), parameters = list(a = 0.0459, q = 0.0088, tmax = 16, tmin = 3)),
+    transition("a_l", NULL, density_fun, "duration", mortality_type = "throughout_transition", predictors = c(x = "host_den", y = "[af].."), parameters = list(a = 0.65, b = 0.049, c = 1.01, pref = c(deer = 0, mouse = 1))),
+    transition("a_n", NULL, density_fun, "duration", mortality_type = "throughout_transition", predictors = c(x = "host_den", y = "[af].."), parameters = list(a = 0.55, b = 0.049, c = 1.01, pref = c(deer = 0, mouse = 1))),
+    transition("a_a", NULL, density_fun, "duration", mortality_type = "throughout_transition", predictors = c(x = "host_den", y = "[af].."), parameters = list(a = 0.5, b = 0.049, c = 1.01, pref = c(deer = 1, mouse = 0)))
+  ),
+  initial_population = c(q_a = 10000),
+  steps = 3500,
+  preds = readr::read_csv("./data-raw/ogden2005/predictors.csv")
+)
 use_data(ogden2005, overwrite = TRUE)
 
 # for vignette, show varying weather data
