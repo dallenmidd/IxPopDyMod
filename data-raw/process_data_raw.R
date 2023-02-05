@@ -69,7 +69,7 @@ ogden2005 <- config(
   steps = 3500,
   preds = readr::read_csv("./data-raw/ogden2005/predictors.csv")
 )
-use_data(ogden2005, overwrite = TRUE)
+usethis::use_data(ogden2005, overwrite = TRUE)
 
 # for vignette, show varying weather data
 temp_example_config <- read_config("data-raw/temp_example_config/config.yml")
