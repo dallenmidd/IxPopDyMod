@@ -351,7 +351,7 @@ update_delay_arr <- function(
         # overall survival rate throughout the delay
         surv_to_next <- prod(1 - mort[1:days_to_next])
       } else if (length(mort_tibble) == 1 &&
-                 mort_tibble["to"] == "per_capita_m") {
+                 mort_tibble[[1]]["mortality_type"] == "throughout_transition") {
         # Apply per capita mortality once during transition, rather than every
         # day
         surv_to_next <- 1 - mort
