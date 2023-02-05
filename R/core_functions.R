@@ -376,55 +376,6 @@ update_delay_arr <- function(
   return(delay_arr)
 }
 
-#' Return list of parameters for a given transition
-#'
-#' @details
-#' This function is used for an optimization where we preprocess the model
-#' inputs by joining the transitions and parameters into a tibble once rather
-#' than searching for parameters for each function each time the function is
-#' called.
-#'
-#' @param from String indicating life stage a transition is from
-#' @param to String indicating life stage a transition is to
-#' @param parameters Tick parameters tibble
-#'
-#' @importFrom stringr str_which
-#'
-#' @return Named list of parameters needed for the transition function from the
-#'   `from` life stage to the `to` life stage.
-#'
-#' @noRd
-get_params <- function(from, to, parameters) {
-  string <- paste0(from, to)
-  patterns <- paste0(parameters$from, parameters$to)
-
-  params_tbl <- parameters[str_which(string, patterns), ]
-
-  params <- params_tbl$param_value
-  names(params) <- params_tbl$param_name
-  params <- split(unname(params), names(params))
-
-  params
-}
-
-#' Add parameters to a tick_transitions tibble
-#'
-#' @param tick_transitions Tick transitions tibble
-#' @param parameters Tick parameters tibble
-#' @importFrom dplyr mutate
-#'
-#' @return A new tick_transitions tibble with a column, params_list
-#'   that is a named list of the parameters for each transition.
-#'
-#' @noRd
-add_params_list <- function(tick_transitions, parameters) {
-  params_list <- apply(tick_transitions, 1, function(x) {
-    get_params(x[["from"]], x[["to"]], parameters)
-  })
-
-  mutate(tick_transitions, params_list = params_list)
-}
-
 #' Generate an empty delay array
 #' TODO dimensions are one of...
 #' dimensions: to, from, time
