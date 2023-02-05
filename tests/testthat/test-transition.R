@@ -6,7 +6,7 @@ test_that("produces expected output with valid input", {
     transition_type = "probability",
     mortality_type = NULL,
     fun = new_transition_function(constant_fun),
-    predictors = c(x = "temp", y = "host_density"),
+    predictors = NULL,
     parameters = new_parameters(a = 1)
   ))
 })
@@ -19,7 +19,7 @@ test_that("throws error with invalid from input", {
       transition_type = "probability",
       mortality_type = NULL,
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = NULL,
       parameters = new_parameters(a = 1)
     ),
     "All elements must have at least 1 characters"
@@ -32,7 +32,7 @@ test_that("throws error with invalid from input", {
       transition_type = "probability",
       mortality_type = NULL,
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = NULL,
       parameters = new_parameters(a = 1)
     ),
     "Must be of type 'string'"
@@ -47,7 +47,7 @@ test_that("throws error with invalid to input", {
       transition_type = "probability",
       mortality_type = NULL,
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = NULL,
       parameters = new_parameters(a = 1)
     ),
     "All elements must have at least 1 characters",
@@ -63,7 +63,7 @@ test_that("probability transitions can only have per day mortality", {
       transition_type = "probability",
       mortality_type = "throughout_transition",
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = NULL,
       parameters = new_parameters(a = 1)
     )),
     "`probability` transitions only support `per_day` mortality"
@@ -78,7 +78,7 @@ test_that("ensures that either mortality_type or to is NULL", {
       transition_type = "probability",
       mortality_type = NULL,
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = NULL,
       parameters = new_parameters(a = 1)
     )),
     "exactly 1 of `to` or `mortality_type` must be non-NULL"
@@ -91,7 +91,7 @@ test_that("ensures that either mortality_type or to is NULL", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = NULL,
       parameters = new_parameters(a = 1)
     )),
     "exactly 1 of `to` or `mortality_type` must be non-NULL"
@@ -103,7 +103,7 @@ test_that("ensures that either mortality_type or to is NULL", {
     transition_type = "probability",
     mortality_type = "per_day",
     fun = new_transition_function(constant_fun),
-    predictors = c(x = "temp", y = "host_density"),
+    predictors = NULL,
     parameters = new_parameters(a = 1)
   )), regexp = NA)
 
@@ -113,7 +113,7 @@ test_that("ensures that either mortality_type or to is NULL", {
     transition_type = "probability",
     mortality_type = NULL,
     fun = new_transition_function(constant_fun),
-    predictors = c(x = "temp", y = "host_density"),
+    predictors = NULL,
     parameters = new_parameters(a = 1)
   )), regexp = NA)
 })
@@ -126,7 +126,7 @@ test_that("catches extra parameters not needed in transition function", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = NULL,
       parameters = new_parameters(a = 1, b = 2)
     )),
     regexp = "has extra elements {'b'}",
@@ -141,9 +141,9 @@ test_that("catches missing parameters needed in transition function", {
       to = NULL,
       transition_type = "probability",
       mortality_type = "per_day",
-      fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density"),
-      parameters = new_parameters()
+      fun = new_transition_function(function(a, b) a),
+      predictors = NULL,
+      parameters = new_parameters(b = 1)
     )),
     regexp = "is missing elements {'a'}.",
     fixed = TRUE
@@ -173,7 +173,7 @@ test_that("catches extra predictors not needed in transition function", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density", z = "extra"),
+      predictors = c(z = "extra"),
       parameters = new_parameters(a = 1)
     )),
     regexp = (
@@ -190,8 +190,8 @@ test_that("catches missing predictors needed in transition function", {
       to = NULL,
       transition_type = "probability",
       mortality_type = "per_day",
-      fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp"),
+      fun = new_transition_function(function(a, y) a),
+      predictors = NULL,
       parameters = new_parameters(a = 1)
     )),
     regexp = "is missing elements {'y'}.",
@@ -207,10 +207,10 @@ test_that("catches duplicate names between parameters and predictors", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = c(x = "temp", y = "host_density", a = "duplicate name"),
+      predictors = c(a = "duplicate name"),
       parameters = new_parameters(a = 1)
     )),
-    regexp = "Must be disjunct from {'x','y','a'}, but has elements {'a'}.",
+    regexp = "Must be disjunct from {'a'}, but has elements {'a'}.",
     fixed = TRUE
   )
 })

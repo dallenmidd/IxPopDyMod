@@ -18,7 +18,7 @@
       
       $fun
       function(x, y, a) a
-      <environment: namespace:IxPopDyMod>
+      <environment: R_EmptyEnv>
       attr(,"class")
       [1] "transition_function"
       
@@ -51,7 +51,7 @@
       
       $fun
       function(x, y, a) a
-      <environment: namespace:IxPopDyMod>
+      <environment: R_EmptyEnv>
       attr(,"class")
       [1] "transition_function"
       

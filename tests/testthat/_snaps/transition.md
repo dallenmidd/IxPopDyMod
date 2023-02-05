@@ -3,8 +3,7 @@
     Code
       new_transition(from = "a", to = "b", transition_type = "probability",
         mortality_type = NULL, fun = new_transition_function(constant_fun),
-        predictors = c(x = "temp", y = "host_density"), parameters = new_parameters(
-          a = 1))
+        predictors = NULL, parameters = new_parameters(a = 1))
     Output
       $from
       [1] "a"
@@ -19,14 +18,13 @@
       NULL
       
       $fun
-      function(x, y, a) a
+      function(a) a
       <environment: namespace:IxPopDyMod>
       attr(,"class")
       [1] "transition_function"
       
       $predictors
-                   x              y 
-              "temp" "host_density" 
+      NULL
       
       $parameters
       $a

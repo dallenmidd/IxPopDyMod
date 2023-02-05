@@ -1,10 +1,13 @@
 transition_example_a <- function() {
+  f <- function(x, y, a) a
+  environment(f) <- emptyenv()
+
   new_transition(
     from = "a",
     to = "b",
     transition_type = "probability",
     mortality_type = NULL,
-    fun = new_transition_function(function(x, y, a) a),
+    fun = new_transition_function(f),
     predictors = c(x = "temp", y = "host_density"),
     parameters = new_parameters(a = 1)
   )

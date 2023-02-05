@@ -12,7 +12,7 @@ test_that("requires function input", {
 
 test_that("does not change function output", {
   expo_fun2 <- new_transition_function(expo_fun)
-  expect_identical(expo_fun(1, 2, 3, 4), expo_fun2(1, 2, 3, 4))
+  expect_identical(expo_fun(1, 3, 4), expo_fun2(1, 3, 4))
 })
 
 # transition_function_is_custom -----------------------------------------------
