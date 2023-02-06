@@ -52,10 +52,15 @@ get_pred_from_table <- function(time, pred, table) {
   rows <- (is.na(table$j_day) | (table$j_day %in% time)) &
           (table$pred == pred)
 
-  subset <- table[rows, "value"]
+  subset <- table[rows, ]
+  pred_values <- subset$value
+  pred_names <- subset$pred_subcategory
 
-  # convert subsetted tibble to a vector # TODO should be named
-  unname(unlist(subset))
+  if (!all(is.na(pred_names))) {
+    names(pred_values) <- pred_names
+  }
+
+  pred_values
 }
 
 #' Get tick density for specified time and life stages

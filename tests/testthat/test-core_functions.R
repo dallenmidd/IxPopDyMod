@@ -42,11 +42,11 @@ test_that("`life_stages()` works with `config_ex_2` data", {
 test_that("`get_pred_from_table()` works with constant predictors", {
   expect_equal(
     get_pred_from_table(1, "host_den", ogden2005$preds),
-    c(20, 200)
+    c(deer = 20, mouse = 200)
   )
   expect_equal(
     get_pred_from_table(1:10, "host_den", ogden2005$preds),
-    c(20, 200)
+    c(deer = 20, mouse = 200)
   )
 })
 
@@ -88,7 +88,7 @@ test_that("`get_pred()` works for host density data with or without delay", {
     pred_subcategory = c("species a", "species b")
   )
 
-  expected <- c(1, 2)
+  expected <- c("species a" = 1, "species b" = 2)
 
   # Act
   # host density predictor value should be same regardless of whether transition
