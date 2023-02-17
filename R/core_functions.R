@@ -156,9 +156,31 @@ get_transition_value <- function(
 ) {
   stopifnot(inherits(transition, "transition"))
 
+  inputs <- get_transition_inputs_unevaluated(
+    time = time,
+    transition = transition,
+    predictors = predictors,
+    max_duration = max_duration,
+    population = population,
+    developing_population = developing_population
+  )
+
+  do.call(inputs[["function"]], c(inputs[["parameters"]], inputs[["predictors"]]))
+}
+
+# TODO I refactored this for convenience - for validation code and possibly
+# debugging, it's convenient to have be able to get the function, parameters
+# and predictors for a transition. However, this structure might be too deeply
+# nested. Consider further refactor, and/or unit tests for this function.
+get_transition_inputs_unevaluated <- function(
+    time, transition, predictors, max_duration, population, developing_population
+) {
   f <- transition$fun
+
+  # a list of parameter values, each of which could be a scalar or named numeric vector
   params <- transition$parameters
 
+  # a list of predictor values, each of which could be a scalar or named numeric vector
   predictor_values <- lapply(
     transition$predictors,
     function(pred) {
@@ -174,7 +196,7 @@ get_transition_value <- function(
     }
   )
 
-  do.call(f, c(params, predictor_values))
+  list("function" = f, "parameters" = params, "predictors" = predictor_values)
 }
 
 #' Generate a matrix of transition probabilities between tick life stages
