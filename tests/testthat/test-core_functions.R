@@ -302,6 +302,43 @@ test_that("`get_transition_value()` works with a predictor that varies over time
   expect_equal(result, 11)
 })
 
+test_that("`get_transition_value()` correctly matches vector (not scalar) parameter and predictor values", {
+
+  testthat::skip("will fail until matching/validation of vector parameter/predictors is implemented")
+
+  t <- transition(
+    from = "a",
+    to = "b",
+    fun = function(x, y) sum(x * y),
+    transition_type = "probability",
+    predictors = c(x = "host_den"),
+    parameters = parameters(y = c("mouse" = 1, "deer" = 2))
+  )
+
+  predictors <- predictors(data.frame(
+    pred = "host_den",
+    pred_subcategory = c("deer", "mouse"),
+    value = c(2, 1),
+    j_day = NA
+  ))
+
+  # we want vector-wise multiplication of the parameter and predictor vectors
+  # to be ordered by names (e.g. x["a"] * y["a"], and x["b"] * y["b"]), not index
+  # TODO but currently it's by index
+  expected <- 5
+  result <- get_transition_value(
+    time = 1,
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
+    predictors = predictors
+  )
+
+  expect_identical(expected, result)
+
+})
+
 
 test_that("`gen_transition_matrix() works with `config_ex_1`", {
   life_stages <- life_stages(config_ex_1$cycle)
