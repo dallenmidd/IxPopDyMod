@@ -101,6 +101,9 @@ life_cycle <- function(...) {
   validate_life_cycle(cycle)
 }
 
+# TODO life cycle is the longest printed part of a config, could implement an
+# abbreviated printing method (print.life_cycle)
+
 #' Attempt to coerce an input to a `transition`
 #'
 #' First ensures that the required elements of a transition are provided, and
@@ -115,7 +118,7 @@ coerce_transition <- function(index, transitions) {
   each_transition <- transitions[[index]]
   expected_args <- names(formals(transition))
   actual_args <- as.character(names(each_transition))
-  valid <- checkmate::assert_set_equal(
+  valid <- checkmate::assert_set_equal( # TODO remove assignment?
     actual_args,
     expected_args,
     .var.name = paste("elements of transition at index:", index)
@@ -139,7 +142,7 @@ query_transitions <- function(cycle, field, value) {
   search_fun <- function(each_transition) each_transition[[field]] == value
   cycle[
     vapply(cycle, search_fun, FUN.VALUE = logical(1)),
-    drop = FALSE
+    drop = FALSE # TODO not relevant for lists
   ]
 }
 
@@ -152,7 +155,7 @@ query_transitions <- function(cycle, field, value) {
 query_transitions_by_mortality <- function(cycle, mortality) {
   cycle[
     vapply(cycle, transition_is_mortality, logical(1)) == mortality,
-    drop = TRUE
+    drop = TRUE # TODO not relevant for lists
   ]
 }
 

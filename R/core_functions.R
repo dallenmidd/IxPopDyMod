@@ -266,8 +266,6 @@ gen_transition_matrix <- function(
 
 #' Update the delay array for the current time
 #'
-#' @details
-#'
 #' @param time Numeric vector indicating day to get transition probabilities
 #' @param delay_arr Delay array from previous time step
 #' @param population Tick population matrix. See get_tick_den for details.
@@ -361,6 +359,7 @@ update_delay_arr <- function(
       days_to_next <- min(which(days))
 
       if (length(mort) > 1) {
+        # TODO move this to validation code
         # Non-constant mortality
         # We might ultimately want density_fun() to return a vector of length >
         # 1, where the value for each day is calculated based on that day's
@@ -491,6 +490,8 @@ run <- function(cfg) {
 
   # at each time step
   for (time in 1:(cfg$steps - 1)) {
+    # TODO verbose flag would be nice. Could turn off messages in tests. Also
+    # should use cat() or message()
     if (time %% 100 == 0) print(paste("day", time))
 
     # Calculate the number of ticks currently in delayed development NOT
