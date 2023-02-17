@@ -7,8 +7,38 @@ validate_config <- function(cfg) {
   assert_initial_population_has_valid_life_stages(cfg)
   assert_initial_population_non_zero(cfg)
   assert_predictors_strings_in_transitions_are_valid(cfg)
+  # assert_inputs_to_each_transition_function_are_valid(cfg)
 
   cfg
+}
+
+assert_inputs_to_each_transition_function_are_valid <- function(cfg) {
+  # For each transition, get the parameters and predictors
+
+  # To actually get predictor values, we need a couple inputs that are variable
+  # over time and thus not in the config. We mock them here.
+  time <- 1
+  pop <- empty_population_matrix(life_stages = life_stages(cfg), steps = cfg$steps)
+
+  for (transition in cfg$cycle) {
+
+    inputs <- get_transition_inputs_unevaluated(
+      time = time,
+      transition = transition,
+      predictors = cfg$preds,
+      max_duration = cfg$max_duration,
+      population = pop,
+      developing_population = pop
+    )
+
+    parameters <- inputs[["parameters"]]
+    predictors <- inputs[["predictors"]]
+
+    # TODO resume here: filter any parameters or predictors that are of length > 1
+    # Ensure that if any elements of predictors and parameters are named vectors,
+    # the names are set equal, and they are ordered in the same way.
+  }
+
 }
 
 assert_predictor_data_extends_over_required_days <- function(cfg) {
