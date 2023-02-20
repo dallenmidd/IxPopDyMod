@@ -72,6 +72,15 @@ validate_predictors <- function(df) {
     }
   }
 
+  actual_order <- order(df$j_day, df$pred, df$pred_subcategory, na.last = FALSE)
+  expected_order <- seq_len(nrow(df))
+  if (!all(actual_order == expected_order)) {
+    stop(
+      "predictors must be ordered by `j_day`, `pred`, then `pred_subcategory` columns",
+      call. = FALSE
+    )
+  }
+
   return(df)
 }
 
