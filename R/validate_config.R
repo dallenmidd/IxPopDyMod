@@ -7,7 +7,7 @@ validate_config <- function(cfg) {
   assert_initial_population_has_valid_life_stages(cfg)
   assert_initial_population_non_zero(cfg)
   assert_predictors_strings_in_transitions_are_valid(cfg)
-  # assert_inputs_to_each_transition_function_are_valid(cfg)
+  assert_inputs_to_each_transition_function_are_valid(cfg)
 
   cfg
 }
@@ -34,11 +34,33 @@ assert_inputs_to_each_transition_function_are_valid <- function(cfg) {
     parameters <- inputs[["parameters"]]
     predictors <- inputs[["predictors"]]
 
-    # TODO resume here: filter any parameters or predictors that are of length > 1
-    # Ensure that if any elements of predictors and parameters are named vectors,
-    # the names are set equal, and they are ordered in the same way.
-  }
+    # named values (which should also be scalar - TODO may need to add validation
+    # to ensure that only "vector" parameters or predictors can be named vectors,
+    # because there's no point/it shouldn't do anything if there's a named vector
+    # of length 1)
+    named_parameters <- Filter(function(x) !is.null(names(x)), parameters)
+    named_predictors <- Filter(function(x) !is.null(names(x)), predictors)
 
+    # If there are any parameters or predictors that are named vectors, they
+    # must all have the same names.
+    if (length(named_parameters) > 0 || length(named_predictors) > 0) {
+
+      parameter_names <- unname(lapply(named_parameters, names))
+      predictor_names <- unname(lapply(named_predictors, names))
+
+      all_names <- c(parameter_names, predictor_names)
+
+      # each vector of names should be identical
+      if (length(unique(all_names)) != 1L) {
+        stop(
+          "For each transition, any named parameters and predictors must have ",
+          "identical names. Found these parameter names: ", parameter_names,
+          ", and these predictor names: ", predictor_names,
+          call. = FALSE
+        )
+      }
+    }
+  }
 }
 
 assert_predictor_data_extends_over_required_days <- function(cfg) {
