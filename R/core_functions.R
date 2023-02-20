@@ -294,17 +294,11 @@ update_delay_arr <- function(
   # loop through these transitions by from_stage
   from_stages <- life_stages(transitions)
   for (from_stage in from_stages) {
-    # for a given delay transition, every "from" stage has a unique "to" stage
-    # TODO is this a requirement that should be validated? i.e. not allowed to
-    # have two destination life stages from one for delay transitions?
     trans <- transitions %>%
       query_transitions("from", from_stage) %>%
-      query_transitions_by_mortality(mortality = FALSE)
-
-    # TODO cleanup these assertions - shouldn't live here this is just for developing
-    stopifnot(length(trans) == 1)
-    trans <- trans[[1]]
-    stopifnot(inherits(trans, "transition"))
+      query_transitions_by_mortality(mortality = FALSE) %>%
+      # for a given delay transition, every "from" stage has a unique "to" stage
+      .[[1]]
 
     to_stage <- trans[["to"]]
 
