@@ -27,7 +27,7 @@ new_life_cycle <- function(...) {
 validate_life_cycle <- function(cycle) {
   assert_no_duplicate_transitions(cycle)
   assert_transition_accompanies_each_mortality(cycle)
-  assert_consistent_transition_types(cycle)
+  assert_only_one_transition_type_from_each_stage(cycle)
   # assert_transitions_form_a_cycle(cycle)
   return(cycle)
 }
@@ -64,7 +64,7 @@ assert_transition_accompanies_each_mortality <- function(cycle) {
   }
 }
 
-assert_consistent_transition_types <- function(cycle) {
+assert_only_one_transition_type_from_each_stage <- function(cycle) {
   for (stage in life_stages(cycle)) {
     transitions <- query_transitions(cycle, field = "from", value = stage)
     transition_types <- vapply(
