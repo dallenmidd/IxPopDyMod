@@ -105,9 +105,10 @@ predictors <- function(df) {
     df$j_day <- ensure_int(df$j_day)
   }
 
-  # sort predictors alphabetically by pred_subcategory column
-  if (is.data.frame(df) && utils::hasName(df, "pred_subcategory")) {
-    df <- df[order(df$pred_subcategory), ]
+  # sort predictors by j_day, pred, then pred_subcategory
+  if (is.data.frame(df) && all(utils::hasName(df, c("j_day", "pred", "pred_subcategory")))) {
+    # message("Reordering predictors by `j_day`, `pred`, then `pred_subcategory` columns")
+    df <- df[order(df$j_day, df$pred, df$pred_subcategory, na.last = FALSE), ]
     rownames(df) <- seq_len(nrow(df))
   }
 
