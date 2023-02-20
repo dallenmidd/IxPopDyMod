@@ -37,15 +37,9 @@ new_parameters <- function(...) {
 #' # differ between host species, for example tick feeding success
 #' parameters(a = 1, feeding_success = c(deer = 0.49, squirrel = 0.17))
 parameters <- function(...) {
-  sort_named_parameters(new_parameters(...))
-}
-
-# Sort any vector parameters by their names in alphabetical order
-sort_named_parameters <- function(params) {
-  # lapply doesn't preserve attributes, so we have to save and reassign class
-  original_class <- class(params)
-  params <- lapply(params, sort_vector_by_names)
-  structure(params, class = original_class)
+  # Sort any vector parameters by their names in alphabetical order
+  params <- lapply(list(...), sort_vector_by_names)
+  do.call(new_parameters, params)
 }
 
 sort_vector_by_names <- function(v) {
