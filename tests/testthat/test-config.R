@@ -186,7 +186,73 @@ test_that(
     cfg$cycle[[1]]$predictors[["y"]] <- "not_in_predictors_table"
 
     expect_error(do.call(config, cfg), "invalid predictor names")
-  })
+})
+
+test_that("named predictors and no named parameters are allowed", {
+  cfg <- config_example_a()
+  named_param <- parameters(host_preference = c("mouse" = 1, "deer" = 2))
+  cfg$cycle[[1]]$parameters <- c(cfg$cycle[[1]]$parameters, named_param)
+  cfg$cycle[[1]]$fun <- function(x, y, a, host_preference) a
+  # Note that no predictor for this transition has a `pred_subcategory`
+  expect_error(do.call(config, cfg), regexp = NA)
+})
+
+test_that("named predictors and parameters with same names are allowed", {
+  cfg <- config_example_a()
+  named_param <- parameters(host_preference = c("mouse" = 1, "deer" = 2))
+  cfg$cycle[[1]]$parameters <- c(cfg$cycle[[1]]$parameters, named_param)
+  cfg$cycle[[1]]$fun <- function(x, y, a, host_preference) a
+
+  cfg$preds <- data.frame(
+    pred = c("temp", "host_density", "host_density"),
+    pred_subcategory = c(NA, "mouse", "deer"),
+    j_day = NA,
+    value = 1:3
+  )
+
+  expect_error(do.call(config, cfg), regexp = NA)
+})
+
+test_that("works with multiple parameters with same names", {
+  cfg <- config_example_a()
+  # Note that here we're creating *two* parameters with names
+  named_param <- parameters(
+    host_preference = c("mouse" = 1, "deer" = 2),
+    feeding_success = c("mouse" = 3, "deer" = 4)
+  )
+  cfg$cycle[[1]]$parameters <- c(cfg$cycle[[1]]$parameters, named_param)
+  cfg$cycle[[1]]$fun <- function(x, y, a, host_preference, feeding_success) a
+
+  cfg$preds <- data.frame(
+    pred = c("temp", "host_density", "host_density"),
+    pred_subcategory = c(NA, "mouse", "deer"),
+    j_day = NA,
+    value = 1:3
+  )
+
+  expect_error(do.call(config, cfg), regexp = NA)
+})
+
+test_that("catches predictors and parameters with different names", {
+  cfg <- config_example_a()
+  named_param <- parameters(host_preference = c("mouse" = 1, "deer" = 2))
+  cfg$cycle[[1]]$parameters <- c(cfg$cycle[[1]]$parameters, named_param)
+  cfg$cycle[[1]]$fun <- function(x, y, a, host_preference) a
+
+  cfg$preds <- data.frame(
+    pred = c("temp", "host_density", "host_density"),
+    # Note that the order of the species is switched here
+    pred_subcategory = c(NA, "deer", "mouse"),
+    j_day = NA,
+    value = 1:3
+  )
+
+  expect_error(
+    do.call(config, cfg),
+    regexp = "named parameters and predictors must have identical names"
+  )
+})
+
 
 test_that("catches transition function that doesn't evaluate to a numeric", {
   # TODO unsure if this is really feasible or should just be a runtime check
