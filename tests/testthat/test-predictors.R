@@ -255,6 +255,6 @@ test_that("output test", {
     value = 1:5
   ))
 
-  expect_identical(valid_predictors_from_table(preds), c("host_den", "temp"))
+  expect_identical(valid_predictors_from_table(preds), c("temp", "host_den"))
 })
 
