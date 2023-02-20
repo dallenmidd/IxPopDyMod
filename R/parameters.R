@@ -16,6 +16,9 @@ new_parameters <- function(...) {
     checkmate::assert_numeric(param, min.len = 1L)
     if (length(param) > 1) {
       checkmate::assert_names(names(param), type = "unique")
+      if (!all(names(param) == sort(names(param)))) {
+        stop("Vector parameters must be in alphabetical order", call. = FALSE)
+      }
     }
   }
 
