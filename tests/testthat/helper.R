@@ -38,7 +38,7 @@ predictors_example_a <- function() {
 
 predictors_example_b <- function() {
   new_predictors(data.frame(
-    pred = c("temp", "host_density"),
+    pred = c("host_density", "temp"),
     pred_subcategory = NA,
     j_day = NA,
     value = 1
