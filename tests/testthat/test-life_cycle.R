@@ -136,6 +136,16 @@ test_that("catches duplicate mortality", {
 
 })
 
+test_that("catches multiple duration transitions from one stage", {
+  expect_error(
+    life_cycle(
+      transition("a", "b", function() 1, "duration"),
+      transition("a", "c", function() 1, "duration")
+    ),
+    regexp = "only have one duration type transition from each life stage"
+  )
+})
+
 # query_transitions() ---------------------------------------------------------
 test_that("works with transition_type field", {
 
