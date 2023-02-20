@@ -302,9 +302,7 @@ test_that("`get_transition_value()` works with a predictor that varies over time
   expect_equal(result, 11)
 })
 
-test_that("`get_transition_value()` correctly matches vector (not scalar) parameter and predictor values", {
-
-  testthat::skip("will fail until matching/validation of vector parameter/predictors is implemented")
+test_that("parameters and predictors get reordered to same order", {
 
   t <- transition(
     from = "a",
@@ -312,21 +310,17 @@ test_that("`get_transition_value()` correctly matches vector (not scalar) parame
     fun = function(x, y) sum(x * y),
     transition_type = "probability",
     predictors = c(x = "host_den"),
-    parameters = parameters(y = c("mouse" = 1, "deer" = 2))
+    parameters = parameters(y = c("mouse" = 1, "deer" = 2, "squirrel" = 3))
   )
 
   predictors <- predictors(data.frame(
     pred = "host_den",
-    pred_subcategory = c("deer", "mouse"),
-    value = c(2, 1),
+    pred_subcategory = c("deer", "squirrel", "mouse"),
+    value = c(2, 3, 1),
     j_day = NA
   ))
 
-  # we want vector-wise multiplication of the parameter and predictor vectors
-  # to be ordered by names (e.g. x["a"] * y["a"], and x["b"] * y["b"]), not index
-  # TODO but currently it's by index
-  expected <- 5
-  result <- get_transition_value(
+  inputs <- get_transition_inputs_unevaluated(
     time = 1,
     transition = t,
     population = empty_population_matrix(c("a", "b"), 10L),
@@ -335,8 +329,14 @@ test_that("`get_transition_value()` correctly matches vector (not scalar) parame
     predictors = predictors
   )
 
-  expect_identical(expected, result)
+  # in this case, we know that there's just one parameter and predictor element
+  # each, so we unlist by getting the first element
+  param_names <- names(inputs$parameters[[1]])
+  pred_names <- names(inputs$predictors[[1]])
 
+  # Parameter and predictor names (and in this case, values) are ordered the
+  # same way, so calculations using them will be performed correctly
+  expect_identical(pred_names, param_names)
 })
 
 
