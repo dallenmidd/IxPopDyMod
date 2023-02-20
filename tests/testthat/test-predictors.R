@@ -197,9 +197,9 @@ test_that(
 test_that("catches when a predictor spans a shorter time range than another", {
   expect_error(
     predictors(data.frame(
-      pred = c("temp", "host_den", "host_den"),
-      pred_subcategory = c(NA, "mouse", "deer"),
-      j_day = c(1, 1, 2),
+      pred = c("temp", "host_den", "host_den", "host_den"),
+      pred_subcategory = c(NA, "mouse", "mouse", "deer"),
+      j_day = c(1, 1, 2, 1),
       value = 1
     )),
     regexp = "is missing day(s): 2",
