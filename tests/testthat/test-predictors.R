@@ -94,6 +94,25 @@ test_that("coerces integer-like value in `j_day` column to integer", {
   expect_identical(preds$j_day, 1L)
 })
 
+test_that("orders predictors by `pred_subcategory` column", {
+  preds <- predictors(data.frame(
+    pred = "host_den",
+    pred_subcategory = c("mouse", "deer"),
+    j_day = 1L,
+    value = c(2, 1)
+  ))
+
+  expected <- data.frame(
+    pred = "host_den",
+    pred_subcategory = c("deer", "mouse"),
+    j_day = 1L,
+    value = c(1, 2)
+  )
+  class(expected) <- c("predictors", "data.frame")
+
+  expect_identical(preds, expected)
+})
+
 test_that("catches missing value in `value` column", {
   expect_error(
     predictors(data.frame(

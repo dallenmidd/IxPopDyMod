@@ -105,6 +105,12 @@ predictors <- function(df) {
     df$j_day <- ensure_int(df$j_day)
   }
 
+  # sort predictors alphabetically by pred_subcategory column
+  if (is.data.frame(df) && utils::hasName(df, "pred_subcategory")) {
+    df <- df[order(df$pred_subcategory), ]
+    rownames(df) <- seq_len(nrow(df))
+  }
+
   validate_predictors(new_predictors(df))
 }
 
