@@ -245,6 +245,19 @@ test_that("doesn't allow zero length predictors", {
   )
 })
 
+test_that("catches unordered predictors", {
+  expect_error(
+    # Note that we don't use `predictors()` b/c that reorders the rows
+    validate_predictors(new_predictors(data.frame(
+      pred = c(rep("host_den", 4), "temp"),
+      pred_subcategory = c("mouse", "deer", "mouse", "deer", NA),
+      j_day = c(1L, 1L, 2L, 2L, NA),
+      value = 1:5
+    ))),
+    regexp = "predictors must be ordered"
+  )
+})
+
 # valid_predictors_from_table() -----------------------------------------------
 test_that("output test", {
 
