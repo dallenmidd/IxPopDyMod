@@ -18,7 +18,7 @@ assert_inputs_to_each_transition_function_are_valid <- function(cfg) {
   # To actually get predictor values, we need a couple inputs that are variable
   # over time and thus not in the config. We mock them here.
   time <- 1
-  pop <- empty_population_matrix(life_stages = life_stages(cfg), steps = cfg$steps)
+  pop <- empty_population_matrix(life_stages = life_stages(cfg$cycle), steps = cfg$steps)
 
   for (transition in cfg$cycle) {
 
