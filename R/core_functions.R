@@ -45,7 +45,7 @@ get_life_stages <- function(transitions) {
 #' @param table input predictors table
 #' @param pred string specifying the name of the predictor, e.g. "host_den"
 #'
-#' @returns a numeric vector of predictor values, TODO named by `pred_subcategory`
+#' @returns a numeric vector of predictor values
 get_pred_from_table <- function(time, pred, table) {
   # NA entry in the j_day column indicates that the predictor does not vary
   # over time
