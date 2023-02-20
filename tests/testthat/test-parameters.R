@@ -25,3 +25,11 @@ test_that("parameters() output test", {
   class(expected) <- "parameters"
   expect_equal(result, expected)
 })
+
+test_that("parameters() sorts named vector parameters by names", {
+  result <- parameters(b = 1, a = c("y" = 1, "x" = 2))
+  # Note that parameter order is not changed, just order *within* vector parameters
+  expected <- list(b = 1, a = c("x" = 2, "y" = 1))
+  class(expected) <- "parameters"
+  expect_equal(result, expected)
+})
