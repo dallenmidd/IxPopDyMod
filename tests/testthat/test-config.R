@@ -235,20 +235,20 @@ test_that("works with multiple parameters with same names", {
 
 test_that("catches predictors and parameters with different names", {
   cfg <- config_example_a()
-  named_param <- parameters(host_preference = c("mouse" = 1, "deer" = 2))
+  named_param <- parameters(host_preference = c("deer" = 1, "rodent" = 2))
   cfg$cycle[[1]]$parameters <- c(cfg$cycle[[1]]$parameters, named_param)
   cfg$cycle[[1]]$fun <- function(x, y, a, host_preference) a
 
   cfg$preds <- data.frame(
     pred = c("temp", "host_density", "host_density"),
-    # Note that the order of the species is switched here
+    # Note that we have `mouse` instead of `rodent` here
     pred_subcategory = c(NA, "deer", "mouse"),
     j_day = NA,
     value = 1:3
   )
 
   expect_error(
-    do.call(config, cfg),
+    validate_config(cfg),
     regexp = "named parameters and predictors must have identical names"
   )
 })
