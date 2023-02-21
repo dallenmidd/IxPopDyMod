@@ -341,51 +341,52 @@ update_delay_arr <- function(
 
     days <- cumsum(val) >= 1
 
-    if (any(days)) {
-      # delay duration is the number of days until the first day when the sum
-      # of the daily probabilities >= 1
-      days_to_next <- min(which(days))
-
-      if (length(mort) > 1) {
-        # TODO move this to validation code
-        # Non-constant mortality
-        # We might ultimately want density_fun() to return a vector of length >
-        # 1, where the value for each day is calculated based on that day's
-        # feeding tick population. But currently, all mortality transitions are
-        # either constant_fun() or density_fun(), both of which return a vector
-        # of length 1, so we shouldn't ever get to this case.
-        stop("Found non-constant mortality for a delay transition. This
-             functionality has not been tested",
-             call. = FALSE
-        )
-
-        # in this case, mort is a vector of length max_delay. we subset it for
-        # the duration of the delay then elementwise subtract (1 - each element)
-        # to get vector of daily survival rate, and take product to get the
-        # overall survival rate throughout the delay
-        surv_to_next <- prod(1 - mort[1:days_to_next])
-      } else if (length(mort_tibble) == 1 &&
-                 mort_tibble[[1]]["mortality_type"] == "throughout_transition") {
-        # Apply per capita mortality once during transition, rather than every
-        # day
-        surv_to_next <- 1 - mort
-      } else {
-        # Constant mortality
-        surv_to_next <- (1 - mort)^days_to_next
-      }
-
-      # number of ticks emerging from from_stage to to_stage at time +
-      # days_to_next is the number of ticks that were already going to emerge
-      # then plus the current number of ticks in the from_stage * survival
-      delay_arr[from_stage, to_stage, time + days_to_next] <-
-        delay_arr[from_stage, to_stage, time + days_to_next] +
-        population[from_stage, time] * surv_to_next
-    } else {
+    if (!any(days)) {
       stop(
-        "cumsum of daily transition probabilities never reached 1,",
-        "max_delay may be too small"
+        "Cumulative sum of daily transition probabilities never reached 1, ",
+        "max_delay may be too small",
+        call. = FALSE
       )
     }
+
+    # delay duration is the number of days until the first day when the sum
+    # of the daily probabilities >= 1
+    days_to_next <- min(which(days))
+
+    if (length(mort) > 1) {
+      # TODO move this to validation code
+      # Non-constant mortality
+      # We might ultimately want density_fun() to return a vector of length >
+      # 1, where the value for each day is calculated based on that day's
+      # feeding tick population. But currently, all mortality transitions are
+      # either constant_fun() or density_fun(), both of which return a vector
+      # of length 1, so we shouldn't ever get to this case.
+      stop("Found non-constant mortality for a delay transition. This
+           functionality has not been tested",
+           call. = FALSE
+      )
+
+      # in this case, mort is a vector of length max_delay. we subset it for
+      # the duration of the delay then elementwise subtract (1 - each element)
+      # to get vector of daily survival rate, and take product to get the
+      # overall survival rate throughout the delay
+      surv_to_next <- prod(1 - mort[1:days_to_next])
+    } else if (length(mort_tibble) == 1 &&
+               mort_tibble[[1]]["mortality_type"] == "throughout_transition") {
+      # Apply per capita mortality once during transition, rather than every
+      # day
+      surv_to_next <- 1 - mort
+    } else {
+      # Constant mortality
+      surv_to_next <- (1 - mort)^days_to_next
+    }
+
+    # number of ticks emerging from from_stage to to_stage at time +
+    # days_to_next is the number of ticks that were already going to emerge
+    # then plus the current number of ticks in the from_stage * survival
+    delay_arr[from_stage, to_stage, time + days_to_next] <-
+      delay_arr[from_stage, to_stage, time + days_to_next] +
+      population[from_stage, time] * surv_to_next
   }
   return(delay_arr)
 }
