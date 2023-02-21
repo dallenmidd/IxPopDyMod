@@ -153,7 +153,7 @@ test_that("catches multiple mortality transitions from one stage", {
       transition("a", NULL, function() 1, "duration", mortality_type = "per_day"),
       transition("a", NULL, function() 2, "duration", mortality_type = "per_day")
     ),
-    regexp = "only have one duration type transition from each life stage"
+    regexp = "cannot be more than one transition between a pair of life stages"
   )
 })
 
