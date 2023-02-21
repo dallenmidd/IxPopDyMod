@@ -146,6 +146,17 @@ test_that("catches multiple duration transitions from one stage", {
   )
 })
 
+test_that("catches multiple mortality transitions from one stage", {
+  expect_error(
+    life_cycle(
+      transition("a", "b", function() 1, "duration"),
+      transition("a", NULL, function() 1, "duration", mortality_type = "per_day"),
+      transition("a", NULL, function() 2, "duration", mortality_type = "per_day")
+    ),
+    regexp = "only have one duration type transition from each life stage"
+  )
+})
+
 # query_transitions() ---------------------------------------------------------
 test_that("works with transition_type field", {
 
