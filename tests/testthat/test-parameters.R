@@ -33,3 +33,7 @@ test_that("parameters() sorts named vector parameters by names", {
   class(expected) <- "parameters"
   expect_equal(result, expected)
 })
+
+test_that("named scalar parameters are not allowed", {
+  expect_error(parameters(a = c("erroneous_name" = 1)))
+})

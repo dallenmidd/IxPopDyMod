@@ -34,10 +34,7 @@ assert_inputs_to_each_transition_function_are_valid <- function(cfg) {
     parameters <- inputs[["parameters"]]
     predictors <- inputs[["predictors"]]
 
-    # named values (which should also be scalar - TODO may need to add validation
-    # to ensure that only "vector" parameters or predictors can be named vectors,
-    # because there's no point/it shouldn't do anything if there's a named vector
-    # of length 1)
+    # Named, non-scalar values
     named_parameters <- Filter(function(x) !is.null(names(x)), parameters)
     named_predictors <- Filter(function(x) !is.null(names(x)), predictors)
 

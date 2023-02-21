@@ -19,6 +19,11 @@ new_parameters <- function(...) {
       if (!all(names(param) == sort(names(param)))) {
         stop("Vector parameters must be in alphabetical order", call. = FALSE)
       }
+    } else if (!is.null(names(param))) {
+      stop(
+        "Scalar parameters must not have names. Found name: `", names(param), "`",
+        call. = FALSE
+      )
     }
   }
 
