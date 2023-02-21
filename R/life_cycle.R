@@ -133,7 +133,7 @@ coerce_transition <- function(index, transitions) {
   each_transition <- transitions[[index]]
   expected_args <- names(formals(transition))
   actual_args <- as.character(names(each_transition))
-  valid <- checkmate::assert_set_equal( # TODO remove assignment?
+  checkmate::assert_set_equal(
     actual_args,
     expected_args,
     .var.name = paste("elements of transition at index:", index)
