@@ -155,10 +155,7 @@ coerce_transition <- function(index, transitions) {
 #' @noRd
 query_transitions <- function(cycle, field, value) {
   search_fun <- function(each_transition) each_transition[[field]] == value
-  cycle[
-    vapply(cycle, search_fun, FUN.VALUE = logical(1)),
-    drop = FALSE # TODO not relevant for lists
-  ]
+  Filter(search_fun, cycle)
 }
 
 #' Get either mortality or non-mortality `transition`s
@@ -168,10 +165,7 @@ query_transitions <- function(cycle, field, value) {
 #' @returns a subset of the input life cycle
 #' @noRd
 query_transitions_by_mortality <- function(cycle, mortality) {
-  cycle[
-    vapply(cycle, transition_is_mortality, logical(1)) == mortality,
-    drop = TRUE # TODO not relevant for lists
-  ]
+  cycle[vapply(cycle, transition_is_mortality, logical(1)) == mortality]
 }
 
 #' Get the names of unique life stages
