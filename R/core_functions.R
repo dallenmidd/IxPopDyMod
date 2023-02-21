@@ -151,7 +151,6 @@ get_pred <- function(
 get_transition_value <- function(
     time, transition, predictors, max_duration, population, developing_population
 ) {
-  stopifnot(inherits(transition, "transition"))
 
   inputs <- get_transition_inputs_unevaluated(
     time = time,
@@ -309,36 +308,17 @@ update_delay_arr <- function(
       developing_population = developing_population
     )
 
-    # daily or per capita mortality during the delayed transition
-    # each "from" stage has either 1 or 0 corresponding mortality transitions
-
-    mort_tibble <- transitions %>%
-      query_transitions("from", from_stage) %>%
-      query_transitions_by_mortality(mortality = TRUE)
-
-    if (length(mort_tibble) == 1) {
-      mort <- get_transition_value(
-        time = time,
-        transition = mort_tibble[[1]],
-        predictors = predictors,
-        max_duration = max_delay,
-        population = population,
-        developing_population = developing_population
-      )
-    } else if (length(mort_tibble) == 0) {
-      mort <- 0
-    }
-
     # Constant functions (for a fixed delay transition) return a single value
     # We increase the length so that we can do a cumsum over the vector
     # We add 1 for consistency with output vector length from non-constant fxns,
     # which is determined by time:(time + max_delay) in get_pred()
     # TODO move this to get_transition_value() - but it shouldn't apply to mortality?
     if (length(val) == 1) val <- rep(val, max_delay + 1)
-
     days <- cumsum(val) >= 1
 
     if (!any(days)) {
+      # Note that this has to be a run-time check, because it's dependent on
+      # model state that varies throughout the model run
       stop(
         "Cumulative sum of daily transition probabilities never reached 1, ",
         "max_delay may be too small",
@@ -346,36 +326,58 @@ update_delay_arr <- function(
       )
     }
 
-    # delay duration is the number of days until the first day when the sum
+    # Transition duration is the number of days until the first day when the sum
     # of the daily probabilities >= 1
     days_to_next <- min(which(days))
 
-    if (length(mort) > 1) {
-      # TODO move this to validation code
-      # Non-constant mortality
-      # We might ultimately want density_fun() to return a vector of length >
-      # 1, where the value for each day is calculated based on that day's
-      # feeding tick population. But currently, all mortality transitions are
-      # either constant_fun() or density_fun(), both of which return a vector
-      # of length 1, so we shouldn't ever get to this case.
-      stop("Found non-constant mortality for a delay transition. This
-           functionality has not been tested",
-           call. = FALSE
-      )
+    # daily or per capita mortality during the delayed transition
 
-      # in this case, mort is a vector of length max_delay. we subset it for
-      # the duration of the delay then elementwise subtract (1 - each element)
-      # to get vector of daily survival rate, and take product to get the
-      # overall survival rate throughout the delay
-      surv_to_next <- prod(1 - mort[1:days_to_next])
-    } else if (length(mort_tibble) == 1 &&
-               mort_tibble[[1]]["mortality_type"] == "throughout_transition") {
-      # Apply per capita mortality once during transition, rather than every
-      # day
-      surv_to_next <- 1 - mort
+    # Get the 1 or 0 mortality transitions corresponding to the "from" stage
+    mort_transition <- transitions %>%
+      query_transitions("from", from_stage) %>%
+      query_transitions_by_mortality(mortality = TRUE) %>%
+      unlist(recursive = FALSE)
+
+    if (is.null(mort_transition)) {
+      # Case where there's no explicit mortality
+      surv_to_next <- 1
     } else {
-      # Constant mortality
-      surv_to_next <- (1 - mort)^days_to_next
+      # Case where there's on transition representing mortality
+      mort <- get_transition_value(
+        time = time,
+        transition = mort_transition,
+        predictors = predictors,
+        max_duration = max_delay,
+        population = population,
+        developing_population = developing_population
+      )
+      if (length(mort) > 1) {
+        # Case with vector of variable mortality values
+        # TODO move this to validation code - a bit tricky because the length of
+        # the vector `mort` is determined by the output of the transition function.
+        # We might ultimately want density_fun() to return a vector of length >
+        # 1, where the value for each day is calculated based on that day's
+        # feeding tick population. But currently, all mortality transitions are
+        # either constant_fun() or density_fun(), both of which return a vector
+        # of length 1, so we shouldn't ever get to this case.
+        stop(
+          "Found non-constant mortality for a duration-based transition. This ",
+          "is untested functionality.",
+           call. = FALSE
+        )
+
+        # in this case, mort is a vector of length max_delay. we subset it for
+        # the duration of the delay then elementwise subtract (1 - each element)
+        # to get vector of daily survival rate, and take product to get the
+        # overall survival rate throughout the delay
+        surv_to_next <- prod(1 - mort[1:days_to_next])
+      } else if (mort_transition[["mortality_type"]] == "throughout_transition") {
+        # Apply scalar mortality once during the transition
+        surv_to_next <- 1 - mort
+      } else {
+        # Apply scalar mortality every day
+        surv_to_next <- (1 - mort) ^ days_to_next
+      }
     }
 
     # number of ticks emerging from from_stage to to_stage at time +
