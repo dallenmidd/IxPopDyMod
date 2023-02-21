@@ -391,9 +391,7 @@ update_delay_arr <- function(
 }
 
 #' Generate an empty delay array
-#' TODO dimensions are one of...
-#' dimensions: to, from, time
-#' dimensions: from, to, time
+#' Dimensions are: from, to, time
 empty_delay_array <- function(life_stages, steps, max_duration) {
   array(
     dim = c(length(life_stages), length(life_stages), steps + max_duration),
