@@ -475,9 +475,8 @@ run <- function(cfg) {
 
   # at each time step
   for (time in 1:(cfg$steps - 1)) {
-    # TODO verbose flag would be nice. Could turn off messages in tests. Also
-    # should use cat() or message()
-    if (time %% 100 == 0) print(paste("day", time))
+    # TODO verbose flag would be nice. Could turn off messages in tests
+    if (time %% 100 == 0) message("Day: ", time)
 
     # Calculate the number of ticks currently in delayed development NOT
     # INCLUDING those added on current day, because that would be double
