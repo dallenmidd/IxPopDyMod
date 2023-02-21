@@ -1391,6 +1391,15 @@
       a    0    0    0
       b    0    0    0
 
+# empty_transition_matrix snpashot
+
+    Code
+      empty_transition_matrix(life_stages = c("a", "b"))
+    Output
+        a b
+      a 0 0
+      b 0 0
+
 # set_initial_population snapshot
 
     Code

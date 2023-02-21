@@ -411,7 +411,6 @@ empty_population_matrix <- function(life_stages, steps) {
 }
 
 #' Create an empty matrix of transition probabilities between life stages
-#' TODO write unit test(s)
 empty_transition_matrix <- function(life_stages) {
   n_life_stages <- length(life_stages)
   matrix(

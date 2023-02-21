@@ -418,6 +418,10 @@ test_that("empty_population_matrix snapshot", {
   expect_snapshot(empty_population_matrix(c("a", "b"), 3))
 })
 
+test_that("empty_transition_matrix snpashot", {
+  expect_snapshot(empty_transition_matrix(life_stages = c("a", "b")))
+})
+
 test_that("set_initial_population snapshot", {
   population <- empty_population_matrix(c("a", "b"), 3)
   expect_snapshot(set_initial_population(population, c("b" = 10)))
@@ -431,8 +435,6 @@ test_that("model output for ogden config stays the same", {
   cfg$steps <- 365
   expect_snapshot_value(run(cfg), style = "serialize")
 })
-
-
 
 test_that("update_delay_arr works", {
   cfg <- config_example_a()
