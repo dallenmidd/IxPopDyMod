@@ -29,6 +29,7 @@ validate_life_cycle <- function(cycle) {
   assert_transition_accompanies_each_mortality(cycle)
   assert_only_one_transition_type_from_each_stage(cycle)
   assert_max_one_duration_transition_from_each_stage(cycle)
+  assert_max_one_mortality_from_each_stage(cycle)
   # assert_transitions_form_a_cycle(cycle)
   return(cycle)
 }
@@ -89,6 +90,20 @@ assert_max_one_duration_transition_from_each_stage <- function(cycle) {
     if (length(transitions) > 1) {
       stop(
         "Can only have one duration type transition from each life stage",
+        call. = FALSE
+      )
+    }
+  }
+}
+
+assert_max_one_mortality_from_each_stage <- function(cycle) {
+  for (stage in life_stages(cycle)) {
+    mortality <- cycle %>%
+      query_transitions_by_mortality(mortality = TRUE) %>%
+      query_transitions(field = "from", value = stage)
+    if (length(mortality) > 1) {
+      stop(
+        "Can only have one mortality transition from each life stage",
         call. = FALSE
       )
     }
