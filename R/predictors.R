@@ -93,7 +93,6 @@ validate_predictors <- function(df) {
 #' \describe{
 #'   \item{pred}{String specifying the name of the predictor, e.g. "temp" or
 #'   "host_den"}
-#'   # TODO use of `pred_subcategory` is messy, especially the dependence on order
 #'   \item{pred_subcategory}{This column allows specifying predictors for which
 #'   there are multiple values for a given j_day. Predictor values are sorted by
 #'   this column in the config set up. This ensures that when accessing a

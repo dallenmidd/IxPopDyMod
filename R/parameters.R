@@ -10,8 +10,6 @@ new_parameters <- function(...) {
     checkmate::assert_names(names(parameters), type = "unique")
   }
 
-  # TODO need to figure out how to use vector names for matching parameters
-  # to host species density predictor values
   for (param in parameters) {
     checkmate::assert_numeric(param, min.len = 1L)
     if (length(param) > 1) {
