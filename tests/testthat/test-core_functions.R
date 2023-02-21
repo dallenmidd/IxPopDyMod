@@ -399,14 +399,14 @@ test_that("`gen_transition_matrix()` works with life_cycle_example_a()", {
 
 test_that("model output for `config_ex_1` stays the same", {
   # testthat::skip("long running")
-  expect_snapshot_value(run(config_ex_1), style = "serialize")
+  expect_snapshot_value(run(config_ex_1, progress = FALSE), style = "serialize")
 })
 
 test_that("model output for `config_ex_2` stays the same", {
   # skipped on CRAN because it is long-running
   # testthat::skip("long running")
   testthat::skip_on_cran()
-  expect_snapshot_value(run(config_ex_2), style = "serialize")
+  expect_snapshot_value(run(config_ex_2, progress = FALSE), style = "serialize")
 })
 
 # NOTE tests on new core_functions.R methods ----------------------------------
@@ -433,7 +433,7 @@ test_that("model output for ogden config stays the same", {
   # reducing steps to a year to reduce run time
   cfg <- ogden2005
   cfg$steps <- 365
-  expect_snapshot_value(run(cfg), style = "serialize")
+  expect_snapshot_value(run(cfg, progress = FALSE), style = "serialize")
 })
 
 test_that("update_delay_arr works", {

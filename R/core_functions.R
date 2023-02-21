@@ -439,6 +439,7 @@ set_initial_population <- function(population, initial_population) {
 #' @importFrom dplyr row_number
 #'
 #' @param cfg An `IxPopDyMod::config` object
+#' @param progress Boolean indicating whether to log progress every 100 steps
 #'
 #' @return Data frame of population of ticks of each life stage each day
 #'
@@ -446,7 +447,7 @@ set_initial_population <- function(population, initial_population) {
 #' run(config_ex_1)
 #'
 #' @export
-run <- function(cfg) {
+run <- function(cfg, progress = TRUE) {
 
   # 00 get valid life stages
   life_stages <- life_stages(cfg$cycle)
@@ -475,8 +476,10 @@ run <- function(cfg) {
 
   # at each time step
   for (time in 1:(cfg$steps - 1)) {
-    # TODO verbose flag would be nice. Could turn off messages in tests
-    if (time %% 100 == 0) message("Day: ", time)
+
+    if (progress && time %% 100 == 0) {
+      message("Day: ", time)
+    }
 
     # Calculate the number of ticks currently in delayed development NOT
     # INCLUDING those added on current day, because that would be double
