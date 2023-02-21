@@ -37,3 +37,10 @@ test_that("parameters() sorts named vector parameters by names", {
 test_that("named scalar parameters are not allowed", {
   expect_error(parameters(a = c("erroneous_name" = 1)))
 })
+
+test_that("vector parameters must be ordered alphabetically by name", {
+  expect_error(
+    new_parameters(a = c("z" = 1, "a" = 2)),
+    regexp = "must be in alphabetical order"
+  )
+})
