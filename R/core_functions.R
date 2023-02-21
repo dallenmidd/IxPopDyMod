@@ -330,12 +330,6 @@ update_delay_arr <- function(
       )
     } else if (length(mort_tibble) == 0) {
       mort <- 0
-    } else {
-      # TODO this assertion should live in validation code
-      stop(
-        length(mort_tibble),
-        " mortality transitions found from a single stage, should be 1 or 0"
-      )
     }
 
     # Constant functions (for a fixed delay transition) return a single value
