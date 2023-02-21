@@ -106,10 +106,7 @@ get_pred <- function(
   ) {
   life_stages <- rownames(population)
 
-  if (is.na(pred)) {
-    # TODO no longer a possible case with new structure
-    NULL
-  } else if (pred %in% valid_predictors_from_table(predictors)) {
+  if (pred %in% valid_predictors_from_table(predictors)) {
     # TODO "host_den" is hardcoded here as the only predictor from the predictors
     # table for which we only use the predictor value at the first day of the
     # transition. Should this be part of the configuration for each predictor?
@@ -120,8 +117,8 @@ get_pred <- function(
   } else if (any(stringr::str_detect(life_stages, pred))) {
     get_tick_den(time, pred, population, developing_population)
   } else {
-    # TODO no longer a possible case with new structure
-    stop("failed to match predictor: \"", pred, "\"")
+    # Validation should prevent hitting this case
+    stop("Failed to match predictor: \"", pred, "\"", call. = FALSE)
   }
 }
 

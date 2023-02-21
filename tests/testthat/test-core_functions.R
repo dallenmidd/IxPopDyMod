@@ -132,21 +132,6 @@ test_that("`get_pred()` works with tick density data with or without delay", {
   expect_equal(result_no_delay, expected)
 })
 
-test_that("`get_pred()` works with no predictor with or without delay", {
-  result_delay <- get_pred(
-    time = 1, pred = NA, is_delay = TRUE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L, predictors = data.frame()
-  )
-
-  result_no_delay <- get_pred(
-    time = 1, pred = NA, is_delay = FALSE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L, predictors = data.frame()
-  )
-
-  expect_equal(result_delay, NULL)
-  expect_equal(result_no_delay, NULL)
-})
-
 test_that("`get_pred()` works with predictors in table with no delay", {
   predictors <- data.frame(
     value = 11:20,
