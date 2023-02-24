@@ -27,13 +27,10 @@ new_predictors <- function(df) {
 #' @returns the input, if checks pass
 #' @noRd
 validate_predictors <- function(df) {
-
+  assert_predictors_are_ordered(df)
   for (pred in unique(df$pred)) {
-
     subset <- df[df[["pred"]] == pred, ]
-
     assert_jday_entirely_na_or_numeric(subset = subset, pred = pred)
-
     if (all(!is.na(subset$j_day))) {
       # condition with no NA j_days, meaning predictor is variable over time
       max_day <- max(df$j_day, na.rm = TRUE)
@@ -42,10 +39,7 @@ validate_predictors <- function(df) {
       )
     }
   }
-
-  assert_predictors_are_ordered(df)
-
-  return(df)
+  df
 }
 
 assert_predictors_are_ordered <- function(df) {
