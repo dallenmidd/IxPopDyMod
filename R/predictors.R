@@ -28,12 +28,6 @@ new_predictors <- function(df) {
 #' @noRd
 validate_predictors <- function(df) {
 
-  # get the maximum day for any predictor
-  if (!all(is.na(df$j_day))) {
-    max_day <- max(df$j_day, na.rm = TRUE)
-    expected_days <- 1:max_day
-  }
-
   for (pred in unique(df$pred)) {
 
     subset <- df[df[["pred"]] == pred, ]
@@ -42,24 +36,10 @@ validate_predictors <- function(df) {
 
     if (all(!is.na(subset$j_day))) {
       # condition with no NA j_days, meaning predictor is variable over time
-      # each subcategory's j_day range must be set equal to 1:max_day
-      for (subcategory in unique(subset$pred_subcategory)) {
-        subcategory_subset <- subset[
-          (subset[["pred_subcategory"]] == subcategory) |
-            (is.na(subset[["pred_subcategory"]]) & is.na(subcategory)),
-        ]
-        actual_days <- subcategory_subset$j_day
-        if (!setequal(expected_days, actual_days)) {
-          missing_days <- setdiff(expected_days, actual_days)
-          stop(
-            "Variable predictors must have a row for each `j_day` between 1 ",
-            "and the final day when there is any predictor data, but ",
-            "the `pred` '", pred, "' and the subcategory '", subcategory,
-            "' is missing day(s): ", to_short_string(missing_days),
-            call. = FALSE
-          )
-        }
-      }
+      max_day <- max(df$j_day, na.rm = TRUE)
+      assert_predictor_extends_up_to_max_day(
+        subset = subset, pred = pred, max_day = max_day
+      )
     }
   }
 
@@ -93,6 +73,30 @@ assert_jday_entirely_na_or_numeric <- function(subset, pred) {
     }
   }
 }
+
+assert_predictor_extends_up_to_max_day <- function(subset, pred, max_day) {
+  # each subcategory's j_day range must reach to the max day for any predictor
+  for (subcategory in unique(subset$pred_subcategory)) {
+    subcategory_subset <- subset[
+      (subset[["pred_subcategory"]] == subcategory) |
+        (is.na(subset[["pred_subcategory"]]) & is.na(subcategory)),
+    ]
+    actual_days <- subcategory_subset$j_day
+    expected_days <- 1:max_day
+    if (!setequal(expected_days, actual_days)) {
+      missing_days <- setdiff(expected_days, actual_days)
+      stop(
+        "Variable predictors must have a row for each `j_day` between 1 ",
+        "and the final day when there is any predictor data, but ",
+        "the `pred` '", pred, "' and the subcategory '", subcategory,
+        "' is missing day(s): ", to_short_string(missing_days),
+        call. = FALSE
+      )
+    }
+  }
+}
+
+
 
 #' Create a table of `predictors`
 #'
