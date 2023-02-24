@@ -72,6 +72,12 @@ validate_predictors <- function(df) {
     }
   }
 
+  assert_predictors_are_ordered(df)
+
+  return(df)
+}
+
+assert_predictors_are_ordered <- function(df) {
   actual_order <- order(df$j_day, df$pred, df$pred_subcategory, na.last = FALSE)
   expected_order <- seq_len(nrow(df))
   if (!all(actual_order == expected_order)) {
@@ -80,8 +86,6 @@ validate_predictors <- function(df) {
       call. = FALSE
     )
   }
-
-  return(df)
 }
 
 #' Create a table of `predictors`
