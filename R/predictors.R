@@ -37,19 +37,10 @@ validate_predictors <- function(df) {
   for (pred in unique(df$pred)) {
 
     subset <- df[df[["pred"]] == pred, ]
-    na_days <- is.na(subset$j_day)
 
-    if (any(na_days)) {
-      # condition with constant predictor
-      if (!(all(na_days))) {
-        stop(
-          "The `j_day` column for each `pred` must be entirely NA (indicating ",
-          "a constant value) or entirely non-NA (variable value), but ",
-          "the `pred` '", pred, "' has a mix of NA and non-NA `j_day` values.",
-          call. = FALSE
-        )
-      }
-    } else {
+    assert_jday_entirely_na_or_numeric(subset = subset, pred = pred)
+
+    if (!any(is.na(subset$j_day))) {
       # condition with no NA j_days, meaning predictor is variable over time
       # each subcategory's j_day range must be set equal to 1:max_day
       for (subcategory in unique(subset$pred_subcategory)) {
@@ -85,6 +76,21 @@ assert_predictors_are_ordered <- function(df) {
       "predictors must be ordered by `j_day`, `pred`, then `pred_subcategory` columns",
       call. = FALSE
     )
+  }
+}
+
+assert_jday_entirely_na_or_numeric <- function(subset, pred) {
+  na_days <- is.na(subset$j_day)
+  if (any(na_days)) {
+    # condition with constant predictor
+    if (!(all(na_days))) {
+      stop(
+        "The `j_day` column for each `pred` must be entirely NA (indicating ",
+        "a constant value) or entirely non-NA (variable value), but ",
+        "the `pred` '", pred, "' has a mix of NA and non-NA `j_day` values.",
+        call. = FALSE
+      )
+    }
   }
 }
 
