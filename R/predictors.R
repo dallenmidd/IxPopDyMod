@@ -40,7 +40,7 @@ validate_predictors <- function(df) {
 
     assert_jday_entirely_na_or_numeric(subset = subset, pred = pred)
 
-    if (!any(is.na(subset$j_day))) {
+    if (all(!is.na(subset$j_day))) {
       # condition with no NA j_days, meaning predictor is variable over time
       # each subcategory's j_day range must be set equal to 1:max_day
       for (subcategory in unique(subset$pred_subcategory)) {
