@@ -1,5 +1,6 @@
 linters: linters_with_defaults(
-  object_length_linter(Inf)
+  object_length_linter(Inf),
+  line_length_linter(100)
   ) # see vignette("lintr")
 encoding: "UTF-8"
 exclusions: list("data-raw/")
