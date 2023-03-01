@@ -54,7 +54,7 @@
       NULL
       
       $fun
-      function() {}
+      function() NULL
       <environment: R_EmptyEnv>
       attr(,"class")
       [1] "transition_function"
