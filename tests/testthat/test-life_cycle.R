@@ -254,13 +254,3 @@ test_that("output test", {
   input <- life_cycle(transition_example_a(), transition_example_b())
   expect_identical(life_stages(input), c("a", "b"))
 })
-
-
-
-
-
-
-
-
-
-
