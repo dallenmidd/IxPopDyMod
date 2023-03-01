@@ -1,11 +1,9 @@
-# transition_functions.R
 # Default transition functions. Users may use custom functions by loading them
 # into the environment, e.g. by sourcing a file with function definitions.
 
 #' Exponential function
 #'
 #' @param x Predictor 1 in transitions table.
-#' @param y Predictor 2 in transitions table. Not used in this function.
 #' @param a Parameter `a` in parameters table.
 #' @param b Parameter `b` in parameters table.
 #'
@@ -15,11 +13,9 @@
 #' expo_fun(.5, NULL, .1, .3)
 #'
 #' @export
-expo_fun <- function(x, y, a, b) ifelse(x > 0, a * x^b, 0)
+expo_fun <- function(x, a, b) ifelse(x > 0, a * x^b, 0)
 
 #' Constant function
-#' @param x Predictor 1 in transitions table. Not used in this function
-#' @param y Predictor 2 in transitions table. Not used in this function
 #' @param a Parameter `a` in parameters table.
 #'
 #' @return Numeric vector of length 1 equal to input parameter `a`
@@ -27,7 +23,7 @@ expo_fun <- function(x, y, a, b) ifelse(x > 0, a * x^b, 0)
 #' @examples
 #' constant_fun(NULL, NULL, 1)
 #' @export
-constant_fun <- function(x, y, a) a
+constant_fun <- function(a) a
 
 #' Probability of finding a host and successfully feeding on it
 #' @param x Predictor 1 in transitions table. Numeric vector indicating host
@@ -105,7 +101,6 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 #'
 #' @param x Predictor 1 in transitions table. Numeric vector of length 1
 #'   indicating temperature.
-#' @param y Predictor 2 in transitions table. Not used in this function.
 #' @param a Parameter `a` in parameters table.
 #' @param q Parameter `q` in parameters table. Used in Briere function.
 #' @param tmin Parameter `tmin` in parameters table. Indicates minimum
@@ -119,7 +114,7 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 #' ogden_feed_fun(30, NULL, .03, .01, 10, 35)
 #'
 #' @export
-ogden_feed_fun <- function(x, y, a, q, tmin, tmax) {
+ogden_feed_fun <- function(x, a, q, tmin, tmax) {
   a * ifelse(x > tmin & x < tmax, q * x * (x - tmin) * sqrt(tmax - x), 0)
 }
 

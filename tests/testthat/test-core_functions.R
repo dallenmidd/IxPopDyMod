@@ -26,59 +26,53 @@ test_that("`get_life_stages()` works with `ogden2005` data", {
     "__e", "e_l", "e_n", "a_l", "a_n", "h_l", "q_l", "e_a", "r_a", "a_a", "q_a",
     "q_n"
   )
-  expect_equal(get_life_stages(ogden2005$transitions), expected_life_stages)
+  expect_equal(life_stages(ogden2005$cycle), expected_life_stages)
 })
 
-test_that("`get_life_stages()` works with `config_ex_1` data", {
+test_that("`life_stages()` works with `config_ex_1` data", {
   expected_life_stages <- c("__e", "__l", "__n", "__a")
-  expect_equal(get_life_stages(config_ex_1$transitions), expected_life_stages)
+  expect_equal(life_stages(config_ex_1$cycle), expected_life_stages)
 })
 
-test_that("`get_life_stages()` works with `config_ex_2` data", {
+test_that("`life_stages()` works with `config_ex_2` data", {
   expected_life_stages <- c("__e", "__l", "__n", "__a")
-  expect_equal(get_life_stages(config_ex_2$transitions), expected_life_stages)
+  expect_equal(life_stages(config_ex_2$cycle), expected_life_stages)
 })
 
 test_that("`get_pred_from_table()` works with constant predictors", {
   expect_equal(
-    get_pred_from_table(1, "host_den", ogden2005$predictors),
-    c(20, 200)
+    get_pred_from_table(1, "host_den", ogden2005$preds),
+    c(deer = 20, mouse = 200)
   )
   expect_equal(
-    get_pred_from_table(1:10, "host_den", ogden2005$predictors),
-    c(20, 200)
+    get_pred_from_table(1:10, "host_den", ogden2005$preds),
+    c(deer = 20, mouse = 200)
   )
 })
 
 test_that("`get_pred_from_table()` works with variable predictors", {
   expect_equal(
-    get_pred_from_table(1, "temp", ogden2005$predictors),
+    get_pred_from_table(1, "temp", ogden2005$preds),
     0
   )
   expect_equal(
-    get_pred_from_table(1:10, "temp", ogden2005$predictors),
+    get_pred_from_table(1:10, "temp", ogden2005$preds),
     rep(0, 10)
   )
 })
 
 test_that("`get_tick_den()` works", {
-  # TODO too much work to setup test... evidence of refactor need, specifically
-  # extracting pop matrix setup into function
 
   # Arrange
-  steps <- 3
-  life_stages <- c("a", "b", "c")
-  num_life_stages <- length(life_stages)
-  population <- matrix(1:9, nrow = num_life_stages, ncol = steps)
-  rownames(population) <- life_stages
+  pop <- empty_population_matrix(life_stages = c("a", "b", "c"), steps = 3)
+  pop[] <- 1:9
 
   # Act
   result <- get_tick_den(
     time = 2,
-    population = population,
-    developing_population = population,
     pred = "a|b",
-    life_stages = life_stages
+    population = pop,
+    developing_population = pop
   )
 
   # Assert
@@ -94,21 +88,19 @@ test_that("`get_pred()` works for host density data with or without delay", {
     pred_subcategory = c("species a", "species b")
   )
 
-  expected <- c(1, 2)
+  expected <- c("species a" = 1, "species b" = 2)
 
   # Act
   # host density predictor value should be same regardless of whether transition
   # is a delay
   result_delay <- get_pred(
     time = 1L, pred = "host_den", is_delay = TRUE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L,
-    life_stages = c("a", "b", "c"), predictors = predictors
+    developing_population = matrix(), max_delay = 365L, predictors = predictors
   )
 
   result_no_delay <- get_pred(
     time = 1L, pred = "host_den", is_delay = FALSE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L,
-    life_stages = c("a", "b", "c"), predictors = predictors
+    developing_population = matrix(), max_delay = 365L, predictors = predictors
   )
 
   # Assert
@@ -127,36 +119,17 @@ test_that("`get_pred()` works with tick density data with or without delay", {
   # is a delay
   result_delay <- get_pred(
     time = 1L, pred = "[ab]", is_delay = TRUE, population = population,
-    developing_population = population, max_delay = 365L,
-    life_stages = c("a", "b", "c"), predictors = data.frame()
+    developing_population = population, max_delay = 365L, predictors = data.frame()
   )
 
   result_no_delay <- get_pred(
     time = 1L, pred = "[ab]", is_delay = FALSE, population = population,
-    developing_population = population, max_delay = 365L,
-    life_stages = c("a", "b", "c"), predictors = data.frame()
+    developing_population = population, max_delay = 365L, predictors = data.frame()
   )
 
   # Assert
   expect_equal(result_delay, expected)
   expect_equal(result_no_delay, expected)
-})
-
-test_that("`get_pred()` works with no predictor with or without delay", {
-  result_delay <- get_pred(
-    time = 1, pred = NA, is_delay = TRUE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L,
-    life_stages = c("a", "b"), predictors = data.frame()
-  )
-
-  result_no_delay <- get_pred(
-    time = 1, pred = NA, is_delay = FALSE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L,
-    life_stages = c("a", "b"), predictors = data.frame()
-  )
-
-  expect_equal(result_delay, NULL)
-  expect_equal(result_no_delay, NULL)
 })
 
 test_that("`get_pred()` works with predictors in table with no delay", {
@@ -173,7 +146,6 @@ test_that("`get_pred()` works with predictors in table with no delay", {
     population = matrix(),
     developing_population = matrix(),
     max_delay = 365L,
-    life_stages = c(),
     predictors = predictors
   )
 
@@ -194,35 +166,29 @@ test_that("`get_pred()` works with predictors in table with delay", {
     population = matrix(),
     developing_population = matrix(),
     max_delay = 365L,
-    life_stages = c(),
     predictors = predictors
   )
 
   expect_equal(result, 15:20)
 })
 
-test_that("`get_transition_val()` works with no predictors and no delay", {
+test_that("`get_transition_value()` works with no predictors and probability-based transition", {
   # Arrange
-  # TODO also test with a custom function?
-
-  transition_row_with_parameters <- data.frame(
+  t <- transition(
     from = "a",
     to = "b",
-    transition_fun = "constant_fun",
-    delay = FALSE,
-    pred1 = NA,
-    pred2 = NA
+    fun = function(c) c,
+    transition_type = "probability",
+    parameters = c("c" = 5)
   )
-  transition_row_with_parameters$params_list[1] <- list("a" = 5)
 
   # Act
-  result <- get_transition_val(
+  result <- get_transition_value(
     time = 1,
-    transition_row_with_parameters = transition_row_with_parameters,
-    population = matrix(),
-    developing_population = matrix(),
-    max_delay = 365L,
-    life_stages = c("a", "b", "c"),
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
     predictors = data.frame()
   )
 
@@ -230,181 +196,258 @@ test_that("`get_transition_val()` works with no predictors and no delay", {
   expect_equal(result, 5)
 })
 
-test_that("`get_transition_val()` works with no predictors and delay", {
+test_that("`get_transition_value()` works with no predictors and duration-based transition", {
   # Arrange
-  transition_row_with_parameters <- data.frame(
+  t <- transition(
     from = "a",
     to = "b",
-    transition_fun = "constant_fun",
-    delay = TRUE,
-    pred1 = NA,
-    pred2 = NA
+    fun = function(c) c,
+    transition_type = "duration",
+    parameters = c("c" = 5)
   )
-  transition_row_with_parameters$params_list[1] <- list("a" = 5)
 
   # Act
-  result <- get_transition_val(
+  result <- get_transition_value(
     time = 1,
-    transition_row_with_parameters = transition_row_with_parameters,
-    population = matrix(),
-    developing_population = matrix(),
-    max_delay = 365L,
-    life_stages = c("a", "b", "c"),
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
     predictors = data.frame()
   )
 
   # Assert
+  # TODO should be a vector of length > 1
   expect_equal(result, 5)
 })
 
-test_that("`get_transition_val()` works with a predictor that varies over time
-  and delay", {
+test_that("`get_transition_value()` works with a predictor that varies over time
+  and a duration-based transition", {
   # Arrange
-
-  transition_row_with_parameters <- data.frame(
+  t <- transition(
     from = "a",
     to = "b",
-    transition_fun = "expo_fun",
-    delay = TRUE,
-    pred1 = "temp",
-    pred2 = NA
+    fun = function(x) x,
+    transition_type = "duration",
+    predictors = c(x = "temp")
   )
-  transition_row_with_parameters$params_list[1] <- list(c("a" = 2, "b" = 1))
 
-  # TODO could be a fixture
-  predictors <- data.frame(
-    value = 11:20,
+  predictors <- new_predictors(data.frame(
+    pred = "temp",
+    pred_subcategory = NA,
     j_day = 1:10,
-    pred = "temp"
-  )
+    value = 11:20
+  ))
+
 
   # Act
-  result <- get_transition_val(
+  result <- get_transition_value(
     time = 1,
-    transition_row_with_parameters = transition_row_with_parameters,
-    population = matrix(),
-    developing_population = matrix(),
-    max_delay = 365L,
-    life_stages = c("a", "b", "c"),
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
     predictors = predictors
   )
 
   # Assert
-  expect_equal(result, seq(22, 40, by = 2))
+  expect_equal(result, 11:20)
 })
 
-test_that("`get_transition_val()` works with a predictor that varies over time
- and no delay", {
+test_that("`get_transition_value()` works with a predictor that varies over time
+ and a probability-based transition", {
   # Arrange
-
-  transition_row_with_parameters <- data.frame(
+  t <- transition(
     from = "a",
     to = "b",
-    transition_fun = "expo_fun",
-    delay = FALSE,
-    pred1 = "temp",
-    pred2 = NA
+    fun = function(x) x,
+    transition_type = "probability",
+    predictors = c(x = "temp")
   )
-  transition_row_with_parameters$params_list[1] <- list(c("a" = 2, "b" = 1))
 
-  # TODO could be a fixture
-  predictors <- data.frame(
-    value = 11:20,
+  predictors <- new_predictors(data.frame(
+    pred = "temp",
+    pred_subcategory = NA,
     j_day = 1:10,
-    pred = "temp"
-  )
+    value = 11:20
+  ))
+
 
   # Act
-  result <- get_transition_val(
+  result <- get_transition_value(
     time = 1,
-    transition_row_with_parameters = transition_row_with_parameters,
-    population = matrix(),
-    developing_population = matrix(),
-    max_delay = 365L,
-    life_stages = c("a", "b", "c"),
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
     predictors = predictors
   )
 
   # Assert
-  expect_equal(result, 22)
+  expect_equal(result, 11)
 })
 
-test_that("`gen_trans_matrix() works with `config_ex_1`", {
-  life_stages <- get_life_stages(config_ex_1$transitions)
-  expected <- matrix(
-    0,
-    4,
-    4,
-    dimnames = list(life_stages, life_stages)
+test_that("parameters and predictors get reordered to same order", {
+
+  t <- transition(
+    from = "a",
+    to = "b",
+    fun = function(x, y) sum(x * y),
+    transition_type = "probability",
+    predictors = c(x = "host_den"),
+    parameters = parameters(y = c("mouse" = 1, "deer" = 2, "squirrel" = 3))
   )
+
+  predictors <- predictors(data.frame(
+    pred = "host_den",
+    pred_subcategory = c("deer", "squirrel", "mouse"),
+    value = c(2, 3, 1),
+    j_day = NA
+  ))
+
+  inputs <- get_transition_inputs_unevaluated(
+    time = 1,
+    transition = t,
+    population = empty_population_matrix(c("a", "b"), 10L),
+    developing_population = empty_population_matrix(c("a", "b"), 10L),
+    max_duration = 365L,
+    predictors = predictors
+  )
+
+  # in this case, we know that there's just one parameter and predictor element
+  # each, so we unlist by getting the first element
+  param_names <- names(inputs$parameters[[1]])
+  pred_names <- names(inputs$predictors[[1]])
+
+  # Parameter and predictor names (and in this case, values) are ordered the
+  # same way, so calculations using them will be performed correctly
+  expect_identical(pred_names, param_names)
+})
+
+
+test_that("`gen_transition_matrix() works with `config_ex_1`", {
+  life_stages <- life_stages(config_ex_1$cycle)
+
+  expected <- empty_transition_matrix(life_stages)
   expected["__a", "__e"] <- 1000
   expected["__e", "__l"] <- 1
   expected["__l", "__n"] <- 0.01
   expected["__n", "__a"] <- 0.1
 
-  result <- gen_trans_matrix(
+  result <- gen_transition_matrix(
     1,
-    NULL,
-    NULL,
-    life_stages,
-    add_params_list(config_ex_1$transitions, config_ex_1$parameters),
+    empty_population_matrix(life_stages = life_stages, steps = 1),
+    empty_population_matrix(life_stages = life_stages, steps = 1),
+    config_ex_1$cycle,
     NULL
   )
 
   expect_equal(result, expected)
 })
 
-test_that("`gen_trans_matrix()` works with `config_ex_2`", {
-  life_stages <- get_life_stages(config_ex_2$transitions)
-  expected <- matrix(
-    0,
-    4,
-    4,
-    dimnames = list(life_stages, life_stages)
-  )
+test_that("`gen_transition_matrix()` works with `config_ex_2`", {
+  life_stages <- life_stages(config_ex_2$cycle)
+  expected <- empty_transition_matrix(life_stages)
   expected["__a", "__e"] <- 489.3045
 
-  result <- gen_trans_matrix(
+  result <- gen_transition_matrix(
     1,
-    NULL,
-    NULL,
-    life_stages,
-    add_params_list(config_ex_2$transitions, config_ex_2$parameters),
+    empty_population_matrix(life_stages = life_stages, steps = 1),
+    empty_population_matrix(life_stages = life_stages, steps = 1),
+    config_ex_2$cycle,
     NULL
   )
 
   expect_equal(result, expected)
 })
 
-test_that("`gen_trans_matrix()` works with `ogden2005`", {
-  life_stages <- get_life_stages(ogden2005$transitions)
+test_that("`gen_transition_matrix()` works with `ogden2005`", {
+  life_stages <- life_stages(ogden2005$cycle)
 
   population <- empty_population_matrix(life_stages, 200)
   population[] <- 1
 
-  transitions_with_parameters <- add_params_list(
-    ogden2005$transitions, ogden2005$parameters
-  )
-
-  expect_snapshot(gen_trans_matrix(
+  expect_snapshot(gen_transition_matrix(
     # Using a time in the middle of the year when temperature is higher and more
     # of the transitions will have nonzero values.
     time = 150,
     population = population,
     developing_population = population,
-    life_stages = life_stages,
-    tick_transitions = transitions_with_parameters,
-    predictors = ogden2005$predictors
+    tick_transitions = ogden2005$cycle,
+    predictors = ogden2005$preds
   ))
 })
 
 
+test_that("`gen_transition_matrix()` works with life_cycle_example_a()", {
+  life_stages <- life_stages(life_cycle_example_a())
+  result <- gen_transition_matrix(
+    time = 1,
+    population = empty_population_matrix(life_stages = life_stages, steps = 1),
+    developing_population = empty_population_matrix(life_stages = life_stages, steps = 1),
+    tick_transitions = life_cycle_example_a(),
+    predictors = predictors_example_b()
+  )
+  expect_identical(
+    result,
+    matrix(
+      c(0, 1, 1, 0),
+      ncol = 2,
+      dimnames = list(c("a", "b"), c("a", "b")))
+  )
+})
+
 test_that("model output for `config_ex_1` stays the same", {
-  expect_snapshot(run(config_ex_1))
+  # testthat::skip("long running")
+  expect_snapshot_value(run(config_ex_1, progress = FALSE), style = "serialize")
 })
 
 test_that("model output for `config_ex_2` stays the same", {
   # skipped on CRAN because it is long-running
+  # testthat::skip("long running")
   testthat::skip_on_cran()
-  expect_snapshot(run(config_ex_2))
+  expect_snapshot_value(run(config_ex_2, progress = FALSE), style = "serialize")
+})
+
+# NOTE tests on new core_functions.R methods ----------------------------------
+test_that("empty_delay_array snapshot", {
+  expect_snapshot(empty_delay_array(c("a", "b"), 1, 1))
+})
+
+test_that("empty_population_matrix snapshot", {
+  expect_snapshot(empty_population_matrix(c("a", "b"), 3))
+})
+
+test_that("empty_transition_matrix snpashot", {
+  expect_snapshot(empty_transition_matrix(life_stages = c("a", "b")))
+})
+
+test_that("set_initial_population snapshot", {
+  population <- empty_population_matrix(c("a", "b"), 3)
+  expect_snapshot(set_initial_population(population, c("b" = 10)))
+})
+
+test_that("model output for ogden config stays the same", {
+  testthat::skip_on_cran()
+
+  # reducing steps to a year to reduce run time
+  cfg <- ogden2005
+  cfg$steps <- 365
+  expect_snapshot_value(run(cfg, progress = FALSE), style = "serialize")
+})
+
+test_that("update_delay_arr works", {
+  cfg <- config_example_a()
+  cfg$steps <- 2
+  cfg$max_duration <- 2
+  life_stages <- life_stages(cfg$cycle)
+  expect_snapshot(update_delay_arr(
+    time = 2,
+    delay_arr = empty_delay_array(life_stages, cfg$steps, cfg$max_duration),
+    population = empty_population_matrix(life_stages, cfg$steps),
+    developing_population = empty_population_matrix(life_stages, cfg$steps),
+    tick_transitions = cfg$cycle,
+    max_delay = cfg$max_duration,
+    predictors = cfg$predictors
+  ))
 })

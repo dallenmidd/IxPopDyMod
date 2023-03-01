@@ -1,6 +1,6 @@
 value,j_day,pred,pred_subcategory
 20,NA,host_den,deer
-200,NA,host_den,rodent
+200,NA,host_den,mouse
 -0,1,temp,NA
 -0,2,temp,NA
 -0,3,temp,NA
