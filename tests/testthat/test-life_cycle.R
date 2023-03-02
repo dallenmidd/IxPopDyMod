@@ -116,7 +116,7 @@ test_that("catches duplicate mortality", {
     from = "a",
     to = NULL,
     fun = function() NULL,
-    transition_type = "duration",
+    transition_type = "probability",
     mortality_type = "per_day"
   )
 
