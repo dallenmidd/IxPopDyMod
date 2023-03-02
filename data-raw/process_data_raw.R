@@ -72,12 +72,55 @@ ogden2005 <- config(
 usethis::use_data(ogden2005, overwrite = TRUE)
 
 # for vignette, show varying weather data
-temp_example_config <- read_config("data-raw/temp_example_config/config.yml")
-use_data(temp_example_config, overwrite = TRUE)
+temp_example_config <- config(
+  life_cycle(
+    transition("__e", "q_l", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 2.92e-05, b = 2.27)),
+    transition("__e", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("q_l", "e_l", constant_fun, "probability", parameters = list(a = 0.05)),
+    transition("q_l", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("e_l", "q_n", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 9.88E-06, b = 2.55)),
+    transition("e_l", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("q_n", "e_n", constant_fun, "probability", parameters = list(a = 0.05)),
+    transition("q_n", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("e_n", "q_a", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 6.27E-04, b = 1.21)),
+    transition("e_n", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("q_a", "e_a", constant_fun, "probability", parameters = list(a = 0.05)),
+    transition("q_a", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("e_a", "r_a", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 7.7E-04, b = 1.42)),
+    transition("e_a", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("r_a", "__e", constant_fun, "probability", parameters = list(a = 3000))
+  ),
+  initial_population = c(r_a = 10),
+  steps = 730,
+  preds = readr::read_csv("./data-raw/temp_example_config/predictors.csv")
+)
+usethis::use_data(temp_example_config, overwrite = TRUE)
 
 # for vignette, show modifying host community
-host_example_config <- read_config("data-raw/host_example_config/config.yml")
-use_data(host_example_config, overwrite = TRUE)
+host_example_config <- config(
+  life_cycle(
+    transition("__e", "q_l", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 2.92e-05, b = 2.27)),
+    transition("__e", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("q_l", "e_l", find_n_feed, "probability", predictors = c(x = "host_den"), parameters = list(a = 0.01, pref = c(mouse = 1, squirrel = 0.25, deer = 0.25), feed_success = c(mouse = 0.49, squirrel = 0.17, deer = 0.49))),
+    transition("q_l", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("e_l", "q_n", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 9.88E-06, b = 2.55)),
+    transition("e_l", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("q_n", "e_n", find_n_feed, "probability", predictors = c(x = "host_den"), parameters = list(a = 0.01, pref = c(mouse = 1, squirrel = 1, deer = 0.25), feed_success = c(mouse = 0.49, squirrel = 0.17, deer = 0.49))),
+    transition("q_n", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("e_n", "q_a", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 6.27E-04, b = 1.21)),
+    transition("e_n", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("q_a", "e_a", find_n_feed, "probability", predictors = c(x = "host_den"), parameters = list(a = 0.01, pref = c(mouse = 0, squirrel = 0, deer = 1), feed_success = c(mouse = 0, squirrel = 0, deer = 0.49))),
+    transition("q_a", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("e_a", "r_a", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 7.7E-04, b = 1.42)),
+    transition("e_a", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
+    transition("r_a", "__e", constant_fun, "probability", parameters = list(a = 3000))
+  ),
+  initial_population = c(r_a = 10),
+  steps = 500,
+  # might want to change the preds for the new package
+  preds = readr::read_csv("./data-raw/host_example_config/predictors.csv")
+)
+usethis::use_data(host_example_config, overwrite = TRUE)
 
 # for vignette, show infection dynamics
 
