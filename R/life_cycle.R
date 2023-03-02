@@ -34,7 +34,6 @@ validate_life_cycle <- function(cycle) {
 }
 
 assert_no_duplicate_transitions <- function(cycle) {
-  transitions <- query_transitions_by_mortality(cycle, mortality = FALSE)
 
   # create a list of (from, to) for each stage
   from_to <- lapply(cycle, function(x) x[c("from", "to")])

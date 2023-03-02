@@ -157,7 +157,7 @@ test_that("allows transition with zero parameters", {
       to = NULL,
       transition_type = "probability",
       mortality_type = "per_day",
-      fun = new_transition_function(function(x, y) {}),
+      fun = new_transition_function(function(x, y) NULL),
       predictors = c(x = "temp", y = "host_density"),
       parameters = new_parameters()
     )),
@@ -219,7 +219,7 @@ test_that("catches duplicate names between parameters and predictors", {
 test_that("works with defaults", {
 
   # Need to set the environment so it doesn't change in snapshots
-  f <- function() {}
+  f <- function() NULL
   environment(f) <- emptyenv()
 
   expect_snapshot(transition(
@@ -234,7 +234,7 @@ test_that("can handle vector parameters input", {
   result <- transition(
     from = "a",
     to = "b",
-    fun = new_transition_function(function(a) {}),
+    fun = new_transition_function(function(a) NULL),
     transition_type = "probability",
     parameters = c(a = 1)
   )
@@ -246,7 +246,7 @@ test_that("can coerce input fun to transition_function", {
   result <- transition(
     from = "a",
     to = "b",
-    fun = function(a) {},
+    fun = function(a) NULL,
     transition_type = "probability",
     parameters = new_parameters(a = 1)
   )
@@ -261,7 +261,7 @@ test_that("correctly identifies mortality", {
     to = NULL,
     transition_type = "probability",
     mortality_type = "per_day",
-    fun = function() {},
+    fun = function() NULL,
   )
   expect_true(transition_is_mortality(transition))
 })
@@ -272,7 +272,7 @@ test_that("correctly identifies no mortality", {
     to = "b",
     transition_type = "probability",
     mortality_type = NULL,
-    fun = function() {},
+    fun = function() NULL,
   )
   expect_false(transition_is_mortality(transition))
 })

@@ -61,7 +61,7 @@ test_that("throws error with an invalid transition input", {
 # validate_life_cycle() -------------------------------------------------------
 test_that("catches transitions with duplicate from and to", {
   a_modified <- transition_example_a()
-  a_modified$fun <- function(a, x, y) {1}
+  a_modified$fun <- function(a, x, y) 1
 
   expect_error(
     life_cycle(
@@ -78,7 +78,7 @@ test_that("catches mixed `transition_type`s from the same stage", {
   problem_transition <- transition(
     from = "a",
     to = NULL,
-    fun = function() {},
+    fun = function() NULL,
     transition_type = "duration",
     mortality_type = "per_day"
   )
@@ -97,7 +97,7 @@ test_that("catches only mortality transitions from a given stage", {
   problem_transition <- transition(
     from = "a",
     to = NULL,
-    fun = function() {},
+    fun = function() NULL,
     transition_type = "duration",
     mortality_type = "per_day"
   )
@@ -115,14 +115,14 @@ test_that("catches duplicate mortality", {
   mort_a <- transition(
     from = "a",
     to = NULL,
-    fun = function() {},
-    transition_type = "duration",
+    fun = function() NULL,
+    transition_type = "probability",
     mortality_type = "per_day"
   )
 
   # create a second mortality transition from the same stage
   mort_b <- mort_a
-  mort_b$fun <- function() {1}
+  mort_b$fun <- function() 1
 
   expect_error(
     life_cycle(
@@ -204,7 +204,7 @@ test_that("gets non-mortality transitions", {
     to = NULL,
     transition_type = "probability",
     mortality_type = "per_day",
-    fun = function() {1}
+    fun = function() 1
   )
 
   input <- life_cycle(
@@ -230,7 +230,7 @@ test_that("gets single mortality transition", {
     to = NULL,
     transition_type = "probability",
     mortality_type = "per_day",
-    fun = function() {1}
+    fun = function() 1
   )
 
   input <- life_cycle(
@@ -254,13 +254,3 @@ test_that("output test", {
   input <- life_cycle(transition_example_a(), transition_example_b())
   expect_identical(life_stages(input), c("a", "b"))
 })
-
-
-
-
-
-
-
-
-
-

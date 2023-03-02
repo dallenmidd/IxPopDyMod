@@ -270,4 +270,3 @@ test_that("output test", {
 
   expect_identical(valid_predictors_from_table(preds), c("temp", "host_den"))
 })
-

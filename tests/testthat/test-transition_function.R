@@ -17,7 +17,7 @@ test_that("does not change function output", {
 
 # transition_function_is_custom -----------------------------------------------
 test_that("returns true for custom function", {
-  fun <- new_transition_function(function(x, y, a) {})
+  fun <- new_transition_function(function(x, y, a) NULL)
   expect_true(transition_function_is_custom(fun))
 })
 

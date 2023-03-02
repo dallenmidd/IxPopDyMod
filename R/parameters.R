@@ -4,7 +4,7 @@
 #' @returns a parameters object
 new_parameters <- function(...) {
 
-  parameters <- structure(list(...), class="parameters")
+  parameters <- structure(list(...), class = "parameters")
 
   if (length(parameters) > 0) {
     checkmate::assert_names(names(parameters), type = "unique")
