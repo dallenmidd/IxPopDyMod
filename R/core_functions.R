@@ -292,10 +292,12 @@ update_delay_arr <- function(
   for (from_stage in from_stages) {
     trans <- transitions %>%
       query_transitions("from", from_stage) %>%
-      query_transitions_by_mortality(mortality = FALSE) %>%
-      # for a given delay transition, every "from" stage has a unique "to" stage
-      .[[1]]
+      query_transitions_by_mortality(mortality = FALSE)
 
+    # there can only be one duration-based transition from each life stage
+    trans <- trans[[1]]
+
+    # for a given delay transition, every "from" stage has a unique "to" stage
     to_stage <- trans[["to"]]
 
     # daily probability of transitioning to the next stage
