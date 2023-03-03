@@ -29,8 +29,7 @@ constant_fun <- function(a) a
 #' @param x Predictor 1 in transitions table. Numeric vector indicating host
 #'   density for each of the host species. Length should be equal to the number
 #'   of host species.
-#' @param y Predictor 2 in transitions table. Not used in this function.
-#' @param a Parameter `a` in parameters table.
+#' @param a Parameter `a` is the probability that a tick finds any one host.
 #' @param pref Parameters named `pref` in parameters table. Numeric vector of
 #'   length equal to the number of host species. Values are the preference for
 #'   ticks in a given transition for each host species.
@@ -47,7 +46,7 @@ constant_fun <- function(a) a
 #' find_n_feed(runif(2) * 10, NULL, .1, runif(2), runif(2))
 #'
 #' @export
-find_n_feed <- function(x, y, a, pref, feed_success) {
+find_n_feed <- function(x, a, pref, feed_success) {
   if (length(pref) %% length(x) != 0) {
     print(paste("error in find_n_feed, x:", length(x), "pref:", length(pref)))
   }
