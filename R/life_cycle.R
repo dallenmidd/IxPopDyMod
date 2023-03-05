@@ -140,9 +140,17 @@ coerce_transition <- function(index, transitions) {
   do.call(transition, each_transition)
 }
 
+#' Print a life cycle
 #' @export
-print.life_cycle <- function(x, ...) {
-  cat("A life cycle")
+#' @param x A `life_cycle`
+#' @param abbreviated logical, indicating whether to print an abbreviated
+#'   representation or the entire list-based hierarchy
+print.life_cycle <- function(x, ..., abbreviated = TRUE) {
+  if (abbreviated) {
+    cat("A life cycle")
+  } else {
+    print.default(x)
+  }
 }
 
 
