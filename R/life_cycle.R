@@ -147,12 +147,11 @@ coerce_transition <- function(index, transitions) {
 #'   representation or the entire list-based hierarchy
 print.life_cycle <- function(x, ..., abbreviated = TRUE) {
   if (abbreviated) {
-    cat("A life cycle")
+    cat("A life cycle with", length(x), "transitions")
   } else {
     print.default(x)
   }
 }
-
 
 ###########################################
 # helpers for working with a `life_cycle` #
