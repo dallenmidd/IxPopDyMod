@@ -140,6 +140,11 @@ coerce_transition <- function(index, transitions) {
   do.call(transition, each_transition)
 }
 
+#' @export
+print.life_cycle <- function(x, ...) {
+  cat("A life cycle")
+}
+
 
 ###########################################
 # helpers for working with a `life_cycle` #
