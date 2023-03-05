@@ -8,7 +8,10 @@ test_that("produces expected output with valid input", {
     fun = new_transition_function(constant_fun),
     predictors = NULL,
     parameters = new_parameters(a = 1)
-  ))
+  ),
+  # ignore fun bytecode attribute in comparison
+  transform = function(x) x[!grepl("<bytecode: 0x[a-f|0-9]*>$", x)]
+  )
 })
 
 test_that("throws error with invalid from input", {
