@@ -116,8 +116,7 @@ host_example_config <- config(
     transition("r_a", "__e", constant_fun, "probability", parameters = list(a = 3000))
   ),
   initial_population = c(r_a = 10),
-  steps = 500,
-  # might want to change the preds for the new package
+  steps = 300,
   preds = readr::read_csv("./data-raw/host_example_config/predictors.csv")
 )
 usethis::use_data(host_example_config, overwrite = TRUE)
@@ -127,12 +126,51 @@ usethis::use_data(host_example_config, overwrite = TRUE)
 # we define find_host so that validate_config() passes
 # however, it is not loaded as a function in the package, so we need to define it
 # whenever we want to use this config
-find_host <- function(x, y, a, pref) {
+find_host <- function(x, a, pref) {
   1 - (1 - a)^sum(x * pref)
 }
 
-infect_example_config <- read_config("data-raw/infect_example_config/config.yml")
-use_data(infect_example_config, overwrite = TRUE)
+infect_example_config <- config(
+  life_cycle(
+    transition("__e", "q_l", constant_fun, "duration", parameters = list(a = 0.02)),
+    transition("__e", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("q_l", "f_l", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
+    transition("q_l", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("f_l", "eil", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("f_l", "eul", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("eil", "qin", constant_fun, "duration", parameters = list(a = 0.025)),
+    transition("eil", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("eul", "qun", constant_fun, "duration", parameters = list(a = 0.025)),
+    transition("eul", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("qin", "fin", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
+    transition("qin", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("qun", "fun", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
+    transition("qun", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("fun", "ein", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("fun", "eun", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("fin", "ein", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 1, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("ein", "qia", constant_fun, "duration", parameters = list(a = 0.025)),
+    transition("ein", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("eun", "qua", constant_fun, "duration", parameters = list(a = 0.025)),
+    transition("eun", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("qia", "fia", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0))),
+    transition("qia", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("qua", "fua", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0))),
+    transition("qua", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("fua", "eia", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
+    transition("fua", "eua", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
+    transition("fia", "eia", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 1, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
+    transition("eia", "r_a", constant_fun, "duration", parameters = list(a = 0.025)),
+    transition("eia", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition("eua", "r_a", constant_fun, "duration", parameters = list(a = 0.025)),
+    transition("eua", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
+    transition('r_a','__e', constant_fun, 'probability', parameters = list(a = 500))
+  ),
+  initial_population = c(r_a = 10),
+  steps = 500,
+  preds = readr::read_csv("./data-raw/infect_example_config/predictors.csv")
+)
+usethis::use_data(infect_example_config, overwrite = TRUE)
 
 # config for modeling winter tick population
 winter_tick <- read_config("data-raw/winter_tick/stable.yml")
