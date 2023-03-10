@@ -149,9 +149,10 @@ print.life_cycle <- function(x, ..., abbreviated = TRUE) {
   if (abbreviated) {
     cat(
       "* A life cycle",
-      "\n** Number of transitions:", length(x),
-      "\n** Unique life stages:", paste(life_stages(x), collapse = ", "), "\n",
-      sapply(x, format.transition)
+      "\n** Number of transitions: ", length(x),
+      "\n** Unique life stages: ", paste(life_stages(x), collapse = ", "), "\n",
+      number_each_element_of_character_vector(sapply(x, format.transition), 5),
+      sep = ""
     )
   } else {
     # print the default list representation
@@ -164,6 +165,12 @@ print.life_cycle <- function(x, ..., abbreviated = TRUE) {
 format.transition <- function(x, ...) {
   to <- ifelse(transition_is_mortality(x), "mortality", x[["to"]])
   paste(x[["from"]], "->", to, "\n")
+}
+
+number_each_element_of_character_vector <- function(x, max_print) {
+  nums <- seq_along(x)
+  result <- paste0(nums, ". ", x)
+  to_short_string(result, max = max_print, collapse = "", item_name = "transitions")
 }
 
 
