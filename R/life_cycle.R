@@ -162,8 +162,11 @@ print.life_cycle <- function(x, ..., abbreviated = TRUE) {
 # TODO move this to transition.R and combine with any print method Dave is
 # working on. This is just a very simple option for use within a life_cycle
 format.transition <- function(x, ...) {
-  paste(x[["from"]], "->", x[["to"]], "\n")
+  to <- ifelse(transition_is_mortality(x), "mortality", x[["to"]])
+  paste(x[["from"]], "->", to, "\n")
 }
+
+
 
 ###########################################
 # helpers for working with a `life_cycle` #
