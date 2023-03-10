@@ -173,5 +173,20 @@ infect_example_config <- config(
 usethis::use_data(infect_example_config, overwrite = TRUE)
 
 # config for modeling winter tick population
-winter_tick <- read_config("data-raw/winter_tick/stable.yml")
+winter_tick <- config(
+  life_cycle(
+    transition("__e", "q_l", constant_fun, "duration", parameters = list(a = 0.0125)),
+    transition("__e", NULL, constant_fun, "duration", mortality_type = 'throughout_transition', parameters = list(a = 0.5)),
+    transition("q_l", "a_l", feed_fun, "probability", predictors = c(x = 'host_den', y = 'max_temp'), parameters = list(a = 4e-4, pref = 1, q = 7e-4, tmax = 35, tmin = 0)),
+    transition('q_l', NULL, snow_cover_fun, "probability", mortality_type = 'per_day', predictors = c(x = 'snow_cover'), parameters = c(no_snow_mort = 0.06, snow_mort = 0.95)),
+    transition('a_l', 'e_a', constant_fun, 'duration', parameters = list(a = 0.00571)),
+    transition('a_l', NULL, constant_fun, 'duration', mortality_type = 'throughout_transition', parameters = list(a = 0.5)),
+    transition('e_a', 'r_a', expo_shifted_fun, 'probability', predictors = c(x = 'max_temp'), parameters = list(a = 0.01, b = 1.2, c = 15)),
+    transition('e_a', NULL, snow_cover_fun, 'probability', predictors = c(x = 'snow_cover'), parameters = c(no_snow_mort = 0.11, snow_mort = 0.64)),
+    transition('r_a', '__e', constant_fun, 'probability', parameters = c(a = 3000))
+  ),
+  initial_population = c(r_a = 10),
+  steps = 500,
+  preds = readr::read_csv("./data-raw/winter_tick/predictors.csv")
+)
 use_data(winter_tick, overwrite = TRUE)

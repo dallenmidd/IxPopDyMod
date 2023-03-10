@@ -10,8 +10,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "100%",
-  fig.width = 16 / 2,
-  fig.height = 9 / 2,
+  fig.width = 12 / 2,
+  fig.height = 6 / 2,
   message = FALSE,
   warning = FALSE,
   cache = FALSE
@@ -51,47 +51,59 @@ These examples all use and modify preset model configurations. If you wish to cr
 
 ## Simple example
 
-We start with `config_ex_1`, a simple model configuration that doesn't consider infection, and that has four life stages: `__e` for egg, `__l` for larvae, `__n` for nymph, and `__a` for adult.
+We start with `config_ex_1`, a simple model configuration that doesn't consider infection, and that has four life stages: `__e` for egg, `__l` for larvae, `__n` for nymph, and `__a` for adult. This `config` is already loaded with the package, but as an example here is how the `config` is specified in R.
 
 ```{r}
 # library(IxPopDyMod)
-devtools::load_all(export_all = FALSE)
+devtools::load_all()
+config_ex_1 <- config(
+  cycle = life_cycle(
+    transition("__e", "__l", function(a) a, transition_type = "probability", parameters = c(a = 1)),
+    transition("__e", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0)),
+    transition("__l", "__n", function(a) a, transition_type = "probability", parameters = c(a = 0.01)),
+    transition("__l", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0.99)),
+    transition("__n", "__a", function(a) a, transition_type = "probability", parameters = c(a = 0.1)),
+    transition("__n", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0.9)),
+    transition("__a", "__e", function(a) a, transition_type = "probability", parameters = c(a = 1000)),
+    transition("__a", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0))
+  ),
+  initial_population = c("__a" = 1000),
+  steps = 29L
+)
+
 ```
+
+Here each transition is a `probability` rather than `duration` (see below) and there are not predictors (like temperature or the host community). All eggs hatch to larvae, 1% of larvae make it to nymphs, 10% of nymphs become adults, and than each adult lays 1000 eggs. The model starts with 1000 adults and runs for 29 time steps.
 
 ### Vary a parameter in the model
 We give a new range of parameter values for number of eggs laid.
 
-```{r, eval = F}
-eggs_laid <- c(800, 1000, 1200)
+```{r}
+cfg1 <- config_ex_1
+cfg2 <- config_ex_1
+cfg3 <- config_ex_1
 
-# need some way to vary parameter easily??
+cfg1$cycle[[7]]$parameters[['a']] <- 800
+cfg2$cycle[[7]]$parameters[['a']] <- 1000
+cfg3$cycle[[7]]$parameters[['a']] <- 1200
+
+modified_configs <- list(cfg1, cfg2, cfg3)
 
 ```
 This gives us a list of three modified model `config`s, which differ only in the number of eggs laid.
 
 ### Run the model with each new parameter value
-```{r, eval = FALSE}
+```{r}
 outputs <- run_all_configs(modified_configs)
 outputs[[1]]
 ```
-The model output is a data frame where the column `day` indicates Julian date, `stage` indicates tick life stage, and `pop` is population size. The remaining columns breakdown the `stage` column into it's constituent parts: the `age` and current `process` of a tick, and whether it is `infected`. Since we ran the model with multiple configurations, we get a list of data frames. Here we inspect only the first.
+The model output is a data frame where the column `day` indicates Julian date, `stage` indicates tick life stage, and `pop` is population size. 
 
 ### Calculate growth rate for each of the model outputs
-```{r, eval = FALSE}
+```{r}
 sapply(outputs, growth_rate)
 ```
 `growth_rate()` calculates the multiplicative growth rate for a model output. The population is stable with 1000 eggs laid, as indicated by the growth rate `1`. The population decreases with 800 eggs laid, and increases with 1200 eggs laid.
-
-### Graph outputs
-To see a breakdown of how the population is changing, we graph the population over time of each age group, for each model output. As expected, for each output there is a cycle with a peak in number of eggs, followed by peaks in larvae, nymph and then adult population.
-
-```{r warning = FALSE, eval = FALSE}
-names(outputs) <- c("0800 eggs laid", "1000 eggs laid", "1200 eggs laid")
-outputs_stacked <- bind_rows(outputs, .id = "id")
-outputs_stacked %>%
-  graph_population_each_group() +
-  facet_wrap(~id)
-```
 
 ## Temperature-dependent transitions
 
@@ -100,21 +112,20 @@ temp_example_config$cycle
 ## need some way to show the life cycle
 ```
 
-From the first line of this tick life-stage transitions table, you see that the development from eggs, `__e`, to questing larvae, `q_l`, is an exponential function of temperature. We can see the parameters for this transition:
+**Something here to describe what this output shows**
 
-```{r, eval = FALSE}
-temp_example_config$parameters %>% filter(from == "__e", to == "q_l")
+```{r,}
+temp_example_config$cycle[[1]]
 # this will need to be changed too
 ```
 
-The daily development rate is `0.0000292*temp^2.27`.
+Here is the first transition from `__e`, eggs, to `q_l`, questing larvae. This transition is a duration, so we interpret the output as the rate at which it happens on the probability with which it happens. It also has a predictor, temperature. So the time to transition from egg to questing larva is a temperature dependent function. The function and parameters show this rate is `2.92e-05 * temp^2.27`.
 
 ### Compare two temperature scenarios
 
 Here we highlight how this temperature dependence affects the output of the model. We make a second `config` in which the daily temperature is one degree warmer.
 
 ```{r, results = 'hide'}
-
 output <- run(temp_example_config)
 
 temp_pred2 <- readr::read_csv("./data-raw/temp_example_config/predictors.csv")
@@ -152,11 +163,10 @@ host_example_config$cycle
 
 Here transition from questing larvae, `q_l`, to engorged larvae, `e_l`, depends on the `host_den`, which is how the host community is included in the transition. 
 
-```{r, eval = F}
-
-host_example_config$parameters %>% filter(from == "q.l", to == "e.l")
+```{r}
+host_example_config$cycle[[3]]
 ```
-Here the parameters of `find_n_feed` get different values for each host species. In this case the two parameters are `pref`, which is the larval tick's preference for the three different host species, and `feed_success`, which is the fraction of feeding larvae which successfully feed to completion. 
+This transition from questing larvae to engorged larvae depends on `host_den`, host densities. Here some parameters in the transition function have different values for each host species. Here `pref` is larval preference for different host species and `feed_success` is the probability an attached larva feeds to completion on each host species.
 
 In this example the temperature and host community are constant through time, but the package also supports variable temperature and host community data to see how seasonal or year-to-year variation in affects tick populations.
 
