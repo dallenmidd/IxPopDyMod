@@ -138,7 +138,7 @@ temp_example_config$cycle
 ## need some way to show the life cycle
 ```
 
-**Something here to describe what this output shows**
+*When the print looks good we will say something here.*
 
 ``` r
 temp_example_config$cycle[[1]]
@@ -176,7 +176,6 @@ temp_example_config$cycle[[1]]
 #> 
 #> attr(,"class")
 #> [1] "transition"
-# this will need to be changed too
 ```
 
 Here is the first transition from `__e`, eggs, to `q_l`, questing
@@ -216,7 +215,7 @@ plot(output2_qn$day, output2_qn$pop, type = 'l', col = 'red', lwd = 2, xlab = 'D
 lines(output_qn$day, output_qn$pop, type = 'l', col = 'blue', lwd = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="75%" />
 
 Here you can see nymphs start questing earlier and reach a higher
 population in the warmer climate.
@@ -326,7 +325,7 @@ text(x = 25, y = c(4.25,4,3.75), labels = c('High deer den.', 'Mid deer den.', '
 axis(side = 2, at = 2:5, labels = c(expression(10^2),expression(10^3),expression(10^4),expression(10^5)))
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="75%" />
 
 ## Tick-borne disease infection dynamics
 
@@ -385,14 +384,14 @@ for (i in 1:5)
 plot(results_df$deer,results_df$nymph_den, xlab = 'Deer density', ylab = 'Number of questing nymphs')
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="75%" />
 
 ``` r
 
 plot(results_df$deer,results_df$nip, xlab = 'Deer density', ylab = 'Nymph infection rate')
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-2.png" width="75%" />
 
 Here we see that as deer density increases the number of nymphs
 increases, but the nymph infection prevalence (NIP) goes down.

@@ -37,7 +37,6 @@ config_ex_2 <- config(
 usethis::use_data(config_ex_2, overwrite = TRUE)
 
 # recreate ogden et al. 2005 model in our package framework
-ogden2005 <- read_config("data-raw/ogden2005/ogden_config.yml")
 ogden2005 <- config(
   life_cycle(
   # from, to, fun, transition_type, mortality_type = NULL, predictors = NULL, parameters = list()
@@ -173,6 +172,10 @@ infect_example_config <- config(
 usethis::use_data(infect_example_config, overwrite = TRUE)
 
 # config for modeling winter tick population
+expo_shifted_fun <- function(x, a, b, c) {
+  ifelse(x >c, a * (x - c) ^ b, 0)
+}
+
 winter_tick <- config(
   life_cycle(
     transition("__e", "q_l", constant_fun, "duration", parameters = list(a = 0.0125)),
@@ -182,7 +185,7 @@ winter_tick <- config(
     transition('a_l', 'e_a', constant_fun, 'duration', parameters = list(a = 0.00571)),
     transition('a_l', NULL, constant_fun, 'duration', mortality_type = 'throughout_transition', parameters = list(a = 0.5)),
     transition('e_a', 'r_a', expo_shifted_fun, 'probability', predictors = c(x = 'max_temp'), parameters = list(a = 0.01, b = 1.2, c = 15)),
-    transition('e_a', NULL, snow_cover_fun, 'probability', predictors = c(x = 'snow_cover'), parameters = c(no_snow_mort = 0.11, snow_mort = 0.64)),
+    transition('e_a', NULL, snow_cover_fun, 'probability', predictors = c(x = 'snow_cover'), mortality_type = 'per_day', parameters = c(no_snow_mort = 0.11, snow_mort = 0.64)),
     transition('r_a', '__e', constant_fun, 'probability', parameters = c(a = 3000))
   ),
   initial_population = c(r_a = 10),

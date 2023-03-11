@@ -9,9 +9,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%",
-  fig.width = 12 / 2,
-  fig.height = 6 / 2,
+  out.width = "75%",
+  fig.width = 6,
+  fig.height = 3,
   message = FALSE,
   warning = FALSE,
   cache = FALSE
@@ -112,11 +112,11 @@ temp_example_config$cycle
 ## need some way to show the life cycle
 ```
 
-**Something here to describe what this output shows**
+*When the print looks good we will say something here.*
 
-```{r,}
+
+```{r}
 temp_example_config$cycle[[1]]
-# this will need to be changed too
 ```
 
 Here is the first transition from `__e`, eggs, to `q_l`, questing larvae. This transition is a duration, so we interpret the output as the rate at which it happens on the probability with which it happens. It also has a predictor, temperature. So the time to transition from egg to questing larva is a temperature dependent function. The function and parameters show this rate is `2.92e-05 * temp^2.27`.
