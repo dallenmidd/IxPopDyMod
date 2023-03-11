@@ -145,14 +145,15 @@ coerce_transition <- function(index, transitions) {
 #' @param x A `life_cycle`
 #' @param abbreviated logical, indicating whether to print an abbreviated
 #'   representation or the entire list-based hierarchy
-print.life_cycle <- function(x, ..., abbreviated = TRUE) {
+#' @param max number of transitions to print, or NULL to print all transitions
+print.life_cycle <- function(x, ..., abbreviated = TRUE, max = 10L) {
   if (abbreviated) {
     transitions <- x %>%
       vapply(format.transition, character(1L)) %>%
       number_each_element() %>%
-      to_short_string(max = 5L, collapse = "", item_name = "transitions")
+      to_short_string(max = max, collapse = "", item_name = "transitions")
     cat(
-      "* A life cycle",
+      "** A life cycle",
       "\n** Number of transitions: ", length(x),
       "\n** Unique life stages: ", paste(life_stages(x), collapse = ", "), "\n",
       transitions,
