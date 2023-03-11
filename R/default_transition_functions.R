@@ -29,8 +29,7 @@ constant_fun <- function(a) a
 #' @param x Predictor 1 in transitions table. Numeric vector indicating host
 #'   density for each of the host species. Length should be equal to the number
 #'   of host species.
-#' @param y Predictor 2 in transitions table. Not used in this function.
-#' @param a Parameter `a` in parameters table.
+#' @param a Parameter `a` is the probability that a tick finds any one host.
 #' @param pref Parameters named `pref` in parameters table. Numeric vector of
 #'   length equal to the number of host species. Values are the preference for
 #'   ticks in a given transition for each host species.
@@ -43,11 +42,11 @@ constant_fun <- function(a) a
 #'   host and then successfully feed on that host.
 #'
 #' @examples
-#' find_n_feed(10, NULL, .1, 1, .5)
-#' find_n_feed(runif(2) * 10, NULL, .1, runif(2), runif(2))
+#' find_n_feed(10, .1, 1, .5)
+#' find_n_feed(runif(2) * 10, .1, runif(2), runif(2))
 #'
 #' @export
-find_n_feed <- function(x, y, a, pref, feed_success) {
+find_n_feed <- function(x, a, pref, feed_success) {
   if (length(pref) %% length(x) != 0) {
     print(paste("error in find_n_feed, x:", length(x), "pref:", length(pref)))
   }
@@ -128,7 +127,6 @@ ogden_feed_fun <- function(x, a, q, tmin, tmax) {
 #' @param x Predictor 1 in transitions table. Numeric vector indicating host
 #'   density for each of the host species. Length should be equal to the number
 #'   of host species.
-#' @param y Predictor 2 in transitions table. Not used in this function.
 #' @param from_infected Parameter `from_infected` in parameters table. Value
 #'   should be 1 if transition is from an infected tick stage, 0 otherwise.
 #' @param to_infected Parameter `to_infected` in parameters table. Value should
@@ -149,7 +147,7 @@ ogden_feed_fun <- function(x, a, q, tmin, tmax) {
 #' infect_fun(10, NULL, 1, 1, .3, 1)
 #'
 #' @export
-infect_fun <- function(x, y, from_infected, to_infected, host_rc, pref) {
+infect_fun <- function(x, from_infected, to_infected, host_rc, pref) {
   if (length(pref) %% length(x) != 0) {
     print(paste("error in infect_fun, x:", length(x), "pref:", length(pref)))
   }
@@ -193,10 +191,9 @@ density_fun <- function(x, y, a, b, c, pref) {
 #' Mortality as a function of whether there is a snow on the ground
 #'
 #' @param x amount of snow on ground
-#' @param y not used in this transition function
 #' @param no_snow_mort mortality with no snow on the ground
 #' @param snow_mort mortality with snow on the ground
-snow_cover_fun <- function(x, y, no_snow_mort, snow_mort) {
+snow_cover_fun <- function(x, no_snow_mort, snow_mort) {
   # only get the snow cover for day 1
   x <- x[1]
 
