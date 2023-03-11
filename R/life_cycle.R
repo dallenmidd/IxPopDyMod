@@ -147,11 +147,15 @@ coerce_transition <- function(index, transitions) {
 #'   representation or the entire list-based hierarchy
 print.life_cycle <- function(x, ..., abbreviated = TRUE) {
   if (abbreviated) {
+    transitions <- x %>%
+      vapply(format.transition, character(1L)) %>%
+      number_each_element() %>%
+      to_short_string(max = 5L, collapse = "", item_name = "transitions")
     cat(
       "* A life cycle",
       "\n** Number of transitions: ", length(x),
       "\n** Unique life stages: ", paste(life_stages(x), collapse = ", "), "\n",
-      number_each_element_of_character_vector(sapply(x, format.transition), 5),
+      transitions,
       sep = ""
     )
   } else {
@@ -167,10 +171,9 @@ format.transition <- function(x, ...) {
   paste(x[["from"]], "->", to, "\n")
 }
 
-number_each_element_of_character_vector <- function(x, max_print) {
+number_each_element <- function(x) {
   nums <- seq_along(x)
-  result <- paste0(nums, ". ", x)
-  to_short_string(result, max = max_print, collapse = "", item_name = "transitions")
+  paste0(nums, ". ", x)
 }
 
 
