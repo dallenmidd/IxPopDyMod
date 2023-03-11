@@ -37,9 +37,7 @@ Imports:
     stringr,
     dplyr,
     tidyr,
-    igraph,
     readr,
-    yaml,
     tibble,
     checkmate
 Language: en-US
