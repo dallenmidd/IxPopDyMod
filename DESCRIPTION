@@ -33,7 +33,6 @@ Suggests:
 Imports: 
     magrittr,
     rlang,
-    ggplot2,
     stringr,
     dplyr,
     tidyr,
