@@ -143,26 +143,19 @@ coerce_transition <- function(index, transitions) {
 #' Print a life cycle
 #' @export
 #' @param x A `life_cycle`
-#' @param abbreviated logical, indicating whether to print an abbreviated
-#'   representation or the entire list-based hierarchy
 #' @param max number of transitions to print, or NULL to print all transitions
-print.life_cycle <- function(x, ..., abbreviated = TRUE, max = 10L) {
-  if (abbreviated) {
-    transitions <- x %>%
-      vapply(format.transition, character(1L)) %>%
-      number_each_element() %>%
-      to_short_string(max = max, collapse = "", item_name = "transitions")
-    cat(
-      "** A life cycle",
-      "\n** Number of transitions: ", length(x),
-      "\n** Unique life stages: ", paste(life_stages(x), collapse = ", "), "\n",
-      transitions,
-      sep = ""
-    )
-  } else {
-    # print the default list representation
-    print.default(x)
-  }
+print.life_cycle <- function(x, ..., max = 10L) {
+  transitions <- x %>%
+    vapply(format.transition, character(1L)) %>%
+    number_each_element() %>%
+    to_short_string(max = max, collapse = "", item_name = "transitions")
+  cat(
+    "** A life cycle",
+    "\n** Number of transitions: ", length(x),
+    "\n** Unique life stages: ", paste(life_stages(x), collapse = ", "), "\n",
+    transitions,
+    sep = ""
+  )
 }
 
 # TODO move this to transition.R and combine with any print method Dave is
