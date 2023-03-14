@@ -1,4 +1,4 @@
-test_that("`get_life_stages()` works with `ogden2005` data", {
+test_that("`life_stages()` works with `ogden2005` data", {
   expected_life_stages <- c(
     "__e", "e_l", "e_n", "a_l", "a_n", "h_l", "q_l", "e_a", "r_a", "a_a", "q_a",
     "q_n"

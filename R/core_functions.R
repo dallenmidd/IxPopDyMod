@@ -1,11 +1,3 @@
-#' Get all life stages
-#' @param transitions Tick transitions data frame.
-#' @return Character vector of life stage names
-#' @noRd
-get_life_stages <- function(transitions) {
-  unique(pull(transitions, .data$from))
-}
-
 #' Get a predictor from input data
 #'
 #' @param time Numeric vector of days to get data. Ignored if input is constant
