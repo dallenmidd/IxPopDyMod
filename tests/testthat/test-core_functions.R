@@ -383,6 +383,7 @@ test_that("model output for `config_ex_2` stays the same", {
   # skipped on CRAN because it is long-running
   # testthat::skip("long running")
   testthat::skip_on_cran()
+  # TODO output population count has changed - need to investigate further
   expect_snapshot_value(run(config_ex_2, progress = FALSE), style = "serialize")
 })
 
