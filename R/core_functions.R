@@ -85,7 +85,7 @@ get_pred <- function(
 
 
 #' Get the value determining probability or duration of a transition
-#' # TODO update docs
+#' TODO update docs
 #'
 #' @details
 #' This generic function pulls out the functional form and parameters needed to
@@ -95,8 +95,8 @@ get_pred <- function(
 #' rows with the same 'from' and 'to'.
 #'
 #' @param time Numeric vector indicating span of days to get predictor values
-#' # TODO seems like at this point, time can only be a numeric vector of length
-#' # 1; it grows in length for certain delay transitions in get_pred().
+#' TODO seems like at this point, time can only be a numeric vector of length
+#' 1; it grows in length for certain delay transitions in get_pred().
 #' @param transition_row_with_parameters A row from the tick_transitions tibble
 #'   with parameters added.
 #' @param population Tick population matrix. See get_tick_den for details.

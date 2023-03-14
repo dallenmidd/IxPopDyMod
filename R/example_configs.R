@@ -83,7 +83,6 @@
 #' @seealso Drew and Samuel (1985) \doi{10.7589/0090-3558-21.3.274}
 #' @seealso Addison and McLaughlin (1988) \doi{10.2307/3282188}
 #' @seealso Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
-#' @seealso
 #'
 #' @examples
 #' data(winter_tick)
