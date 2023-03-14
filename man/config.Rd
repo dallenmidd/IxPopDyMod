@@ -24,9 +24,9 @@ number of days that a duration-based transition can last, after which ticks
 are removed from the model/die. Default of 365 is likely sensible for most
 cases.}
 
-\item{life_cycle}{A tick \link{\code{life_cycle}}}
+\item{life_cycle}{A tick's \code{\link{life_cycle}} test}
 
-\item{predictors}{Optional input \link{\code{predictors}} data}
+\item{predictors}{Optional input \code{\link{predictors}} data}
 }
 \value{
 A \code{config} object
