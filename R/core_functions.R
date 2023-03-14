@@ -37,7 +37,7 @@ get_pred_from_table <- function(time, pred, table) {
 get_tick_den <- function(time, pred, population, developing_population) {
   stopifnot(length(time) == 1)
   life_stages <- rownames(population)
-  life_stages_to_sum <- stringr::str_which(life_stages, pred)
+  life_stages_to_sum <- grep(pred, life_stages)
   total_population <- population + developing_population
   sum(total_population[life_stages_to_sum, time])
 }
@@ -74,7 +74,7 @@ get_pred <- function(
       time <- time:(time + max_delay)
     }
     get_pred_from_table(time, pred, predictors)
-  } else if (any(stringr::str_detect(life_stages, pred))) {
+  } else if (any(grepl(pred, life_stages))) {
     get_tick_den(time, pred, population, developing_population)
   } else {
     # Validation should prevent hitting this case
@@ -164,7 +164,6 @@ get_transition_inputs_unevaluated <- function(
 #' @param tick_transitions Tick transitions tibble
 #' @param predictors Table of predictor values
 #'
-#' @importFrom stringr str_detect
 #' @importFrom magrittr %>%
 #'
 #' @return Matrix of transition probabilities, indicating the probabilities of
