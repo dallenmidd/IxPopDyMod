@@ -490,7 +490,11 @@ run <- function(cfg, progress = TRUE) {
 
   # Return the total population of ticks each day. Developing ticks are counted
   # in the FROM stage.
-  (population + developing_population) %>%
+  population_matrix_to_output_df(population + developing_population)
+}
+
+population_matrix_to_output_df <- function(matrix) {
+  matrix %>%
     t() %>%
     as.data.frame() %>%
     mutate(day = row_number()) %>%
