@@ -502,10 +502,5 @@ run <- function(cfg, progress = TRUE) {
     t() %>%
     as.data.frame() %>%
     mutate(day = row_number()) %>%
-    pivot_longer(-c(.data$day), names_to = "stage", values_to = "pop") %>%
-    mutate(
-      age_group = age(.data$stage),
-      process = process(.data$stage),
-      infected = infected(.data$stage)
-    )
+    pivot_longer(-c(.data$day), names_to = "stage", values_to = "pop")
 }
