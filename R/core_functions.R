@@ -500,6 +500,6 @@ population_matrix_to_output_df <- function(matrix) {
   )
   df <- df[order(df[["day"]]), ]
   rownames(df) <- seq_len(nrow(df))
-  attr(df, "reshapeLong") <- NULL
+  attr(df, "reshapeLong") <- NULL # nolint: object_name_linter
   df
 }

@@ -11,6 +11,6 @@
 growth_rate <- function(out) {
   days <- unique(out$day)
   pops <- sapply(days, function(x) sum(out$pop[out$day == x]))
-  lambdas <- pops/stats::lag(pops)
+  lambdas <- pops / stats::lag(pops)
   exp(mean(log(lambdas), na.rm = TRUE))
 }

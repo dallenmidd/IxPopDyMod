@@ -432,7 +432,7 @@ test_that("update_delay_arr works", {
 
 test_that("population_matrix_to_output_df works", {
   matrix <- empty_population_matrix(life_stages = c("a", "b", "c"), steps = 2L)
-  matrix[,] <- 1:6
+  matrix[, ] <- 1:6
 
   expected <- data.frame(
     day = as.integer(c(1, 1, 1, 2, 2, 2)),
