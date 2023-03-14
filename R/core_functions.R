@@ -493,9 +493,7 @@ run <- function(cfg, progress = TRUE) {
 }
 
 population_matrix_to_output_df <- function(matrix) {
-  matrix %>%
-    t() %>%
-    as.data.frame() %>%
-    dplyr::mutate(day = dplyr::row_number()) %>%
-    tidyr::pivot_longer(-c(day), names_to = "stage", values_to = "pop")
+  df <- as.data.frame(t(matrix))
+  df[["day"]] <- seq_len(nrow(df))
+  tidyr::pivot_longer(df, -c(day), names_to = "stage", values_to = "pop")
 }
