@@ -7,21 +7,6 @@
 al. 2005}
 \format{
 A \code{\link{config}}
-
-\describe{
-\item{steps}{Number of time steps to run the model. Here each step
-corresponds to one day.}
-\item{initial_population}{Named vector of initial population size. Here
-the population starts with 10000 questing adults.}
-\item{transitions}{A \code{\link{tibble}} giving the transitions between
-tick life stages.}
-\item{parameters}{A \code{\link{tibble}} with the parameters to the
-life-stage transitions functions.}
-\item{predictors}{A \code{\link{tibble}} with the average temperature
-for each day, and density of hosts over the model run. Here the host
-community is stable with 20 deer and 200 rodents.}
-\item{max_delay}{The number of time units used for the delay functions.}
-}
 }
 \usage{
 ogden2005
@@ -33,6 +18,12 @@ complete model of tick population dynamics, including the effects of both
 temperature and the host community on tick life-stage transitions. We include
 this configuration to show that our package can be used to recreate existing
 models.
+}
+\details{
+In this config, the population starts with 10000 questing adults. The
+predictor data includes average temperature for each day, and density of
+hosts over the model run. Here the host community is stable with 20 deer and
+200 mice.
 }
 \examples{
 data(ogden2005)
