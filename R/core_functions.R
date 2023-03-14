@@ -507,5 +507,5 @@ population_matrix_to_output_df <- function(matrix) {
   df <- df[order(df[["day"]]), ]
   rownames(df) <- seq_len(nrow(df))
   attr(df, "reshapeLong") <- NULL
-  tibble::as_tibble(df)
+  df
 }
