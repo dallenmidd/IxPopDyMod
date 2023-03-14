@@ -20,6 +20,6 @@ Numeric vector of length 1
 Exponential function
 }
 \examples{
-expo_fun(.5, NULL, .1, .3)
+expo_fun(.5, .1, .3)
 
 }
