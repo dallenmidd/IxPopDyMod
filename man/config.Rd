@@ -5,117 +5,28 @@
 \title{Create a \code{config} object}
 \usage{
 config(
+  cycle,
   initial_population,
-  transitions,
-  parameters,
-  predictors,
-  steps,
-  max_delay = 365L
+  preds = NULL,
+  steps = 365L,
+  max_duration = 365L
 )
 }
 \arguments{
 \item{initial_population}{Named numeric vector indicating starting population
 for each life stage. Life stages not specified are assumed to be 0.}
 
-\item{transitions}{A \code{tibble} in which each row corresponds to a transition
-between two tick life stages, or a transition from a tick life stage to
-mortality.
-
-\describe{
-\item{from}{
-Tick life stage a transition is originating from, specified
-with a three character string. The final character specifies stage, with
-"e" = egg, "l" = larva, "n" = nymph, and "a" = adult. The middle character
-specifies infection, with "i" = infected, and "u" = uninfected. The first
-character is the current process or sub-stage, for example "q" = questing,
-"e" = engorged, and "r" = reproductive. We use "\verb{_}" to indicate if any of
-these components is not relevant, for example "\verb{_}" as the second character
-if we are ignoring infection.}
-\item{to}{
-Tick life stage a transition is going to. May be specified with the same
-three character format as the "from" field. Alternatively, may be the one
-of the strings "m" or "per_capita_m" to indicate mortality.
-}
-\item{transition_fun}{
-A string; the name of the function to use to calculate the value of the
-transition. Must either be a function included in the package or a custom
-function that has been loaded into the workspace.
-
-Functions can take 0-2 predictors, and any number of parameters. Argument
-order matters - all transition functions must start with two predictor
-arguments (even if they are not used within the function), followed by any
-parameters. They must return a numeric vector. See
-\code{\link{constant_fun}}, \code{\link{expo_fun}} and
-\code{\link{infect_fun}} for examples for how to write custom functions.
-}
-\item{delay}{
-If TRUE, transition is interpreted as a delay, if FALSE, transition is
-interpreted as a daily probability.
-}
-\item{pred1}{
-Specifies the first predictor to use in a transition function. One of NA,
-a string identical to a value of the "pred" column in the predictors table,
-or a pattern that matches at least one life stage.
-}
-\item{pred2}{
-Specifies the second predictor to use in a transition function. Format like
-pred1.
-}
-}}
-
-\item{parameters}{A \code{tibble} of parameters to use in the transitions
-described in the transitions table. Each row corresponds to a parameter
-value that may be used in one or more transitions. Parameter values will be
-used in transitions where the "from" and "to" fields of the two (parameters
-and transitions) tables match.
-
-\describe{
-\item{from}{
-Used to identify the transitions that a parameter should be used for.
-Format like the "from" column in the transitions table, or a regex pattern
-that matches with one or more life stage strings.
-}
-\item{to}{
-Used to identify the transitions that a parameter should be used for.
-Format like the "to" column in the transitions table, or a regex pattern
-that matches with one or more life stage strings.
-}
-\item{param_name}{
-A string specifying the name of the argument in the function where you want
-to use a parameter.
-}
-\item{host_spp}{
-Optional column, not needed for model configurations that do not dependent
-on host community. For a given row, NA if the parameter value is not
-dependent on the host species. Otherwise, a string specifying the name of
-the host species that the parameter value pertains to.
-}
-\item{param_value}{
-Numeric; the value of the parameter
-}
-}}
-
-\item{predictors}{Optionally, a \code{tibble} of input data to be used as predictor
-values in transition functions, for example weather or host density.
-
-\describe{
-\item{pred}{String specifying the name of the predictor, e.g. "temp" or "host_den}
-\item{pred_subcategory}{This column allows specifying predictors for which
-there are multiple values for a given j_day. Predictor values are sorted by
-this column in the config set up. This ensures that when accessing a predictor
-with multiple values for the same j_day, we get a vector of predictor values
-ordered by this column A typical use for this column is to specify the
-host density of each host species.}
-\item{j_day}{Integer specifying the Julian day, or NA for predictors with
-constant value over time}
-\item{value}{Numeric value of predictor}
-}}
-
 \item{steps}{Numeric vector of length one indicating the duration to run the
 model over in days.}
 
-\item{max_delay}{Numeric vector of length one. Determines the maximum
-number of days that a delayed transition can last.}
+\item{max_duration}{Numeric vector of length one. Determines the maximum
+number of days that a duration-based transition can last, after which ticks
+are removed from the model/die. Default of 365 is likely sensible for most
+cases.}
+
+\item{life_cycle}{A tick \link{\code{life_cycle}}}
+
+\item{predictors}{Optional input \link{\code{predictors}} data}
 }
 \value{
 A \code{config} object
@@ -125,61 +36,25 @@ Make a \code{config} object from the input parameters, and ensure that the input
 meet the requirements for the model. The returned object is a complete
 description of a model run scenario.
 }
-\details{
-The delay column affects how a transition row is used in the model. In all
-cases, a transition row is evaluated with any parameters and predictors,
-resulting in a transition value, \code{t}. If there is another row with the same
-"from", but either "m" or "per_capita_m" for the "to" stage, this row
-will be evaluated as well, resulting in a mortality transition value, \code{m}.
-Only delay transitions support "per_capita_m".
-
-In non-delay transitions (where \code{delay == FALSE}), ticks can either advance
-to the "to" stage, die, or remain in the "from" stage. In this case, \code{t}
-is interpreted as the probability that a tick in the "from" stage will
-advance to the "to" stage at the next time step. The survival rate, or the
-probability that a tick will remain in the same "from" life stage, is
-calculated as \code{1 - (t + m)}.
-
-In delay transitions (where \code{delay == TRUE}), ticks can either advance to the
-"to" stage, or die - there is no survival. In this case, \code{t} is used to
-determine the number of days until ticks in the "from" stage will emerge as
-ticks in the "to" stage. \code{t} will be vectorized over each day from the
-current time step to \code{max_delay} days ahead. The duration of the transition
-(in days) will be the index \code{i} of the first element in \code{t} where the
-cumulative sum of \code{t[1:i]} is greater than or equal to 1.
-
-Delay transitions support two modes of mortality, "m" and "per_capita_m".
-For transitions to "m", the mortality value \code{m} is interpreted as a daily
-probability of mortality for each day in the delay transition. This differs
-from transitions to "per_capita_m", where \code{m} is the total probability of
-mortality over the entire duration of the delay transition.'
-}
 \examples{
+# We build a simple example config
+my_config <- config(
+  cycle = life_cycle(
+    transition("a", "b", function() 0.1, "probability"),
+    transition("b", "a", function() 10, "probability")
+  ),
+  initial_population = c(a = 1)
+)
 
-# We rebuild an example config from its constituent parts. This is successful as
-# expected, because we're just making a config that's identical to an example.
-do.call(config, config_ex_1)
-
-# If we modify the config to something unsuitable, the function will complain.
-# For example, if we modify the egg to larvae transition to use a different
-# function that requires an additional parameter.
+# If we make a change to an existing `config`, it is a good idea to check
+# whether it is still valid by calling `config()` on it again. For example,
+# here we set the initial_population of a life stage that is not included in
+# the life cycle.
+my_config$initial_population <- c(a = 1, c = 1)
 
 \dontrun{
-# We define a super simple function that takes two parameters.
-prod_fun <- function(x, y, a, b) a * b
-
-my_config <- config_ex_1
-my_config$transitions[1, 3] <- 'prod_fun'
-
-# this will throw an error, because a parameter is missing
-do.call(config, my_config)
-# config() will report that parameter "b" is missing for the exponential function.
-
-# Adding the parameter should fix the config
-my_config$parameters[9,] <- list(from = '__e', to = '__l', param_name = 'b',
-                                 param_value = 1)
-
-# Now, this should run without issues
+# Now, we re-run the validations, which will throw an error
 do.call(config, my_config)
 }
+
 }

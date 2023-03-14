@@ -14,6 +14,9 @@ over time (as indicated by NA value in 'j_day' column)}
 
 \item{table}{input predictors table}
 }
+\value{
+a numeric vector of predictor values
+}
 \description{
 Get a predictor from input data
 }
