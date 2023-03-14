@@ -13,8 +13,12 @@ config(
 )
 }
 \arguments{
+\item{cycle}{A tick's \code{\link{life_cycle}} test}
+
 \item{initial_population}{Named numeric vector indicating starting population
 for each life stage. Life stages not specified are assumed to be 0.}
+
+\item{preds}{Optional input \code{\link{predictors}} data}
 
 \item{steps}{Numeric vector of length one indicating the duration to run the
 model over in days.}
@@ -23,10 +27,6 @@ model over in days.}
 number of days that a duration-based transition can last, after which ticks
 are removed from the model/die. Default of 365 is likely sensible for most
 cases.}
-
-\item{life_cycle}{A tick's \code{\link{life_cycle}} test}
-
-\item{predictors}{Optional input \code{\link{predictors}} data}
 }
 \value{
 A \code{config} object
