@@ -489,7 +489,7 @@ population_matrix_to_output_df <- function(matrix) {
   df <- as.data.frame(t(matrix))
   df[["day"]] <- seq_len(nrow(df))
   life_stages <- rownames(matrix)
-  df <- reshape(
+  df <- stats::reshape(
     df,
     direction = "long",
     varying = life_stages,
