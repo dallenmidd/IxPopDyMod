@@ -347,8 +347,8 @@ update_delay_arr <- function(
   return(delay_arr)
 }
 
-#' Generate an empty delay array
-#' Dimensions are: from, to, time
+# Generate an empty delay array
+# Dimensions are: from, to, time
 empty_delay_array <- function(life_stages, steps, max_duration) {
   array(
     dim = c(length(life_stages), length(life_stages), steps + max_duration),
@@ -357,7 +357,7 @@ empty_delay_array <- function(life_stages, steps, max_duration) {
   )
 }
 
-#' Create an empty (zero population) population matrix
+# Create an empty (zero population) population matrix
 empty_population_matrix <- function(life_stages, steps) {
   matrix(
     data = 0,
@@ -367,7 +367,7 @@ empty_population_matrix <- function(life_stages, steps) {
   )
 }
 
-#' Create an empty matrix of transition probabilities between life stages
+# Create an empty matrix of transition probabilities between life stages
 empty_transition_matrix <- function(life_stages) {
   n_life_stages <- length(life_stages)
   matrix(
@@ -378,7 +378,7 @@ empty_transition_matrix <- function(life_stages) {
   )
 }
 
-#' Set initial population for each life stage - zero if not specified in cfg
+# Set initial population for each life stage - zero if not specified in cfg
 set_initial_population <- function(population, initial_population) {
   population[, 1] <- vapply(
     rownames(population),
