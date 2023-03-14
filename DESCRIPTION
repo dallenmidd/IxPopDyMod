@@ -32,6 +32,7 @@ Suggests:
     testthat (>= 3.0.0)
 Imports: 
     magrittr,
+    stats,
     checkmate
 Language: en-US
 Config/testthat/edition: 3
