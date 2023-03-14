@@ -167,7 +167,6 @@ get_transition_inputs_unevaluated <- function(
 #' @importFrom dplyr filter
 #' @importFrom stringr str_detect
 #' @importFrom magrittr %>%
-#' @importFrom rlang .data
 #'
 #' @return Matrix of transition probabilities, indicating the probabilities of
 #'   transitioning from each stage (axis 1) to each stage (axis 2).
@@ -498,5 +497,5 @@ population_matrix_to_output_df <- function(matrix) {
     t() %>%
     as.data.frame() %>%
     dplyr::mutate(day = dplyr::row_number()) %>%
-    tidyr::pivot_longer(-c(.data$day), names_to = "stage", values_to = "pop")
+    tidyr::pivot_longer(-c(day), names_to = "stage", values_to = "pop")
 }
