@@ -164,7 +164,6 @@ get_transition_inputs_unevaluated <- function(
 #' @param tick_transitions Tick transitions tibble
 #' @param predictors Table of predictor values
 #'
-#' @importFrom dplyr filter
 #' @importFrom stringr str_detect
 #' @importFrom magrittr %>%
 #'
@@ -230,8 +229,6 @@ gen_transition_matrix <- function(
 #' @param predictors Table of predictor values
 #' @param max_delay Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
-#'
-#' @importFrom dplyr pull
 #'
 #' @return Delay array indicating the number of ticks currently undergoing delay
 #'   transitions. Axis 1 is the from_stage, axis 2 is the to_stage, and axis 3
@@ -395,8 +392,6 @@ set_initial_population <- function(population, initial_population) {
 }
 
 #' Run the model
-#'
-#' @importFrom dplyr row_number
 #'
 #' @param cfg An `IxPopDyMod::config` object
 #' @param progress Boolean indicating whether to log progress every 100 steps

@@ -33,7 +33,6 @@ Suggests:
 Imports: 
     magrittr,
     stringr,
-    dplyr,
     readr,
     checkmate
 Language: en-US
