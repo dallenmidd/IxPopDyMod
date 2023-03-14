@@ -497,6 +497,6 @@ population_matrix_to_output_df <- function(matrix) {
   matrix %>%
     t() %>%
     as.data.frame() %>%
-    mutate(day = row_number()) %>%
-    pivot_longer(-c(.data$day), names_to = "stage", values_to = "pop")
+    dplyr::mutate(day = dplyr::row_number()) %>%
+    tidyr::pivot_longer(-c(.data$day), names_to = "stage", values_to = "pop")
 }
