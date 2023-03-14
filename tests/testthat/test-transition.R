@@ -1,6 +1,7 @@
 # new_transition --------------------------------------------------------------
 test_that("produces expected output with valid input", {
-  expect_snapshot(new_transition(
+
+  trans <- new_transition(
     from = "a",
     to = "b",
     transition_type = "probability",
@@ -8,7 +9,16 @@ test_that("produces expected output with valid input", {
     fun = new_transition_function(constant_fun),
     predictors = NULL,
     parameters = new_parameters(a = 1)
-  ))
+  )
+
+  # Comparing functions is hard and was failing in R CMD check. So we do it
+  # separately, ignoring the bytecode attr, and compare the rest with a snapshot.
+  expect_identical(
+    object = trans$fun,
+    expected = structure(constant_fun, class = "transition_function"),
+    ignore_attr = "bytecode"
+  )
+  expect_snapshot(trans[names(trans) != "fun"])
 })
 
 test_that("throws error with invalid from input", {
