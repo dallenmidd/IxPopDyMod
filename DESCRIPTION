@@ -34,7 +34,6 @@ Imports:
     magrittr,
     stringr,
     dplyr,
-    tidyr,
     readr,
     tibble,
     checkmate

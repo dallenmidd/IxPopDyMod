@@ -396,7 +396,6 @@ set_initial_population <- function(population, initial_population) {
 
 #' Run the model
 #'
-#' @importFrom tidyr pivot_longer
 #' @importFrom dplyr row_number
 #'
 #' @param cfg An `IxPopDyMod::config` object
@@ -495,5 +494,18 @@ run <- function(cfg, progress = TRUE) {
 population_matrix_to_output_df <- function(matrix) {
   df <- as.data.frame(t(matrix))
   df[["day"]] <- seq_len(nrow(df))
-  tidyr::pivot_longer(df, -c(day), names_to = "stage", values_to = "pop")
+  life_stages <- rownames(matrix)
+  df <- reshape(
+    df,
+    direction = "long",
+    varying = life_stages,
+    v.names = "pop",
+    idvar = "day",
+    timevar = "stage",
+    times = life_stages
+  )
+  df <- df[order(df[["day"]]), ]
+  rownames(df) <- seq_len(nrow(df))
+  attr(df, "reshapeLong") <- NULL
+  tibble::as_tibble(df)
 }
