@@ -1,26 +1,3 @@
-test_that("`age()` works", {
-  expect_equal(age("__l"), "l")
-  expect_equal(age("e_a"), "a")
-  expect_equal(age("n"), "n")
-  expect_equal(age("i"), "i")
-})
-
-test_that("`process()` works", {
-  # TODO this should probably return ""
-  expect_equal(process("e"), "e")
-  expect_equal(process("eil"), "e")
-})
-
-test_that("`infected()` works", {
-  expect_equal(infected("eil"), TRUE)
-  expect_equal(infected("eul"), FALSE)
-  expect_equal(infected("e_l"), FALSE)
-  expect_equal(infected("e.l"), FALSE)
-
-  # TODO probably don't want this case to pass
-  expect_equal(infected("i"), TRUE)
-})
-
 test_that("`get_life_stages()` works with `ogden2005` data", {
   expected_life_stages <- c(
     "__e", "e_l", "e_n", "a_l", "a_n", "h_l", "q_l", "e_a", "r_a", "a_a", "q_a",

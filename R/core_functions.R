@@ -1,35 +1,3 @@
-#' Get tick age based on life stage
-#'
-#' @param life_stage Three-character string representing tick life stage
-#' @importFrom stringr str_length
-#' @return Character representing tick age, where "l" indicates larvae, "n"
-#'   indicates nymph, and "a" indicates adult
-#' @noRd
-age <- function(life_stage) {
-  substr(life_stage, str_length(life_stage), str_length(life_stage))
-}
-
-#' Get tick current process
-#'
-#' @param life_stage Three-character string representing tick life stage
-#' @return Character representing current process tick is undergoing, where "a"
-#'   indicates attached, "e" indicates engorged, "h" indicates hardening, "q"
-#'   indicates questing, "r" indicates reproductive", and "f" indicates feeding
-#' @noRd
-process <- function(life_stage) {
-  ifelse(substr(life_stage, 0, 1) != "", substr(life_stage, 0, 1), "")
-}
-
-#' Get tick infection status
-#'
-#' @param life_stage Three-character string representing tick life stage
-#' @return Boolean indicating whether a life_stage is infected
-#' @importFrom stringr str_detect
-#' @noRd
-infected <- function(life_stage) {
-  str_detect(life_stage, "i")
-}
-
 #' Get all life stages
 #' @param transitions Tick transitions data frame.
 #' @return Character vector of life stage names
