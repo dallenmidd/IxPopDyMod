@@ -140,6 +140,37 @@ coerce_transition <- function(index, transitions) {
   do.call(transition, each_transition)
 }
 
+#' Print a life cycle
+#' @export
+#' @param x A `life_cycle`
+#' @param max number of transitions to print, or NULL to print all transitions
+print.life_cycle <- function(x, ..., max = 10L) {
+  transitions <- x %>%
+    vapply(format.transition, character(1L)) %>%
+    number_each_element() %>%
+    to_short_string(max = max, collapse = "", item_name = "transitions")
+  cat(
+    "** A life cycle",
+    "\n** Number of transitions: ", length(x),
+    "\n** Unique life stages: ", paste(life_stages(x), collapse = ", "), "\n",
+    transitions,
+    sep = ""
+  )
+}
+
+# TODO move this to transition.R and combine with any print method Dave is
+# working on. This is just a very simple option for use within a life_cycle
+format.transition <- function(x, ...) {
+  to <- ifelse(transition_is_mortality(x), "mortality", x[["to"]])
+  paste(x[["from"]], "->", to, "\n")
+}
+
+number_each_element <- function(x) {
+  nums <- seq_along(x)
+  paste0(nums, ". ", x)
+}
+
+
 
 ###########################################
 # helpers for working with a `life_cycle` #
