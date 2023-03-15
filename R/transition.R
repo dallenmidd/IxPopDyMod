@@ -159,3 +159,27 @@ transition <- function(
 transition_is_mortality <- function(transition) {
   !is.null(transition$mortality_type)
 }
+
+
+# This is just a very simple option for use within a life_cycle
+format.transition <- function(x, ...) {
+  to <- ifelse(transition_is_mortality(x), "mortality", x[["to"]])
+  paste(x[["from"]], "->", to, "\n")
+}
+
+#' Print a transition
+#' @export
+#' @param x A `transition`
+
+print.transition <- function(x) {
+  cat(
+    "** A transition",
+    "\n** ", format.transition(x),
+    "Transition type: ", x$transition_type,
+    ifelse(transition_is_mortality(x),"\nMortality type: ",""),
+    ifelse(transition_is_mortality(x),x$mortality_type,""),
+   # "\nTransition function = ", sub('attr\\(,"class"\\)(.+)','',x$fun),
+    sep = ""
+  )
+}
+

@@ -107,12 +107,11 @@ sapply(outputs, growth_rate)
 
 ## Temperature-dependent transitions
 
-```{r, eval = FALSE}
+```{r}
 temp_example_config$cycle
-## need some way to show the life cycle
 ```
 
-*When the print looks good we will say something here.*
+Calling the `life_cycle` element in a `config` gives a summary of the life cycle. Here we see the life stages, how many transitions between life stages there are, and the first 10 transitions are shown. Each transition is stored in the `life_cycle` as a list, so they can be called using list indexing.
 
 
 ```{r}
