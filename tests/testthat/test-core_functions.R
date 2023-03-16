@@ -380,10 +380,20 @@ test_that("model output for `config_ex_1` stays the same", {
 })
 
 test_that("model output for `config_ex_2` stays the same", {
+  # This test was producing different results on an M1 mac on R versions
+  # greater than 4.1.1 (or 4.1.2?), versus on an intel Mac on R 4.1.1 and in
+  # GitHub actions which used R 4.2.3. It appears to be due to a floating
+  # point error.
+  #
+  # Specifically, the number of days that a duration-based transition
+  # lasts is determined by the first day that the cumulative sum of the
+  # daily transition probabilities > 1. This number was being calculated
+  # differently on the different systems - specifically for the transition
+  # to the life stage '__n'.
+
   # skipped on CRAN because it is long-running
   # testthat::skip("long running")
   testthat::skip_on_cran()
-  # TODO output population count has changed - need to investigate further
   expect_snapshot_value(run(config_ex_2, progress = FALSE), style = "serialize")
 })
 
