@@ -86,7 +86,8 @@ validate_transition <- function(transition) {
 #' @param from The name of the life stage a tick is transitioning from.
 #' @param to The name of the life stage a tick is transitioning to, or NULL if
 #'   the transition is representing mortality.
-#' @param fun The \code{\link{transition_function}} to evaluate.
+#' @param fun The transition function to evaluate. TODO further document or link
+#' to documentation in class definition
 #' @param transition_type One of:
 #'   `"probability"`: the evaluated transition is interpreted as the daily
 #'     fraction of ticks that complete the transition. Ticks remain in the
@@ -115,8 +116,6 @@ validate_transition <- function(transition) {
 #'       all matched life stages.
 #' @param parameters Optional, a \code{\link{parameters}} object, or a named
 #'   list of numeric vectors.
-#'
-#' TODO need to actually create the helper functions linked in these docs.
 #'
 #' @export
 #'

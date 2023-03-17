@@ -1,27 +1,4 @@
-test_that("`age()` works", {
-  expect_equal(age("__l"), "l")
-  expect_equal(age("e_a"), "a")
-  expect_equal(age("n"), "n")
-  expect_equal(age("i"), "i")
-})
-
-test_that("`process()` works", {
-  # TODO this should probably return ""
-  expect_equal(process("e"), "e")
-  expect_equal(process("eil"), "e")
-})
-
-test_that("`infected()` works", {
-  expect_equal(infected("eil"), TRUE)
-  expect_equal(infected("eul"), FALSE)
-  expect_equal(infected("e_l"), FALSE)
-  expect_equal(infected("e.l"), FALSE)
-
-  # TODO probably don't want this case to pass
-  expect_equal(infected("i"), TRUE)
-})
-
-test_that("`get_life_stages()` works with `ogden2005` data", {
+test_that("`life_stages()` works with `ogden2005` data", {
   expected_life_stages <- c(
     "__e", "e_l", "e_n", "a_l", "a_n", "h_l", "q_l", "e_a", "r_a", "a_a", "q_a",
     "q_n"
@@ -403,6 +380,17 @@ test_that("model output for `config_ex_1` stays the same", {
 })
 
 test_that("model output for `config_ex_2` stays the same", {
+  # This test was producing different results on an M1 mac on R versions
+  # greater than 4.1.1 (or 4.1.2?), versus on an intel Mac on R 4.1.1 and in
+  # GitHub actions which used R 4.2.3. It appears to be due to a floating
+  # point error.
+  #
+  # Specifically, the number of days that a duration-based transition
+  # lasts is determined by the first day that the cumulative sum of the
+  # daily transition probabilities > 1. This number was being calculated
+  # differently on the different systems - specifically for the transition
+  # to the life stage '__n'.
+
   # skipped on CRAN because it is long-running
   # testthat::skip("long running")
   testthat::skip_on_cran()
@@ -450,4 +438,20 @@ test_that("update_delay_arr works", {
     max_delay = cfg$max_duration,
     predictors = cfg$predictors
   ))
+})
+
+test_that("population_matrix_to_output_df works", {
+  matrix <- empty_population_matrix(life_stages = c("a", "b", "c"), steps = 2L)
+  matrix[, ] <- 1:6
+
+  expected <- data.frame(
+    day = as.integer(c(1, 1, 1, 2, 2, 2)),
+    stage = rep(c("a", "b", "c"), 2),
+    pop = as.double(1:6)
+  )
+
+  expect_identical(
+    as.data.frame(population_matrix_to_output_df(matrix)),
+    expected
+  )
 })

@@ -143,7 +143,9 @@ coerce_transition <- function(index, transitions) {
 #' Print a life cycle
 #' @export
 #' @param x A `life_cycle`
+#' @param ... not used
 #' @param max number of transitions to print, or NULL to print all transitions
+#' @noRd
 print.life_cycle <- function(x, ..., max = 10L) {
   transitions <- x %>%
     vapply(format.transition, character(1L)) %>%

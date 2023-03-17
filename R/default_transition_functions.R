@@ -10,7 +10,7 @@
 #' @return Numeric vector of length 1
 #'
 #' @examples
-#' expo_fun(.5, NULL, .1, .3)
+#' expo_fun(.5, .1, .3)
 #'
 #' @export
 expo_fun <- function(x, a, b) ifelse(x > 0, a * x^b, 0)
@@ -21,7 +21,7 @@ expo_fun <- function(x, a, b) ifelse(x > 0, a * x^b, 0)
 #' @return Numeric vector of length 1 equal to input parameter `a`
 #'
 #' @examples
-#' constant_fun(NULL, NULL, 1)
+#' constant_fun(1)
 #' @export
 constant_fun <- function(a) a
 
@@ -110,7 +110,7 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 #' @return Numeric vector of length 1
 #'
 #' @examples
-#' ogden_feed_fun(30, NULL, .03, .01, 10, 35)
+#' ogden_feed_fun(30, .03, .01, 10, 35)
 #'
 #' @export
 ogden_feed_fun <- function(x, a, q, tmin, tmax) {
@@ -142,9 +142,9 @@ ogden_feed_fun <- function(x, a, q, tmin, tmax) {
 #' @return Numeric vector of length 1
 #'
 #' @examples
-#' infect_fun(10, NULL, 0, 0, .3, 1)
-#' infect_fun(10, NULL, 0, 1, .3, 1)
-#' infect_fun(10, NULL, 1, 1, .3, 1)
+#' infect_fun(10, 0, 0, .3, 1)
+#' infect_fun(10, 0, 1, .3, 1)
+#' infect_fun(10, 1, 1, .3, 1)
 #'
 #' @export
 infect_fun <- function(x, from_infected, to_infected, host_rc, pref) {
