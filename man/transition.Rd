@@ -20,7 +20,8 @@ transition(
 \item{to}{The name of the life stage a tick is transitioning to, or NULL if
 the transition is representing mortality.}
 
-\item{fun}{The \code{\link{transition_function}} to evaluate.}
+\item{fun}{The transition function to evaluate. TODO further document or link
+to documentation in class definition}
 
 \item{transition_type}{One of:
 \code{"probability"}: the evaluated transition is interpreted as the daily
@@ -52,9 +53,7 @@ case, the value passed to \code{fun} is the sum of the population sizes of
 all matched life stages.}
 
 \item{parameters}{Optional, a \code{\link{parameters}} object, or a named
-list of numeric vectors.
-
-TODO need to actually create the helper functions linked in these docs.}
+list of numeric vectors.}
 }
 \value{
 a \code{transition} object

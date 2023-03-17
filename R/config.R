@@ -46,22 +46,18 @@ new_config <- function(
 #' meet the requirements for the model. The returned object is a complete
 #' description of a model run scenario.
 #'
-#' @param life_cycle A tick \link{\code{life_cycle}}
-#'
-#' @param predictors Optional input \link{\code{predictors}} data
-#'
+#' @param cycle A tick's \code{\link{life_cycle}} test
+#' @param preds Optional input \code{\link{predictors}} data
 #' @param steps Numeric vector of length one indicating the duration to run the
 #'   model over in days.
-#'
 #' @param max_duration Numeric vector of length one. Determines the maximum
 #'   number of days that a duration-based transition can last, after which ticks
 #'   are removed from the model/die. Default of 365 is likely sensible for most
 #'   cases.
-#'
 #' @param initial_population Named numeric vector indicating starting population
 #'   for each life stage. Life stages not specified are assumed to be 0.
 #'
-#' @return A `config` object
+#' @returns A `config` object
 #'
 #' @export
 #'
