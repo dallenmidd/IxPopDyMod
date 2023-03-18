@@ -118,7 +118,7 @@ life_cycle <- function(...) {
 # TODO life cycle is the longest printed part of a config, could implement an
 # abbreviated printing method (print.life_cycle)
 
-#' Attempt to coerce an input to a `transition`
+#' Attempt to each coerce each list-based element of a list to the correct type
 #'
 #' First ensures that the required elements of a transition are provided, and
 #' throws a more informative error than the missing argument error that would
@@ -128,16 +128,16 @@ life_cycle <- function(...) {
 #' @param transitions a list of (not yet validated) transitions
 #' @returns a validated `transition`, if checks pass
 #' @noRd
-coerce_transition <- function(index, transitions) {
-  each_transition <- transitions[[index]]
-  expected_args <- names(formals(transition))
+coerce_transition <- function(index, list_of_element, element_fun) {
+  each_transition <- list_of_element[[index]]
+  expected_args <- names(formals(element_fun))
   actual_args <- as.character(names(each_transition))
   checkmate::assert_set_equal(
     actual_args,
     expected_args,
     .var.name = paste("elements of transition at index:", index)
   )
-  do.call(transition, each_transition)
+  do.call(element_fun, each_transition)
 }
 
 #' Print a life cycle
