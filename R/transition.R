@@ -172,13 +172,15 @@ format.transition <- function(x, ...) {
 #' @param x A `transition`
 
 print.transition <- function(x) {
+  tfun <- x$fun
+  attributes(tfun) <- NULL
   cat(
     "** A transition",
     "\n** ", format.transition(x),
     "Transition type: ", x$transition_type,
     ifelse(transition_is_mortality(x),"\nMortality type: ",""),
     ifelse(transition_is_mortality(x),x$mortality_type,""),
-   # "\nTransition function = ", sub('attr\\(,"class"\\)(.+)','',x$fun),
+    "\nTransition function = ", tfun,
     sep = ""
   )
 }
