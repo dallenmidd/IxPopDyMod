@@ -102,16 +102,8 @@ validate_transition <- function(transition) {
 #'   `"throughout_transition"`: only valid for `"duration"` type transitions,
 #'     where it indicates that the evaluated transition is the fraction of
 #'     ticks that die throughout the entire transition.
-#' @param predictors Optional, named character vector of predictors to use in
-#'   evaluating `fun`. Names are matched with the formal args to `fun` to
-#'   determine which input in `fun` each predictor will be passed to. Each value
-#'   can be one of:
-#'     - A string in the `"pred"` column in the \code{\link{predictors}} table.
-#'       In this case, the predictor value passed to `fun` is the corresponding
-#'       value of that predictor in the table.
-#'     - A string that matches at least one life stage name via regex. In this
-#'       case, the value passed to `fun` is the sum of the population sizes of
-#'       all matched life stages.
+#' @param predictors Optional, a \code{\link{predictors_specification}} object
+#'   that specifies how any predictor data should be used in evaluating `fun`
 #' @param parameters Optional, a \code{\link{parameters}} object, or a named
 #'   list of numeric vectors.
 #'

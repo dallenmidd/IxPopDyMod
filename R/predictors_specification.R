@@ -8,7 +8,9 @@ new_predictors_specification <- function(...) {
 
 #' Specify what predictors to use in a transition and how to use that data
 #'
-#' @param ... named sequence of `predictor_specification_node`s
+#' @param ... named sequence of `predictor_specification_node`s. The names are
+#'   matched with the formal args to the containing \code{\link{transition}}'s
+#'   `fun` to determine which input in `fun` each predictor will be passed to.
 #' @returns a `predictors_specification` object
 #' @export
 predictors_specification <- function(...) {
