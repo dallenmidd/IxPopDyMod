@@ -35,17 +35,17 @@ predictors_spec <- function(...) {
 # TODO implement
 # print.predictors_spec <- function()
 
-new_predictors_spec_node <- function(name, first_day_only) {
-  checkmate::assert_string(name, min.chars = 1)
+new_predictors_spec_node <- function(pred, first_day_only) {
+  checkmate::assert_string(pred, min.chars = 1)
   checkmate::assert_logical(first_day_only, len = 1, any.missing = FALSE)
   structure(
-    list(name = name, first_day_only = first_day_only),
+    list(pred = pred, first_day_only = first_day_only),
     class = "predictors_spec_node"
   )
 }
 
 #' Specify how a single predictor should be used
-#' @param name String indicating where to get predictor data. Can be one of:
+#' @param pred String indicating where to get predictor data. Can be one of:
 #'  - A string in the `"pred"` column in the \code{\link{predictors}} table.
 #'    In this case, the predictor value passed to the containing
 #'    \code{\link{transition}}'s `fun` is the corresponding value of that
@@ -65,6 +65,6 @@ new_predictors_spec_node <- function(name, first_day_only) {
 #' @export
 #'
 #' @returns a `predictors_spec_node` list-based object
-predictors_spec_node <- function(name, first_day_only) {
-  new_predictors_spec_node(name = name, first_day_only = first_day_only)
+predictors_spec_node <- function(pred, first_day_only) {
+  new_predictors_spec_node(pred = pred, first_day_only = first_day_only)
 }
