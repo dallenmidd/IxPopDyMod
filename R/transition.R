@@ -18,7 +18,7 @@ new_transition <- function(
   # the scalar value of a predictor on first day of transition, or vector of
   # predictor values over time? Would require changing data structure from
   # named vector
-  checkmate::assert_class(predictors, "predictors_specification", null.ok = TRUE)
+  checkmate::assert_class(predictors, "predictors_spec", null.ok = TRUE)
   checkmate::assert_class(parameters, "parameters")
 
   transition <- structure(
@@ -102,7 +102,7 @@ validate_transition <- function(transition) {
 #'   `"throughout_transition"`: only valid for `"duration"` type transitions,
 #'     where it indicates that the evaluated transition is the fraction of
 #'     ticks that die throughout the entire transition.
-#' @param predictors Optional, a \code{\link{predictors_specification}} object
+#' @param predictors Optional, a \code{\link{predictors_spec}} object
 #'   that specifies how any predictor data should be used in evaluating `fun`
 #' @param parameters Optional, a \code{\link{parameters}} object, or a named
 #'   list of numeric vectors.

@@ -1,7 +1,7 @@
-new_predictors_specification <- function(...) {
-  l <- structure(list(...), class = "predictors_specification")
+new_predictors_spec <- function(...) {
+  l <- structure(list(...), class = "predictors_spec")
   checkmate::assert_list(
-    l, types = "predictors_specification_node", unique = TRUE, names = "unique"
+    l, types = "predictors_spec_node", unique = TRUE, names = "unique"
   )
   return(l)
 }
@@ -11,9 +11,9 @@ new_predictors_specification <- function(...) {
 #' @param ... named sequence of `predictor_specification_node`s. The names are
 #'   matched with the formal args to the containing \code{\link{transition}}'s
 #'   `fun` to determine which input in `fun` each predictor will be passed to.
-#' @returns a `predictors_specification` object
+#' @returns a `predictors_spec` object
 #' @export
-predictors_specification <- function(...) {
+predictors_spec <- function(...) {
   nodes <- list(...)
 
   # Allow passing elements that are missing the `predictor_specification_node`
@@ -24,23 +24,23 @@ predictors_specification <- function(...) {
     function(i) coerce_transition(
       index = i,
       list_of_element = nodes,
-      element_fun = new_predictors_specification_node
+      element_fun = new_predictors_spec_node
     )
   )
   names(nodes) <- node_names
 
-  do.call(new_predictors_specification, nodes)
+  do.call(new_predictors_spec, nodes)
 }
 
 # TODO implement
-# print.predictors_specification <- function()
+# print.predictors_spec <- function()
 
-new_predictors_specification_node <- function(name, first_day_only) {
+new_predictors_spec_node <- function(name, first_day_only) {
   checkmate::assert_string(name, min.chars = 1)
   checkmate::assert_logical(first_day_only, len = 1, any.missing = FALSE)
   structure(
     list(name = name, first_day_only = first_day_only),
-    class = "predictors_specification_node"
+    class = "predictors_spec_node"
   )
 }
 
@@ -64,7 +64,7 @@ new_predictors_specification_node <- function(name, first_day_only) {
 #'
 #' @export
 #'
-#' @returns a `predictors_specification_node` list-based object
-predictors_specification_node <- function(name, first_day_only) {
-  new_predictors_specification_node(name = name, first_day_only = first_day_only)
+#' @returns a `predictors_spec_node` list-based object
+predictors_spec_node <- function(name, first_day_only) {
+  new_predictors_spec_node(name = name, first_day_only = first_day_only)
 }

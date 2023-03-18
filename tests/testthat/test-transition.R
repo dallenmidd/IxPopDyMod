@@ -168,7 +168,7 @@ test_that("allows transition with zero parameters", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(function(x, y) NULL),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = new_predictors_spec(x = "temp", y = "host_density"),
       parameters = new_parameters()
     )),
     regexp = NA
