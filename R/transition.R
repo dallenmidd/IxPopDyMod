@@ -18,9 +18,7 @@ new_transition <- function(
   # the scalar value of a predictor on first day of transition, or vector of
   # predictor values over time? Would require changing data structure from
   # named vector
-  checkmate::assert_character(
-    predictors, names = "unique", min.chars = 1, null.ok = TRUE
-  )
+  checkmate::assert_class(predictors, "predictors_specification", null.ok = TRUE)
   checkmate::assert_class(parameters, "parameters")
 
   transition <- structure(
