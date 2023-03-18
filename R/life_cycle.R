@@ -106,7 +106,11 @@ life_cycle <- function(...) {
   # attempt to coerce each input to a transition
   transitions <- lapply(
     seq_along(transitions),
-    function(i) coerce_transition(index = i, transitions = transitions)
+    function(i) {
+      coerce_element(
+        index = i, list_of_element = transitions, element_fun = transition
+      )
+    }
   )
 
   # convert list to `life_cycle` class
@@ -118,26 +122,27 @@ life_cycle <- function(...) {
 # TODO life cycle is the longest printed part of a config, could implement an
 # abbreviated printing method (print.life_cycle)
 
-#' Attempt to each coerce each list-based element of a list to the correct type
+#' Attempt to coerce a list-based element within a parent list to the correct type
 #'
-#' First ensures that the required elements of a transition are provided, and
-#' throws a more informative error than the missing argument error that would
-#' otherwise be thrown by `do.call()`.
+#' First ensures that the element has the required names, and throws a more
+#' informative error than the missing argument error that would otherwise be
+#' thrown by `do.call()`.
 #'
-#' @param index which item in the list to validate
-#' @param transitions a list of (not yet validated) transitions
-#' @returns a validated `transition`, if checks pass
+#' @param index which element in the list to validate
+#' @param list_of_element a list of (not yet validated) elements
+#' @param element_fun function to use to validate the provided element
+#' @returns a validated element of type `element_fun`, if checks pass
 #' @noRd
-coerce_transition <- function(index, list_of_element, element_fun) {
-  each_transition <- list_of_element[[index]]
+coerce_element <- function(index, list_of_element, element_fun) {
+  each_elt <- list_of_element[[index]]
   expected_args <- names(formals(element_fun))
-  actual_args <- as.character(names(each_transition))
+  actual_args <- as.character(names(each_elt))
   checkmate::assert_set_equal(
     actual_args,
     expected_args,
-    .var.name = paste("elements of transition at index:", index)
+    .var.name = paste("names of element at index:", index)
   )
-  do.call(element_fun, each_transition)
+  do.call(element_fun, each_elt)
 }
 
 #' Print a life cycle

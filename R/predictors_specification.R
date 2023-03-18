@@ -21,7 +21,7 @@ predictors_spec <- function(...) {
   node_names <- names(nodes)
   nodes <- lapply(
     seq_along(nodes),
-    function(i) coerce_transition(
+    function(i) coerce_element(
       index = i,
       list_of_element = nodes,
       element_fun = new_predictors_spec_node
