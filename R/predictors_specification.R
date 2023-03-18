@@ -65,6 +65,6 @@ new_predictors_spec_node <- function(pred, first_day_only) {
 #' @export
 #'
 #' @returns a `predictors_spec_node` list-based object
-predictors_spec_node <- function(pred, first_day_only) {
+predictors_spec_node <- function(pred, first_day_only = TRUE) {
   new_predictors_spec_node(pred = pred, first_day_only = first_day_only)
 }
