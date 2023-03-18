@@ -23,8 +23,28 @@
       [1] "transition_function"
       
       $predictors
-                   x              y 
-              "temp" "host_density" 
+      $x
+      $pred
+      [1] "temp"
+      
+      $first_day_only
+      [1] TRUE
+      
+      attr(,"class")
+      [1] "predictors_spec_node"
+      
+      $y
+      $pred
+      [1] "host_density"
+      
+      $first_day_only
+      [1] TRUE
+      
+      attr(,"class")
+      [1] "predictors_spec_node"
+      
+      attr(,"class")
+      [1] "predictors_spec"
       
       $parameters
       $a
@@ -56,8 +76,28 @@
       [1] "transition_function"
       
       $predictors
-                   x              y 
-              "temp" "host_density" 
+      $x
+      $pred
+      [1] "temp"
+      
+      $first_day_only
+      [1] TRUE
+      
+      attr(,"class")
+      [1] "predictors_spec_node"
+      
+      $y
+      $pred
+      [1] "host_density"
+      
+      $first_day_only
+      [1] TRUE
+      
+      attr(,"class")
+      [1] "predictors_spec_node"
+      
+      attr(,"class")
+      [1] "predictors_spec"
       
       $parameters
       $a

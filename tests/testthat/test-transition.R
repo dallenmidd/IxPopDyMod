@@ -168,7 +168,7 @@ test_that("allows transition with zero parameters", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(function(x, y) NULL),
-      predictors = new_predictors_spec(x = "temp", y = "host_density"),
+      predictors = predictors_spec(x = predictors_spec_node("temp", FALSE), y = predictors_spec_node("host_density", FALSE)),
       parameters = new_parameters()
     )),
     regexp = NA
@@ -183,7 +183,7 @@ test_that("catches extra predictors not needed in transition function", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = c(z = "extra"),
+      predictors = predictors_spec(z = predictors_spec_node("extra", FALSE)),
       parameters = new_parameters(a = 1)
     )),
     regexp = (
@@ -217,7 +217,7 @@ test_that("catches duplicate names between parameters and predictors", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = c(a = "duplicate name"),
+      predictors = predictors_spec(a = predictors_spec_node("duplicate name")),
       parameters = new_parameters(a = 1)
     )),
     regexp = "Must be disjunct from {'a'}, but has elements {'a'}.",
