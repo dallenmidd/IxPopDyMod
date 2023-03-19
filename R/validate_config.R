@@ -71,20 +71,21 @@ assert_no_tick_density_predictors_have_first_day_only_false <- function(cfg) {
 
   stages <- life_stages(cfg$cycle)
 
-  problematic_transitions <- Filter(
+  problematic_transitions <- vapply(
+    cfg$cycle,
     function(each_transition) {
       transition_uses_tick_den_predictor_with_first_day_only_false(
         transition = each_transition, stages = stages
       )
     },
-    cfg$cycle
+    FUN.VALUE = logical(1L)
   )
 
-  if (length(problematic_transitions) > 0) {
+  if (any(problematic_transitions) > 0) {
     stop(
       "Predictors using tick density must have the `first_day_only` field set ",
-      "to `TRUE`",
-      # TODO print transition indices where there are errors
+      "to `TRUE`. The `transition`s at these indices violated this expectation: ",
+      to_short_string(which(problematic_transitions), item_name = "cases"),
       call. = FALSE
     )
   }

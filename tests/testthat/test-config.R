@@ -255,9 +255,9 @@ test_that("catches predictors and parameters with different names", {
 
 test_that("catches predictors that use tick density and `first_day_only = FALSE`", {
   cfg <- config_example_a()
-  cfg$cycle[[1]] <- transition(
-    from = "a",
-    to = "b",
+  cfg$cycle[[2]] <- transition(
+    from = "b",
+    to = "a",
     transition_type = "duration",
     fun = function(x) 1,
     predictors = predictors_spec(
