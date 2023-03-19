@@ -72,10 +72,10 @@ validate_transition <- function(transition) {
   if (transition$transition_type == "probability") {
     invalid <- get_preds_where_first_day_only_is_false(transition$predictors)
     if (length(invalid) > 0) {
-      # TODO actually print out the problematic cases
       stop(
         "Probability type transitions cannot have any predictors where the ",
-        "`first_day_only` attribute is `FALSE`",
+        "`first_day_only` attribute is `FALSE`. Found these exceptions:\n",
+        to_short_string(invalid),
         call. = FALSE
       )
     }

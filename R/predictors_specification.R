@@ -71,6 +71,5 @@ predictors_spec_node <- function(pred, first_day_only = TRUE) {
 
 get_preds_where_first_day_only_is_false <- function(spec) {
   vals <- lapply(spec, function(x) x[["first_day_only"]])
-  false_vals <- vals[vals == FALSE]
-  names(false_vals)
+  spec[vals == FALSE]
 }

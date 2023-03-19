@@ -232,9 +232,11 @@ test_that("catches probability-type transitions with predictors with `first_day_
       to = NULL,
       transition_type = "probability",
       mortality_type = "per_day",
-      fun = new_transition_function(constant_fun),
+      fun = function(a, b, c) 1,
       predictors = predictors_spec(
-        a = predictors_spec_node("temp", first_day_only = FALSE)
+        a = predictors_spec_node("problem1", first_day_only = FALSE),
+        b = predictors_spec_node("problem2", first_day_only = FALSE),
+        c = predictors_spec_node("not_a_problem", first_day_only = TRUE)
       )
     ),
     regexp = "cannot have any predictors where the `first_day_only` attribute is `FALSE`"
