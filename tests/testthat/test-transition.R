@@ -168,7 +168,7 @@ test_that("allows transition with zero parameters", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(function(x, y) NULL),
-      predictors = predictors_spec(x = predictors_spec_node("temp", FALSE), y = predictors_spec_node("host_density", FALSE)),
+      predictors = predictors_spec(x = predictors_spec_node("temp"), y = predictors_spec_node("host_density")),
       parameters = new_parameters()
     )),
     regexp = NA
@@ -183,7 +183,7 @@ test_that("catches extra predictors not needed in transition function", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = predictors_spec(z = predictors_spec_node("extra", FALSE)),
+      predictors = predictors_spec(z = predictors_spec_node("extra")),
       parameters = new_parameters(a = 1)
     )),
     regexp = (
