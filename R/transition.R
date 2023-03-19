@@ -158,3 +158,19 @@ transition <- function(
 transition_is_mortality <- function(transition) {
   !is.null(transition$mortality_type)
 }
+
+#' Helper function for validation. It's an issue if this case is met.
+#'
+#' @param transition a `transition` object
+#' @param stages character vector of life stage names
+#' @returns a boolean
+#' @noRd
+transition_uses_tick_den_predictor_with_first_day_only_false <- function(
+  transition, stages
+) {
+  preds_with_errors <- lapply(
+    transition$predictors,
+    function(x) pred_is_life_stage(x, stages = stages) && !x[["first_day_only"]]
+  )
+  any(unlist(preds_with_errors))
+}
