@@ -225,6 +225,22 @@ test_that("catches duplicate names between parameters and predictors", {
   )
 })
 
+test_that("catches probability-type transitions with predictors with `first_day_only` as `FALSE`", {
+  expect_error(
+    transition(
+      from = "a",
+      to = NULL,
+      transition_type = "probability",
+      mortality_type = "per_day",
+      fun = new_transition_function(constant_fun),
+      predictors = predictors_spec(
+        a = predictors_spec_node("temp", first_day_only = FALSE)
+      )
+    ),
+    regexp = "cannot have any predictors where the `first_day_only` attribute is `FALSE`"
+  )
+})
+
 # transition() ----------------------------------------------------------------
 test_that("works with defaults", {
 

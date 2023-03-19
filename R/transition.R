@@ -73,8 +73,21 @@ validate_transition <- function(transition) {
     names(formals(transition$fun))
   )
 
+  if (transition$transition_type == "probability") {
+    invalid <- get_preds_where_first_day_only_is_false(transition$predictors)
+    if (length(invalid) > 0) {
+      # TODO actually print out the problematic cases
+      stop(
+        "Probability type transitions cannot have any predictors where the ",
+        "`first_day_only` attribute is `FALSE`",
+        call. = FALSE
+      )
+    }
+  }
+
   return(transition)
 }
+
 
 #' Create a `transition` object
 #'
