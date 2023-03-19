@@ -75,7 +75,8 @@ validate_transition <- function(transition) {
       stop(
         "Probability type transitions cannot have any predictors where the ",
         "`first_day_only` attribute is `FALSE`. Found these exceptions:\n",
-        to_short_string(invalid),
+        # TODO each exception is not named - could be helpful to add
+        lapply(invalid, format),
         call. = FALSE
       )
     }

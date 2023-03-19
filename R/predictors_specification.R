@@ -32,8 +32,25 @@ predictors_spec <- function(...) {
   do.call(new_predictors_spec, nodes)
 }
 
-# TODO implement
-# print.predictors_spec <- function()
+#' Format a `predictor_spec_node`
+#' @inheritParams print.predictors_spec_node
+#' @returns string representation of input
+#' @export
+format.predictors_spec_node <- function(x, ...) {
+  paste0(
+    "** A predictor_spec_node",
+    "\n** pred:           \"", x$pred, "\"",
+    "\n** first_day_only: ", x$first_day_only, "\n"
+  )
+}
+
+#' Print a `predictors_spec_node`
+#' @param x a predictors_spec_node
+#' @param ... not used
+#' @export
+print.predictors_spec_node <- function(x, ...) {
+  cat(format(x))
+}
 
 new_predictors_spec_node <- function(pred, first_day_only) {
   checkmate::assert_string(pred, min.chars = 1)
