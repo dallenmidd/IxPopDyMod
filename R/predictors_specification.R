@@ -90,3 +90,8 @@ get_preds_where_first_day_only_is_false <- function(spec) {
   vals <- lapply(spec, function(x) x[["first_day_only"]])
   spec[vals == FALSE]
 }
+
+
+pred_is_life_stage <- function(a_predictors_spec_node, stages) {
+  any(grepl(a_predictors_spec_node$pred, stages))
+}

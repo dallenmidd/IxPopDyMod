@@ -8,6 +8,7 @@ validate_config <- function(cfg) {
   assert_initial_population_non_zero(cfg)
   assert_predictors_strings_in_transitions_are_valid(cfg)
   assert_inputs_to_each_transition_function_are_valid(cfg)
+  assert_no_tick_density_predictors_have_first_day_only_false(cfg)
 
   cfg
 }
@@ -57,6 +58,38 @@ assert_inputs_to_each_transition_function_are_valid <- function(cfg) {
         )
       }
     }
+  }
+}
+
+assert_no_tick_density_predictors_have_first_day_only_false <- function(cfg) {
+  # Any `predictor_spec_node`s that are for tick density must have a value of
+  # TRUE in the field `first_day_only`. This is because we only know tick
+  # density at the current time step during modeling - there's no way to know
+  # future tick density. This validation is implemented here, at the config
+  # level, because we need the tick life stages to know which predictors are
+  # specifying tick density.
+
+  stages <- life_stages(cfg$cycle)
+
+  transitions_that_use_tick_den_predictor <- Filter(
+    function(each_transition) {
+      # TODO refactor
+      preds_with_errors <- lapply(
+        each_transition$predictors,
+        function(x) pred_is_life_stage(x, stages = stages) && !x[["first_day_only"]]
+      )
+      has_preds_with_errors <- any(unlist(preds_with_errors))
+    },
+    cfg$cycle
+  )
+
+  if (length(transitions_that_use_tick_den_predictor) > 0) {
+    stop(
+      "Predictors using tick density must have the `first_day_only` field set ",
+      "to `TRUE`",
+      # TODO print transition indices where there are errors
+      call. = FALSE
+    )
   }
 }
 
