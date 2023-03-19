@@ -17,7 +17,7 @@ predictors_spec <- function(...) {
   nodes <- list(...)
 
   # Allow passing elements that are missing the `predictor_specification_node`
-  # class attribute, but are otherwise valid
+  # class attribute, but are otherwise valid (lists with the correct names)
   node_names <- names(nodes)
   nodes <- lapply(
     seq_along(nodes),
