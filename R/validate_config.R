@@ -121,7 +121,9 @@ assert_predictors_strings_in_transitions_are_valid <- function(cfg) {
   # and so, if a value in the predictors vector is not a value in the predictors
   # table, then it should pattern match with at least one life stage
   predictors_in_transitions <- unlist(lapply(
-    cfg$cycle, function(transition) transition$predictors
+    cfg$cycle, function(transition) {
+      lapply(transition$predictors, function(x) x$pred)
+    }
   ))
 
   predictors_not_in_table <- setdiff(

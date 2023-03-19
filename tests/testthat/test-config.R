@@ -183,7 +183,7 @@ test_that(
     cfg <- config_example_a()
 
     # replace a predictor with an invalid value
-    cfg$cycle[[1]]$predictors[["y"]] <- "not_in_predictors_table"
+    cfg$cycle[[1]]$predictors[["y"]]$pred <- "not_in_predictors_table"
 
     expect_error(do.call(config, cfg), "invalid predictor names")
 })

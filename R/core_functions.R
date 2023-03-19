@@ -142,7 +142,7 @@ get_transition_inputs_unevaluated <- function(
     function(pred) {
       get_pred(
         time = time,
-        pred = pred,
+        pred = pred$pred,
         is_delay = transition$transition_type == "duration",
         population = population,
         developing_population = developing_population,

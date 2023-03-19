@@ -206,7 +206,7 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     to = "b",
     fun = function(x) x,
     transition_type = "duration",
-    predictors = c(x = "temp")
+    predictors = predictors_spec(x = predictors_spec_node("temp"))
   )
 
   predictors <- new_predictors(data.frame(
@@ -239,7 +239,7 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     to = "b",
     fun = function(x) x,
     transition_type = "probability",
-    predictors = c(x = "temp")
+    predictors = predictors_spec(x = predictors_spec_node("temp"))
   )
 
   predictors <- new_predictors(data.frame(
@@ -271,7 +271,7 @@ test_that("parameters and predictors get reordered to same order", {
     to = "b",
     fun = function(x, y) sum(x * y),
     transition_type = "probability",
-    predictors = c(x = "host_den"),
+    predictors = predictors_spec(x = predictors_spec_node("host_den")),
     parameters = parameters(y = c("mouse" = 1, "deer" = 2, "squirrel" = 3))
   )
 
