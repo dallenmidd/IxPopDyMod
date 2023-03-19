@@ -24,24 +24,14 @@
       
       $predictors
       $x
-      $pred
-      [1] "temp"
-      
-      $first_day_only
-      [1] TRUE
-      
-      attr(,"class")
-      [1] "predictors_spec_node"
+      ** A predictor_spec_node
+      ** pred:           "temp"
+      ** first_day_only: TRUE
       
       $y
-      $pred
-      [1] "host_density"
-      
-      $first_day_only
-      [1] TRUE
-      
-      attr(,"class")
-      [1] "predictors_spec_node"
+      ** A predictor_spec_node
+      ** pred:           "host_density"
+      ** first_day_only: TRUE
       
       attr(,"class")
       [1] "predictors_spec"
@@ -77,24 +67,14 @@
       
       $predictors
       $x
-      $pred
-      [1] "temp"
-      
-      $first_day_only
-      [1] TRUE
-      
-      attr(,"class")
-      [1] "predictors_spec_node"
+      ** A predictor_spec_node
+      ** pred:           "temp"
+      ** first_day_only: TRUE
       
       $y
-      $pred
-      [1] "host_density"
-      
-      $first_day_only
-      [1] TRUE
-      
-      attr(,"class")
-      [1] "predictors_spec_node"
+      ** A predictor_spec_node
+      ** pred:           "host_density"
+      ** first_day_only: TRUE
       
       attr(,"class")
       [1] "predictors_spec"

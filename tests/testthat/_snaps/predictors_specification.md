@@ -5,24 +5,14 @@
       b = new_predictors_spec_node(pred = "host_den", first_day_only = TRUE))
     Output
       $a
-      $pred
-      [1] "temp"
-      
-      $first_day_only
-      [1] FALSE
-      
-      attr(,"class")
-      [1] "predictors_spec_node"
+      ** A predictor_spec_node
+      ** pred:           "temp"
+      ** first_day_only: FALSE
       
       $b
-      $pred
-      [1] "host_den"
-      
-      $first_day_only
-      [1] TRUE
-      
-      attr(,"class")
-      [1] "predictors_spec_node"
+      ** A predictor_spec_node
+      ** pred:           "host_den"
+      ** first_day_only: TRUE
       
       attr(,"class")
       [1] "predictors_spec"
