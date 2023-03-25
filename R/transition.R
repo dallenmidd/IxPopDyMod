@@ -16,7 +16,7 @@ new_transition <- function(
   )
   checkmate::assert_list(
     predictors, types = "predictor_spec", unique = TRUE, names = "unique",
-    null.ok = TRUE # TODO not sure if we need null.ok
+    null.ok = TRUE
   )
   checkmate::assert_class(parameters, "parameters")
 
