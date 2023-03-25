@@ -24,12 +24,12 @@
       
       $predictors
       $predictors$x
-      ** A predictor_spec_node
+      ** A predictor_spec
       ** pred:           "temp"
       ** first_day_only: TRUE
       
       $predictors$y
-      ** A predictor_spec_node
+      ** A predictor_spec
       ** pred:           "host_density"
       ** first_day_only: TRUE
       
@@ -65,12 +65,12 @@
       
       $predictors
       $predictors$x
-      ** A predictor_spec_node
+      ** A predictor_spec
       ** pred:           "temp"
       ** first_day_only: TRUE
       
       $predictors$y
-      ** A predictor_spec_node
+      ** A predictor_spec
       ** pred:           "host_density"
       ** first_day_only: TRUE
       

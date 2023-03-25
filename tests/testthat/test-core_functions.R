@@ -56,7 +56,7 @@ test_that("`get_tick_den()` works", {
   expect_equal(result, 18)
 })
 
-# TODO update get_pred() tests to test possible `predictors_spec_node` values
+# TODO update get_pred() tests to test possible `predictor_spec` values
 test_that("`get_pred()` works for host density data with or without delay", {
   # Arrange
   predictors <- data.frame(
@@ -72,12 +72,12 @@ test_that("`get_pred()` works for host density data with or without delay", {
   # host density predictor value should be same regardless of whether transition
   # is a delay
   result_delay <- get_pred(
-    time = 1L, pred = predictors_spec_node("host_den"), is_delay = TRUE, population = matrix(),
+    time = 1L, pred = predictor_spec("host_den"), is_delay = TRUE, population = matrix(),
     developing_population = matrix(), max_delay = 365L, predictors = predictors
   )
 
   result_no_delay <- get_pred(
-    time = 1L, pred = predictors_spec_node("host_den"), is_delay = FALSE, population = matrix(),
+    time = 1L, pred = predictor_spec("host_den"), is_delay = FALSE, population = matrix(),
     developing_population = matrix(), max_delay = 365L, predictors = predictors
   )
 
@@ -96,12 +96,12 @@ test_that("`get_pred()` works with tick density data with or without delay", {
   # tick density predictor value should be same regardless of whether transition
   # is a delay
   result_delay <- get_pred(
-    time = 1L, pred = predictors_spec_node("[ab]"), is_delay = TRUE, population = population,
+    time = 1L, pred = predictor_spec("[ab]"), is_delay = TRUE, population = population,
     developing_population = population, max_delay = 365L, predictors = data.frame()
   )
 
   result_no_delay <- get_pred(
-    time = 1L, pred = predictors_spec_node("[ab]"), is_delay = FALSE, population = population,
+    time = 1L, pred = predictor_spec("[ab]"), is_delay = FALSE, population = population,
     developing_population = population, max_delay = 365L, predictors = data.frame()
   )
 
@@ -119,7 +119,7 @@ test_that("`get_pred()` works with predictors in table with no delay", {
 
   result <- get_pred(
     time = 5,
-    pred = predictors_spec_node("temp"),
+    pred = predictor_spec("temp"),
     is_delay = FALSE,
     population = matrix(),
     developing_population = matrix(),
@@ -139,7 +139,7 @@ test_that("`get_pred()` works with predictors in table with delay", {
 
   result <- get_pred(
     time = 5,
-    pred = predictors_spec_node("temp", first_day_only = FALSE),
+    pred = predictor_spec("temp", first_day_only = FALSE),
     is_delay = TRUE,
     population = matrix(),
     developing_population = matrix(),
@@ -207,7 +207,7 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     to = "b",
     fun = function(x) x,
     transition_type = "duration",
-    predictors = list(x = predictors_spec_node("temp", first_day_only = FALSE))
+    predictors = list(x = predictor_spec("temp", first_day_only = FALSE))
   )
 
   predictors <- new_predictors(data.frame(
@@ -240,7 +240,7 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     to = "b",
     fun = function(x) x,
     transition_type = "probability",
-    predictors = list(x = predictors_spec_node("temp"))
+    predictors = list(x = predictor_spec("temp"))
   )
 
   predictors <- new_predictors(data.frame(
@@ -272,7 +272,7 @@ test_that("parameters and predictors get reordered to same order", {
     to = "b",
     fun = function(x, y) sum(x * y),
     transition_type = "probability",
-    predictors = list(x = predictors_spec_node("host_den")),
+    predictors = list(x = predictor_spec("host_den")),
     parameters = parameters(y = c("mouse" = 1, "deer" = 2, "squirrel" = 3))
   )
 

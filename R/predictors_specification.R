@@ -1,29 +1,29 @@
-#' Format a `predictors_spec_node`
-#' @inheritParams print.predictors_spec_node
+#' Format a `predictor_spec`
+#' @inheritParams print.predictor_spec
 #' @returns string representation of input
 #' @export
-format.predictors_spec_node <- function(x, ...) {
+format.predictor_spec <- function(x, ...) {
   paste0(
-    "** A predictor_spec_node",
+    "** A predictor_spec",
     "\n** pred:           \"", x$pred, "\"",
     "\n** first_day_only: ", x$first_day_only, "\n"
   )
 }
 
-#' Print a `predictors_spec_node`
-#' @param x a predictors_spec_node
+#' Print a `predictor_spec`
+#' @param x a predictor_spec
 #' @param ... not used
 #' @export
-print.predictors_spec_node <- function(x, ...) {
+print.predictor_spec <- function(x, ...) {
   cat(format(x))
 }
 
-new_predictors_spec_node <- function(pred, first_day_only) {
+new_predictor_spec <- function(pred, first_day_only) {
   checkmate::assert_string(pred, min.chars = 1)
   checkmate::assert_logical(first_day_only, len = 1, any.missing = FALSE)
   structure(
     list(pred = pred, first_day_only = first_day_only),
-    class = "predictors_spec_node"
+    class = "predictor_spec"
   )
 }
 
@@ -47,9 +47,9 @@ new_predictors_spec_node <- function(pred, first_day_only) {
 #'
 #' @export
 #'
-#' @returns a `predictors_spec_node` list-based object
-predictors_spec_node <- function(pred, first_day_only = TRUE) {
-  new_predictors_spec_node(pred = pred, first_day_only = first_day_only)
+#' @returns a `predictor_spec` list-based object
+predictor_spec <- function(pred, first_day_only = TRUE) {
+  new_predictor_spec(pred = pred, first_day_only = first_day_only)
 }
 
 get_preds_where_first_day_only_is_false <- function(spec) {
@@ -58,6 +58,6 @@ get_preds_where_first_day_only_is_false <- function(spec) {
 }
 
 
-pred_is_life_stage <- function(a_predictors_spec_node, stages) {
-  any(grepl(a_predictors_spec_node$pred, stages))
+pred_is_life_stage <- function(a_predictor_spec, stages) {
+  any(grepl(a_predictor_spec$pred, stages))
 }

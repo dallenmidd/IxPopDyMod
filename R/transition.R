@@ -15,7 +15,7 @@ new_transition <- function(
     mortality_type, c("per_day", "throughout_transition"), null.ok = TRUE
   )
   checkmate::assert_list(
-    predictors, types = "predictors_spec_node", unique = TRUE, names = "unique",
+    predictors, types = "predictor_spec", unique = TRUE, names = "unique",
     null.ok = TRUE # TODO not sure if we need null.ok
   )
   checkmate::assert_class(parameters, "parameters")
@@ -115,7 +115,7 @@ validate_transition <- function(transition) {
 #'   `"throughout_transition"`: only valid for `"duration"` type transitions,
 #'     where it indicates that the evaluated transition is the fraction of
 #'     ticks that die throughout the entire transition.
-#' @param predictors Optional, a named list of \code{\link{predictors_spec_node}} objects
+#' @param predictors Optional, a named list of \code{\link{predictor_spec}} objects
 #'   that specify how any predictor data should be used in evaluating `fun`. The names are
 #'   matched with the formal args to  `fun` to determine which input in `fun`
 #'   each predictor will be passed to.

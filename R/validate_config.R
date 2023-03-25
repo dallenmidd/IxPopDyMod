@@ -62,7 +62,7 @@ assert_inputs_to_each_transition_function_are_valid <- function(cfg) {
 }
 
 assert_no_tick_density_predictors_have_first_day_only_false <- function(cfg) {
-  # Any `predictors_spec_node`s that are for tick density must have a value of
+  # Any `predictor_spec`s that are for tick density must have a value of
   # TRUE in the field `first_day_only`. This is because we only know tick
   # density at the current time step during modeling - there's no way to know
   # future tick density. This validation is implemented here, at the config

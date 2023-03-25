@@ -9,7 +9,7 @@ transition_example_a <- function() {
     mortality_type = NULL,
     fun = new_transition_function(f),
     predictors = list(
-      x = predictors_spec_node("temp"), y = predictors_spec_node("host_density")
+      x = predictor_spec("temp"), y = predictor_spec("host_density")
     ),
     parameters = parameters(a = 1)
   )
