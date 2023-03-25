@@ -56,7 +56,6 @@ test_that("`get_tick_den()` works", {
   expect_equal(result, 18)
 })
 
-# TODO update get_pred() tests to test possible `predictor_spec` values
 test_that("`get_pred()` works for host density data with or without delay", {
   # Arrange
   predictors <- data.frame(
@@ -70,20 +69,56 @@ test_that("`get_pred()` works for host density data with or without delay", {
 
   # Act
   # host density predictor value should be same regardless of whether transition
-  # is a delay
+  # is a delay, because both have first_day_only = TRUE
   result_delay <- get_pred(
-    time = 1L, pred = predictor_spec("host_den"), is_delay = TRUE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L, predictors = predictors
+    time = 1L,
+    pred = predictor_spec("host_den", first_day_only = TRUE),
+    is_delay = TRUE,
+    population = matrix(),
+    developing_population = matrix(),
+    max_delay = 365L,
+    predictors = predictors
   )
 
   result_no_delay <- get_pred(
-    time = 1L, pred = predictor_spec("host_den"), is_delay = FALSE, population = matrix(),
-    developing_population = matrix(), max_delay = 365L, predictors = predictors
+    time = 1L,
+    pred = predictor_spec("host_den", first_day_only = TRUE),
+    is_delay = FALSE,
+    population = matrix(),
+    developing_population = matrix(),
+    max_delay = 365L,
+    predictors = predictors
   )
 
   # Assert
   expect_equal(result_delay, expected)
   expect_equal(result_no_delay, expected)
+})
+
+test_that("`get_pred()` works with multiple pred subcategories and vector of times", {
+  # Arrange
+  predictors <- data.frame(
+    value = 1:6,
+    j_day = sort(rep(1:3, 2)),
+    pred = "host_den",
+    pred_subcategory = c("species a", "species b")
+  )
+
+  expected <- 1:6
+  names(expected) <- rep(c("species a", "species b"), 3)
+
+  result <- get_pred(
+    time = 1L,
+    pred = predictor_spec("host_den", first_day_only = FALSE),
+    is_delay = TRUE,
+    population = matrix(),
+    developing_population = matrix(),
+    max_delay = 365L,
+    predictors = predictors
+  )
+
+  # Assert
+  expect_identical(result, expected)
 })
 
 test_that("`get_pred()` works with tick density data with or without delay", {
@@ -147,7 +182,30 @@ test_that("`get_pred()` works with predictors in table with delay", {
     predictors = predictors
   )
 
+  # NOTE that we get a vector of length > 1 because first_day_only == FALSE
   expect_equal(result, 15:20)
+})
+
+test_that("`get_pred()` works with predictors in table with delay and first_day_only == TRUE", {
+  predictors <- data.frame(
+    value = 11:20,
+    j_day = 1:10,
+    pred = "temp"
+  )
+
+  result <- get_pred(
+    time = 5,
+    # NOTE that first_day_only = TRUE
+    pred = predictor_spec("temp", first_day_only = TRUE),
+    is_delay = TRUE,
+    population = matrix(),
+    developing_population = matrix(),
+    max_delay = 365L,
+    predictors = predictors
+  )
+
+  # NOTE that consequently, we get a scalar value
+  expect_equal(result, 15)
 })
 
 test_that("`get_transition_value()` works with no predictors and probability-based transition", {
@@ -231,6 +289,50 @@ test_that("`get_transition_value()` works with a predictor that varies over time
   # Assert
   expect_equal(result, 11:20)
 })
+
+test_that("`get_transition_value()` works with a predictor that varies over time
+  and a duration-based transition", {
+    # Arrange
+    t <- transition(
+      from = "a",
+      to = "b",
+      fun = function(x, y) x * y,
+      transition_type = "duration",
+      predictors = list(x = predictor_spec("temp", first_day_only = FALSE)),
+      parameters = parameters(y = c(day = 1, night = 2))
+    )
+
+    predictors <- predictors(data.frame(
+      pred = "temp",
+      # in this example, the subcategories could correspond to day and night temp
+      pred_subcategory = c("day", "night"),
+      j_day = sort(rep(1:2, 2)),
+      value = c(10, 2, 8, 1)
+    ))
+
+
+    # Act
+    result <- get_transition_value(
+      time = 1,
+      transition = t,
+      population = empty_population_matrix(c("a", "b"), 10L),
+      developing_population = empty_population_matrix(c("a", "b"), 10L),
+      max_duration = 365L,
+      predictors = predictors
+    )
+
+    # Assert
+
+    # Result is a vector with an element for each (day, subcategory) pair. So in
+    # this case, we get a vector of length 4 even though we only have a 2 day
+    # period. This is partially a result of the transition function - e.g. if
+    # we use `function(x, y) sum(x * y)` we get a scalar return value.
+    # TODO we might want to be stricter about the lengths of vectors that
+    # transition functions can return. This decision should consider how results
+    # from get_transition_value() are used - in get_transition_matrix and
+    # update_delay_array.
+    expect_identical(result, c(day = 10, night = 4, day = 8, night = 2))
+  })
 
 test_that("`get_transition_value()` works with a predictor that varies over time
  and a probability-based transition", {
