@@ -2,7 +2,7 @@
 % Please edit documentation in R/predictors_specification.R
 \name{format.predictors_spec_node}
 \alias{format.predictors_spec_node}
-\title{Format a \code{predictor_spec_node}}
+\title{Format a \code{predictors_spec_node}}
 \usage{
 \method{format}{predictors_spec_node}(x, ...)
 }
@@ -15,5 +15,5 @@
 string representation of input
 }
 \description{
-Format a \code{predictor_spec_node}
+Format a \code{predictors_spec_node}
 }

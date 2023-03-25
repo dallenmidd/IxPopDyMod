@@ -46,7 +46,7 @@ get_tick_den <- function(time, pred, population, developing_population) {
 #'
 #' TODO docs are out of date
 #' @param time First day to get predictor value(s)
-#' @param pred A `predictor_spec_node`
+#' @param pred A `predictors_spec_node`
 #' @param is_delay Boolean indicating whether the predictor is for a transition
 #'   involving a delay
 #' @param population Tick population matrix. See get_tick_den for details.
@@ -296,7 +296,7 @@ update_delay_arr <- function(
       # Case where there's no explicit mortality
       surv_to_next <- 1
     } else {
-      # Case where there's on transition representing mortality
+      # Case where there's a transition representing mortality
       mort <- get_transition_value(
         time = time,
         transition = mort_transition,

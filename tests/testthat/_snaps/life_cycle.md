@@ -23,18 +23,16 @@
       [1] "transition_function"
       
       $predictors
-      $x
+      $predictors$x
       ** A predictor_spec_node
       ** pred:           "temp"
       ** first_day_only: TRUE
       
-      $y
+      $predictors$y
       ** A predictor_spec_node
       ** pred:           "host_density"
       ** first_day_only: TRUE
       
-      attr(,"class")
-      [1] "predictors_spec"
       
       $parameters
       $a
@@ -66,18 +64,16 @@
       [1] "transition_function"
       
       $predictors
-      $x
+      $predictors$x
       ** A predictor_spec_node
       ** pred:           "temp"
       ** first_day_only: TRUE
       
-      $y
+      $predictors$y
       ** A predictor_spec_node
       ** pred:           "host_density"
       ** first_day_only: TRUE
       
-      attr(,"class")
-      [1] "predictors_spec"
       
       $parameters
       $a

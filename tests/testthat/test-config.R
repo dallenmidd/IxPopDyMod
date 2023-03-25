@@ -260,7 +260,7 @@ test_that("catches predictors that use tick density and `first_day_only = FALSE`
     to = "a",
     transition_type = "duration",
     fun = function(x) 1,
-    predictors = predictors_spec(
+    predictors = list(
       x = predictors_spec_node(pred = "a", first_day_only = FALSE)
     )
 

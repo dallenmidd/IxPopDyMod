@@ -1,38 +1,4 @@
-new_predictors_spec <- function(...) {
-  l <- structure(list(...), class = "predictors_spec")
-  checkmate::assert_list(
-    l, types = "predictors_spec_node", unique = TRUE, names = "unique"
-  )
-  return(l)
-}
-
-#' Specify what predictors to use in a transition and how to use that data
-#'
-#' @param ... named sequence of `predictor_specification_node`s. The names are
-#'   matched with the formal args to the containing \code{\link{transition}}'s
-#'   `fun` to determine which input in `fun` each predictor will be passed to.
-#' @returns a `predictors_spec` object
-#' @export
-predictors_spec <- function(...) {
-  nodes <- list(...)
-
-  # Allow passing elements that are missing the `predictor_specification_node`
-  # class attribute, but are otherwise valid (lists with the correct names)
-  node_names <- names(nodes)
-  nodes <- lapply(
-    seq_along(nodes),
-    function(i) coerce_element(
-      index = i,
-      list_of_element = nodes,
-      element_fun = new_predictors_spec_node
-    )
-  )
-  names(nodes) <- node_names
-
-  do.call(new_predictors_spec, nodes)
-}
-
-#' Format a `predictor_spec_node`
+#' Format a `predictors_spec_node`
 #' @inheritParams print.predictors_spec_node
 #' @returns string representation of input
 #' @export

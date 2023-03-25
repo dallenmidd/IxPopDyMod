@@ -41,8 +41,10 @@ ticks that dies each day.
 where it indicates that the evaluated transition is the fraction of
 ticks that die throughout the entire transition.}
 
-\item{predictors}{Optional, a \code{\link{predictors_spec}} object
-that specifies how any predictor data should be used in evaluating \code{fun}}
+\item{predictors}{Optional, a named list of \code{\link{predictors_spec_node}} objects
+that specify how any predictor data should be used in evaluating \code{fun}. The names are
+matched with the formal args to  \code{fun} to determine which input in \code{fun}
+each predictor will be passed to.}
 
 \item{parameters}{Optional, a \code{\link{parameters}} object, or a named
 list of numeric vectors.}
