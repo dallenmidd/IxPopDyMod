@@ -334,6 +334,22 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     expect_identical(result, c(day = 10, night = 4, day = 8, night = 2))
   })
 
+test_that("FIXME we get an error if we try to use a transition that returns a
+  vector in a probability-based transition?", {
+
+    testthat::skip("skipped bc it throws an error, should be fixed")
+
+    cfg <- config_example_a()
+    cfg$cycle[[1]]$fun <- function(x, y, a) 1:2 # returns a vector of length > 1
+
+    # run validation to show that the current config is still validate
+    cfg <- validate_config(cfg)
+
+    # TODO yet it throws a runtime error (this should be caught before runtime)
+    run(cfg)
+})
+
+
 test_that("`get_transition_value()` works with a predictor that varies over time
  and a probability-based transition", {
   # Arrange
