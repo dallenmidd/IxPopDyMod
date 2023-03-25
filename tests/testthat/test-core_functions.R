@@ -71,12 +71,12 @@ test_that("`get_pred()` works for host density data with or without delay", {
   # host density predictor value should be same regardless of whether transition
   # is a delay
   result_delay <- get_pred(
-    time = 1L, pred = "host_den", is_delay = TRUE, population = matrix(),
+    time = 1L, pred = predictors_spec_node("host_den"), is_delay = TRUE, population = matrix(),
     developing_population = matrix(), max_delay = 365L, predictors = predictors
   )
 
   result_no_delay <- get_pred(
-    time = 1L, pred = "host_den", is_delay = FALSE, population = matrix(),
+    time = 1L, pred = predictors_spec_node("host_den"), is_delay = FALSE, population = matrix(),
     developing_population = matrix(), max_delay = 365L, predictors = predictors
   )
 
@@ -95,12 +95,12 @@ test_that("`get_pred()` works with tick density data with or without delay", {
   # tick density predictor value should be same regardless of whether transition
   # is a delay
   result_delay <- get_pred(
-    time = 1L, pred = "[ab]", is_delay = TRUE, population = population,
+    time = 1L, pred = predictors_spec_node("[ab]"), is_delay = TRUE, population = population,
     developing_population = population, max_delay = 365L, predictors = data.frame()
   )
 
   result_no_delay <- get_pred(
-    time = 1L, pred = "[ab]", is_delay = FALSE, population = population,
+    time = 1L, pred = predictors_spec_node("[ab]"), is_delay = FALSE, population = population,
     developing_population = population, max_delay = 365L, predictors = data.frame()
   )
 
@@ -118,7 +118,7 @@ test_that("`get_pred()` works with predictors in table with no delay", {
 
   result <- get_pred(
     time = 5,
-    pred = "temp",
+    pred = predictors_spec_node("temp"),
     is_delay = FALSE,
     population = matrix(),
     developing_population = matrix(),
@@ -138,7 +138,7 @@ test_that("`get_pred()` works with predictors in table with delay", {
 
   result <- get_pred(
     time = 5,
-    pred = "temp",
+    pred = predictors_spec_node("temp"),
     is_delay = TRUE,
     population = matrix(),
     developing_population = matrix(),
