@@ -40,18 +40,18 @@ usethis::use_data(config_ex_2, overwrite = TRUE)
 ogden2005 <- config(
   life_cycle(
   # from, to, fun, transition_type, mortality_type = NULL, predictors = NULL, parameters = list()
-    transition("__e", "h_l", expo_fun, "duration", predictors = predictors_spec(x = predictors_spec_node("temp")), parameters = list(a = 2.92e-05, b = 2.27)),
+    transition("__e", "h_l", expo_fun, "duration", predictors = predictors_spec(x = predictors_spec_node("temp", FALSE)), parameters = list(a = 2.92e-05, b = 2.27)),
     transition("__e", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 0.002)),
     transition("e_l", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 0.003)),
-    transition("e_l", "q_n", expo_fun, "duration", predictors = predictors_spec(x = predictors_spec_node("temp")), parameters = list(a = 9.883278e-06, b = 2.55)),
+    transition("e_l", "q_n", expo_fun, "duration", predictors = predictors_spec(x = predictors_spec_node("temp", FALSE)), parameters = list(a = 9.883278e-06, b = 2.55)),
     transition("e_n", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 0.002)),
-    transition("e_n", "q_a", expo_fun, "duration", predictors = predictors_spec(x = predictors_spec_node("temp")), parameters = list(a = 0.0006265664, b = 1.21)),
+    transition("e_n", "q_a", expo_fun, "duration", predictors = predictors_spec(x = predictors_spec_node("temp", FALSE)), parameters = list(a = 0.0006265664, b = 1.21)),
     transition("a_l", "e_l", constant_fun, "duration", parameters = list(a = 0.5)),
     transition("a_n", "e_n", constant_fun, "duration", parameters = list(a = 0.25)),
     transition("h_l", "q_l", constant_fun, "duration", parameters = list(a = 0.0476)),
     transition("h_l", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 0.006)),
     transition("q_l", NULL, constant_fun, "probability", mortality_type = "per_day", parameters = list(a = 0.006)),
-    transition("e_a", "r_a", expo_fun, "duration", predictors = predictors_spec(x = predictors_spec_node("temp")), parameters = list(a = 0.0007692308, b = 1.42)),
+    transition("e_a", "r_a", expo_fun, "duration", predictors = predictors_spec(x = predictors_spec_node("temp", FALSE)), parameters = list(a = 0.0007692308, b = 1.42)),
     transition("r_a", "__e", constant_fun, "probability", parameters = list(a = 3000)),
     transition("e_a", NULL, constant_fun, "duration", mortality_type = "per_day", parameters = list(a = 1e-04)),
     transition("a_a", "e_a", constant_fun, "duration", parameters = list(a = 0.111)),

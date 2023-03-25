@@ -67,10 +67,7 @@ get_pred <- function(
   life_stages <- rownames(population)
 
   if (pred$pred %in% valid_predictors_from_table(predictors)) {
-    # TODO "host_den" is hardcoded here as the only predictor from the predictors
-    # table for which we only use the predictor value at the first day of the
-    # transition. Should this be part of the configuration for each predictor?
-    if (is_delay && pred$pred != "host_den") {
+    if (is_delay && !pred$first_day_only) {
       time <- time:(time + max_delay)
     }
     get_pred_from_table(time, pred$pred, predictors)

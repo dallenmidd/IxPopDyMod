@@ -138,7 +138,7 @@ test_that("`get_pred()` works with predictors in table with delay", {
 
   result <- get_pred(
     time = 5,
-    pred = predictors_spec_node("temp"),
+    pred = predictors_spec_node("temp", first_day_only = FALSE),
     is_delay = TRUE,
     population = matrix(),
     developing_population = matrix(),
@@ -206,7 +206,7 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     to = "b",
     fun = function(x) x,
     transition_type = "duration",
-    predictors = predictors_spec(x = predictors_spec_node("temp"))
+    predictors = predictors_spec(x = predictors_spec_node("temp", first_day_only = FALSE))
   )
 
   predictors <- new_predictors(data.frame(
