@@ -14,12 +14,9 @@ new_transition <- function(
   checkmate::assert_choice(
     mortality_type, c("per_day", "throughout_transition"), null.ok = TRUE
   )
-  # TODO if transition is duration-based, allow user to specify whether to use
-  # the scalar value of a predictor on first day of transition, or vector of
-  # predictor values over time? Would require changing data structure from
-  # named vector
-  checkmate::assert_character(
-    predictors, names = "unique", min.chars = 1, null.ok = TRUE
+  checkmate::assert_list(
+    predictors, types = "predictor_spec", unique = TRUE, names = "unique",
+    null.ok = TRUE
   )
   checkmate::assert_class(parameters, "parameters")
 
@@ -75,8 +72,21 @@ validate_transition <- function(transition) {
     names(formals(transition$fun))
   )
 
+  if (transition$transition_type == "probability") {
+    invalid <- get_preds_where_first_day_only_is_false(transition$predictors)
+    if (length(invalid) > 0) {
+      stop(
+        "Probability type transitions cannot have any predictors where the ",
+        "`first_day_only` attribute is `FALSE`. Found these exceptions:\n",
+        paste0(names(invalid), ":\n", lapply(invalid, format)),
+        call. = FALSE
+      )
+    }
+  }
+
   return(transition)
 }
+
 
 #' Create a `transition` object
 #'
@@ -104,16 +114,10 @@ validate_transition <- function(transition) {
 #'   `"throughout_transition"`: only valid for `"duration"` type transitions,
 #'     where it indicates that the evaluated transition is the fraction of
 #'     ticks that die throughout the entire transition.
-#' @param predictors Optional, named character vector of predictors to use in
-#'   evaluating `fun`. Names are matched with the formal args to `fun` to
-#'   determine which input in `fun` each predictor will be passed to. Each value
-#'   can be one of:
-#'     - A string in the `"pred"` column in the \code{\link{predictors}} table.
-#'       In this case, the predictor value passed to `fun` is the corresponding
-#'       value of that predictor in the table.
-#'     - A string that matches at least one life stage name via regex. In this
-#'       case, the value passed to `fun` is the sum of the population sizes of
-#'       all matched life stages.
+#' @param predictors Optional, a named list of \code{\link{predictor_spec}} objects
+#'   that specify how any predictor data should be used in evaluating `fun`. The names are
+#'   matched with the formal args to  `fun` to determine which input in `fun`
+#'   each predictor will be passed to.
 #' @param parameters Optional, a \code{\link{parameters}} object, or a named
 #'   list of numeric vectors.
 #'
@@ -157,4 +161,20 @@ transition <- function(
 #' @noRd
 transition_is_mortality <- function(transition) {
   !is.null(transition$mortality_type)
+}
+
+#' Helper function for validation. It's an issue if this case is met.
+#'
+#' @param transition a `transition` object
+#' @param stages character vector of life stage names
+#' @returns a boolean
+#' @noRd
+transition_uses_tick_den_predictor_with_first_day_only_false <- function(
+  transition, stages
+) {
+  preds_with_errors <- lapply(
+    transition$predictors,
+    function(x) pred_is_life_stage(x, stages = stages) && !x[["first_day_only"]]
+  )
+  any(unlist(preds_with_errors))
 }

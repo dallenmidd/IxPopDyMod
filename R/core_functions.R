@@ -46,8 +46,7 @@ get_tick_den <- function(time, pred, population, developing_population) {
 #'
 #' TODO docs are out of date
 #' @param time First day to get predictor value(s)
-#' @param pred String indicating which predictor, one of: 'temp', 'vpd',
-#'   'host_den' or NA
+#' @param pred A `predictor_spec`
 #' @param is_delay Boolean indicating whether the predictor is for a transition
 #'   involving a delay
 #' @param population Tick population matrix. See get_tick_den for details.
@@ -64,21 +63,19 @@ get_pred <- function(
     time, pred, is_delay, population, developing_population, max_delay,
     predictors
   ) {
+
   life_stages <- rownames(population)
 
-  if (pred %in% valid_predictors_from_table(predictors)) {
-    # TODO "host_den" is hardcoded here as the only predictor from the predictors
-    # table for which we only use the predictor value at the first day of the
-    # transition. Should this be part of the configuration for each predictor?
-    if (is_delay && pred != "host_den") {
+  if (pred$pred %in% valid_predictors_from_table(predictors)) {
+    if (is_delay && !pred$first_day_only) {
       time <- time:(time + max_delay)
     }
-    get_pred_from_table(time, pred, predictors)
-  } else if (any(grepl(pred, life_stages))) {
-    get_tick_den(time, pred, population, developing_population)
+    get_pred_from_table(time, pred$pred, predictors)
+  } else if (any(grepl(pred$pred, life_stages))) {
+    get_tick_den(time, pred$pred, population, developing_population)
   } else {
     # Validation should prevent hitting this case
-    stop("Failed to match predictor: \"", pred, "\"", call. = FALSE)
+    stop("Failed to match predictor: \"", pred$pred, "\"", call. = FALSE)
   }
 }
 
@@ -299,7 +296,7 @@ update_delay_arr <- function(
       # Case where there's no explicit mortality
       surv_to_next <- 1
     } else {
-      # Case where there's on transition representing mortality
+      # Case where there's a transition representing mortality
       mort <- get_transition_value(
         time = time,
         transition = mort_transition,

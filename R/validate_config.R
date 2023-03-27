@@ -8,6 +8,7 @@ validate_config <- function(cfg) {
   assert_initial_population_non_zero(cfg)
   assert_predictors_strings_in_transitions_are_valid(cfg)
   assert_inputs_to_each_transition_function_are_valid(cfg)
+  assert_no_tick_density_predictors_have_first_day_only_false(cfg)
 
   cfg
 }
@@ -57,6 +58,36 @@ assert_inputs_to_each_transition_function_are_valid <- function(cfg) {
         )
       }
     }
+  }
+}
+
+assert_no_tick_density_predictors_have_first_day_only_false <- function(cfg) {
+  # Any `predictor_spec`s that are for tick density must have a value of
+  # TRUE in the field `first_day_only`. This is because we only know tick
+  # density at the current time step during modeling - there's no way to know
+  # future tick density. This validation is implemented here, at the config
+  # level, because we need the tick life stages to know which predictors are
+  # specifying tick density.
+
+  stages <- life_stages(cfg$cycle)
+
+  problematic_transitions <- vapply(
+    cfg$cycle,
+    function(each_transition) {
+      transition_uses_tick_den_predictor_with_first_day_only_false(
+        transition = each_transition, stages = stages
+      )
+    },
+    FUN.VALUE = logical(1L)
+  )
+
+  if (any(problematic_transitions) > 0) {
+    stop(
+      "Predictors using tick density must have the `first_day_only` field set ",
+      "to `TRUE`. The `transition`s at these indices violated this expectation: ",
+      to_short_string(which(problematic_transitions), item_name = "cases"),
+      call. = FALSE
+    )
   }
 }
 
@@ -121,7 +152,9 @@ assert_predictors_strings_in_transitions_are_valid <- function(cfg) {
   # and so, if a value in the predictors vector is not a value in the predictors
   # table, then it should pattern match with at least one life stage
   predictors_in_transitions <- unlist(lapply(
-    cfg$cycle, function(transition) transition$predictors
+    cfg$cycle, function(transition) {
+      lapply(transition$predictors, function(x) x$pred)
+    }
   ))
 
   predictors_not_in_table <- setdiff(
