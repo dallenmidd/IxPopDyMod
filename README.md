@@ -135,10 +135,27 @@ increases with 1200 eggs laid.
 
 ``` r
 temp_example_config$cycle
-## need some way to show the life cycle
+#> ** A life cycle
+#> ** Number of transitions: 15
+#> ** Unique life stages: __e, q_l, e_l, q_n, e_n, q_a, e_a, r_a
+#> 1. __e -> q_l 
+#> 2. __e -> mortality 
+#> 3. q_l -> e_l 
+#> 4. q_l -> mortality 
+#> 5. e_l -> q_n 
+#> 6. e_l -> mortality 
+#> 7. q_n -> e_n 
+#> 8. q_n -> mortality 
+#> 9. e_n -> q_a 
+#> 10. e_n -> mortality 
+#> ... and 5 more transitions
 ```
 
-*When the print looks good we will say something here.*
+Calling the `life_cycle` element in a `config` gives a summary of the
+life cycle. Here we see the life stages, how many transitions between
+life stages there are, and the first 10 transitions are shown. Each
+transition is stored in the `life_cycle` as a list, so they can be
+called using list indexing.
 
 ``` r
 temp_example_config$cycle[[1]]
@@ -181,9 +198,9 @@ temp_example_config$cycle[[1]]
 Here is the first transition from `__e`, eggs, to `q_l`, questing
 larvae. This transition is a duration, so we interpret the output as the
 rate at which it happens on the probability with which it happens. It
-also has a predictor, temperature. So the time to transition from egg to
-questing larva is a temperature dependent function. The function and
-parameters show this rate is `2.92e-05 * temp^2.27`.
+has a predictor, temperature. So the time to transition from egg to
+questing larva is a temperature dependent function. The parameters and
+function show this rate is `2.92e-05 * temp^2.27`.
 
 ### Compare two temperature scenarios
 
@@ -225,16 +242,10 @@ population in the warmer climate.
 In the previous example there was no host community explicitly stated
 and ticks had a constant probability of transition between life stages
 (e.g., from larva to nymph). It is possible to instead model these
-probabilities based on host community composition.
-
-``` r
-host_example_config$cycle
-## change here too
-```
-
-Here transition from questing larvae, `q_l`, to engorged larvae, `e_l`,
-depends on the `host_den`, which is how the host community is included
-in the transition.
+probabilities based on host community composition. Here transition from
+questing larvae, `q_l`, to engorged larvae, `e_l`, depends on the
+`host_den`, which is how the host community is included in the
+transition.
 
 ``` r
 host_example_config$cycle[[3]]
@@ -325,7 +336,7 @@ text(x = 25, y = c(4.25,4,3.75), labels = c('High deer den.', 'Mid deer den.', '
 axis(side = 2, at = 2:5, labels = c(expression(10^2),expression(10^3),expression(10^4),expression(10^5)))
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="75%" />
 
 ## Tick-borne disease infection dynamics
 
@@ -384,14 +395,14 @@ for (i in 1:5)
 plot(results_df$deer,results_df$nymph_den, xlab = 'Deer density', ylab = 'Number of questing nymphs')
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="75%" />
 
 ``` r
 
 plot(results_df$deer,results_df$nip, xlab = 'Deer density', ylab = 'Nymph infection rate')
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-2.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-14-2.png" width="75%" />
 
 Here we see that as deer density increases the number of nymphs
 increases, but the nymph infection prevalence (NIP) goes down.
