@@ -73,19 +73,19 @@ usethis::use_data(ogden2005, overwrite = TRUE)
 # for vignette, show varying weather data
 temp_example_config <- config(
   life_cycle(
-    transition("__e", "q_l", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 2.92e-05, b = 2.27)),
+    transition("__e", "q_l", expo_fun, "duration", predictors = list(x = predictor_spec('temp', FALSE)), parameters = list(a = 2.92e-05, b = 2.27)),
     transition("__e", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
     transition("q_l", "e_l", constant_fun, "probability", parameters = list(a = 0.05)),
     transition("q_l", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("e_l", "q_n", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 9.88E-06, b = 2.55)),
+    transition("e_l", "q_n", expo_fun, "duration", predictors = list(x = predictor_spec('temp', FALSE)), parameters = list(a = 9.88E-06, b = 2.55)),
     transition("e_l", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
     transition("q_n", "e_n", constant_fun, "probability", parameters = list(a = 0.05)),
     transition("q_n", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("e_n", "q_a", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 6.27E-04, b = 1.21)),
+    transition("e_n", "q_a", expo_fun, "duration", predictors = list(x = predictor_spec('temp', FALSE)), parameters = list(a = 6.27E-04, b = 1.21)),
     transition("e_n", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
     transition("q_a", "e_a", constant_fun, "probability", parameters = list(a = 0.05)),
     transition("q_a", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("e_a", "r_a", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 7.7E-04, b = 1.42)),
+    transition("e_a", "r_a", expo_fun, "duration", predictors = list(x = predictor_spec('temp', FALSE)), parameters = list(a = 7.7E-04, b = 1.42)),
     transition("e_a", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
     transition("r_a", "__e", constant_fun, "probability", parameters = list(a = 3000))
   ),
@@ -98,19 +98,19 @@ usethis::use_data(temp_example_config, overwrite = TRUE)
 # for vignette, show modifying host community
 host_example_config <- config(
   life_cycle(
-    transition("__e", "q_l", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 2.92e-05, b = 2.27)),
+    transition("__e", "q_l", expo_fun, "duration", predictors = list(x = predictor_spec('temp', FALSE)), parameters = list(a = 2.92e-05, b = 2.27)),
     transition("__e", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("q_l", "e_l", find_n_feed, "probability", predictors = c(x = "host_den"), parameters = list(a = 0.01, pref = c(deer = 0.25, mouse = 1, squirrel = 0.25), feed_success = c(deer = 0.49, mouse = 0.49, squirrel = 0.17))),
+    transition("q_l", "e_l", find_n_feed, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(a = 0.01, pref = c(deer = 0.25, mouse = 1, squirrel = 0.25), feed_success = c(deer = 0.49, mouse = 0.49, squirrel = 0.17))),
     transition("q_l", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("e_l", "q_n", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 9.88E-06, b = 2.55)),
+    transition("e_l", "q_n", expo_fun, "duration", predictors = list(x = predictor_spec('temp', FALSE)), parameters = list(a = 9.88E-06, b = 2.55)),
     transition("e_l", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("q_n", "e_n", find_n_feed, "probability", predictors = c(x = "host_den"), parameters = list(a = 0.01, pref = c(deer = 0.25, mouse = 1, squirrel = 1), feed_success = c(deer = 0.49, mouse = 0.49, squirrel = 0.17))),
+    transition("q_n", "e_n", find_n_feed, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(a = 0.01, pref = c(deer = 0.25, mouse = 1, squirrel = 1), feed_success = c(deer = 0.49, mouse = 0.49, squirrel = 0.17))),
     transition("q_n", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("e_n", "q_a", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 6.27E-04, b = 1.21)),
+    transition("e_n", "q_a", expo_fun, "duration", predictors = list(x = predictor_spec('temp', FALSE)), parameters = list(a = 6.27E-04, b = 1.21)),
     transition("e_n", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("q_a", "e_a", find_n_feed, "probability", predictors = c(x = "host_den"), parameters = list(a = 0.01, pref = c(deer = 1, mouse = 0, squirrel = 0), feed_success = c(deer = 0.49, mouse = 0, squirrel = 0))),
+    transition("q_a", "e_a", find_n_feed, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(a = 0.01, pref = c(deer = 1, mouse = 0, squirrel = 0), feed_success = c(deer = 0.49, mouse = 0, squirrel = 0))),
     transition("q_a", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.02)),
-    transition("e_a", "r_a", expo_fun, "duration", predictors = c(x = 'temp'), parameters = list(a = 7.7E-04, b = 1.42)),
+    transition("e_a", "r_a", expo_fun, "duration", predictors = list(x = predictor_spec('temp', FALSE)), parameters = list(a = 7.7E-04, b = 1.42)),
     transition("e_a", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.02)),
     transition("r_a", "__e", constant_fun, "probability", parameters = list(a = 3000))
   ),
@@ -122,9 +122,6 @@ usethis::use_data(host_example_config, overwrite = TRUE)
 
 # for vignette, show infection dynamics
 
-# we define find_host so that validate_config() passes
-# however, it is not loaded as a function in the package, so we need to define it
-# whenever we want to use this config
 find_host <- function(x, a, pref) {
   1 - (1 - a)^sum(x * pref)
 }
@@ -133,32 +130,32 @@ infect_example_config <- config(
   life_cycle(
     transition("__e", "q_l", constant_fun, "duration", parameters = list(a = 0.02)),
     transition("__e", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
-    transition("q_l", "f_l", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
+    transition("q_l", "f_l", find_host, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
     transition("q_l", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
-    transition("f_l", "eil", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
-    transition("f_l", "eul", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("f_l", "eil", infect_fun, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("f_l", "eul", infect_fun, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
     transition("eil", "qin", constant_fun, "duration", parameters = list(a = 0.025)),
     transition("eil", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
     transition("eul", "qun", constant_fun, "duration", parameters = list(a = 0.025)),
     transition("eul", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
-    transition("qin", "fin", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
+    transition("qin", "fin", find_host, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
     transition("qin", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
-    transition("qun", "fun", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
+    transition("qun", "fun", find_host, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0.05))),
     transition("qun", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
-    transition("fun", "ein", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
-    transition("fun", "eun", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
-    transition("fin", "ein", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 1, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("fun", "ein", infect_fun, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("fun", "eun", infect_fun, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
+    transition("fin", "ein", infect_fun, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(from_infected = 1, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0.05))),
     transition("ein", "qia", constant_fun, "duration", parameters = list(a = 0.025)),
     transition("ein", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
     transition("eun", "qua", constant_fun, "duration", parameters = list(a = 0.025)),
     transition("eun", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
-    transition("qia", "fia", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0))),
+    transition("qia", "fia", find_host, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0))),
     transition("qia", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
-    transition("qua", "fua", find_host, "probability", predictors = c(x = "host_den"), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0))),
+    transition("qua", "fua", find_host, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(a = 1e-4, pref = c(deer = 1, mouse = 0))),
     transition("qua", NULL, constant_fun, "probability", mortality_type = 'per_day', parameters = list(a = 0.01)),
-    transition("fua", "eia", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
-    transition("fua", "eua", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
-    transition("fia", "eia", infect_fun, "probability", predictors = c(x = "host_den"), parameters = list(from_infected = 1, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
+    transition("fua", "eia", infect_fun, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(from_infected = 0, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
+    transition("fua", "eua", infect_fun, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(from_infected = 0, to_infected = 0, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
+    transition("fia", "eia", infect_fun, "probability", predictors = list(x = predictor_spec("host_den")), parameters = list(from_infected = 1, to_infected = 1, host_rc = c(deer = 0.01, mouse = 0.5), pref = c(deer = 1, mouse = 0))),
     transition("eia", "r_a", constant_fun, "duration", parameters = list(a = 0.025)),
     transition("eia", NULL, constant_fun, "duration", mortality_type = 'per_day', parameters = list(a = 0.01)),
     transition("eua", "r_a", constant_fun, "duration", parameters = list(a = 0.025)),
@@ -180,16 +177,16 @@ winter_tick <- config(
   life_cycle(
     transition("__e", "q_l", constant_fun, "duration", parameters = list(a = 0.0125)),
     transition("__e", NULL, constant_fun, "duration", mortality_type = 'throughout_transition', parameters = list(a = 0.5)),
-    transition("q_l", "a_l", feed_fun, "probability", predictors = c(x = 'host_den', y = 'max_temp'), parameters = list(a = 4e-4, pref = 1, q = 7e-4, tmax = 35, tmin = 0)),
-    transition('q_l', NULL, snow_cover_fun, "probability", mortality_type = 'per_day', predictors = c(x = 'snow_cover'), parameters = c(no_snow_mort = 0.06, snow_mort = 0.95)),
+    transition("q_l", "a_l", feed_fun, "probability", predictors = list(x = predictor_spec('host_den'), y = predictor_spec('max_temp')), parameters = list(a = 4e-4, pref = 1, q = 7e-4, tmax = 35, tmin = 0)),
+    transition('q_l', NULL, snow_cover_fun, "probability", mortality_type = 'per_day', predictors = list(x = predictor_spec('snow_cover')), parameters = c(no_snow_mort = 0.06, snow_mort = 0.95)),
     transition('a_l', 'e_a', constant_fun, 'duration', parameters = list(a = 0.00571)),
     transition('a_l', NULL, constant_fun, 'duration', mortality_type = 'throughout_transition', parameters = list(a = 0.5)),
-    transition('e_a', 'r_a', expo_shifted_fun, 'probability', predictors = c(x = 'max_temp'), parameters = list(a = 0.01, b = 1.2, c = 15)),
-    transition('e_a', NULL, snow_cover_fun, 'probability', predictors = c(x = 'snow_cover'), mortality_type = 'per_day', parameters = c(no_snow_mort = 0.11, snow_mort = 0.64)),
+    transition('e_a', 'r_a', expo_shifted_fun, 'probability', predictors = list(x = predictor_spec('max_temp')), parameters = list(a = 0.01, b = 1.2, c = 15)),
+    transition('e_a', NULL, snow_cover_fun, 'probability', predictors = list(x = predictor_spec('snow_cover')), mortality_type = 'per_day', parameters = c(no_snow_mort = 0.11, snow_mort = 0.64)),
     transition('r_a', '__e', constant_fun, 'probability', parameters = c(a = 3000))
   ),
   initial_population = c(r_a = 10),
   steps = 500,
   preds = readr::read_csv("./data-raw/winter_tick/predictors.csv")
 )
-use_data(winter_tick, overwrite = TRUE)
+usethis::use_data(winter_tick, overwrite = TRUE)
