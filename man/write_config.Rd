@@ -33,11 +33,10 @@ paths must be explicitly specified as arguments. This function will not
 allow overwriting files.
 }
 \examples{
+
 \dontrun{
-write_config(
-  config_ex_1, "cfg.yml", "trans.csv", "params.csv",
-  "predictors.csv"
-)
+write_config(config_ex_1, 'cfg.yml', 'trans.csv', 'params.csv',
+             'predictors.csv')
 }
 
 }

@@ -48,6 +48,6 @@ cfgs <- vary_param(config_ex_1, param_row = 2, values = c(0, 0.1, 0.2))
 
 # inspect parameter row 2 in each of the new configs to verify that we have
 # the new values
-lapply(cfgs, function(cfg) cfg$parameters[[2, "param_value"]])
+lapply(cfgs, function(cfg) cfg$parameters[[2, 'param_value']])
 
 }

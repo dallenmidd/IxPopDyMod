@@ -17,7 +17,7 @@ create a config object from a YAML file
 }
 \examples{
 \dontrun{
-read_config("cfg.yml")
+read_config('cfg.yml')
 }
 
 }

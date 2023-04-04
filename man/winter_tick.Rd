@@ -5,7 +5,7 @@
 \alias{winter_tick}
 \title{Configuration for winter tick population dynamics model}
 \format{
-An object of class \code{config} of length 5.
+An object of class \code{config} of length 6.
 }
 \usage{
 winter_tick
@@ -32,5 +32,7 @@ Drew and Samuel (1985) \doi{10.7589/0090-3558-21.3.274}
 Addison and McLaughlin (1988) \doi{10.2307/3282188}
 
 Ogden et al. (2005) \doi{10.1016/j.ijpara.2004.12.013}
+
+
 }
 \keyword{datasets}

@@ -4,12 +4,10 @@
 \alias{run}
 \title{Run the model}
 \usage{
-run(cfg, progress = TRUE)
+run(cfg)
 }
 \arguments{
 \item{cfg}{An \code{IxPopDyMod::config} object}
-
-\item{progress}{Boolean indicating whether to log progress every 100 steps}
 }
 \value{
 Data frame of population of ticks of each life stage each day

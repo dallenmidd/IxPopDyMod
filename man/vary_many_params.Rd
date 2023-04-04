@@ -29,12 +29,11 @@ Generate copies of a \code{config} with all combinations of modified parameters
 # mortality of eggs (which is found in row 2) and that determining
 # mortality of larvae (which is found in row 4)
 cfgs <- vary_many_params(config_ex_1,
-  param_rows = c(2, 4),
-  values_list = list(c(0, 0.1), c(.99, .98))
-)
+                        param_rows = c(2, 4),
+                        values_list = list(c(0, 0.1), c(.99, .98)))
 
 # inspect parameter rows 2 and 4 in each of the new configs to verify that we
 # have the new values
-lapply(cfgs, function(cfg) cfg$parameters[c(2, 4), "param_value"])
+lapply(cfgs, function(cfg) cfg$parameters[c(2, 4), 'param_value'])
 
 }
