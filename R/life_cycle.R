@@ -106,7 +106,11 @@ life_cycle <- function(...) {
   # attempt to coerce each input to a transition
   transitions <- lapply(
     seq_along(transitions),
-    function(i) coerce_transition(index = i, transitions = transitions)
+    function(i) {
+      coerce_element(
+        index = i, list_of_element = transitions, element_fun = transition
+      )
+    }
   )
 
   # convert list to `life_cycle` class
@@ -115,32 +119,13 @@ life_cycle <- function(...) {
   validate_life_cycle(cycle)
 }
 
-#' Attempt to coerce an input to a `transition`
-#'
-#' First ensures that the required elements of a transition are provided, and
-#' throws a more informative error than the missing argument error that would
-#' otherwise be thrown by `do.call()`.
-#'
-#' @param index which item in the list to validate
-#' @param transitions a list of (not yet validated) transitions
-#' @returns a validated `transition`, if checks pass
-#' @noRd
-coerce_transition <- function(index, transitions) {
-  each_transition <- transitions[[index]]
-  expected_args <- names(formals(transition))
-  actual_args <- as.character(names(each_transition))
-  checkmate::assert_set_equal(
-    actual_args,
-    expected_args,
-    .var.name = paste("elements of transition at index:", index)
-  )
-  do.call(transition, each_transition)
-}
 
 #' Print a life cycle
 #' @export
 #' @param x A `life_cycle`
+#' @param ... not used
 #' @param max number of transitions to print, or NULL to print all transitions
+#' @noRd
 print.life_cycle <- function(x, ..., max = 10L) {
   transitions <- x %>%
     vapply(format.transition, character(1L)) %>%

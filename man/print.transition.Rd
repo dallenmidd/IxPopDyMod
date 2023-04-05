@@ -4,10 +4,12 @@
 \alias{print.transition}
 \title{Print a transition}
 \usage{
-\method{print}{transition}(x)
+\method{print}{transition}(x, ...)
 }
 \arguments{
 \item{x}{A \code{transition}}
+
+\item{...}{not used}
 }
 \description{
 Print a transition

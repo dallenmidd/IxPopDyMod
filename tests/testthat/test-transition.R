@@ -1,6 +1,7 @@
 # new_transition --------------------------------------------------------------
 test_that("produces expected output with valid input", {
-  expect_snapshot(new_transition(
+
+  trans <- new_transition(
     from = "a",
     to = "b",
     transition_type = "probability",
@@ -8,7 +9,16 @@ test_that("produces expected output with valid input", {
     fun = new_transition_function(constant_fun),
     predictors = NULL,
     parameters = new_parameters(a = 1)
-  ))
+  )
+
+  # Comparing functions is hard and was failing in R CMD check. So we do it
+  # separately, ignoring the bytecode attr, and compare the rest with a snapshot.
+  expect_identical(
+    object = trans$fun,
+    expected = structure(constant_fun, class = "transition_function"),
+    ignore_attr = "bytecode"
+  )
+  expect_snapshot(trans[names(trans) != "fun"])
 })
 
 test_that("throws error with invalid from input", {
@@ -158,7 +168,7 @@ test_that("allows transition with zero parameters", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(function(x, y) NULL),
-      predictors = c(x = "temp", y = "host_density"),
+      predictors = list(x = predictor_spec("temp"), y = predictor_spec("host_density")),
       parameters = new_parameters()
     )),
     regexp = NA
@@ -173,7 +183,7 @@ test_that("catches extra predictors not needed in transition function", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = c(z = "extra"),
+      predictors = list(z = predictor_spec("extra")),
       parameters = new_parameters(a = 1)
     )),
     regexp = (
@@ -207,11 +217,29 @@ test_that("catches duplicate names between parameters and predictors", {
       transition_type = "probability",
       mortality_type = "per_day",
       fun = new_transition_function(constant_fun),
-      predictors = c(a = "duplicate name"),
+      predictors = list(a = predictor_spec("duplicate name")),
       parameters = new_parameters(a = 1)
     )),
     regexp = "Must be disjunct from {'a'}, but has elements {'a'}.",
     fixed = TRUE
+  )
+})
+
+test_that("catches probability-type transitions with predictors with `first_day_only` as `FALSE`", {
+  expect_error(
+    transition(
+      from = "a",
+      to = NULL,
+      transition_type = "probability",
+      mortality_type = "per_day",
+      fun = function(a, b, c) 1,
+      predictors = list(
+        a = predictor_spec("problem1", first_day_only = FALSE),
+        b = predictor_spec("problem2", first_day_only = FALSE),
+        c = predictor_spec("not_a_problem", first_day_only = TRUE)
+      )
+    ),
+    regexp = "cannot have any predictors where the `first_day_only` attribute is `FALSE`"
   )
 })
 

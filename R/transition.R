@@ -14,12 +14,9 @@ new_transition <- function(
   checkmate::assert_choice(
     mortality_type, c("per_day", "throughout_transition"), null.ok = TRUE
   )
-  # TODO if transition is duration-based, allow user to specify whether to use
-  # the scalar value of a predictor on first day of transition, or vector of
-  # predictor values over time? Would require changing data structure from
-  # named vector
-  checkmate::assert_character(
-    predictors, names = "unique", min.chars = 1, null.ok = TRUE
+  checkmate::assert_list(
+    predictors, types = "predictor_spec", unique = TRUE, names = "unique",
+    null.ok = TRUE
   )
   checkmate::assert_class(parameters, "parameters")
 
@@ -75,8 +72,21 @@ validate_transition <- function(transition) {
     names(formals(transition$fun))
   )
 
+  if (transition$transition_type == "probability") {
+    invalid <- get_preds_where_first_day_only_is_false(transition$predictors)
+    if (length(invalid) > 0) {
+      stop(
+        "Probability type transitions cannot have any predictors where the ",
+        "`first_day_only` attribute is `FALSE`. Found these exceptions:\n",
+        paste0(names(invalid), ":\n", lapply(invalid, format)),
+        call. = FALSE
+      )
+    }
+  }
+
   return(transition)
 }
+
 
 #' Create a `transition` object
 #'
@@ -86,7 +96,8 @@ validate_transition <- function(transition) {
 #' @param from The name of the life stage a tick is transitioning from.
 #' @param to The name of the life stage a tick is transitioning to, or NULL if
 #'   the transition is representing mortality.
-#' @param fun The \code{\link{transition_function}} to evaluate.
+#' @param fun The transition function to evaluate. TODO further document or link
+#' to documentation in class definition
 #' @param transition_type One of:
 #'   `"probability"`: the evaluated transition is interpreted as the daily
 #'     fraction of ticks that complete the transition. Ticks remain in the
@@ -103,20 +114,12 @@ validate_transition <- function(transition) {
 #'   `"throughout_transition"`: only valid for `"duration"` type transitions,
 #'     where it indicates that the evaluated transition is the fraction of
 #'     ticks that die throughout the entire transition.
-#' @param predictors Optional, named character vector of predictors to use in
-#'   evaluating `fun`. Names are matched with the formal args to `fun` to
-#'   determine which input in `fun` each predictor will be passed to. Each value
-#'   can be one of:
-#'     - A string in the `"pred"` column in the \code{\link{predictors}} table.
-#'       In this case, the predictor value passed to `fun` is the corresponding
-#'       value of that predictor in the table.
-#'     - A string that matches at least one life stage name via regex. In this
-#'       case, the value passed to `fun` is the sum of the population sizes of
-#'       all matched life stages.
+#' @param predictors Optional, a named list of \code{\link{predictor_spec}} objects
+#'   that specify how any predictor data should be used in evaluating `fun`. The names are
+#'   matched with the formal args to  `fun` to determine which input in `fun`
+#'   each predictor will be passed to.
 #' @param parameters Optional, a \code{\link{parameters}} object, or a named
 #'   list of numeric vectors.
-#'
-#' TODO need to actually create the helper functions linked in these docs.
 #'
 #' @export
 #'
@@ -169,21 +172,25 @@ format.transition <- function(x, ...) {
 
 #' Print a transition
 #' @export
+#' @param ... not used
 #' @param x A `transition`
-
-print.transition <- function(x) {
+print.transition <- function(x, ...) {
   param_names <- names(x$parameters)
   param_string <- ""
-  for (i in param_names) param_string <- paste(param_string, i, " = ",  x$parameters[i], ", ", sep = "")
+  for (i in param_names) {
+    param_string <- paste(param_string, i, " = ", x$parameters[i], ", ", sep = "")
+  }
   param_string <- sub(", $", "", param_string)
 
   pred_names <- names(x$predictors)
   pred_string <- ""
-  for (i in pred_names) pred_string <- paste(pred_string, i, " = ",  x$predictors[i], ", ", sep = "")
+  for (i in pred_names) {
+    pred_string <- paste(pred_string, i, " = ", x$predictors[i], ", ", sep = "")
+  }
   pred_string <- sub(", $", "", pred_string)
 
-  function_string <- sub('structure\\(function ',"", deparse(x$fun))
-  function_string <- sub(', class = "(.+)"\\)$',"",function_string)
+  function_string <- sub("structure\\(function ", "", deparse(x$fun))
+  function_string <- sub(', class = "(.+)"\\)$', "", function_string)
 
   cat(
     "** A transition",
@@ -191,8 +198,8 @@ print.transition <- function(x) {
     "Transition type: ", x$transition_type,
     ifelse(transition_is_mortality(x), "\nMortality type: ", ""),
     ifelse(transition_is_mortality(x), x$mortality_type, ""),
-    ifelse(!is.null(x$predictors),"\nPredictors: ",""),
-    ifelse(!is.null(x$predictors),pred_string,""),
+    ifelse(!is.null(x$predictors), "\nPredictors: ", ""),
+    ifelse(!is.null(x$predictors), pred_string, ""),
     "\nParameters: ", param_string,
     "\nFunction: ",
     function_string,
@@ -200,3 +207,20 @@ print.transition <- function(x) {
   )
 }
 
+
+
+#' Helper function for validation. It's an issue if this case is met.
+#'
+#' @param transition a `transition` object
+#' @param stages character vector of life stage names
+#' @returns a boolean
+#' @noRd
+transition_uses_tick_den_predictor_with_first_day_only_false <- function(
+  transition, stages
+) {
+  preds_with_errors <- lapply(
+    transition$predictors,
+    function(x) pred_is_life_stage(x, stages = stages) && !x[["first_day_only"]]
+  )
+  any(unlist(preds_with_errors))
+}

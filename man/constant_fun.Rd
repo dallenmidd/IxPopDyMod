@@ -16,5 +16,5 @@ Numeric vector of length 1 equal to input parameter \code{a}
 Constant function
 }
 \examples{
-constant_fun(NULL, NULL, 1)
+constant_fun(1)
 }

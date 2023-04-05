@@ -32,15 +32,7 @@ Suggests:
     testthat (>= 3.0.0)
 Imports: 
     magrittr,
-    rlang,
-    ggplot2,
-    stringr,
-    dplyr,
-    tidyr,
-    igraph,
-    readr,
-    yaml,
-    tibble,
+    stats,
     checkmate
 Language: en-US
 Config/testthat/edition: 3

@@ -20,7 +20,8 @@ transition(
 \item{to}{The name of the life stage a tick is transitioning to, or NULL if
 the transition is representing mortality.}
 
-\item{fun}{The \code{\link{transition_function}} to evaluate.}
+\item{fun}{The transition function to evaluate. TODO further document or link
+to documentation in class definition}
 
 \item{transition_type}{One of:
 \code{"probability"}: the evaluated transition is interpreted as the daily
@@ -40,21 +41,13 @@ ticks that dies each day.
 where it indicates that the evaluated transition is the fraction of
 ticks that die throughout the entire transition.}
 
-\item{predictors}{Optional, named character vector of predictors to use in
-evaluating \code{fun}. Names are matched with the formal args to \code{fun} to
-determine which input in \code{fun} each predictor will be passed to. Each value
-can be one of:
-- A string in the \code{"pred"} column in the \code{\link{predictors}} table.
-In this case, the predictor value passed to \code{fun} is the corresponding
-value of that predictor in the table.
-- A string that matches at least one life stage name via regex. In this
-case, the value passed to \code{fun} is the sum of the population sizes of
-all matched life stages.}
+\item{predictors}{Optional, a named list of \code{\link{predictor_spec}} objects
+that specify how any predictor data should be used in evaluating \code{fun}. The names are
+matched with the formal args to  \code{fun} to determine which input in \code{fun}
+each predictor will be passed to.}
 
 \item{parameters}{Optional, a \code{\link{parameters}} object, or a named
-list of numeric vectors.
-
-TODO need to actually create the helper functions linked in these docs.}
+list of numeric vectors.}
 }
 \value{
 a \code{transition} object

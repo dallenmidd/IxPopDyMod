@@ -6,8 +6,13 @@
 \usage{
 new_transition_function(fun)
 }
-\description{
+\arguments{
+\item{fun}{A function
+
 Transition functions must return a numeric vector. See
 \code{\link{constant_fun}}, \code{\link{expo_fun}} and
-\code{\link{infect_fun}} for examples for how to write custom functions.
+\code{\link{infect_fun}} for examples for how to write custom functions.}
+}
+\description{
+Constructor for transition functions
 }

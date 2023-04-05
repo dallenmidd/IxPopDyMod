@@ -1,43 +1,3 @@
-#' Get tick age based on life stage
-#'
-#' @param life_stage Three-character string representing tick life stage
-#' @importFrom stringr str_length
-#' @return Character representing tick age, where "l" indicates larvae, "n"
-#'   indicates nymph, and "a" indicates adult
-#' @noRd
-age <- function(life_stage) {
-  substr(life_stage, str_length(life_stage), str_length(life_stage))
-}
-
-#' Get tick current process
-#'
-#' @param life_stage Three-character string representing tick life stage
-#' @return Character representing current process tick is undergoing, where "a"
-#'   indicates attached, "e" indicates engorged, "h" indicates hardening, "q"
-#'   indicates questing, "r" indicates reproductive", and "f" indicates feeding
-#' @noRd
-process <- function(life_stage) {
-  ifelse(substr(life_stage, 0, 1) != "", substr(life_stage, 0, 1), "")
-}
-
-#' Get tick infection status
-#'
-#' @param life_stage Three-character string representing tick life stage
-#' @return Boolean indicating whether a life_stage is infected
-#' @importFrom stringr str_detect
-#' @noRd
-infected <- function(life_stage) {
-  str_detect(life_stage, "i")
-}
-
-#' Get all life stages
-#' @param transitions Tick transitions data frame.
-#' @return Character vector of life stage names
-#' @noRd
-get_life_stages <- function(transitions) {
-  unique(pull(transitions, .data$from))
-}
-
 #' Get a predictor from input data
 #'
 #' @param time Numeric vector of days to get data. Ignored if input is constant
@@ -77,7 +37,7 @@ get_pred_from_table <- function(time, pred, table) {
 get_tick_den <- function(time, pred, population, developing_population) {
   stopifnot(length(time) == 1)
   life_stages <- rownames(population)
-  life_stages_to_sum <- stringr::str_which(life_stages, pred)
+  life_stages_to_sum <- grep(pred, life_stages)
   total_population <- population + developing_population
   sum(total_population[life_stages_to_sum, time])
 }
@@ -86,8 +46,7 @@ get_tick_den <- function(time, pred, population, developing_population) {
 #'
 #' TODO docs are out of date
 #' @param time First day to get predictor value(s)
-#' @param pred String indicating which predictor, one of: 'temp', 'vpd',
-#'   'host_den' or NA
+#' @param pred A `predictor_spec`
 #' @param is_delay Boolean indicating whether the predictor is for a transition
 #'   involving a delay
 #' @param population Tick population matrix. See get_tick_den for details.
@@ -104,28 +63,26 @@ get_pred <- function(
     time, pred, is_delay, population, developing_population, max_delay,
     predictors
   ) {
+
   life_stages <- rownames(population)
 
-  if (pred %in% valid_predictors_from_table(predictors)) {
-    # TODO "host_den" is hardcoded here as the only predictor from the predictors
-    # table for which we only use the predictor value at the first day of the
-    # transition. Should this be part of the configuration for each predictor?
-    if (is_delay && pred != "host_den") {
+  if (pred$pred %in% valid_predictors_from_table(predictors)) {
+    if (is_delay && !pred$first_day_only) {
       time <- time:(time + max_delay)
     }
-    get_pred_from_table(time, pred, predictors)
-  } else if (any(stringr::str_detect(life_stages, pred))) {
-    get_tick_den(time, pred, population, developing_population)
+    get_pred_from_table(time, pred$pred, predictors)
+  } else if (any(grepl(pred$pred, life_stages))) {
+    get_tick_den(time, pred$pred, population, developing_population)
   } else {
     # Validation should prevent hitting this case
-    stop("Failed to match predictor: \"", pred, "\"", call. = FALSE)
+    stop("Failed to match predictor: \"", pred$pred, "\"", call. = FALSE)
   }
 }
 
 
 
 #' Get the value determining probability or duration of a transition
-#' # TODO update docs
+#' TODO update docs
 #'
 #' @details
 #' This generic function pulls out the functional form and parameters needed to
@@ -135,8 +92,8 @@ get_pred <- function(
 #' rows with the same 'from' and 'to'.
 #'
 #' @param time Numeric vector indicating span of days to get predictor values
-#' # TODO seems like at this point, time can only be a numeric vector of length
-#' # 1; it grows in length for certain delay transitions in get_pred().
+#' TODO seems like at this point, time can only be a numeric vector of length
+#' 1; it grows in length for certain delay transitions in get_pred().
 #' @param transition_row_with_parameters A row from the tick_transitions tibble
 #'   with parameters added.
 #' @param population Tick population matrix. See get_tick_den for details.
@@ -204,10 +161,7 @@ get_transition_inputs_unevaluated <- function(
 #' @param tick_transitions Tick transitions tibble
 #' @param predictors Table of predictor values
 #'
-#' @importFrom dplyr filter
-#' @importFrom stringr str_detect
 #' @importFrom magrittr %>%
-#' @importFrom rlang .data
 #'
 #' @return Matrix of transition probabilities, indicating the probabilities of
 #'   transitioning from each stage (axis 1) to each stage (axis 2).
@@ -271,8 +225,6 @@ gen_transition_matrix <- function(
 #' @param predictors Table of predictor values
 #' @param max_delay Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
-#'
-#' @importFrom dplyr pull
 #'
 #' @return Delay array indicating the number of ticks currently undergoing delay
 #'   transitions. Axis 1 is the from_stage, axis 2 is the to_stage, and axis 3
@@ -344,7 +296,7 @@ update_delay_arr <- function(
       # Case where there's no explicit mortality
       surv_to_next <- 1
     } else {
-      # Case where there's on transition representing mortality
+      # Case where there's a transition representing mortality
       mort <- get_transition_value(
         time = time,
         transition = mort_transition,
@@ -392,8 +344,8 @@ update_delay_arr <- function(
   return(delay_arr)
 }
 
-#' Generate an empty delay array
-#' Dimensions are: from, to, time
+# Generate an empty delay array
+# Dimensions are: from, to, time
 empty_delay_array <- function(life_stages, steps, max_duration) {
   array(
     dim = c(length(life_stages), length(life_stages), steps + max_duration),
@@ -402,7 +354,7 @@ empty_delay_array <- function(life_stages, steps, max_duration) {
   )
 }
 
-#' Create an empty (zero population) population matrix
+# Create an empty (zero population) population matrix
 empty_population_matrix <- function(life_stages, steps) {
   matrix(
     data = 0,
@@ -412,7 +364,7 @@ empty_population_matrix <- function(life_stages, steps) {
   )
 }
 
-#' Create an empty matrix of transition probabilities between life stages
+# Create an empty matrix of transition probabilities between life stages
 empty_transition_matrix <- function(life_stages) {
   n_life_stages <- length(life_stages)
   matrix(
@@ -423,7 +375,7 @@ empty_transition_matrix <- function(life_stages) {
   )
 }
 
-#' Set initial population for each life stage - zero if not specified in cfg
+# Set initial population for each life stage - zero if not specified in cfg
 set_initial_population <- function(population, initial_population) {
   population[, 1] <- vapply(
     rownames(population),
@@ -436,9 +388,6 @@ set_initial_population <- function(population, initial_population) {
 }
 
 #' Run the model
-#'
-#' @importFrom tidyr pivot_longer
-#' @importFrom dplyr row_number
 #'
 #' @param cfg An `IxPopDyMod::config` object
 #' @param progress Boolean indicating whether to log progress every 100 steps
@@ -530,14 +479,24 @@ run <- function(cfg, progress = TRUE) {
 
   # Return the total population of ticks each day. Developing ticks are counted
   # in the FROM stage.
-  (population + developing_population) %>%
-    t() %>%
-    as.data.frame() %>%
-    mutate(day = row_number()) %>%
-    pivot_longer(-c(.data$day), names_to = "stage", values_to = "pop") %>%
-    mutate(
-      age_group = age(.data$stage),
-      process = process(.data$stage),
-      infected = infected(.data$stage)
-    )
+  population_matrix_to_output_df(population + developing_population)
+}
+
+population_matrix_to_output_df <- function(matrix) {
+  df <- as.data.frame(t(matrix))
+  df[["day"]] <- seq_len(nrow(df))
+  life_stages <- rownames(matrix)
+  df <- stats::reshape(
+    df,
+    direction = "long",
+    varying = life_stages,
+    v.names = "pop",
+    idvar = "day",
+    timevar = "stage",
+    times = life_stages
+  )
+  df <- df[order(df[["day"]]), ]
+  rownames(df) <- seq_len(nrow(df))
+  attr(df, "reshapeLong") <- NULL # nolint: object_name_linter
+  df
 }
