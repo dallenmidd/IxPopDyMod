@@ -183,7 +183,7 @@ test_that(
     cfg <- config_example_a()
 
     # replace a predictor with an invalid value
-    cfg$cycle[[1]]$predictors[["y"]] <- "not_in_predictors_table"
+    cfg$cycle[[1]]$predictors[["y"]]$pred <- "not_in_predictors_table"
 
     expect_error(do.call(config, cfg), "invalid predictor names")
 })
@@ -253,6 +253,31 @@ test_that("catches predictors and parameters with different names", {
   )
 })
 
+test_that("catches predictors that use tick density and `first_day_only = FALSE`", {
+  cfg <- config_example_a()
+  cfg$cycle[[2]] <- transition(
+    from = "b",
+    to = "a",
+    transition_type = "duration",
+    fun = function(x) 1,
+    predictors = list(
+      x = predictor_spec(pred = "a", first_day_only = FALSE)
+    )
+
+  )
+
+  cfg$preds <- data.frame(
+    pred = c("temp", "host_density"),
+    pred_subcategory = NA,
+    j_day = NA,
+    value = 1:2
+  )
+
+  expect_error(
+    validate_config(cfg),
+    regexp = "must have the `first_day_only` field set to `TRUE`"
+  )
+})
 
 test_that("catches transition function that doesn't evaluate to a numeric", {
   # TODO unsure if this is really feasible or should just be a runtime check

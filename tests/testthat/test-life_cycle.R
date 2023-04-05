@@ -1,10 +1,11 @@
 # new_life_cycle() ------------------------------------------------------------
 test_that("output test", {
   expect_snapshot(
-     new_life_cycle(
+    # use print.default to print entire life cycle hierarchy as list
+    print.default(new_life_cycle(
        transition_example_a(),
        transition_example_b()
-     )
+     ))
   )
 })
 

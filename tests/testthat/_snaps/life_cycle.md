@@ -1,7 +1,7 @@
 # output test
 
     Code
-      new_life_cycle(transition_example_a(), transition_example_b())
+      print.default(new_life_cycle(transition_example_a(), transition_example_b()))
     Output
       [[1]]
       $from
@@ -23,8 +23,16 @@
       [1] "transition_function"
       
       $predictors
-                   x              y 
-              "temp" "host_density" 
+      $predictors$x
+      ** A predictor_spec
+      ** pred:           "temp"
+      ** first_day_only: TRUE
+      
+      $predictors$y
+      ** A predictor_spec
+      ** pred:           "host_density"
+      ** first_day_only: TRUE
+      
       
       $parameters
       $a
@@ -56,8 +64,16 @@
       [1] "transition_function"
       
       $predictors
-                   x              y 
-              "temp" "host_density" 
+      $predictors$x
+      ** A predictor_spec
+      ** pred:           "temp"
+      ** first_day_only: TRUE
+      
+      $predictors$y
+      ** A predictor_spec
+      ** pred:           "host_density"
+      ** first_day_only: TRUE
+      
       
       $parameters
       $a

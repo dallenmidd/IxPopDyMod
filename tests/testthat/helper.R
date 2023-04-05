@@ -2,14 +2,16 @@ transition_example_a <- function() {
   f <- function(x, y, a) a
   environment(f) <- emptyenv()
 
-  new_transition(
+  transition(
     from = "a",
     to = "b",
     transition_type = "probability",
     mortality_type = NULL,
     fun = new_transition_function(f),
-    predictors = c(x = "temp", y = "host_density"),
-    parameters = new_parameters(a = 1)
+    predictors = list(
+      x = predictor_spec("temp"), y = predictor_spec("host_density")
+    ),
+    parameters = parameters(a = 1)
   )
 }
 
@@ -21,14 +23,14 @@ transition_example_b <- function() {
 }
 
 life_cycle_example_a <- function() {
-  new_life_cycle(
+  life_cycle(
     transition_example_a(),
     transition_example_b()
   )
 }
 
 predictors_example_a <- function() {
-  new_predictors(data.frame(
+  predictors(data.frame(
     pred = "temp",
     pred_subcategory = NA,
     j_day = NA,
@@ -37,7 +39,7 @@ predictors_example_a <- function() {
 }
 
 predictors_example_b <- function() {
-  new_predictors(data.frame(
+  predictors(data.frame(
     pred = c("host_density", "temp"),
     pred_subcategory = NA,
     j_day = NA,
@@ -48,7 +50,7 @@ predictors_example_b <- function() {
 # TODO there are also (old) example configs loaded with the package - need to
 # think about what to put in data/ vs tests/helper.R
 config_example_a <- function() {
-  new_config(
+  config(
     cycle = life_cycle_example_a(),
     preds = predictors_example_b(),
     initial_population = c(a = 1L, b = 0L),

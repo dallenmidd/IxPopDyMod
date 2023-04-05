@@ -106,7 +106,11 @@ life_cycle <- function(...) {
   # attempt to coerce each input to a transition
   transitions <- lapply(
     seq_along(transitions),
-    function(i) coerce_transition(index = i, transitions = transitions)
+    function(i) {
+      coerce_element(
+        index = i, list_of_element = transitions, element_fun = transition
+      )
+    }
   )
 
   # convert list to `life_cycle` class
@@ -137,10 +141,13 @@ coerce_transition <- function(index, transitions) {
   do.call(transition, each_transition)
 }
 
+
 #' Print a life cycle
 #' @export
 #' @param x A `life_cycle`
+#' @param ... not used
 #' @param max number of transitions to print, or NULL to print all transitions
+#' @noRd
 print.life_cycle <- function(x, ..., max = 10L) {
   transitions <- x %>%
     vapply(format.transition, character(1L)) %>%
