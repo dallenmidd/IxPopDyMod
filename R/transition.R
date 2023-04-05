@@ -172,9 +172,10 @@ format.transition <- function(x, ...) {
 
 #' Print a transition
 #' @export
+#' @param ... not used
 #' @param x A `transition`
 
-print.transition <- function(x) {
+print.transition <- function(x, ...) {
   param_names <- names(x$parameters)
   param_string <- ""
   for (i in param_names) param_string <- paste(param_string, i, " = ",  x$parameters[i], ", ", sep = "")
