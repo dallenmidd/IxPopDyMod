@@ -98,22 +98,7 @@ only in the number of eggs laid.
 ### Run the model with each new parameter value
 
 ``` r
-outputs <- run_all_configs(modified_configs)
-outputs[[1]]
-#> # A tibble: 116 × 6
-#>      day stage    pop age_group process infected
-#>    <int> <chr>  <dbl> <chr>     <chr>   <lgl>   
-#>  1     1 __e        0 e         _       FALSE   
-#>  2     1 __l        0 l         _       FALSE   
-#>  3     1 __n        0 n         _       FALSE   
-#>  4     1 __a     1000 a         _       FALSE   
-#>  5     2 __e   800000 e         _       FALSE   
-#>  6     2 __l        0 l         _       FALSE   
-#>  7     2 __n        0 n         _       FALSE   
-#>  8     2 __a        0 a         _       FALSE   
-#>  9     3 __e        0 e         _       FALSE   
-#> 10     3 __l   800000 l         _       FALSE   
-#> # … with 106 more rows
+outputs <- lapply(modified_configs, run)
 ```
 
 The model output is a data frame where the column `day` indicates Julian
@@ -159,40 +144,12 @@ called using list indexing.
 
 ``` r
 temp_example_config$cycle[[1]]
-#> $from
-#> [1] "__e"
-#> 
-#> $to
-#> [1] "q_l"
-#> 
-#> $transition_type
-#> [1] "duration"
-#> 
-#> $mortality_type
-#> NULL
-#> 
-#> $fun
-#> function(x, a, b) ifelse(x > 0, a * x^b, 0)
-#> <environment: namespace:IxPopDyMod>
-#> attr(,"class")
-#> [1] "transition_function"
-#> 
-#> $predictors
-#>      x 
-#> "temp" 
-#> 
-#> $parameters
-#> $a
-#> [1] 2.92e-05
-#> 
-#> $b
-#> [1] 2.27
-#> 
-#> attr(,"class")
-#> [1] "parameters"
-#> 
-#> attr(,"class")
-#> [1] "transition"
+#> ** A transition
+#> ** __e -> q_l 
+#> Transition type: duration
+#> Predictors: x = list(pred = "temp", first_day_only = FALSE)
+#> Parameters: a = 2.92e-05, b = 2.27
+#> Function: (x, a, b) ifelse(x > 0, a * x^b, 0)
 ```
 
 Here is the first transition from `__e`, eggs, to `q_l`, questing
@@ -249,52 +206,12 @@ transition.
 
 ``` r
 host_example_config$cycle[[3]]
-#> $from
-#> [1] "q_l"
-#> 
-#> $to
-#> [1] "e_l"
-#> 
-#> $transition_type
-#> [1] "probability"
-#> 
-#> $mortality_type
-#> NULL
-#> 
-#> $fun
-#> function(x, a, pref, feed_success) {
-#>   if (length(pref) %% length(x) != 0) {
-#>     print(paste("error in find_n_feed, x:", length(x), "pref:", length(pref)))
-#>   }
-#> 
-#>   (1 - (1 - a)^(sum(x * pref) / sum(pref))) *
-#>     sum(x * pref * feed_success / sum(x * pref))
-#> }
-#> <environment: namespace:IxPopDyMod>
-#> attr(,"class")
-#> [1] "transition_function"
-#> 
-#> $predictors
-#>          x 
-#> "host_den" 
-#> 
-#> $parameters
-#> $a
-#> [1] 0.01
-#> 
-#> $pref
-#>     deer    mouse squirrel 
-#>     0.25     1.00     0.25 
-#> 
-#> $feed_success
-#>     deer    mouse squirrel 
-#>     0.49     0.49     0.17 
-#> 
-#> attr(,"class")
-#> [1] "parameters"
-#> 
-#> attr(,"class")
-#> [1] "transition"
+#> ** A transition
+#> ** q_l -> e_l 
+#> Transition type: probability
+#> Predictors: x = list(pred = "host_den", first_day_only = TRUE)
+#> Parameters: a = 0.01, pref = c(deer = 0.25, mouse = 1, squirrel = 0.25), feed_success = c(deer = 0.49, mouse = 0.49, squirrel = 0.17)
+#> Function: (x, a, pref, feed_success) {    if (length(pref)%%length(x) != 0) {        print(paste("error in find_n_feed, x:", length(x), "pref:",             length(pref)))    }    (1 - (1 - a)^(sum(x * pref)/sum(pref))) * sum(x * pref *         feed_success/sum(x * pref))}
 ```
 
 This transition from questing larvae to engorged larvae depends on
@@ -355,6 +272,20 @@ find_host <- function(x, y, a, pref) {
 
 ``` r
 infect_example_config$cycle
+#> ** A life cycle
+#> ** Number of transitions: 33
+#> ** Unique life stages: __e, q_l, f_l, eil, eul, qin, qun, fun, fin, ein, eun, qia, qua, fua, fia, eia, eua, r_a
+#> 1. __e -> q_l 
+#> 2. __e -> mortality 
+#> 3. q_l -> f_l 
+#> 4. q_l -> mortality 
+#> 5. f_l -> eil 
+#> 6. f_l -> eul 
+#> 7. eil -> qin 
+#> 8. eil -> mortality 
+#> 9. eul -> qun 
+#> 10. eul -> mortality 
+#> ... and 23 more transitions
 ```
 
 Here we use the middle character of the life-stage key. It is either `i`

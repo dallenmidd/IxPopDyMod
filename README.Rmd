@@ -94,8 +94,7 @@ This gives us a list of three modified model `config`s, which differ only in the
 
 ### Run the model with each new parameter value
 ```{r}
-outputs <- run_all_configs(modified_configs)
-outputs[[1]]
+outputs <- lapply(modified_configs, run)
 ```
 The model output is a data frame where the column `day` indicates Julian date, `stage` indicates tick life stage, and `pop` is population size. 
 
@@ -205,7 +204,7 @@ find_host <- function(x, y, a, pref) {
 ```
 
 
-```{r, eval = F}
+```{r}
 infect_example_config$cycle
 ```
 Here we use the middle character of the life-stage key. It is either `i` for infected or `u` for uninfected. We assume no transovarial infection so questing larvae are uninfected. But after they feed, `f_l`, they can either become engorged infected, `eil`, or engorged uninfected, `eul`, larvae. This is based on `infect_fun`, which as above has host species-specific parameters of `pref` and `host_rc` (reservoir competence). 
