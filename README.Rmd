@@ -107,19 +107,18 @@ sapply(outputs, growth_rate)
 
 ## Temperature-dependent transitions
 
-```{r, eval = FALSE}
+```{r}
 temp_example_config$cycle
-## need some way to show the life cycle
 ```
 
-*When the print looks good we will say something here.*
+Calling the `life_cycle` element in a `config` gives a summary of the life cycle. Here we see the life stages, how many transitions between life stages there are, and the first 10 transitions are shown. Each transition is stored in the `life_cycle` as a list, so they can be called using list indexing.
 
 
 ```{r}
 temp_example_config$cycle[[1]]
 ```
 
-Here is the first transition from `__e`, eggs, to `q_l`, questing larvae. This transition is a duration, so we interpret the output as the rate at which it happens on the probability with which it happens. It also has a predictor, temperature. So the time to transition from egg to questing larva is a temperature dependent function. The function and parameters show this rate is `2.92e-05 * temp^2.27`.
+Here is the first transition from `__e`, eggs, to `q_l`, questing larvae. This transition is a duration, so we interpret the output as the rate at which it happens on the probability with which it happens. It has a predictor, temperature. So the time to transition from egg to questing larva is a temperature dependent function. The parameters and function show this rate is `2.92e-05 * temp^2.27`.
 
 ### Compare two temperature scenarios
 
@@ -154,14 +153,7 @@ Here you can see nymphs start questing earlier and reach a higher population in 
 
 ## Host community
 
-In the previous example there was no host community explicitly stated and ticks had a constant probability of transition between life stages (e.g., from larva to nymph). It is possible to instead model these probabilities based on host community composition. 
-
-```{r, eval = F}
-host_example_config$cycle
-## change here too
-```
-
-Here transition from questing larvae, `q_l`, to engorged larvae, `e_l`, depends on the `host_den`, which is how the host community is included in the transition. 
+In the previous example there was no host community explicitly stated and ticks had a constant probability of transition between life stages (e.g., from larva to nymph). It is possible to instead model these probabilities based on host community composition. Here transition from questing larvae, `q_l`, to engorged larvae, `e_l`, depends on the `host_den`, which is how the host community is included in the transition. 
 
 ```{r}
 host_example_config$cycle[[3]]

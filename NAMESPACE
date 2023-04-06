@@ -3,6 +3,7 @@
 S3method(format,predictor_spec)
 S3method(print,life_cycle)
 S3method(print,predictor_spec)
+S3method(print,transition)
 export(config)
 export(constant_fun)
 export(density_fun)

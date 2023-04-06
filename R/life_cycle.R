@@ -119,8 +119,6 @@ life_cycle <- function(...) {
   validate_life_cycle(cycle)
 }
 
-# TODO life cycle is the longest printed part of a config, could implement an
-# abbreviated printing method (print.life_cycle)
 
 #' Print a life cycle
 #' @export
@@ -142,12 +140,6 @@ print.life_cycle <- function(x, ..., max = 10L) {
   )
 }
 
-# TODO move this to transition.R and combine with any print method Dave is
-# working on. This is just a very simple option for use within a life_cycle
-format.transition <- function(x, ...) {
-  to <- ifelse(transition_is_mortality(x), "mortality", x[["to"]])
-  paste(x[["from"]], "->", to, "\n")
-}
 
 number_each_element <- function(x) {
   nums <- seq_along(x)

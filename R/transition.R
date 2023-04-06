@@ -163,6 +163,52 @@ transition_is_mortality <- function(transition) {
   !is.null(transition$mortality_type)
 }
 
+
+# This is just a very simple option for use within a life_cycle
+format.transition <- function(x, ...) {
+  to <- ifelse(transition_is_mortality(x), "mortality", x[["to"]])
+  paste(x[["from"]], "->", to, "\n")
+}
+
+#' Print a transition
+#' @export
+#' @param ... not used
+#' @param x A `transition`
+print.transition <- function(x, ...) {
+  param_names <- names(x$parameters)
+  param_string <- ""
+  for (i in param_names) {
+    param_string <- paste(param_string, i, " = ", x$parameters[i], ", ", sep = "")
+  }
+  param_string <- sub(", $", "", param_string)
+
+  pred_names <- names(x$predictors)
+  pred_string <- ""
+  for (i in pred_names) {
+    pred_string <- paste(pred_string, i, " = ", x$predictors[i], ", ", sep = "")
+  }
+  pred_string <- sub(", $", "", pred_string)
+
+  function_string <- sub("structure\\(function ", "", deparse(x$fun))
+  function_string <- sub(', class = "(.+)"\\)$', "", function_string)
+
+  cat(
+    "** A transition",
+    "\n** ", format.transition(x),
+    "Transition type: ", x$transition_type,
+    ifelse(transition_is_mortality(x), "\nMortality type: ", ""),
+    ifelse(transition_is_mortality(x), x$mortality_type, ""),
+    ifelse(!is.null(x$predictors), "\nPredictors: ", ""),
+    ifelse(!is.null(x$predictors), pred_string, ""),
+    "\nParameters: ", param_string,
+    "\nFunction: ",
+    function_string,
+    sep = ""
+  )
+}
+
+
+
 #' Helper function for validation. It's an issue if this case is met.
 #'
 #' @param transition a `transition` object
