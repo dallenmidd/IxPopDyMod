@@ -3,22 +3,22 @@
 
 library(tidyverse)
 
-pl <- read_csv("data-raw/ogden2005/make_ogden_fig4/predicted_larvae.csv",
+pl <- read_csv("data-raw/ogden2005/fig4_data/predicted_larvae.csv",
   col_names = c("jday", "n")
 ) %>% mutate(group = "pl")
-pn <- read_csv("data-raw/ogden2005/make_ogden_fig4/predicted_nymphs.csv",
+pn <- read_csv("data-raw/ogden2005/fig4_data/predicted_nymphs.csv",
   col_names = c("jday", "n")
 ) %>% mutate(group = "pn")
-pa <- read_csv("data-raw/ogden2005/make_ogden_fig4/predicted_adults.csv",
+pa <- read_csv("data-raw/ogden2005/fig4_data/predicted_adults.csv",
   col_names = c("jday", "n")
 ) %>% mutate(group = "pa")
-ol <- read_csv("data-raw/ogden2005/make_ogden_fig4/observed_larvae.csv",
+ol <- read_csv("data-raw/ogden2005/fig4_data/observed_larvae.csv",
   col_names = c("jday", "n")
 ) %>% mutate(group = "ol")
-on <- read_csv("data-raw/ogden2005/make_ogden_fig4/observed_nymphs.csv",
+on <- read_csv("data-raw/ogden2005/fig4_data/observed_nymphs.csv",
   col_names = c("jday", "n")
 ) %>% mutate(group = "on")
-oa <- read_csv("data-raw/ogden2005/make_ogden_fig4/observed_adults.csv",
+oa <- read_csv("data-raw/ogden2005/fig4_data/observed_adults.csv",
   col_names = c("jday", "n")
 ) %>% mutate(group = "oa")
 
@@ -49,3 +49,17 @@ fig4c <- df %>%
   geom_line()
 
 fig4 <- gridExtra::grid.arrange(fig4a, fig4b, fig4c)
+
+
+predfig4 <- df %>%
+  select(jday,num = n, stage = group) %>%
+  mutate(num = round(num,2)) %>%
+  filter(stage %in% c('pn', 'pl', 'pa'))
+
+obsfig4 <- df %>%
+  select(jday,num = n,stage = group) %>%
+  mutate(num = round(num,2)) %>%
+  filter(stage %in% c('on', 'ol', 'oa'))
+
+write_csv(predfig4,'data-raw/ogden2005/fig4_data/fig4_pred_data.csv')
+write_csv(obsfig4,'data-raw/ogden2005/fig4_data/fig4_obs_data.csv')

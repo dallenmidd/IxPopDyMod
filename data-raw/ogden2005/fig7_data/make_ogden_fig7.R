@@ -3,10 +3,10 @@ library(IxPopDyMod)
 
 set_weather <- function(cfg, weather) {
   temp_weather <- read_csv(paste0(
-    "data-raw/ogden2005/make_ogden_fig7/weather_",
+    "data-raw/ogden2005/fig7_data/weather_",
     weather, ".csv"
   ))
-  cfg$predictors <- tibble(
+  cfg$preds <- tibble(
     value = c(20, 200, temp_weather$tmean),
     j_day = c(NA, NA, temp_weather$j_day),
     pred = c("host_den", "host_den", rep("temp", dim(temp_weather)[1])),
