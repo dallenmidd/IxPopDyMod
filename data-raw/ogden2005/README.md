@@ -1,33 +1,36 @@
----
-output: 
-  github_document: default
-title: "Replicating the Ogden et al. (2005) model"
+Replicating the Ogden et al. (2005) model
+================
 
----
+This page describes how we replicating the [Ogden et
+al. (2005)](https://doi.org/10.1016/j.ijpara.2004.12.013) *Ixodes
+scapularis* population dynamics model in our package framework. The
+Ogden et al. (2005) model is included in the package with the
+`ogden2005` config.
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+## Differences with Odgen et al. (2005)
 
-This page describes how we replicating the [Ogden et al. (2005)](https://doi.org/10.1016/j.ijpara.2004.12.013) *Ixodes scapularis* population dynamics model in our package framework. The Ogden et al. (2005) model is included in the package with the `ogden2005` config. 
+We were able to largely replicate Odgen et al.’s model directly with our
+model structure. Here are the few changes we had to make. - Ogden et
+al. has density-dependent reduction fecundity based on the number of
+adults on deer. We take fecundity (number of eggs produced) as a
+constant. - Ogden et al. handles host finding differently - They give a
+weekly probability of host-finding. We translate this into a daily
+probability. - They use a curve (See Figure 3) to determine the
+probability an active tick quests based on temperature. We approximate
+these curves with Briere functions. - Temperature inputs for the default
+model run were digitized from Figure 2. - Temperature inputs for the
+multiple model runs under different climates (Figure 7) were downloaded
+from the Government of Canada’s \[Canadian Climate Normals page\]
+(<https://climate.weather.gc.ca/climate_normals/index_e.html>).
 
-## Differences with Odgen et al. (2005)
+Even with these slight differences we are able to qualitatively
+replicate the model’s results.
 
-We were able to largely replicate Odgen et al.'s model directly with our model structure. Here are the few changes we had to make.
-- Ogden et al. has density-dependent reduction fecundity based on the number of adults on deer. We take fecundity (number of eggs produced) as a constant.
-- Ogden et al. handles host finding differently
-    - They give a weekly probability of host-finding. We translate this into a daily probability. 
-    - They use a curve (See Figure 3) to determine the probability an active tick quests based on temperature. We approximate these curves with Briere functions.
-- Temperature inputs for the default model run were digitized from Figure 2.
-- Temperature inputs for the multiple model runs under different climates (Figure 7) were downloaded from the Government of Canada's [Canadian Climate Normals page](https://climate.weather.gc.ca/climate_normals/index_e.html).
+## Specifying the model
 
-Even with these slight differences we are able to qualitatively replicate the model's results.
+Here is the R code to specify the Ogden et al. model in our package
 
-## Specifying the model 
-
-Here is the R code to specify the Ogden et al. model in our package
-
-```{r, message = FALSE}
+``` r
 # library(IxPopDyMod)
 library(tidyverse)
 devtools::load_all()
@@ -62,20 +65,25 @@ ogden2005 <- config(
   steps = 3500,
   preds = readr::read_csv("predictors.csv")
 )
-
-
 ```
 
-## Ogden et al. (2005) Figure 4
+    ## Warning: Setting row names on a tibble is deprecated.
 
-In Figure 4 Ogden et al. (2005) show that their model can replicate tick seasonality data collected from Long Point, Ontario. Here we should that our version of Odgen's model largely follows their model output. For this graph we digitized the model predicted values from Figure 4. We omit the observed values here, because our purpose is to show we can replicate Ogden's model output rather than whether we are replicating observed data.
+## Ogden et al. (2005) Figure 4
 
-```{r, message = FALSE}
+In Figure 4 Ogden et al. (2005) show that their model can replicate tick
+seasonality data collected from Long Point, Ontario. Here we should that
+our version of Odgen’s model largely follows their model output. For
+this graph we digitized the model predicted values from Figure 4. We
+omit the observed values here, because our purpose is to show we can
+replicate Ogden’s model output rather than whether we are replicating
+observed data.
+
+``` r
 our_mod <- run(ogden2005)
 ```
 
-
-```{r}
+``` r
 ogd_mod <- read.csv('fig4_data/fig4_pred_data.csv')
 
 # take just actively questing ticks 6 yrs into the run get stablized population
@@ -131,11 +139,16 @@ merged_fig4 %>%
   facet_wrap(~life_stage, dir = 'v')
 ```
 
-## Ogden et al. (2005) Figure 7
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-Figure 7 shows the predicted number of ticks at a range of locations in Canada. Here we reproduce the figure for a subset of locations, just seven from across the latitudinal range in Ontario. We are looking to replicate the behavior in Figure 7 for these sites.
+## Ogden et al. (2005) Figure 7
 
-```{r, message = FALSE}
+Figure 7 shows the predicted number of ticks at a range of locations in
+Canada. Here we reproduce the figure for a subset of locations, just
+seven from across the latitudinal range in Ontario. We are looking to
+replicate the behavior in Figure 7 for these sites.
+
+``` r
 # a quick function to quickly change of the weather in an existing model config
 set_weather <- function(cfg, weather) {
   temp_weather <- read_csv(paste0(
@@ -168,9 +181,7 @@ simplify = FALSE
 outputs <- lapply(configs, run)
 ```
 
-
-```{r}
-
+``` r
 dfs <- lapply(outputs, function(df) filter(df, stage == 'a_a'))
 
 # return the max number of adults during the ninth full calendar year
@@ -194,3 +205,5 @@ ggplot(fig7_tbl, aes(mean_dd_gt_zero, max_adults)) +
   ylab("Maximum no. adult ticks at equilibrium") +
   theme_classic()
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
