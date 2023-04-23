@@ -10,18 +10,23 @@ Ogden et al. (2005) model is included in the package with the
 ## Differences with Odgen et al. (2005)
 
 We were able to largely replicate Odgen et al.’s model directly with our
-model structure. Here are the few changes we had to make. - Ogden et
-al. has density-dependent reduction fecundity based on the number of
-adults on deer. We take fecundity (number of eggs produced) as a
-constant. - Ogden et al. handles host finding differently - They give a
-weekly probability of host-finding. We translate this into a daily
-probability. - They use a curve (See Figure 3) to determine the
-probability an active tick quests based on temperature. We approximate
-these curves with Briere functions. - Temperature inputs for the default
-model run were digitized from Figure 2. - Temperature inputs for the
-multiple model runs under different climates (Figure 7) were downloaded
-from the Government of Canada’s \[Canadian Climate Normals page\]
-(<https://climate.weather.gc.ca/climate_normals/index_e.html>).
+model structure. Here are the few changes we had to make.
+
+- Ogden et al. has density-dependent reduction fecundity based on the
+  number of adults on deer. We take fecundity (number of eggs produced)
+  as a constant.
+- Ogden et al. handles host finding differently
+  - They give a weekly probability of host-finding. We translate this
+    into a daily probability.
+  - They use a curve (See Figure 3) to determine the probability an
+    active tick quests based on temperature. We approximate these curves
+    with Briere functions.
+- Temperature inputs for the default model run were digitized from
+  Figure 2.
+- Temperature inputs for the multiple model runs under different
+  climates (Figure 7) were downloaded from the Government of Canada’s
+  [Canadian Climate Normals
+  page](https://climate.weather.gc.ca/climate_normals/index_e.html).
 
 Even with these slight differences we are able to qualitatively
 replicate the model’s results.
