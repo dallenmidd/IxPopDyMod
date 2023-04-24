@@ -1,7 +1,0 @@
-steps: 3500
-max_delay: 365
-initial_population:
-  q_a: 10000
-transitions: data-raw/ogden2005/tick_transitions.csv
-parameters: data-raw/ogden2005/tick_parameters.csv
-predictors: data-raw/ogden2005/predictors.csv
