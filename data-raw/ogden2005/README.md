@@ -1,7 +1,7 @@
 Replicating the Ogden et al. (2005) model
 ================
 
-This page describes how we replicating the [Ogden et
+This page describes how we replicate the [Ogden et
 al. (2005)](https://doi.org/10.1016/j.ijpara.2004.12.013) *Ixodes
 scapularis* population dynamics model in our package framework. The
 Ogden et al. (2005) model is included in the package with the
@@ -9,18 +9,18 @@ Ogden et al. (2005) model is included in the package with the
 
 ## Differences with Odgen et al. (2005)
 
-We were able to largely replicate Odgen et al.’s model directly with our
-model structure. Here are the few changes we had to make.
+We were able to largely replicate Odgen et al.’s (2005) model directly
+with our model structure, but make a few changes:
 
-- Ogden et al. has density-dependent reduction fecundity based on the
-  number of adults on deer. We take fecundity (number of eggs produced)
-  as a constant.
-- Ogden et al. handles host finding differently
+- Ogden et al. (2005) have density-dependent reduction fecundity based
+  on the number of adult ticks on deer. We take fecundity (number of
+  eggs produced) as a constant.
+- Ogden et al. (2005) handle host finding differently
   - They give a weekly probability of host-finding. We translate this
     into a daily probability.
-  - They use a curve (See Figure 3) to determine the probability an
-    active tick quests based on temperature. We approximate these curves
-    with Briere functions.
+  - They use a curve (Figure 3) to determine the probability a tick
+    quests based on temperature. We approximate these curves with Briere
+    functions.
 - Temperature inputs for the default model run were digitized from
   Figure 2.
 - Temperature inputs for the multiple model runs under different
@@ -33,7 +33,8 @@ replicate the model’s results.
 
 ## Specifying the model
 
-Here is the R code to specify the Ogden et al. model in our package
+Here is the R code to specify the Ogden et al. (2005) model in our
+package
 
 ``` r
 # library(IxPopDyMod)
@@ -86,12 +87,9 @@ observed data.
 
 ``` r
 our_mod <- run(ogden2005)
-```
-
-``` r
 ogd_mod <- read.csv('fig4_data/fig4_pred_data.csv')
 
-# take just actively questing ticks 6 yrs into the run get stablized population
+# take just actively questing ticks 6 yrs into the run get stabilized population
 questing <- our_mod %>%
   mutate(post_eq_jday = day - 365 * 6) %>%
   filter(post_eq_jday > 0,
@@ -144,13 +142,13 @@ merged_fig4 %>%
   facet_wrap(~life_stage, dir = 'v')
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ## Ogden et al. (2005) Figure 7
 
 Figure 7 shows the predicted number of ticks at a range of locations in
-Canada. Here we reproduce the figure for a subset of locations, just
-seven from across the latitudinal range in Ontario. We are looking to
+Canada. Here we reproduce the figure for a subset of locations, just six
+from across the latitudinal range in Ontario. We are looking to
 replicate the behavior in Figure 7 for these sites.
 
 ``` r
@@ -184,9 +182,7 @@ simplify = FALSE
 )
 
 outputs <- lapply(configs, run)
-```
 
-``` r
 dfs <- lapply(outputs, function(df) filter(df, stage == 'a_a'))
 
 # return the max number of adults during the ninth full calendar year
@@ -202,7 +198,13 @@ fig7_tbl <- tibble(
   dd = mean_dd_gt_zero,
   max_adults = unlist(lapply(dfs, max_adults_ninth_year))
 )
+```
 
+We look to replicate the general behavior in Ogden et al. (2005)’s
+Figure 7 that tick density is near zero until degree days reach about
+2750 C and then increase linearly from there.
+
+``` r
 ggplot(fig7_tbl, aes(mean_dd_gt_zero, max_adults)) +
   geom_point() +
   xlim(2000, 4000) +
@@ -211,4 +213,4 @@ ggplot(fig7_tbl, aes(mean_dd_gt_zero, max_adults)) +
   theme_classic()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
