@@ -121,7 +121,8 @@ get_transition_value <- function(
   value <- do.call(inputs[["function"]], c(inputs[["parameters"]], inputs[["predictors"]]))
 
   stopifnot(
-    is.numeric(value)
+     is.numeric(value),
+     length(value) >= 1 # TODO should be more specific condition on length
   )
 
   value
