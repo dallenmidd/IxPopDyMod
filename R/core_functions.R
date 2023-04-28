@@ -118,7 +118,13 @@ get_transition_value <- function(
     developing_population = developing_population
   )
 
-  do.call(inputs[["function"]], c(inputs[["parameters"]], inputs[["predictors"]]))
+  value <- do.call(inputs[["function"]], c(inputs[["parameters"]], inputs[["predictors"]]))
+
+  stopifnot(
+    is.numeric(value)
+  )
+
+  value
 }
 
 # TODO I refactored this for convenience - for validation code and possibly
