@@ -598,3 +598,12 @@ test_that("population_matrix_to_output_df works", {
     expected
   )
 })
+
+test_that("transition functions must return a numeric vector", {
+
+  cfg <- config_example_a()
+  cfg$cycle[[1]]$fun <- function(x, y, a) "THIS SHOULD BE A NUMERIC!"
+
+  expect_error(run(cfg), "must evaluate to a numeric")
+
+})
