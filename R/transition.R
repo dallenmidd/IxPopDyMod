@@ -203,6 +203,7 @@ print.transition <- function(x, ...) {
     "\nParameters: ", param_string,
     "\nFunction: ",
     function_string,
+    "\n",
     sep = ""
   )
 }
