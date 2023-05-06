@@ -120,10 +120,22 @@ get_transition_value <- function(
 
   value <- do.call(inputs[["function"]], c(inputs[["parameters"]], inputs[["predictors"]]))
 
-  stopifnot(
-     is.numeric(value),
-     length(value) %in% c(1, max_duration + 1)
-  )
+  if (!is.numeric(value)) {
+    stop(
+      "Transitions must evaluate to a numeric. The return type was `", class(value),
+      "` for the transition: ", format.transition(transition),
+      call. = FALSE
+    )
+  }
+
+  if (!(length(value) %in% c(1, max_duration + 1))) {
+    stop(
+      "Transitions must evaluate to a vector of length `1`, or of length ",
+      "`max_duration + 1`. The returned length was `", length(value),
+      "` for the transition: ", format.transition(transition),
+      call. = FALSE
+    )
+  }
 
   value
 }
