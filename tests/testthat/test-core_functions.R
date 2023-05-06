@@ -607,3 +607,39 @@ test_that("transition functions must return a numeric vector", {
   expect_error(run(cfg), "must evaluate to a numeric")
 
 })
+
+test_that("probability transition must return vector of length 1", {
+  # setup a config
+  cfg <- config_example_a()
+  cfg$max_duration <- 10
+
+  # set the return value to a vector of length 2
+  cfg$cycle[[1]]$fun <- function(x, y, a) c(1, 2)
+
+  # it breaks at runtime with the expected error
+  expect_error(run(cfg), "must evaluate to a vector of length")
+
+  # a return value of length max_duration + 1 is allowed
+  cfg$cycle[[1]]$fun <- function(x, y, a) rep(1, 10 + 1)
+  expect_error(run(cfg), "must evaluate to a vector of length")
+
+})
+
+test_that("duration transitions must return numeric vector of length 1 or max_duration + 1", {
+  # setup a config
+  cfg <- config_example_a()
+  cfg$max_duration <- 10
+
+  cfg$cycle[[1]]$transition_type <- "duration"
+  validate_config(cfg)
+
+  # set the return value to a vector of length 2
+  cfg$cycle[[1]]$fun <- function(x, y, a) c(1, 2)
+
+  # it breaks at runtime with the expected error
+  expect_error(run(cfg), "must evaluate to a vector of length")
+
+  # a return value of length max_duration + 1 is allowed
+  cfg$cycle[[1]]$fun <- function(x, y, a) rep(1, 10 + 1)
+  expect_error(run(cfg), NA)
+})
