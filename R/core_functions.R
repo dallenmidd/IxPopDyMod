@@ -128,9 +128,18 @@ get_transition_value <- function(
     )
   }
 
-  if (!(length(value) %in% c(1, max_duration + 1))) {
+  if (transition$transition_type == "probability" && length(value) != 1) {
     stop(
-      "Transitions must evaluate to a vector of length `1`, or of length ",
+      "Probability type transitions must evaluate to a vector of length `1`. ",
+      "The returned length was `", length(value), "` for the transition: ",
+      format.transition(transition),
+      call. = FALSE
+    )
+  }
+
+  if (transition$transition_type == "duration" && !(length(value) %in% c(1, max_duration + 1))) {
+    stop(
+      "Duration type transitions must evaluate to a vector of length `1`, or of length ",
       "`max_duration + 1`. The returned length was `", length(value),
       "` for the transition: ", format.transition(transition),
       call. = FALSE
