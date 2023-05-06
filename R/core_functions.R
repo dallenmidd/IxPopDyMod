@@ -120,31 +120,9 @@ get_transition_value <- function(
 
   value <- do.call(inputs[["function"]], c(inputs[["parameters"]], inputs[["predictors"]]))
 
-  if (!is.numeric(value)) {
-    stop(
-      "Transitions must evaluate to a numeric. The return type was `", class(value),
-      "` for the transition: ", format.transition(transition),
-      call. = FALSE
-    )
-  }
-
-  if (transition$transition_type == "probability" && length(value) != 1) {
-    stop(
-      "Probability type transitions must evaluate to a vector of length `1`. ",
-      "The returned length was `", length(value), "` for the transition: ",
-      format.transition(transition),
-      call. = FALSE
-    )
-  }
-
-  if (transition$transition_type == "duration" && !(length(value) %in% c(1, max_duration + 1))) {
-    stop(
-      "Duration type transitions must evaluate to a vector of length `1`, or of length ",
-      "`max_duration + 1`. The returned length was `", length(value),
-      "` for the transition: ", format.transition(transition),
-      call. = FALSE
-    )
-  }
+  validate_transition_value(
+    transition = transition, value = value, max_duration = max_duration
+  )
 
   value
 }
@@ -178,6 +156,34 @@ get_transition_inputs_unevaluated <- function(
   )
 
   list("function" = f, "parameters" = params, "predictors" = predictor_values)
+}
+
+validate_transition_value <- function(transition, value, max_duration) {
+  if (!is.numeric(value)) {
+    stop(
+      "Transitions must evaluate to a numeric. The return type was `", class(value),
+      "` for the transition: ", format.transition(transition),
+      call. = FALSE
+    )
+  }
+
+  if (transition$transition_type == "probability" && length(value) != 1) {
+    stop(
+      "Probability type transitions must evaluate to a vector of length `1`. ",
+      "The returned length was `", length(value), "` for the transition: ",
+      format.transition(transition),
+      call. = FALSE
+    )
+  }
+
+  if (transition$transition_type == "duration" && !(length(value) %in% c(1, max_duration + 1))) {
+    stop(
+      "Duration type transitions must evaluate to a vector of length `1`, or of length ",
+      "`max_duration + 1`. The returned length was `", length(value),
+      "` for the transition: ", format.transition(transition),
+      call. = FALSE
+    )
+  }
 }
 
 #' Generate a matrix of transition probabilities between tick life stages
