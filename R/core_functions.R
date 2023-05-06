@@ -122,7 +122,7 @@ get_transition_value <- function(
 
   stopifnot(
      is.numeric(value),
-     length(value) >= 1 # TODO should be more specific condition on length
+     length(value) %in% c(1, max_duration + 1)
   )
 
   value

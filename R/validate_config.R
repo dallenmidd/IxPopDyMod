@@ -46,6 +46,9 @@ assert_inputs_to_each_transition_function_are_valid <- function(cfg) {
       parameter_names <- unname(lapply(named_parameters, names))
       predictor_names <- unname(lapply(named_predictors, names))
 
+      # There could be repeated predictor names for multiple days
+      predictor_names <- lapply(predictor_names, unique)
+
       all_names <- c(parameter_names, predictor_names)
 
       # each vector of names should be identical
