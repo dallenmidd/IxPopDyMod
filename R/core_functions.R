@@ -158,6 +158,15 @@ get_transition_inputs_unevaluated <- function(
   list("function" = f, "parameters" = params, "predictors" = predictor_values)
 }
 
+#' Raise error if returned value from a transition is invalid
+#'
+#' @param transition A transition
+#' @param value The evaluated value
+#' @param max_duration max_duration parameter of a config. Used for validating
+#'   duration-based transitions.
+#'
+#' @returns nothing, called for side effects
+#' @noRd
 validate_transition_value <- function(transition, value, max_duration) {
   if (!is.numeric(value)) {
     stop(
