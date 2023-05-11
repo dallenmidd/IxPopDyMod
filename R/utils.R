@@ -1,7 +1,9 @@
 #' Helper for formatting vectors or lists in error messages
 #' @param v A vector-like input
 #' @param max Maximum number of elements of `v` to include in output
-#' TODO document other params
+#' @param collapse a character string to separate the elements of `v`
+#' @param item_name a character string with the name of what the elements
+#'    of `v` are
 #' @returns Input formatted as a string
 #' @noRd
 to_short_string <- function(v, max = 3, collapse = ", ", item_name = "values") {

@@ -96,8 +96,11 @@ validate_transition <- function(transition) {
 #' @param from The name of the life stage a tick is transitioning from.
 #' @param to The name of the life stage a tick is transitioning to, or NULL if
 #'   the transition is representing mortality.
-#' @param fun The transition function to evaluate. TODO further document or link
-#' to documentation in class definition
+#' @param fun The transition function to evaluate, of class \code{\link{fun}}.
+#'   The inputs of the function are predictors and parameters. The output is
+#'   the daily probability of completing the transition, for `"probability"`
+#'   transitions, or the daily rate the transition takes place, for `"duration"`
+#'   transitions.
 #' @param transition_type One of:
 #'   `"probability"`: the evaluated transition is interpreted as the daily
 #'     fraction of ticks that complete the transition. Ticks remain in the
