@@ -52,7 +52,7 @@ get_tick_den <- function(time, pred, population, developing_population) {
 #' @param population Tick population matrix. See get_tick_den for details.
 #' @param developing_population Matrix of currently developing ticks.
 #'   See get_tick_den for details.
-#' @param max_delay Numeric vector of length one. Determines the maximum
+#' @param max_duration Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
 #' @param predictors Table of predictor values
 #' @noRd
@@ -60,7 +60,7 @@ get_tick_den <- function(time, pred, population, developing_population) {
 #' @returns a vector of a predictor at time time. The vector's length is based
 #' on whether the transition is_delay.
 get_pred <- function(
-    time, pred, is_delay, population, developing_population, max_delay,
+    time, pred, is_delay, population, developing_population, max_duration,
     predictors
   ) {
 
@@ -68,7 +68,7 @@ get_pred <- function(
 
   if (pred$pred %in% valid_predictors_from_table(predictors)) {
     if (is_delay && !pred$first_day_only) {
-      time <- time:(time + max_delay)
+      time <- time:(time + max_duration)
     }
     get_pred_from_table(time, pred$pred, predictors)
   } else if (any(grepl(pred$pred, life_stages))) {
@@ -99,7 +99,7 @@ get_pred <- function(
 #' @param population Tick population matrix. See get_tick_den for details.
 #' @param developing_population Matrix of currently developing ticks. See
 #'   get_tick_den for details.
-#' @param max_delay Numeric vector of length one. Determines the maximum
+#' @param max_duration Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
 #' @param predictors Table of predictor values
 #' @noRd
@@ -145,7 +145,7 @@ get_transition_inputs_unevaluated <- function(
         is_delay = transition$transition_type == "duration",
         population = population,
         developing_population = developing_population,
-        max_delay = max_duration,
+        max_duration = max_duration,
         predictors = predictors
       )
     }
@@ -262,7 +262,7 @@ gen_transition_matrix <- function(
 #'   get_tick_den for details.
 #' @param tick_transitions Tick transitions tibble
 #' @param predictors Table of predictor values
-#' @param max_delay Numeric vector of length one. Determines the maximum
+#' @param max_duration Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
 #'
 #' @return Delay array indicating the number of ticks currently undergoing delay
@@ -272,7 +272,7 @@ gen_transition_matrix <- function(
 #' @noRd
 update_delay_arr <- function(
     time, delay_arr, population, developing_population, tick_transitions,
-    max_delay, predictors
+    max_duration, predictors
 ) {
   life_stages <- rownames(population)
   # select all delay transition functions, including mortality
@@ -295,12 +295,12 @@ update_delay_arr <- function(
       time = time,
       transition = trans,
       predictors = predictors,
-      max_duration = max_delay,
+      max_duration = max_duration,
       population = population,
       developing_population = developing_population
     )
 
-    days_to_next <- get_transition_duration(val = val, max_delay = max_delay)
+    days_to_next <- get_transition_duration(val = val, max_duration = max_duration)
 
     # daily or per capita mortality during the delayed transition
 
@@ -319,7 +319,7 @@ update_delay_arr <- function(
         time = time,
         transition = mort_transition,
         predictors = predictors,
-        max_duration = max_delay,
+        max_duration = max_duration,
         population = population,
         developing_population = developing_population
       )
@@ -338,7 +338,7 @@ update_delay_arr <- function(
            call. = FALSE
         )
 
-        # in this case, mort is a vector of length max_delay. we subset it for
+        # in this case, mort is a vector of length max_duration. we subset it for
         # the duration of the delay then elementwise subtract (1 - each element)
         # to get vector of daily survival rate, and take product to get the
         # overall survival rate throughout the delay
@@ -363,7 +363,7 @@ update_delay_arr <- function(
 }
 
 
-get_transition_duration <- function(val, max_delay) {
+get_transition_duration <- function(val, max_duration) {
   # Duration-type transitions return either a vector of length 1, or of length
   # max_duration + 1. If the return value is of length 1, we interpret this
   # as the daily rate that the transition takes place. In this case, we
@@ -374,7 +374,7 @@ get_transition_duration <- function(val, max_delay) {
   # the output vector is determined in `get_pred()`.
   # TODO move this to get_transition_value() - but it shouldn't apply to mortality?
   if (length(val) == 1) {
-    val <- rep(val, max_delay + 1)
+    val <- rep(val, max_duration + 1)
   }
 
   days <- cumsum(val) >= 1
@@ -384,7 +384,7 @@ get_transition_duration <- function(val, max_delay) {
     # model state that varies throughout the model run
     stop(
       "Cumulative sum of daily transition probabilities never reached 1, ",
-      "max_delay may be too small",
+      "max_duration may be too small",
       call. = FALSE
     )
   }
@@ -513,7 +513,7 @@ run <- function(cfg, progress = TRUE) {
       population = population,
       developing_population = developing_population,
       tick_transitions = cfg$cycle,
-      max_delay = cfg$max_duration,
+      max_duration = cfg$max_duration,
       predictors = cfg$preds
     )
 

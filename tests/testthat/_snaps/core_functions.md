@@ -2642,7 +2642,7 @@
       update_delay_arr(time = 2, delay_arr = empty_delay_array(life_stages, cfg$steps,
       cfg$max_duration), population = empty_population_matrix(life_stages, cfg$steps),
       developing_population = empty_population_matrix(life_stages, cfg$steps),
-      tick_transitions = cfg$cycle, max_delay = cfg$max_duration, predictors = cfg$
+      tick_transitions = cfg$cycle, max_duration = cfg$max_duration, predictors = cfg$
         predictors)
     Output
       , , 1

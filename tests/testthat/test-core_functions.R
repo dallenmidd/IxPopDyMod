@@ -76,7 +76,7 @@ test_that("`get_pred()` works for host density data with or without delay", {
     is_delay = TRUE,
     population = matrix(),
     developing_population = matrix(),
-    max_delay = 365L,
+    max_duration = 365L,
     predictors = predictors
   )
 
@@ -86,7 +86,7 @@ test_that("`get_pred()` works for host density data with or without delay", {
     is_delay = FALSE,
     population = matrix(),
     developing_population = matrix(),
-    max_delay = 365L,
+    max_duration = 365L,
     predictors = predictors
   )
 
@@ -113,7 +113,7 @@ test_that("`get_pred()` works with multiple pred subcategories and vector of tim
     is_delay = TRUE,
     population = matrix(),
     developing_population = matrix(),
-    max_delay = 365L,
+    max_duration = 365L,
     predictors = predictors
   )
 
@@ -132,12 +132,12 @@ test_that("`get_pred()` works with tick density data with or without delay", {
   # is a delay
   result_delay <- get_pred(
     time = 1L, pred = predictor_spec("[ab]"), is_delay = TRUE, population = population,
-    developing_population = population, max_delay = 365L, predictors = data.frame()
+    developing_population = population, max_duration = 365L, predictors = data.frame()
   )
 
   result_no_delay <- get_pred(
     time = 1L, pred = predictor_spec("[ab]"), is_delay = FALSE, population = population,
-    developing_population = population, max_delay = 365L, predictors = data.frame()
+    developing_population = population, max_duration = 365L, predictors = data.frame()
   )
 
   # Assert
@@ -158,7 +158,7 @@ test_that("`get_pred()` works with predictors in table with no delay", {
     is_delay = FALSE,
     population = matrix(),
     developing_population = matrix(),
-    max_delay = 365L,
+    max_duration = 365L,
     predictors = predictors
   )
 
@@ -178,7 +178,7 @@ test_that("`get_pred()` works with predictors in table with delay", {
     is_delay = TRUE,
     population = matrix(),
     developing_population = matrix(),
-    max_delay = 365L,
+    max_duration = 365L,
     predictors = predictors
   )
 
@@ -200,7 +200,7 @@ test_that("`get_pred()` works with predictors in table with delay and first_day_
     is_delay = TRUE,
     population = matrix(),
     developing_population = matrix(),
-    max_delay = 365L,
+    max_duration = 365L,
     predictors = predictors
   )
 
@@ -519,6 +519,7 @@ test_that("model output for `config_ex_2` stays the same", {
   # skipped on CRAN because it is long-running
   # testthat::skip("long running")
   testthat::skip_on_cran()
+  # testthat::skip("fails on m1")
   expect_snapshot_value(run(config_ex_2, progress = FALSE), style = "serialize")
 })
 
@@ -560,7 +561,7 @@ test_that("update_delay_arr works", {
     population = empty_population_matrix(life_stages, cfg$steps),
     developing_population = empty_population_matrix(life_stages, cfg$steps),
     tick_transitions = cfg$cycle,
-    max_delay = cfg$max_duration,
+    max_duration = cfg$max_duration,
     predictors = cfg$predictors
   ))
 })
