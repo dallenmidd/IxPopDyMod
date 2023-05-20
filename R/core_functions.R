@@ -299,8 +299,6 @@ update_delay_arr <- function(
 
     days_to_next <- get_transition_duration(val = val, max_duration = max_duration)
 
-    # daily or per capita mortality during the delayed transition
-
     # Get the 1 or 0 mortality transitions corresponding to the "from" stage
     mort_transition <- transitions %>%
       query_transitions("from", from_stage) %>%
