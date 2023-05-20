@@ -343,26 +343,18 @@ get_transition_survival <- function(
     developing_population = developing_population
   )
   if (length(mort) > 1) {
-    # Case with vector of variable mortality values
-    # TODO move this to validation code - a bit tricky because the length of
-    # the vector `mort` is determined by the output of the transition function.
-    # We might ultimately want density_fun() to return a vector of length >
-    # 1, where the value for each day is calculated based on that day's
-    # feeding tick population. But currently, all mortality transitions are
-    # either constant_fun() or density_fun(), both of which return a vector
-    # of length 1, so we shouldn't ever get to this case.
+    # This has to be a runtime check because the length of the vector `mort` is
+    # determined by the output of the transition function.
+    # TODO we could consider supporting this if it'd be more biologically realistic.
     stop(
-      "Found non-constant mortality for a duration-based transition. This ",
-      "is untested functionality.",
-        call. = FALSE
+      "Found non-constant mortality for a duration-based transition.",
+      "Only scalar mortality values are supported. This occured in the transition: ",
+      format.transition(mort_transition),
+      call. = FALSE
     )
+  }
 
-    # in this case, mort is a vector of length max_duration. we subset it for
-    # the duration of the delay then elementwise subtract (1 - each element)
-    # to get vector of daily survival rate, and take product to get the
-    # overall survival rate throughout the delay
-    surv_to_next <- prod(1 - mort[1:days_to_next])
-  } else if (mort_transition[["mortality_type"]] == "throughout_transition") {
+  if (mort_transition[["mortality_type"]] == "throughout_transition") {
     # Apply scalar mortality once during the transition
     surv_to_next <- 1 - mort
   } else {
