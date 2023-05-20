@@ -375,7 +375,6 @@ get_transition_duration <- function(val, max_duration) {
   # We add 1 to the length for consistency with output vector length from
   # transitions that use predictor data in a table, for which the length of
   # the output vector is determined in `get_pred()`.
-  # TODO move this to get_transition_value() - but it shouldn't apply to mortality?
   if (length(val) == 1) {
     val <- rep(val, max_duration + 1)
   }
