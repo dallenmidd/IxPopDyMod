@@ -291,7 +291,6 @@ update_delay_arr <- function(
     # for a given delay transition, every "from" stage has a unique "to" stage
     to_stage <- trans[["to"]]
 
-    # daily probability of transitioning to the next stage
     val <- get_transition_value(
       time = time,
       transition = trans,
@@ -301,34 +300,7 @@ update_delay_arr <- function(
       developing_population = developing_population
     )
 
-    # Duration-type transitions return either a vector of length 1, or of length
-    # max_duration + 1. If the return value is of length 1, we interpret this
-    # as the daily rate that the transition takes place. In this case, we
-    # increase the length of the vector, so that we can take a cumulative sum
-    # and determine the first day that the cumulative sum >= 1.
-    # We add 1 to the length for consistency with output vector length from
-    # transitions that use predictor data in a table, for which the length of
-    # the output vector is determined in `get_pred()`.
-    # TODO move this to get_transition_value() - but it shouldn't apply to mortality?
-    if (length(val) == 1) {
-      val <- rep(val, max_delay + 1)
-    }
-
-    days <- cumsum(val) >= 1
-
-    if (!any(days)) {
-      # Note that this has to be a run-time check, because it's dependent on
-      # model state that varies throughout the model run
-      stop(
-        "Cumulative sum of daily transition probabilities never reached 1, ",
-        "max_delay may be too small",
-        call. = FALSE
-      )
-    }
-
-    # Transition duration is the number of days until the first day when the sum
-    # of the daily probabilities >= 1
-    days_to_next <- min(which(days))
+    days_to_next <- get_transition_duration(val = val, max_delay = max_delay)
 
     # daily or per capita mortality during the delayed transition
 
@@ -389,6 +361,39 @@ update_delay_arr <- function(
   }
   return(delay_arr)
 }
+
+
+get_transition_duration <- function(val, max_delay) {
+  # Duration-type transitions return either a vector of length 1, or of length
+  # max_duration + 1. If the return value is of length 1, we interpret this
+  # as the daily rate that the transition takes place. In this case, we
+  # increase the length of the vector, so that we can take a cumulative sum
+  # and determine the first day that the cumulative sum >= 1.
+  # We add 1 to the length for consistency with output vector length from
+  # transitions that use predictor data in a table, for which the length of
+  # the output vector is determined in `get_pred()`.
+  # TODO move this to get_transition_value() - but it shouldn't apply to mortality?
+  if (length(val) == 1) {
+    val <- rep(val, max_delay + 1)
+  }
+
+  days <- cumsum(val) >= 1
+
+  if (!any(days)) {
+    # Note that this has to be a run-time check, because it's dependent on
+    # model state that varies throughout the model run
+    stop(
+      "Cumulative sum of daily transition probabilities never reached 1, ",
+      "max_delay may be too small",
+      call. = FALSE
+    )
+  }
+
+  # Transition duration is the number of days until the first day when the sum
+  # of the daily probabilities >= 1
+  min(which(days))
+}
+
 
 # Generate an empty delay array
 # Dimensions are: from, to, time
