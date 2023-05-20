@@ -181,6 +181,20 @@ validate_transition_value <- function(transition, value, max_duration) {
     )
   }
 
+  if (
+    transition$transition_type == "duration" &&
+    transition_is_mortality(transition) &&
+    length(value) != 1
+  ) {
+    # TODO we could consider support this if it'd be more biologically realistic
+    stop(
+      "Found non-constant mortality for a duration-based transition.",
+      "Only scalar mortality values are supported. This occured in the transition: ",
+      format.transition(mort_transition),
+      call. = FALSE
+    )
+  }
+
   if (transition$transition_type == "duration" && !(length(value) %in% c(1, max_duration + 1))) {
     stop(
       "Duration type transitions must evaluate to a vector of length `1`, or of length ",
@@ -342,17 +356,6 @@ get_transition_survival <- function(
     population = population,
     developing_population = developing_population
   )
-  if (length(mort) > 1) {
-    # This has to be a runtime check because the length of the vector `mort` is
-    # determined by the output of the transition function.
-    # TODO we could consider supporting this if it'd be more biologically realistic.
-    stop(
-      "Found non-constant mortality for a duration-based transition.",
-      "Only scalar mortality values are supported. This occured in the transition: ",
-      format.transition(mort_transition),
-      call. = FALSE
-    )
-  }
 
   if (mort_transition[["mortality_type"]] == "throughout_transition") {
     # Apply scalar mortality once during the transition
