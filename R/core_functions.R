@@ -301,12 +301,19 @@ update_delay_arr <- function(
       developing_population = developing_population
     )
 
-    # Constant functions (for a fixed delay transition) return a single value
-    # We increase the length so that we can do a cumsum over the vector
-    # We add 1 for consistency with output vector length from non-constant fxns,
-    # which is determined by time:(time + max_delay) in get_pred()
+    # Duration-type transitions return either a vector of length 1, or of length
+    # max_duration + 1. If the return value is of length 1, we interpret this
+    # as the daily rate that the transition takes place. In this case, we
+    # increase the length of the vector, so that we can take a cumulative sum
+    # and determine the first day that the cumulative sum >= 1.
+    # We add 1 to the length for consistency with output vector length from
+    # transitions that use predictor data in a table, for which the length of
+    # the output vector is determined in `get_pred()`.
     # TODO move this to get_transition_value() - but it shouldn't apply to mortality?
-    if (length(val) == 1) val <- rep(val, max_delay + 1)
+    if (length(val) == 1) {
+      val <- rep(val, max_delay + 1)
+    }
+
     days <- cumsum(val) >= 1
 
     if (!any(days)) {
