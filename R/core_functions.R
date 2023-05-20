@@ -283,13 +283,10 @@ update_delay_arr <- function(
   for (from_stage in from_stages) {
     trans <- transitions %>%
       query_transitions("from", from_stage) %>%
-      query_transitions_by_mortality(mortality = FALSE)
-
-    # there can only be one duration-based transition from each life stage
-    trans <- trans[[1]]
-
-    # for a given delay transition, every "from" stage has a unique "to" stage
-    to_stage <- trans[["to"]]
+      query_transitions_by_mortality(mortality = FALSE) %>%
+      # there can only be one duration-based transition from each life stage, so
+      # we just get the first element
+      .[[1]]  # nolint: object_usage_linter
 
     val <- get_transition_value(
       time = time,
@@ -323,8 +320,8 @@ update_delay_arr <- function(
     # number of ticks emerging from from_stage to to_stage at time +
     # days_to_next is the number of ticks that were already going to emerge
     # then plus the current number of ticks in the from_stage * survival
-    delay_arr[from_stage, to_stage, time + days_to_next] <-
-      delay_arr[from_stage, to_stage, time + days_to_next] +
+    delay_arr[from_stage, trans[["to"]], time + days_to_next] <-
+      delay_arr[from_stage, trans[["to"]], time + days_to_next] +
       population[from_stage, time] * surv_to_next
   }
   return(delay_arr)
