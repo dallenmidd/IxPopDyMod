@@ -127,10 +127,6 @@ get_transition_value <- function(
   value
 }
 
-# TODO I refactored this for convenience - for validation code and possibly
-# debugging, it's convenient to have be able to get the function, parameters
-# and predictors for a transition. However, this structure might be too deeply
-# nested. Consider further refactor, and/or unit tests for this function.
 get_transition_inputs_unevaluated <- function(
     time, transition, predictors, max_duration, population, developing_population
 ) {
