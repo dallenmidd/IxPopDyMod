@@ -356,12 +356,11 @@ get_transition_survival <- function(
 
   if (mort_transition[["mortality_type"]] == "throughout_transition") {
     # Apply scalar mortality once during the transition
-    surv_to_next <- 1 - mort
-  } else {
-    # Apply scalar mortality every day
-    surv_to_next <- (1 - mort) ^ days_to_next
+    return(1 - mort)
   }
-  surv_to_next
+
+  # Apply scalar mortality every day
+  return((1 - mort) ^ days_to_next)
 }
 
 get_transition_duration <- function(val, max_duration) {
