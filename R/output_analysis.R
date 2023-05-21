@@ -1,7 +1,7 @@
 #' Calculate multiplicative growth rate of population
 #'
 #' @param out Model output data frame
-#' @return Numeric vector of length one representing growth rate
+#' @returns Numeric vector of length one representing growth rate
 #'
 #' @examples
 #' out <- run(config_ex_1)

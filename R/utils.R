@@ -19,7 +19,7 @@ to_short_string <- function(v, max = 3, collapse = ", ", item_name = "values") {
 #' Convert doubles to integers and preserve names
 #'
 #' @param x A double
-#' @return If x is a double whose value is equal to an integer, return the
+#' @returns If x is a double whose value is equal to an integer, return the
 #' equivalent integer. Otherwise, return x
 #' @noRd
 ensure_int <- function(x) {
