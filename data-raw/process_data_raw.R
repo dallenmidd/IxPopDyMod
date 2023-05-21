@@ -164,7 +164,12 @@ infect_example_config <- config(
   ),
   initial_population = c(r_a = 10),
   steps = 500,
-  preds = readr::read_csv("./data-raw/infect_example_config/predictors.csv")
+  preds = tibble::tibble(
+    pred = "host_den",
+    pred_subcategory = c("deer", "mouse"),
+    j_day = NA,
+    value = c(0.5, 15)
+  )
 )
 usethis::use_data(infect_example_config, overwrite = TRUE)
 
