@@ -268,6 +268,10 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     predictors = list(x = predictor_spec("temp", first_day_only = FALSE))
   )
 
+  t2 <- t
+  t2$from <- "b"
+  t2$to <- "a"
+
   predictors <- new_predictors(data.frame(
     pred = "temp",
     pred_subcategory = NA,
@@ -275,6 +279,17 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     value = 11:20
   ))
 
+  # Creating a config here for validation only, to ensure that this test is a situation could
+  # be encountered in an actual model run().
+  cfg <- config(
+    life_cycle(t, t2),
+    initial_population = c(a = 1),
+    preds = predictors,
+    steps = 1L,
+    # Note that we set this as 9 so that the steps + max_duration add up to the number of
+    # days that we have predictor data, which is 10 in this case.
+    max_duration = 9L
+  )
 
   # Act
   result <- get_transition_value(
@@ -282,8 +297,8 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     transition = t,
     population = empty_population_matrix(c("a", "b"), 10L),
     developing_population = empty_population_matrix(c("a", "b"), 10L),
-    max_duration = 365L,
-    predictors = predictors
+    max_duration = cfg$max_duration,
+    predictors = cfg$preds
   )
 
   # Assert
@@ -291,25 +306,36 @@ test_that("`get_transition_value()` works with a predictor that varies over time
 })
 
 test_that("`get_transition_value()` works with a predictor that varies over time
-  and a duration-based transition", {
+  and a duration-based transition, and pred_subcategory-s", {
     # Arrange
     t <- transition(
       from = "a",
       to = "b",
-      fun = function(x, y) x * y,
+      fun = function(x, y) sum(x * y),
       transition_type = "duration",
       predictors = list(x = predictor_spec("temp", first_day_only = FALSE)),
       parameters = parameters(y = c(day = 1, night = 2))
     )
 
+    t2 <- t
+    t2$from <- "b"
+    t2$to <- "a"
+
     predictors <- predictors(data.frame(
       pred = "temp",
       # in this example, the subcategories could correspond to day and night temp
       pred_subcategory = c("day", "night"),
-      j_day = sort(rep(1:2, 2)),
-      value = c(10, 2, 8, 1)
+      j_day = sort(rep(1:3, 2)),
+      value = c(10, 2, 8, 1, 0, 0)
     ))
 
+    cfg <- config(
+      life_cycle(t, t2),
+      initial_population = c(a = 1),
+      preds = predictors,
+      steps = 2L,
+      max_duration = 1L
+    )
 
     # Act
     result <- get_transition_value(
@@ -317,40 +343,17 @@ test_that("`get_transition_value()` works with a predictor that varies over time
       transition = t,
       population = empty_population_matrix(c("a", "b"), 10L),
       developing_population = empty_population_matrix(c("a", "b"), 10L),
-      max_duration = 365L,
-      predictors = predictors
+      max_duration = cfg$max_duration,
+      predictors = cfg$preds
     )
 
-    # Assert
-
-    # Result is a vector with an element for each (day, subcategory) pair. So in
-    # this case, we get a vector of length 4 even though we only have a 2 day
-    # period. This is partially a result of the transition function - e.g. if
-    # we use `function(x, y) sum(x * y)` we get a scalar return value.
-    # TODO we might want to be stricter about the lengths of vectors that
-    # transition functions can return. This decision should consider how results
-    # from get_transition_value() are used - in get_transition_matrix and
-    # update_delay_array.
-    expect_identical(result, c(day = 10, night = 4, day = 8, night = 2))
+    # 24 =             | total
+    # (10 * 1) +       | day 1
+    # (1 * 2) +        | night 1
+    # (8 * 1) +        | day 2
+    # (1 * 2)          | night 2
+    expect_identical(result, 24)
   })
-
-test_that("we catch a function that returns a vector of length > 1 in a
-          probability-based transition", {
-
-    testthat::skip("FIXME skipped bc it throws an error at runtime")
-
-    cfg <- config_example_a()
-    # modify this function so it returns a vector of length > 1, which
-    # should not be valid for a probability-based transition
-    cfg$cycle[[1]]$fun <- function(x, y, a) 1:2
-
-    # run validation to show that the current config is still "valid"
-    cfg <- validate_config(cfg)
-
-    # yet it throws a runtime error (this should be caught before runtime with
-    # an informative error message)
-    run(cfg)
-})
 
 
 test_that("`get_transition_value()` works with a predictor that varies over time
@@ -576,4 +579,49 @@ test_that("population_matrix_to_output_df works", {
     as.data.frame(population_matrix_to_output_df(matrix)),
     expected
   )
+})
+
+test_that("transition functions must return a numeric vector", {
+
+  cfg <- config_example_a()
+  cfg$cycle[[1]]$fun <- function(x, y, a) "THIS SHOULD BE A NUMERIC!"
+
+  expect_error(run(cfg), "must evaluate to a numeric")
+
+})
+
+test_that("probability transition must return vector of length 1", {
+  # setup a config
+  cfg <- config_example_a()
+  cfg$max_duration <- 10
+
+  # set the return value to a vector of length 2
+  cfg$cycle[[1]]$fun <- function(x, y, a) c(1, 2)
+
+  # it breaks at runtime with the expected error
+  expect_error(run(cfg), "must evaluate to a vector of length")
+
+  # a return value of length max_duration + 1 is allowed
+  cfg$cycle[[1]]$fun <- function(x, y, a) rep(1, 10 + 1)
+  expect_error(run(cfg), "must evaluate to a vector of length")
+
+})
+
+test_that("duration transitions must return numeric vector of length 1 or max_duration + 1", {
+  # setup a config
+  cfg <- config_example_a()
+  cfg$max_duration <- 10
+
+  cfg$cycle[[1]]$transition_type <- "duration"
+  validate_config(cfg)
+
+  # set the return value to a vector of length 2
+  cfg$cycle[[1]]$fun <- function(x, y, a) c(1, 2)
+
+  # it breaks at runtime with the expected error
+  expect_error(run(cfg), "must evaluate to a vector of length")
+
+  # a return value of length max_duration + 1 is allowed
+  cfg$cycle[[1]]$fun <- function(x, y, a) rep(1, 10 + 1)
+  expect_error(run(cfg), NA)
 })

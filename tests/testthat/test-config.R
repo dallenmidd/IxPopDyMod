@@ -279,24 +279,6 @@ test_that("catches predictors that use tick density and `first_day_only = FALSE`
   )
 })
 
-test_that("catches transition function that doesn't evaluate to a numeric", {
-  # TODO unsure if this is really feasible or should just be a runtime check
-  testthat::skip("will fail until more validation is implemented")
-  cfg <- config_example_a()
-  # modify a transition function to take the same args but return a character
-  cfg$cycle[[1]]$fun <- function(x, y, a) "5"
-  expect_error(do.call(config, cfg))
-})
-
-test_that("catches transition function that evaluates to non-finite number", {
-  # TODO unsure if this is really feasible or should just be a runtime check
-  testthat::skip("will fail until more validation is implemented")
-  cfg <- config_example_a()
-  # modify a transition function to take the same args but return `Inf`
-  cfg$cycle[[1]]$fun <- function(x, y, a) Inf
-  expect_error(do.call(config, cfg))
-})
-
 test_that("initial_population is set to zero for any unspecified life stages", {
   # TODO may not want to implement this because it involves coercion using
   # both initial_population and life_cycle... tricky to do this on un-validated
