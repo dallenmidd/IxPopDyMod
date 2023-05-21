@@ -253,7 +253,6 @@ test_that("`get_transition_value()` works with no predictors and duration-based 
   )
 
   # Assert
-  # TODO should be a vector of length > 1
   expect_equal(result, 5)
 })
 
