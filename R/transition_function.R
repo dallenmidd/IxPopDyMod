@@ -1,5 +1,3 @@
-# TODO don't need this as a dedicated class anymore if the only check we're
-# doing is whether the input is a function
 #' Constructor for transition functions
 #'
 #' @param fun A function
