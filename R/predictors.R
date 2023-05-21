@@ -123,8 +123,7 @@ predictors <- function(df) {
 
   # sort predictors by j_day, pred, then pred_subcategory
   if (is.data.frame(df) && all(utils::hasName(df, c("j_day", "pred", "pred_subcategory")))) {
-    # TODO implement this logging
-    # message("Reordering predictors by `j_day`, `pred`, then `pred_subcategory` columns")
+    message("Ordering predictors by `j_day`, `pred`, then `pred_subcategory` columns")
     df <- df[order(df$j_day, df$pred, df$pred_subcategory, na.last = FALSE), ]
     rownames(df) <- seq_len(nrow(df))
   }
