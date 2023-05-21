@@ -116,7 +116,12 @@ host_example_config <- config(
   ),
   initial_population = c(r_a = 10),
   steps = 300,
-  preds = readr::read_csv("./data-raw/host_example_config/predictors.csv")
+  preds = tibble::tibble(
+    pred = c("host_den", "host_den", "host_den", "temp" ),
+    pred_subcategory = c("deer", "mouse", "squirrel", NA),
+    j_day = NA,
+    value = c(1, 5, 2, 25)
+  )
 )
 usethis::use_data(host_example_config, overwrite = TRUE)
 
