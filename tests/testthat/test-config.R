@@ -278,10 +278,3 @@ test_that("catches predictors that use tick density and `first_day_only = FALSE`
     regexp = "must have the `first_day_only` field set to `TRUE`"
   )
 })
-
-test_that("initial_population is set to zero for any unspecified life stages", {
-  # TODO may not want to implement this because it involves coercion using
-  # both initial_population and life_cycle... tricky to do this on un-validated
-  # inputs, and breaks the recommended S3 pattern to do this at the end of
-  # helper method. Instead, could do this at model run time.
-})
