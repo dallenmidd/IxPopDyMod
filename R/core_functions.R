@@ -179,7 +179,7 @@ validate_transition_value <- function(transition, value, max_duration) {
     stop(
       "Found non-constant mortality for a duration-based transition.",
       "Only scalar mortality values are supported. This occured in the transition: ",
-      format.transition(mort_transition),
+      format.transition(transition),
       call. = FALSE
     )
   }
