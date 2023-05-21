@@ -1,5 +1,5 @@
 #' Check that a `config` object is valid
-#' @return Returns the input config object if it passes all the checks
+#' @returns Returns the input config object if it passes all the checks
 #' @noRd
 validate_config <- function(cfg) {
 

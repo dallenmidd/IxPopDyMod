@@ -93,7 +93,7 @@ get_pred <- function(
 #' @param predictors Table of predictor values
 #' @noRd
 #'
-#' @return Numeric vector indicating probability or duration of a transition.
+#' @returns Numeric vector indicating probability or duration of a transition.
 get_transition_value <- function(
     time, transition, predictors, max_duration, population, developing_population
 ) {
@@ -433,7 +433,7 @@ set_initial_population <- function(population, initial_population) {
 #' @param cfg An `IxPopDyMod::config` object
 #' @param progress Boolean indicating whether to log progress every 100 steps
 #'
-#' @return Data frame of population of ticks of each life stage each day
+#' @returns Data frame of population of ticks of each life stage each day
 #'
 #' @examples
 #' run(config_ex_1)

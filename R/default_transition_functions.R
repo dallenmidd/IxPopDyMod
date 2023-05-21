@@ -7,7 +7,7 @@
 #' @param a Parameter `a` in parameters table.
 #' @param b Parameter `b` in parameters table.
 #'
-#' @return Numeric vector of length 1
+#' @returns Numeric vector of length 1
 #'
 #' @examples
 #' expo_fun(.5, .1, .3)
@@ -18,7 +18,7 @@ expo_fun <- function(x, a, b) ifelse(x > 0, a * x^b, 0)
 #' Constant function
 #' @param a Parameter `a` in parameters table.
 #'
-#' @return Numeric vector of length 1 equal to input parameter `a`
+#' @returns Numeric vector of length 1 equal to input parameter `a`
 #'
 #' @examples
 #' constant_fun(1)
@@ -38,7 +38,7 @@ constant_fun <- function(a) a
 #'   the feeding success rate for ticks in a given transition while feeding on
 #'   each host species.
 #'
-#' @return Numeric vector of length 1 indicating probability that ticks find any
+#' @returns Numeric vector of length 1 indicating probability that ticks find any
 #'   host and then successfully feed on that host.
 #'
 #' @examples
@@ -76,7 +76,7 @@ find_n_feed <- function(x, a, pref, feed_success) {
 #' @param tmax Parameter `tmax` in parameters table. Indicates maximum
 #'   temperature at which ticks actively quest.
 #'
-#' @return Numeric vector of length 1
+#' @returns Numeric vector of length 1
 #'
 #' @examples
 #' feed_fun(10, 30, .001, .1, .5, 20, 40)
@@ -107,7 +107,7 @@ feed_fun <- function(x, y, a, pref, q, tmin, tmax) {
 #' @param tmax Parameter `tmax` in parameters table. Indicates maximum
 #'   temperature at which ticks actively quest.
 #'
-#' @return Numeric vector of length 1
+#' @returns Numeric vector of length 1
 #'
 #' @examples
 #' ogden_feed_fun(30, .03, .01, 10, 35)
@@ -139,7 +139,7 @@ ogden_feed_fun <- function(x, a, q, tmin, tmax) {
 #'   ticks in a given transition for each host species.
 #'
 #'
-#' @return Numeric vector of length 1
+#' @returns Numeric vector of length 1
 #'
 #' @examples
 #' infect_fun(10, 0, 0, .3, 1)
@@ -177,7 +177,7 @@ infect_fun <- function(x, from_infected, to_infected, host_rc, pref) {
 #'   length equal to the number of host species. Values are the preference for
 #'   ticks in a given transition for each host species.
 #'
-#' @return Numeric vector of length 1, indicating mortality rate
+#' @returns Numeric vector of length 1, indicating mortality rate
 #'
 #' @examples
 #' density_fun(c(10, 20), 100, .1, .3, .2, c(.5, .8))

@@ -5,7 +5,7 @@
 #'
 #' @inheritParams config
 #'
-#' @return a `config` object
+#' @returns a `config` object
 #'
 #' @noRd
 new_config <- function(
