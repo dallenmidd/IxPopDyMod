@@ -131,14 +131,6 @@ transition <- function(
 
   fun <- new_transition_function(fun)
 
-  # TODO note conflict between parameters() the function and parameters the
-  # formal argument for this function. A few design notes:
-  # - Could not export parameters(), just use new_parameters(). Might make
-  #   sense since parameters() currently adds no additional functionality.
-  # - More broadly, can think about whether it makes sense to have arguments
-  #   like life_cycle in config, parameters here in transition, named the same
-  #   thing as the s3 helpers that create them. Could differentiate using
-  #   IxPopDyMod:: like here, but maybe that's extra complication?
   parameters <- do.call(new_parameters, as.list(parameters))
 
   validate_transition(new_transition(
