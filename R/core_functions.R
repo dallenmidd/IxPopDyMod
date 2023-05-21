@@ -44,25 +44,22 @@ get_tick_den <- function(time, pred, population, developing_population) {
 
 #' Get the value of a predictor
 #'
-#' TODO docs are out of date
 #' @param time First day to get predictor value(s)
 #' @param pred A `predictor_spec`
 #' @param is_delay Boolean indicating whether the predictor is for a transition
 #'   involving a delay
-#' @param population Tick population matrix. See get_tick_den for details.
-#' @param developing_population Matrix of currently developing ticks.
-#'   See get_tick_den for details.
+#' @param population Tick population matrix
+#' @param developing_population Matrix of currently developing ticks
 #' @param max_duration Numeric vector of length one. Determines the maximum
-#' number of days that a delayed transition can last.
+#' number of days that a duration-based transition can last.
 #' @param predictors Table of predictor values
 #' @noRd
 #'
 #' @returns a vector of a predictor at time time. The vector's length is based
 #' on whether the transition is_delay.
 get_pred <- function(
-    time, pred, is_delay, population, developing_population, max_duration,
-    predictors
-  ) {
+    time, pred, is_delay, population, developing_population, max_duration, predictors
+) {
 
   life_stages <- rownames(population)
 
@@ -82,25 +79,17 @@ get_pred <- function(
 
 
 #' Get the value determining probability or duration of a transition
-#' TODO update docs
 #'
-#' @details
 #' This generic function pulls out the functional form and parameters needed to
-#' make the transition function, then evaluates it using supplied predictors
-#' (pred1, pred2) like temperature or host density. To identify a transition,
-#' this approach takes an entire transition_row, since there can be multiple
-#' rows with the same 'from' and 'to'.
+#' evaluate the transition function, then evaluates it using supplied predictors
+#' like temperature or host density.
 #'
-#' @param time Numeric vector indicating span of days to get predictor values
-#' TODO seems like at this point, time can only be a numeric vector of length
-#' 1; it grows in length for certain delay transitions in get_pred().
-#' @param transition_row_with_parameters A row from the tick_transitions tibble
-#'   with parameters added.
-#' @param population Tick population matrix. See get_tick_den for details.
-#' @param developing_population Matrix of currently developing ticks. See
-#'   get_tick_den for details.
+#' @param time First day to get predictor value(s)
+#' @param transition A `transition`
+#' @param population Tick population matrix
+#' @param developing_population Matrix of currently developing ticks
 #' @param max_duration Numeric vector of length one. Determines the maximum
-#' number of days that a delayed transition can last.
+#' number of days that a duration-based transition can last.
 #' @param predictors Table of predictor values
 #' @noRd
 #'
@@ -211,12 +200,12 @@ validate_transition_value <- function(transition, value, max_duration) {
 #' @param population Tick population matrix. See get_tick_den for details.
 #' @param developing_population Matrix of currently developing ticks. See
 #'   get_tick_den for details.
-#' @param tick_transitions Tick transitions tibble
-#' @param predictors Table of predictor values
+#' @param tick_transitions A \code{\link{life_cycle}} object
+#' @param predictors A \code{\link{predictors}} object
 #'
 #' @importFrom magrittr %>%
 #'
-#' @return Matrix of transition probabilities, indicating the probabilities of
+#' @returns Matrix of transition probabilities, indicating the probabilities of
 #'   transitioning from each stage (axis 1) to each stage (axis 2).
 #'
 #' @noRd
@@ -271,22 +260,21 @@ gen_transition_matrix <- function(
 #'
 #' @param time Numeric vector indicating day to get transition probabilities
 #' @param delay_arr Delay array from previous time step
-#' @param population Tick population matrix. See get_tick_den for details.
-#' @param developing_population Matrix of currently developing ticks. See
-#'   get_tick_den for details.
-#' @param tick_transitions Tick transitions tibble
-#' @param predictors Table of predictor values
+#' @param population Tick population matrix
+#' @param developing_population Matrix of currently developing ticks
+#' @param tick_transitions A \code{\link{life_cycle}} object
+#' @param predictors A \code{\link{predictors}} object
 #' @param max_duration Numeric vector of length one. Determines the maximum
 #' number of days that a delayed transition can last.
 #'
-#' @return Delay array indicating the number of ticks currently undergoing delay
+#' @returns Delay array indicating the number of ticks currently undergoing delay
 #'   transitions. Axis 1 is the from_stage, axis 2 is the to_stage, and axis 3
 #'   is the day on which the ticks will emerge from the transition. The value
 #'   at a given cell is the number of ticks emerging from the transition.
 #' @noRd
 update_delay_arr <- function(
-    time, delay_arr, population, developing_population, tick_transitions,
-    max_duration, predictors
+    time, delay_arr, population, developing_population, tick_transitions, max_duration,
+    predictors
 ) {
   life_stages <- rownames(population)
   # select all delay transition functions, including mortality
