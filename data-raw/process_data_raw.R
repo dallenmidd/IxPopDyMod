@@ -1,3 +1,5 @@
+# Code to create the `config`s that are loaded with the package.
+
 # library(IxPopDyMod)
 devtools::load_all()
 library(tidyverse)
