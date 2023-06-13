@@ -55,6 +55,7 @@ config_example_a <- function() {
     preds = predictors_example_b(),
     initial_population = c(a = 1L, b = 0L),
     steps = 10L,
-    max_duration = 365L
+    max_duration = 365L,
+    verbose = FALSE
   )
 }
