@@ -1,3 +1,117 @@
+#' Run the model
+#'
+#' @param cfg An `IxPopDyMod::config` object
+#' @param progress Boolean indicating whether to log progress every 100 steps
+#'
+#' @returns Data frame of population of ticks of each life stage each day
+#'
+#' @examples
+#' run(config_ex_1)
+#'
+#' @export
+run <- function(cfg, progress = TRUE) {
+
+  # 00 get valid life stages
+  life_stages <- life_stages(cfg$cycle)
+
+  # 02 initialize a delay array of all zeros
+  delay_arr <- empty_delay_array(
+    life_stages = life_stages,
+    steps = cfg$steps,
+    max_duration = cfg$max_duration
+  )
+
+  # 03 initialize a population matrix with initial_population
+  population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
+  population <- set_initial_population(
+    population = population, initial_population = cfg$initial_population
+  )
+
+  # Initialize a population matrix to keep track of the number of individuals of
+  # each stage that are currently developing (currently undergoing a delay)
+  developing_population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
+
+  # at each time step:
+  # (1) generate a new trans_matrix based on conditions at "time"
+  # (2) update the delay_arr based on conditions at "time"
+  # (3) update the population matrix "N" for "time + 1"
+
+  # at each time step
+  for (time in 1:(cfg$steps - 1)) {
+
+    if (progress && time %% 100 == 0) {
+      message("Day: ", time)
+    }
+
+    # Calculate the number of ticks currently in delayed development NOT
+    # INCLUDING those added on current day, because that would be double
+    # counting ticks in the population matrix, N. We exclude those added on
+    # current day by calculating developing_population before updating
+    # delay_arr. We slice the delay array from the current time + 1 to the end.
+    # We add 1 because ticks that emerge from delay at current time would have
+    # been added to population on the previous iteration when we update
+    # N[, time + 1] by adding delay_mat[, time + 1]. We sum across to_stage and
+    # days to get a vector of the number of ticks currently developing FROM each
+    # life stage.
+    developing_population[, time] <- rowSums(
+      delay_arr[, , (time + 1):dim(delay_arr)[3]]
+    )
+
+    # calculate transition probabilities
+    trans_matrix <- gen_transition_matrix(
+      time = time,
+      population = population,
+      developing_population = developing_population,
+      tick_transitions = cfg$cycle,
+      predictors = cfg$preds
+    )
+
+    # calculate the number of ticks entering delayed development
+    delay_arr <- update_delay_arr(
+      time = time,
+      delay_arr = delay_arr,
+      population = population,
+      developing_population = developing_population,
+      tick_transitions = cfg$cycle,
+      max_duration = cfg$max_duration,
+      predictors = cfg$preds
+    )
+
+    # collapse the delay_arr by summing across 'from', giving a matrix with
+    # dims = (to, days)
+    delay_mat <- colSums(delay_arr)
+
+    # calculate the number of ticks at the next time step, which is
+    # current population * transition probabilities + ticks emerging from
+    # delayed development
+    population[, time + 1] <-
+      population[, time] %*% trans_matrix + delay_mat[, time + 1]
+  }
+
+  # Return the total population of ticks each day. Developing ticks are counted
+  # in the FROM stage.
+  population_matrix_to_output_df(population + developing_population)
+}
+
+population_matrix_to_output_df <- function(matrix) {
+  df <- as.data.frame(t(matrix))
+  df[["day"]] <- seq_len(nrow(df))
+  life_stages <- rownames(matrix)
+  df <- stats::reshape(
+    df,
+    direction = "long",
+    varying = life_stages,
+    v.names = "pop",
+    idvar = "day",
+    timevar = "stage",
+    times = life_stages
+  )
+  df <- df[order(df[["day"]]), ]
+  rownames(df) <- seq_len(nrow(df))
+  attr(df, "reshapeLong") <- NULL # nolint: object_name_linter
+  df
+}
+
 #' Get a predictor from input data
 #'
 #' @param time Numeric vector of days to get data. Ignored if input is constant
@@ -426,118 +540,4 @@ set_initial_population <- function(population, initial_population) {
     FUN.VALUE = numeric(1L)
   )
   population
-}
-
-#' Run the model
-#'
-#' @param cfg An `IxPopDyMod::config` object
-#' @param progress Boolean indicating whether to log progress every 100 steps
-#'
-#' @returns Data frame of population of ticks of each life stage each day
-#'
-#' @examples
-#' run(config_ex_1)
-#'
-#' @export
-run <- function(cfg, progress = TRUE) {
-
-  # 00 get valid life stages
-  life_stages <- life_stages(cfg$cycle)
-
-  # 02 initialize a delay array of all zeros
-  delay_arr <- empty_delay_array(
-    life_stages = life_stages,
-    steps = cfg$steps,
-    max_duration = cfg$max_duration
-  )
-
-  # 03 initialize a population matrix with initial_population
-  population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
-  population <- set_initial_population(
-    population = population, initial_population = cfg$initial_population
-  )
-
-  # Initialize a population matrix to keep track of the number of individuals of
-  # each stage that are currently developing (currently undergoing a delay)
-  developing_population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
-
-  # at each time step:
-  # (1) generate a new trans_matrix based on conditions at "time"
-  # (2) update the delay_arr based on conditions at "time"
-  # (3) update the population matrix "N" for "time + 1"
-
-  # at each time step
-  for (time in 1:(cfg$steps - 1)) {
-
-    if (progress && time %% 100 == 0) {
-      message("Day: ", time)
-    }
-
-    # Calculate the number of ticks currently in delayed development NOT
-    # INCLUDING those added on current day, because that would be double
-    # counting ticks in the population matrix, N. We exclude those added on
-    # current day by calculating developing_population before updating
-    # delay_arr. We slice the delay array from the current time + 1 to the end.
-    # We add 1 because ticks that emerge from delay at current time would have
-    # been added to population on the previous iteration when we update
-    # N[, time + 1] by adding delay_mat[, time + 1]. We sum across to_stage and
-    # days to get a vector of the number of ticks currently developing FROM each
-    # life stage.
-    developing_population[, time] <- rowSums(
-      delay_arr[, , (time + 1):dim(delay_arr)[3]]
-    )
-
-    # calculate transition probabilities
-    trans_matrix <- gen_transition_matrix(
-      time = time,
-      population = population,
-      developing_population = developing_population,
-      tick_transitions = cfg$cycle,
-      predictors = cfg$preds
-    )
-
-    # calculate the number of ticks entering delayed development
-    delay_arr <- update_delay_arr(
-      time = time,
-      delay_arr = delay_arr,
-      population = population,
-      developing_population = developing_population,
-      tick_transitions = cfg$cycle,
-      max_duration = cfg$max_duration,
-      predictors = cfg$preds
-    )
-
-    # collapse the delay_arr by summing across 'from', giving a matrix with
-    # dims = (to, days)
-    delay_mat <- colSums(delay_arr)
-
-    # calculate the number of ticks at the next time step, which is
-    # current population * transition probabilities + ticks emerging from
-    # delayed development
-    population[, time + 1] <-
-      population[, time] %*% trans_matrix + delay_mat[, time + 1]
-  }
-
-  # Return the total population of ticks each day. Developing ticks are counted
-  # in the FROM stage.
-  population_matrix_to_output_df(population + developing_population)
-}
-
-population_matrix_to_output_df <- function(matrix) {
-  df <- as.data.frame(t(matrix))
-  df[["day"]] <- seq_len(nrow(df))
-  life_stages <- rownames(matrix)
-  df <- stats::reshape(
-    df,
-    direction = "long",
-    varying = life_stages,
-    v.names = "pop",
-    idvar = "day",
-    timevar = "stage",
-    times = life_stages
-  )
-  df <- df[order(df[["day"]]), ]
-  rownames(df) <- seq_len(nrow(df))
-  attr(df, "reshapeLong") <- NULL # nolint: object_name_linter
-  df
 }
