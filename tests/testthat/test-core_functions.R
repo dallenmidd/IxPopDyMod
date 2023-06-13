@@ -287,7 +287,8 @@ test_that("`get_transition_value()` works with a predictor that varies over time
     steps = 1L,
     # Note that we set this as 9 so that the steps + max_duration add up to the number of
     # days that we have predictor data, which is 10 in this case.
-    max_duration = 9L
+    max_duration = 9L,
+    verbose = FALSE
   )
 
   # Act
@@ -333,7 +334,8 @@ test_that("`get_transition_value()` works with a predictor that varies over time
       initial_population = c(a = 1),
       preds = predictors,
       steps = 2L,
-      max_duration = 1L
+      max_duration = 1L,
+      verbose = FALSE
     )
 
     # Act
