@@ -198,7 +198,37 @@ winter_tick <- config(
     transition('r_a', '__e', constant_fun, 'probability', parameters = c(a = 3000))
   ),
   initial_population = c(r_a = 10),
-  steps = 500,
+  steps = 1000,
   preds = accumulate
 )
 ```
+
+## Run the model
+
+Now that we have a `config` built, running the model is simple! Observe:
+
+```{r run-model}
+model_results <- run(winter_tick, progress = FALSE)
+head(model_results)
+```
+
+For a quick assessment of population dynamics, we can calculate the growth rate.
+
+```{r growth-rate}
+growth_rate(model_results)
+```
+
+That the growth rate is under `1` indicates that the population is declining. It's more revealing to plot the population over time, split up by life stage. We'll write a simple function to do so.
+
+```{r plot-population, warning=FALSE}
+plot_population <- function(model_output) {
+  ggplot(model_output, aes(x = day, y = pop, color = stage)) + 
+    geom_point() + 
+    geom_line() + 
+    scale_y_log10()
+}
+
+plot_population(model_results)
+```
+
+TODO left off here: investigate why the population declines so rapidly/is only above 1 individuals at the beginning. May be helpful to try to checkout the code when `dave_script.R` was first written/run, and see whether the result was same then. If not, that could indicate that something got messed up with the config (or the `run()` code.
