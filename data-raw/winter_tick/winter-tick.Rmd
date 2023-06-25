@@ -104,6 +104,14 @@ days <- c(days, days) %>% sort()
 accumulate$j_day <- days
 ```
 
+```{r change-first-day-of-modelling}
+offset <- 155
+accumulate <- accumulate %>% 
+  mutate(true_j_day = j_day) %>% 
+  filter(true_j_day > offset) %>% 
+  mutate(j_day = j_day - offset)
+```
+
 Finally, we add host density data to the predictors table. The only host we're concerned with in this case is moose. The `j_day` is set as `NA` to indicate that this is a constant predictor, i.e. it does not change over time.
 
 ```{r moose-density}
@@ -129,12 +137,6 @@ We created this configuration by drawing from literature on relationships betwee
 ```{r winter-tick-config, message=FALSE}
 devtools::load_all()
 
-# We need a transition function that's not provided in the package, so we define
-# it here.
-expo_shifted_fun <- function(x, a, b, c) {
-  ifelse(x >c, a * (x - c) ^ b, 0)
-}
-
 winter_tick <- config(
   life_cycle(
     transition("__e", "q_l", constant_fun, "duration", parameters = list(a = 0.0125)),
@@ -153,7 +155,7 @@ winter_tick <- config(
       "probability",
       predictors = list(x = predictor_spec('host_den'), y = predictor_spec('max_temp')),
       parameters = list(
-        a = 4e-4,
+        a = 0.1,
         pref = 1,
         q = 7e-4,
         tmax = 35,
@@ -169,31 +171,31 @@ winter_tick <- config(
       predictors = list(x = predictor_spec('snow_cover')),
       parameters = c(no_snow_mort = 0.06, snow_mort = 0.95)
     ),
-    transition('a_l', 'e_a', constant_fun, 'duration', parameters = list(a = 0.00571)),
+    transition('a_l', 'e_a', constant_fun, 'duration', parameters = list(a = 0.00526)),
     transition(
       'a_l',
       NULL,
       constant_fun,
       'duration',
       mortality_type = 'throughout_transition',
-      parameters = list(a = 0.5)
+      parameters = list(a = 0.97)
     ),
     transition(
       'e_a',
       'r_a',
-      expo_shifted_fun,
-      'probability',
-      predictors = list(x = predictor_spec('max_temp')),
-      parameters = list(a = 0.01, b = 1.2, c = 15)
+      expo_fun,
+      'duration',
+      predictors = list(x = predictor_spec('max_temp', first_day_only = FALSE)),
+      parameters = list(a = 0.0002, b = 1.67)
     ),
     transition(
       'e_a',
       NULL,
       snow_cover_fun,
-      'probability',
+      'duration',
       predictors = list(x = predictor_spec('snow_cover')),
-      mortality_type = 'per_day',
-      parameters = c(no_snow_mort = 0.11, snow_mort = 0.64)
+      mortality_type = 'throughout_transition',
+      parameters = c(no_snow_mort = 0.36, snow_mort = 0.89)
     ),
     transition('r_a', '__e', constant_fun, 'probability', parameters = c(a = 3000))
   ),
@@ -225,10 +227,10 @@ plot_population <- function(model_output) {
   ggplot(model_output, aes(x = day, y = pop, color = stage)) + 
     geom_point() + 
     geom_line() + 
-    scale_y_log10()
+    scale_y_log10(limits = c(1, NA))
 }
 
-plot_population(model_results)
+plot_population(model_results %>% filter(pop > 1))
 ```
 
 TODO left off here: investigate why the population declines so rapidly/is only above 1 individuals at the beginning. May be helpful to try to checkout the code when `dave_script.R` was first written/run, and see whether the result was same then. If not, that could indicate that something got messed up with the config (or the `run()` code.
