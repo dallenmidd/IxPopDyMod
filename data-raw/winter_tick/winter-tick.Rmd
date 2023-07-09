@@ -67,7 +67,8 @@ comparison %>%
   geom_line() +
   geom_point() +
   xlab("Julian day") +
-  ylab("Temperature (ºC)")
+  ylab("Temperature (ºC)") +
+  labs(color = "Data source")
 ```
 
 Now that we observe that the data is similar, we can use the weather station data to try to reproduce the field study's results with our model.
@@ -225,12 +226,14 @@ That the growth rate is under `1` indicates that the population is declining. It
 ```{r plot-population, warning=FALSE}
 plot_population <- function(model_output) {
   ggplot(model_output, aes(x = day, y = pop, color = stage)) +
-    geom_point() +
     geom_line() +
     scale_y_log10(limits = c(1, NA))
 }
 
-plot_population(model_results %>% filter(pop > 1))
+plot_population(model_results) +
+  xlab("Day") +
+  ylab("Population") +
+  labs(col = "Tick life stage")
 ```
 
 
@@ -274,7 +277,6 @@ all_results %>%
   group_by(density, day) %>%
   summarize(total_population = sum(pop), .groups = "drop") %>%
   ggplot(aes(x = day, y = total_population, col = density)) +
-  geom_point() +
   geom_line() +
   scale_y_log10(limits = c(1, NA)) +
   labs(col = "Moose per km^2") +
@@ -288,7 +290,7 @@ As expected, modeled tick populations grow with higher moose density.
 ### Modifying climate
 
 Here, we try running the model under three distinct climate scenarios.
-```{r}
+```{r plot-with-different-climates, warning=FALSE}
 winter_tick_warm <- winter_tick
 winter_tick_warm$preds <-
   winter_tick_warm$preds %>%
@@ -301,17 +303,21 @@ winter_tick_cold$preds <-
   mutate(value = ifelse(pred == "max_temp", value - 2.5, value))
 cold_run <- run(winter_tick_cold, progress = FALSE)
 
-cold_run$temp <- "cold"
-warm_run$temp <- "warm"
-model_results$temp <- "baseline"
+cold_run$temp <- "Cold"
+warm_run$temp <- "Warm"
+model_results$temp <- "Baseline"
 
 all_temp_results <- bind_rows(cold_run, warm_run, model_results)
 all_temp_results %>%
   group_by(temp, day) %>%
-  summarize(pop = sum(pop)) %>%
+  summarize(pop = sum(pop), .groups = "drop") %>%
   ggplot(aes(x = day, y = pop, col = temp)) +
   geom_line() +
   scale_y_log10(limits = c(1, NA)) +
-  scale_color_manual(values = c(cold = "#2c7bb6", warm = "#d7191c", baseline = "#757473"))
+  scale_color_manual(values = c(Cold = "#2c7bb6", Warm = "#d7191c", Baseline = "#757473")) +
+  xlab("Day") +
+  ylab("Total tick population") +
+  labs(col = "Temperature (°C)")
 ```
+
 We can observe that the phenology and populations are both affected. Eggs are laid (the only times that the population increases) earlier in the year under the warm climate scenario. Additionally, total population is larger under the warmer climate scenarios.
