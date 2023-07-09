@@ -232,3 +232,54 @@ plot_population <- function(model_output) {
 
 plot_population(model_results %>% filter(pop > 1))
 ```
+
+
+### Play around with model
+Now that we have a fairly stable model output, we can modify it, for example to see the impacts of different host community or climate dynamics on the tick population.
+
+First, let's try increasing the density of moose. We can find the current moose density, which we put in the first row of the predictors data:
+
+```{r see-moose-density}
+winter_tick$preds[1, ]
+```
+
+We'll re-run the model with a range of moose densities.
+```{r run-with-different-density}
+densities <- 0.18 * c(0.1, 0.5, 1, 2, 10)
+
+configs <- lapply(
+  densities,
+  function(value) {
+    cfg <- winter_tick
+    cfg$preds[1, "value"] <- value
+    return(cfg)
+  }
+)
+
+results <- lapply(configs, run, progress = FALSE)
+```
+
+To compare the results, we'll plot the total tick population over time for each parameterization.
+```{r plots-with-different-moose-density, warning=FALSE}
+# We add a column to each dataframe to identify what parameterization it was
+# created with
+for (i in seq_along(results)) {
+  results[[i]]$density <- as.factor(densities[[i]])
+}
+
+# Then we combine all the results, to facilitate plotting them together
+all_results <- bind_rows(results)
+
+all_results %>%
+  group_by(density, day) %>%
+  summarize(total_population = sum(pop), .groups = "drop") %>%
+  ggplot(aes(x = day, y = total_population, col = density)) +
+  geom_point() +
+  geom_line() +
+  scale_y_log10(limits = c(1, NA)) +
+  labs(col = "Moose per km^2") +
+  xlab("Day") +
+  ylab("Total tick population")
+```
+
+As expected, modeled tick populations grow with higher moose density.
