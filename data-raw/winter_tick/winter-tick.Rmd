@@ -27,8 +27,8 @@ weekly_max_temp <- read_csv("drew_samuel_1986_fig5_grassland_digitized.csv")
 weekly_max_temp_plot <- weekly_max_temp %>%
   ggplot(aes(x = j_day, y = temp)) +
   geom_point() +
-  geom_line() + 
-  xlab("Julian day") + 
+  geom_line() +
+  xlab("Julian day") +
   ylab("Weekly max temperature (ºC)")
 
 weekly_max_temp_plot
@@ -59,13 +59,13 @@ comparison <- daily_weather %>%
     j_day = as.POSIXlt(`Date/Time`)$yday,
     data_source = "Weather station"
   ) %>%
-  select(j_day, data_source, temp = `Max Temp (°C)`) %>% 
+  select(j_day, data_source, temp = `Max Temp (°C)`) %>%
   bind_rows(weekly_max_temp %>% mutate(data_source = "Drew and Samuel (1986)"))
-  
+
 comparison %>%
-  ggplot(aes(x = j_day, y = temp, color = data_source)) + 
-  geom_line() + 
-  geom_point() + 
+  ggplot(aes(x = j_day, y = temp, color = data_source)) +
+  geom_line() +
+  geom_point() +
   xlab("Julian day") +
   ylab("Temperature (ºC)")
 ```
@@ -106,9 +106,9 @@ accumulate$j_day <- days
 
 ```{r change-first-day-of-modelling}
 offset <- 155
-accumulate <- accumulate %>% 
-  mutate(true_j_day = j_day) %>% 
-  filter(true_j_day > offset) %>% 
+accumulate <- accumulate %>%
+  mutate(true_j_day = j_day) %>%
+  filter(true_j_day > offset) %>%
   mutate(j_day = j_day - offset)
 ```
 
@@ -224,9 +224,9 @@ That the growth rate is under `1` indicates that the population is declining. It
 
 ```{r plot-population, warning=FALSE}
 plot_population <- function(model_output) {
-  ggplot(model_output, aes(x = day, y = pop, color = stage)) + 
-    geom_point() + 
-    geom_line() + 
+  ggplot(model_output, aes(x = day, y = pop, color = stage)) +
+    geom_point() +
+    geom_line() +
     scale_y_log10(limits = c(1, NA))
 }
 
