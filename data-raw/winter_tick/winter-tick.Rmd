@@ -232,5 +232,3 @@ plot_population <- function(model_output) {
 
 plot_population(model_results %>% filter(pop > 1))
 ```
-
-TODO left off here: investigate why the population declines so rapidly/is only above 1 individuals at the beginning. May be helpful to try to checkout the code when `dave_script.R` was first written/run, and see whether the result was same then. If not, that could indicate that something got messed up with the config (or the `run()` code.
