@@ -234,7 +234,7 @@ plot_population(model_results %>% filter(pop > 1))
 ```
 
 
-### Play around with model
+### Modifying moose density
 Now that we have a fairly stable model output, we can modify it, for example to see the impacts of different host community or climate dynamics on the tick population.
 
 First, let's try increasing the density of moose. We can find the current moose density, which we put in the first row of the predictors data:
@@ -283,3 +283,33 @@ all_results %>%
 ```
 
 As expected, modeled tick populations grow with higher moose density.
+
+
+### Modifying climate
+
+```{r}
+
+winter_tick_warm <- winter_tick
+winter_tick_warm$preds <-
+  winter_tick_warm$preds %>%
+  mutate(value = ifelse(pred == "max_temp", value + 2.5, value))
+warm_run <- run(winter_tick_warm, progress = FALSE)
+
+winter_tick_cold <- winter_tick
+winter_tick_cold$preds <-
+  winter_tick_cold$preds %>%
+  mutate(value = ifelse(pred == "max_temp", value - 2.5, value))
+cold_run <- run(winter_tick_cold, progress = FALSE)
+
+p1 <- cold_run %>%
+  filter(pop > 1) %>%
+  plot_population()
+p2 <- model_results %>%
+  filter(pop > 1) %>%
+  plot_population()
+p3 <- warm_run %>%
+  filter(pop > 1) %>%
+  plot_population()
+
+cowplot::plot_grid(p1, p2, p3, labels = c("cold", "baseline", "warm"), nrow = 1)
+```
