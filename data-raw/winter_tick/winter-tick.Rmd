@@ -287,8 +287,8 @@ As expected, modeled tick populations grow with higher moose density.
 
 ### Modifying climate
 
+Here, we try running the model under three distinct climate scenarios.
 ```{r}
-
 winter_tick_warm <- winter_tick
 winter_tick_warm$preds <-
   winter_tick_warm$preds %>%
@@ -301,15 +301,17 @@ winter_tick_cold$preds <-
   mutate(value = ifelse(pred == "max_temp", value - 2.5, value))
 cold_run <- run(winter_tick_cold, progress = FALSE)
 
-p1 <- cold_run %>%
-  filter(pop > 1) %>%
-  plot_population()
-p2 <- model_results %>%
-  filter(pop > 1) %>%
-  plot_population()
-p3 <- warm_run %>%
-  filter(pop > 1) %>%
-  plot_population()
+cold_run$temp <- "cold"
+warm_run$temp <- "warm"
+model_results$temp <- "baseline"
 
-cowplot::plot_grid(p1, p2, p3, labels = c("cold", "baseline", "warm"), nrow = 1)
+all_temp_results <- bind_rows(cold_run, warm_run, model_results)
+all_temp_results %>%
+  group_by(temp, day) %>%
+  summarize(pop = sum(pop)) %>%
+  ggplot(aes(x = day, y = pop, col = temp)) +
+  geom_line() +
+  scale_y_log10(limits = c(1, NA)) +
+  scale_color_manual(values = c(cold = "#2c7bb6", warm = "#d7191c", baseline = "#757473"))
 ```
+We can observe that the phenology and populations are both affected. Eggs are laid (the only times that the population increases) earlier in the year under the warm climate scenario. Additionally, total population is larger under the warmer climate scenarios.
