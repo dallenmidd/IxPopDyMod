@@ -9,7 +9,8 @@ config(
   initial_population,
   preds = NULL,
   steps = 365L,
-  max_duration = 365L
+  max_duration = 365L,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ model over in days.}
 number of days that a duration-based transition can last, after which ticks
 are removed from the model/die. Default of 365 is likely sensible for most
 cases.}
+
+\item{verbose}{Boolean; whether to warn about coercion to inputs}
 }
 \value{
 A \code{config} object

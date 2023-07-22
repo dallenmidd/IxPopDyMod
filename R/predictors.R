@@ -111,10 +111,10 @@ assert_predictor_extends_up_to_max_day <- function(subset, pred, max_day) {
 #'   constant value over time}
 #'   \item{value}{Numeric value of predictor}
 #' }
-#'
+#' @param verbose Boolean; whether to warn about reordering the `df`
 #' @returns a `predictors` object
 #' @export
-predictors <- function(df) {
+predictors <- function(df, verbose = FALSE) {
 
   # coerce j_day column to integer (from double)
   if (is.data.frame(df) && utils::hasName(df, "j_day")) {
@@ -123,8 +123,9 @@ predictors <- function(df) {
 
   # sort predictors by j_day, pred, then pred_subcategory
   if (is.data.frame(df) && all(utils::hasName(df, c("j_day", "pred", "pred_subcategory")))) {
-    # TODO implement this logging
-    # message("Reordering predictors by `j_day`, `pred`, then `pred_subcategory` columns")
+    if (verbose) {
+      message("Ordering predictors by `j_day`, `pred`, then `pred_subcategory` columns")
+    }
     df <- df[order(df$j_day, df$pred, df$pred_subcategory, na.last = FALSE), ]
     rownames(df) <- seq_len(nrow(df))
   }

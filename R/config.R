@@ -5,7 +5,7 @@
 #'
 #' @inheritParams config
 #'
-#' @return a `config` object
+#' @returns a `config` object
 #'
 #' @noRd
 new_config <- function(
@@ -56,6 +56,7 @@ new_config <- function(
 #'   cases.
 #' @param initial_population Named numeric vector indicating starting population
 #'   for each life stage. Life stages not specified are assumed to be 0.
+#' @param verbose Boolean; whether to warn about coercion to inputs
 #'
 #' @returns A `config` object
 #'
@@ -83,7 +84,8 @@ new_config <- function(
 #' }
 #'
 config <- function(
-    cycle, initial_population, preds = NULL, steps = 365L, max_duration = 365L
+    cycle, initial_population, preds = NULL, steps = 365L, max_duration = 365L,
+    verbose = TRUE
   ) {
 
   # coerce input types
@@ -92,7 +94,7 @@ config <- function(
   cycle <- do.call(life_cycle, as.list(cycle))
 
   if (!is.null(preds)) {
-    preds <- predictors(preds)
+    preds <- predictors(preds, verbose = verbose)
   }
 
   initial_population <- ensure_int(initial_population)

@@ -4,7 +4,7 @@
 \alias{predictors}
 \title{Create a table of \code{predictors}}
 \usage{
-predictors(df)
+predictors(df, verbose = FALSE)
 }
 \arguments{
 \item{df}{input data frame, with columns:
@@ -21,6 +21,8 @@ to specify the host density of each host species.}
 constant value over time}
 \item{value}{Numeric value of predictor}
 }}
+
+\item{verbose}{Boolean; whether to warn about reordering the \code{df}}
 }
 \value{
 a \code{predictors} object
