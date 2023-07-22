@@ -1,6 +1,0 @@
-steps: 500
-initial_population:
-  r_a: 10
-transitions: data-raw/winter_tick/transitions.csv
-parameters: data-raw/winter_tick/parameters.csv
-predictors: data-raw/winter_tick/predictors.csv
