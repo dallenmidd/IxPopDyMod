@@ -236,8 +236,8 @@ plot_population(model_results) +
   labs(col = "Tick life stage")
 ```
 
-
 ### Modifying moose density
+
 Now that we have a fairly stable model output, we can modify it, for example to see the impacts of different host community or climate dynamics on the tick population.
 
 First, let's try increasing the density of moose. We can find the current moose density, which we put in the first row of the predictors data:
@@ -247,6 +247,7 @@ winter_tick$preds[1, ]
 ```
 
 We'll re-run the model with a range of moose densities.
+
 ```{r run-with-different-density}
 densities <- 0.18 * c(0.1, 0.5, 1, 2, 10)
 
@@ -263,6 +264,7 @@ results <- lapply(configs, run, progress = FALSE)
 ```
 
 To compare the results, we'll plot the total tick population over time for each parameterization.
+
 ```{r plots-with-different-moose-density, warning=FALSE}
 # We add a column to each dataframe to identify what parameterization it was
 # created with
@@ -295,6 +297,7 @@ growth_rates
 ### Modifying climate
 
 Here, we try running the model under three distinct climate scenarios.
+
 ```{r plot-with-different-climates, warning=FALSE}
 winter_tick_warm <- winter_tick
 winter_tick_warm$preds <-
