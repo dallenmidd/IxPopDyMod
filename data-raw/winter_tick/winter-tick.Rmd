@@ -311,13 +311,13 @@ all_temp_results <- bind_rows(cold_run, warm_run, model_results)
 all_temp_results %>%
   group_by(temp, day) %>%
   summarize(pop = sum(pop), .groups = "drop") %>%
-  ggplot(aes(x = day, y = pop, col = temp)) +
+  ggplot(aes(x = day, y = pop, col = factor(temp, levels = c("Cold", "Baseline", "Warm")))) +
   geom_line() +
   scale_y_log10(limits = c(1, NA)) +
   scale_color_manual(values = c(Cold = "#2c7bb6", Warm = "#d7191c", Baseline = "#757473")) +
   xlab("Day") +
   ylab("Total tick population") +
-  labs(col = "Temperature (°C)")
+  labs(col = "Temperature")
 ```
 
 We can observe that the phenology and populations are both affected. Eggs are laid (the only times that the population increases) earlier in the year under the warm climate scenario. Additionally, total population is larger under the warmer climate scenarios.
