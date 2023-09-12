@@ -263,7 +263,7 @@ growth rate.
 growth_rate(model_results)
 ```
 
-    ## [1] 0.72188
+    ## [1] 1.00213
 
 That the growth rate is under `1` indicates that the population is
 declining. It’s more revealing to plot the population over time, split
@@ -354,19 +354,19 @@ growth_rates
 ```
 
     ## $`Growth rate with moose density = 0.018`
-    ## [1] 0.7196987
+    ## [1] 0.995826
     ## 
     ## $`Growth rate with moose density = 0.09`
-    ## [1] 0.7215078
+    ## [1] 1.000371
     ## 
     ## $`Growth rate with moose density = 0.18`
-    ## [1] 0.72188
+    ## [1] 1.00213
     ## 
     ## $`Growth rate with moose density = 0.36`
-    ## [1] 0.7216553
+    ## [1] 1.003649
     ## 
     ## $`Growth rate with moose density = 1.8`
-    ## [1] 0
+    ## [1] 1.005893
 
 ### Modifying climate
 
