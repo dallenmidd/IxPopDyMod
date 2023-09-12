@@ -2,21 +2,7 @@
 test_that("catches missing columns", {
   expect_error(
     predictors(data.frame(j_day = 1)),
-    "names must be a set equal to {'pred','pred_subcategory','j_day','value'}",
-    fixed = TRUE
-  )
-})
-
-test_that("catches extra columns", {
-  expect_error(
-    predictors(data.frame(
-      pred = "host_den",
-      pred_subcategory = "mouse",
-      j_day = 1,
-      value = 1,
-      extra_col = "extra"
-    )),
-    "has extra elements {'extra_col'}",
+    "must include the elements {'pred','pred_subcategory','j_day','value'}",
     fixed = TRUE
   )
 })

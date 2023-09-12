@@ -8,7 +8,7 @@ new_predictors <- function(df) {
   # check column names
   checkmate::assert_names(
     colnames(df),
-    permutation.of = c("pred", "pred_subcategory", "j_day", "value"),
+    must.include = c("pred", "pred_subcategory", "j_day", "value"),
     what = "colnames"
   )
 
