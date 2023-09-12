@@ -284,8 +284,13 @@ all_results %>%
   ylab("Total tick population")
 ```
 
-As expected, modeled tick populations grow with higher moose density.
+As expected, modeled tick populations grow with higher moose density. We can confirm this by calculating the growth rate under each scenario:
 
+``` r
+growth_rates <- lapply(results, growth_rate)
+names(growth_rates) <- paste("Growth rate with moose density =", densities)
+growth_rates
+```
 
 ### Modifying climate
 
