@@ -223,7 +223,7 @@ For a quick assessment of population dynamics, we can calculate the growth rate.
 growth_rate(model_results)
 ```
 
-That the growth rate is under `1` indicates that the population is declining. It's more revealing to plot the population over time, split up by life stage. We'll write a simple function to do so.
+Since the growth rate is close to `1` the population is roughly stable. It's more revealing to plot the population over time, split up by life stage. We'll write a simple function to do so.
 
 ```{r plot-population, warning=FALSE}
 plot_population <- function(model_output) {
