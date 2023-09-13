@@ -234,7 +234,7 @@ winter_tick <- config(
     transition('r_a', '__e', constant_fun, 'probability', parameters = c(a = 3000))
   ),
   initial_population = c(r_a = 10),
-  steps = 1000,
+  steps = 1500,
   preds = accumulate
 )
 ```
@@ -260,14 +260,14 @@ For a quick assessment of population dynamics, we can calculate the
 growth rate.
 
 ``` r
-growth_rate(model_results)
+annual_growth_rate(model_results)
 ```
 
-    ## [1] 1.00213
+    ## [1] 0.9231916
 
-Since the growth rate is close to `1` the population is roughly stable.
-It’s more revealing to plot the population over time, split up by life
-stage. We’ll write a simple function to do so.
+Since the annual growth rate is less than 1 the population is
+decreasing. It changes by a factor of 0.92 every year, so in other words
+decreases by 8% per year.
 
 ``` r
 plot_population <- function(model_output) {
@@ -345,28 +345,35 @@ all_results %>%
 ![](README_files/figure-gfm/plots-with-different-moose-density-1.png)<!-- -->
 
 As expected, modeled tick populations grow with higher moose density. We
-can confirm this by calculating the growth rate under each scenario:
+can confirm this by calculating the annual growth rate under each
+scenario:
 
 ``` r
-growth_rates <- lapply(results, growth_rate)
+growth_rates <- lapply(results, annual_growth_rate)
 names(growth_rates) <- paste("Growth rate with moose density =", densities)
 growth_rates
 ```
 
     ## $`Growth rate with moose density = 0.018`
-    ## [1] 0.995826
+    ## [1] 0.1007706
     ## 
     ## $`Growth rate with moose density = 0.09`
-    ## [1] 1.000371
+    ## [1] 0.4569418
     ## 
     ## $`Growth rate with moose density = 0.18`
-    ## [1] 1.00213
+    ## [1] 0.9231916
     ## 
     ## $`Growth rate with moose density = 0.36`
-    ## [1] 1.003649
+    ## [1] 1.655663
     ## 
     ## $`Growth rate with moose density = 1.8`
-    ## [1] 1.005893
+    ## [1] 3.446115
+
+Tick population change is highly dependent on the size of the moose
+population. At the lowest moose population (0.018 per km2) the tick
+population changes by a factor of 0.1, so decreases 90% per year. While
+at the highest moose population (1.8 km2) it increases by a factor of
+3.4, more than triples every year.
 
 ### Modifying climate
 
