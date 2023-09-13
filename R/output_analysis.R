@@ -19,9 +19,9 @@ growth_rate <- function(out) {
 #' Calculate annual growth rate
 #'
 #' @param out Model output data frame
-#' @returns Numeric vector of length one representing the annual factor by which the
-#' total tick population changes. To use this function, it is best to run the model for at least three
-#' years.
+#' @returns Numeric vector of length one representing the annual factor by
+#' which the total tick population changes. To use this function, it is best
+#' to run the model for at least three years.
 #'
 #' @examples
 #' out <- run(config_ex_1)
@@ -33,10 +33,10 @@ annual_growth_rate <- function(out) {
     day = unique(out$day)
   )
   daily_data$totalpop = sapply(daily_data$day, function(x) sum(out$pop[out$day == x]))
-  daily_data$yr <- ceiling(daily_data$day/365)
+  daily_data$yr <- ceiling(daily_data$day / 365)
   years <- unique(daily_data$yr)
   maxpop <- sapply(years, function(x) max(daily_data$totalpop[daily_data$yr == x]))
   ratechange <- numeric(length = length(maxpop) - 1)
-  for (i in 1:length(ratechange)) ratechange[i] <- maxpop[i+1]/maxpop[i]
+  for (i in 1:length(ratechange)) ratechange[i] <- maxpop[i + 1]/maxpop[i]
   mean(ratechange[1:(length(ratechange) - 1)])
 }
