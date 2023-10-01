@@ -39,6 +39,12 @@ if (!all(required_cols %in% names(out))) {
   daily_data$totalpop <- sapply(daily_data$day, function(x) sum(out$pop[out$day == x]))
   daily_data$yr <- ceiling(daily_data$day / 365)
   years <- unique(daily_data$yr)
+  if (length(years) < 2) {
+    stop(
+      "At least 2 years of data are required to calculate an annual growth rate",
+      ", but the input data only has ", length(years), " years"
+    )
+  }
   maxpop <- sapply(years, function(x) max(daily_data$totalpop[daily_data$yr == x]))
   ratechange <- numeric(length = length(maxpop) - 1)
   for (i in seq_along(ratechange)) ratechange[i] <- maxpop[i + 1] / maxpop[i]
