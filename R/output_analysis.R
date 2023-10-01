@@ -29,6 +29,10 @@ growth_rate <- function(out) {
 #'
 #' @export
 annual_growth_rate <- function(out) {
+if (!all(required_cols %in% names(out))) {
+  missing_cols <- setdiff(required_cols, names(out))
+  stop("Missing required colunns: ", paste(missing_cols, collapse = ", "))
+}
   daily_data <- data.frame(
     day = unique(out$day)
   )
