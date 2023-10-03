@@ -263,7 +263,7 @@ growth rate.
 annual_growth_rate(model_results)
 ```
 
-    ## [1] 0.9231916
+    ## [1] 0.9187258
 
 Since the annual growth rate is less than 1 the population is
 decreasing. It changes by a factor of 0.92 every year, so in other words
@@ -355,19 +355,19 @@ growth_rates
 ```
 
     ## $`Growth rate with moose density = 0.018`
-    ## [1] 0.1007706
+    ## [1] 0.09589349
     ## 
     ## $`Growth rate with moose density = 0.09`
-    ## [1] 0.4569418
+    ## [1] 0.4346676
     ## 
     ## $`Growth rate with moose density = 0.18`
-    ## [1] 0.9231916
+    ## [1] 0.9187258
     ## 
     ## $`Growth rate with moose density = 0.36`
-    ## [1] 1.655663
+    ## [1] 1.65519
     ## 
     ## $`Growth rate with moose density = 1.8`
-    ## [1] 3.446115
+    ## [1] 3.446101
 
 Tick population change is highly dependent on the size of the moose
 population. At the lowest moose population (0.018 per km2) the tick

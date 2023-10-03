@@ -49,5 +49,5 @@ annual_growth_rate <- function(out) {
   maxpop <- sapply(years, function(x) max(daily_data$totalpop[daily_data$yr == x]))
   ratechange <- numeric(length = length(maxpop) - 1)
   for (i in seq_along(ratechange)) ratechange[i] <- maxpop[i + 1] / maxpop[i]
-  mean(ratechange[1:(length(ratechange) - 1)])
+  exp(mean(log(ratechange[1:(length(ratechange) - 1)])))
 }
