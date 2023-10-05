@@ -24,7 +24,7 @@ growth_rate <- function(out) {
 #' to run the model for at least three years.
 #'
 #' @examples
-#' out <- run(config_ex_1)
+#' out <- run(ogden2005)
 #' annual_growth_rate(out)
 #'
 #' @export
