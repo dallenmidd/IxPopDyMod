@@ -34,20 +34,25 @@ annual_growth_rate <- function(out) {
     missing_cols <- setdiff(required_cols, names(out))
     stop("Missing required colunns: ", paste(missing_cols, collapse = ", "))
   }
+
+  days_in_year <- 365
+  max_day <- max(out$day)
+  full_years <- floor(max_day / days_in_year)
+  if (full_years < 2) {
+    stop(
+      "At least 2 years (== 730 days) of data are required to calculate an ",
+      "annual growth rate, but the input data only has ", full_years,
+      " full years, or ", max_day, " days."
+    )
+  }
+
   daily_data <- data.frame(
-    day = unique(out$day)
+    day = seq_len(full_years * days_in_year)
   )
   daily_data$totalpop <- sapply(daily_data$day, function(x) sum(out$pop[out$day == x]))
   daily_data$yr <- ceiling(daily_data$day / 365)
-  years <- unique(daily_data$yr)
-  if (length(years) < 2) {
-    stop(
-      "At least 2 years of data are required to calculate an annual growth rate",
-      ", but the input data only has ", length(years), " years"
-    )
-  }
-  maxpop <- sapply(years, function(x) max(daily_data$totalpop[daily_data$yr == x]))
+  maxpop <- sapply(seq_len(full_years), function(x) max(daily_data$totalpop[daily_data$yr == x]))
   ratechange <- numeric(length = length(maxpop) - 1)
   for (i in seq_along(ratechange)) ratechange[i] <- maxpop[i + 1] / maxpop[i]
-  exp(mean(log(ratechange[1:(length(ratechange) - 1)])))
+  exp(mean(log(ratechange)))
 }
