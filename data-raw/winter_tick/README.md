@@ -1,23 +1,22 @@
----
-title: "winter-tick"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+A winter tick population model
+================
 
 ## Summary
 
-In this vignette, we'll demonstrate how we used `IxPopDyMod` to reproduce the winter tick population dynamics that Drew and Samuel (1986) observed in the field in Alberta, Canada.
+In this vignette, we’ll demonstrate how we used `IxPopDyMod` to
+reproduce the winter tick population dynamics that Drew and Samuel
+(1986) observed in the field in Alberta, Canada.
 
 ## Assembling predictor data to use in model
 
 ### Data from Drew and Samuel (1986)
 
-First, we'll gather historical weather data from time period of the Drew and Samuel (1986) study. One of their field sites was a grassland habitat in Elk Island National Park, where they observed these weekly max temperatures (digitized from Figure 5):
+First, we’ll gather historical weather data from time period of the Drew
+and Samuel (1986) study. One of their field sites was a grassland
+habitat in Elk Island National Park, where they observed these weekly
+max temperatures (digitized from Figure 5):
 
-```{r fig-5-digitized, message=FALSE}
+``` r
 library(dplyr)
 library(readr)
 library(ggplot2)
@@ -34,11 +33,19 @@ weekly_max_temp_plot <- weekly_max_temp %>%
 weekly_max_temp_plot
 ```
 
+![](README_files/figure-gfm/fig-5-digitized-1.png)<!-- -->
+
 ### Data from weather station
 
-While Drew and Samuel present weekly maximum temperatures, `IxPopDyMod` expects weather data with daily resolution. Fortunately, a weather station at Elk Island has the data we need. The data is accessible via the Canadian Government's historical climate data portal, at this [download link](https://climate.weather.gc.ca/climate_data/daily_data_e.html?hlyRange=1994-02-01%7C2022-01-12&dlyRange=1981-11-01%7C2022-01-12&mlyRange=1981-01-01%7C2007-11-01&StationID=1873&Prov=AB&urlExtension=_e.html&searchType=stnName&optLimit=yearRange&StartYear=1840&EndYear=2022&selRowPerPage=25&Line=0&searchMethod=contains&Month=1&Day=12&txtStationName=elk+island&timeframe=2&Year=1982). Here we plot that data.
+While Drew and Samuel present weekly maximum temperatures, `IxPopDyMod`
+expects weather data with daily resolution. Fortunately, a weather
+station at Elk Island has the data we need. The data is accessible via
+the Canadian Government’s historical climate data portal, at this
+[download
+link](https://climate.weather.gc.ca/climate_data/daily_data_e.html?hlyRange=1994-02-01%7C2022-01-12&dlyRange=1981-11-01%7C2022-01-12&mlyRange=1981-01-01%7C2007-11-01&StationID=1873&Prov=AB&urlExtension=_e.html&searchType=stnName&optLimit=yearRange&StartYear=1840&EndYear=2022&selRowPerPage=25&Line=0&searchMethod=contains&Month=1&Day=12&txtStationName=elk+island&timeframe=2&Year=1982).
+Here we plot that data.
 
-```{r weather-data-from-station, message=FALSE, warning=FALSE}
+``` r
 daily_weather <- read_csv("en_climate_daily_AB_3012275_1982_P1D.csv")
 daily_weather_plot <- daily_weather %>%
   ggplot(aes(
@@ -51,9 +58,12 @@ daily_weather_plot <- daily_weather %>%
 daily_weather_plot
 ```
 
-We can plot the two data sources together to visually confirm that they are similar.
+![](README_files/figure-gfm/weather-data-from-station-1.png)<!-- -->
 
-```{r compare-data-sources}
+We can plot the two data sources together to visually confirm that they
+are similar.
+
+``` r
 comparison <- daily_weather %>%
   mutate(
     j_day = as.POSIXlt(`Date/Time`)$yday,
@@ -71,13 +81,22 @@ comparison %>%
   labs(color = "Data source")
 ```
 
-Now that we observe that the data is similar, we can use the weather station data to try to reproduce the field study's results with our model.
+![](README_files/figure-gfm/compare-data-sources-1.png)<!-- -->
+
+Now that we observe that the data is similar, we can use the weather
+station data to try to reproduce the field study’s results with our
+model.
 
 ### Reshaping the data
 
-We must reshape the weather data into a `IxPopDyMod::predictors()` object to use it in the model. For details on the required structure, see the `IxPopDyMod::predictors()` documentation. In addition to temperature, we'll also include snow cover in the predictors data, as this has been observed to affect the winter tick life cycle, notably the survival of questing larvae.
+We must reshape the weather data into a `IxPopDyMod::predictors()`
+object to use it in the model. For details on the required structure,
+see the `IxPopDyMod::predictors()` documentation. In addition to
+temperature, we’ll also include snow cover in the predictors data, as
+this has been observed to affect the winter tick life cycle, notably the
+survival of questing larvae.
 
-```{r reshape-predictors-data}
+``` r
 library(tidyr)
 predictors <- daily_weather %>%
   mutate(j_day = 1:365) %>%
@@ -93,9 +112,10 @@ predictors <- daily_weather %>%
   select(pred, pred_subcategory, j_day, value)
 ```
 
-In order to allow modelling the winter tick population over multiple years, we'll repeat the weather data several times.
+In order to allow modelling the winter tick population over multiple
+years, we’ll repeat the weather data several times.
 
-```{r accumulate-multiple-years-of-data}
+``` r
 accumulate <- predictors
 for (i in 1:10) {
   accumulate <- bind_rows(accumulate, predictors)
@@ -105,7 +125,7 @@ days <- c(days, days) %>% sort()
 accumulate$j_day <- days
 ```
 
-```{r change-first-day-of-modelling}
+``` r
 offset <- 155
 accumulate <- accumulate %>%
   mutate(true_j_day = j_day) %>%
@@ -113,9 +133,12 @@ accumulate <- accumulate %>%
   mutate(j_day = j_day - offset)
 ```
 
-Finally, we add host density data to the predictors table. The only host we're concerned with in this case is moose. The `j_day` is set as `NA` to indicate that this is a constant predictor, i.e. it does not change over time.
+Finally, we add host density data to the predictors table. The only host
+we’re concerned with in this case is moose. The `j_day` is set as `NA`
+to indicate that this is a constant predictor, i.e. it does not change
+over time.
 
-```{r moose-density}
+``` r
 # add a row for host density
 accumulate <- bind_rows(
   data.frame(pred="host_den", pred_subcategory="moose", j_day=NA, value=0.18),
@@ -124,18 +147,28 @@ accumulate <- bind_rows(
 head(accumulate)
 ```
 
-```{r save-predictors-data, echo=FALSE}
-# Save the predictors data because we use it in `process_data_raw.R`
-readr::write_csv(accumulate, "predictors.csv")
-```
+    ##         pred pred_subcategory j_day value true_j_day
+    ## 1   host_den            moose    NA  0.18         NA
+    ## 2   max_temp             <NA>     1  9.50        156
+    ## 3 snow_cover             <NA>     1  0.00        156
+    ## 4   max_temp             <NA>     2  8.00        157
+    ## 5 snow_cover             <NA>     2  0.00        157
+    ## 6   max_temp             <NA>     3 15.50        158
 
 ## Configuring the model
 
-The first step in modeling a tick population using `IxPopDyMod` is creating a `config` object. This will represent all the components of a tick life cycle, as well as the input predictor data that can determine that rates and durations of transitions between tick life stages.
+The first step in modeling a tick population using `IxPopDyMod` is
+creating a `config` object. This will represent all the components of a
+tick life cycle, as well as the input predictor data that can determine
+that rates and durations of transitions between tick life stages.
 
-We created this configuration by drawing from literature on relationships between climate and host communities and winter tick development (TODO: cite specific studies). For parameters not well described/understood in the literature, we used the model to deduce reasonable parameter values. The configuration is as follows:
+We created this configuration by drawing from literature on
+relationships between climate and host communities and winter tick
+development (TODO: cite specific studies). For parameters not well
+described/understood in the literature, we used the model to deduce
+reasonable parameter values. The configuration is as follows:
 
-```{r winter-tick-config, message=FALSE}
+``` r
 devtools::load_all()
 
 winter_tick <- config(
@@ -201,7 +234,7 @@ winter_tick <- config(
     transition('r_a', '__e', constant_fun, 'probability', parameters = c(a = 3000))
   ),
   initial_population = c(r_a = 10),
-  steps = 1000,
+  steps = 1500,
   preds = accumulate
 )
 ```
@@ -210,20 +243,33 @@ winter_tick <- config(
 
 Now that we have a `config` built, running the model is simple! Observe:
 
-```{r run-model}
+``` r
 model_results <- run(winter_tick, progress = FALSE)
 head(model_results)
 ```
 
-For a quick assessment of population dynamics, we can calculate the growth rate.
+    ##   day stage   pop
+    ## 1   1   __e     0
+    ## 2   1   q_l     0
+    ## 3   1   a_l     0
+    ## 4   1   e_a     0
+    ## 5   1   r_a    10
+    ## 6   2   __e 30000
 
-```{r growth-rate}
-growth_rate(model_results)
+For a quick assessment of population dynamics, we can calculate the
+growth rate.
+
+``` r
+annual_growth_rate(model_results)
 ```
 
-That the growth rate is under `1` indicates that the population is declining. It's more revealing to plot the population over time, split up by life stage. We'll write a simple function to do so.
+    ## [1] 0.9187258
 
-```{r plot-population, warning=FALSE}
+Since the annual growth rate is less than 1 the population is
+decreasing. It changes by a factor of 0.92 every year, so in other words
+decreases by 8% per year.
+
+``` r
 plot_population <- function(model_output) {
   ggplot(model_output, aes(x = day, y = pop, color = stage)) +
     geom_line() +
@@ -236,19 +282,28 @@ plot_population(model_results) +
   labs(col = "Tick life stage")
 ```
 
+![](README_files/figure-gfm/plot-population-1.png)<!-- -->
+
 ### Modifying moose density
 
-Now that we have a fairly stable model output, we can modify it, for example to see the impacts of different host community or climate dynamics on the tick population.
+Now that we have a fairly stable model output, we can modify it, for
+example to see the impacts of different host community or climate
+dynamics on the tick population.
 
-First, let's try increasing the density of moose. We can find the current moose density, which we put in the first row of the predictors data:
+First, let’s try increasing the density of moose. We can find the
+current moose density, which we put in the first row of the predictors
+data:
 
-```{r see-moose-density}
+``` r
 winter_tick$preds[1, ]
 ```
 
-We'll re-run the model with a range of moose densities.
+    ##       pred pred_subcategory j_day value true_j_day
+    ## 1 host_den            moose    NA  0.18         NA
 
-```{r run-with-different-density}
+We’ll re-run the model with a range of moose densities.
+
+``` r
 densities <- 0.18 * c(0.1, 0.5, 1, 2, 10)
 
 configs <- lapply(
@@ -263,9 +318,10 @@ configs <- lapply(
 results <- lapply(configs, run, progress = FALSE)
 ```
 
-To compare the results, we'll plot the total tick population over time for each parameterization.
+To compare the results, we’ll plot the total tick population over time
+for each parameterization.
 
-```{r plots-with-different-moose-density, warning=FALSE}
+``` r
 # We add a column to each dataframe to identify what parameterization it was
 # created with
 for (i in seq_along(results)) {
@@ -286,19 +342,44 @@ all_results %>%
   ylab("Total tick population")
 ```
 
-As expected, modeled tick populations grow with higher moose density. We can confirm this by calculating the growth rate under each scenario:
+![](README_files/figure-gfm/plots-with-different-moose-density-1.png)<!-- -->
+
+As expected, modeled tick populations grow with higher moose density. We
+can confirm this by calculating the annual growth rate under each
+scenario:
 
 ``` r
-growth_rates <- lapply(results, growth_rate)
+growth_rates <- lapply(results, annual_growth_rate)
 names(growth_rates) <- paste("Growth rate with moose density =", densities)
 growth_rates
 ```
+
+    ## $`Growth rate with moose density = 0.018`
+    ## [1] 0.09589349
+    ## 
+    ## $`Growth rate with moose density = 0.09`
+    ## [1] 0.4346676
+    ## 
+    ## $`Growth rate with moose density = 0.18`
+    ## [1] 0.9187258
+    ## 
+    ## $`Growth rate with moose density = 0.36`
+    ## [1] 1.65519
+    ## 
+    ## $`Growth rate with moose density = 1.8`
+    ## [1] 3.446101
+
+Tick population change is highly dependent on the size of the moose
+population. At the lowest moose population (0.018 per km2) the tick
+population changes by a factor of 0.1, so decreases 90% per year. While
+at the highest moose population (1.8 km2) it increases by a factor of
+3.4, more than triples every year.
 
 ### Modifying climate
 
 Here, we try running the model under three distinct climate scenarios.
 
-```{r plot-with-different-climates, warning=FALSE}
+``` r
 winter_tick_warm <- winter_tick
 winter_tick_warm$preds <-
   winter_tick_warm$preds %>%
@@ -319,7 +400,7 @@ all_temp_results <- bind_rows(cold_run, warm_run, model_results)
 all_temp_results %>%
   group_by(temp, day) %>%
   summarize(pop = sum(pop), .groups = "drop") %>%
-  ggplot(aes(x = day, y = pop, col = factor(temp, levels = c("Cold", "Baseline", "Warm")))) +
+  ggplot(aes(x = day, y = pop, col = factor(temp, levels = c("Warm", "Baseline", "Cold")))) +
   geom_line() +
   scale_y_log10(limits = c(1, NA)) +
   scale_color_manual(values = c(Cold = "#2c7bb6", Warm = "#d7191c", Baseline = "#757473")) +
@@ -328,4 +409,9 @@ all_temp_results %>%
   labs(col = "Temperature")
 ```
 
-We can observe that the phenology and populations are both affected. Eggs are laid (the only times that the population increases) earlier in the year under the warm climate scenario. Additionally, total population is larger under the warmer climate scenarios.
+![](README_files/figure-gfm/plot-with-different-climates-1.png)<!-- -->
+
+We can observe that the phenology and populations are both affected.
+Eggs are laid (the only times that the population increases) earlier in
+the year under the warm climate scenario. Additionally, total population
+is larger under the warmer climate scenarios.
