@@ -46,26 +46,25 @@ wish to create a custom model configuration, see `?config()`.
 ## Simple example
 
 We start with `config_ex_1`, a simple model configuration that doesn’t
-consider infection, and that has four life stages: `__e` for egg, `__l`
-for larvae, `__n` for nymph, and `__a` for adult. This `config` is
-already loaded with the package, but as an example here is how the
-`config` is specified in R.
+consider infection, and that has four life stages: `egg`, `larva`,
+`nymph`, and `adult`. This `config` is already loaded with the package,
+but as an example here is how the `config` is specified in R.
 
 ``` r
 # library(IxPopDyMod)
 devtools::load_all()
 config_ex_1 <- config(
   cycle = life_cycle(
-    transition("__e", "__l", function(a) a, transition_type = "probability", parameters = c(a = 1)),
-    transition("__e", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0)),
-    transition("__l", "__n", function(a) a, transition_type = "probability", parameters = c(a = 0.01)),
-    transition("__l", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0.99)),
-    transition("__n", "__a", function(a) a, transition_type = "probability", parameters = c(a = 0.1)),
-    transition("__n", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0.9)),
-    transition("__a", "__e", function(a) a, transition_type = "probability", parameters = c(a = 1000)),
-    transition("__a", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0))
+    transition("egg", "larva", function(a) a, transition_type = "probability", parameters = c(a = 1)),
+    transition("egg", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0)),
+    transition("larva", "nymph", function(a) a, transition_type = "probability", parameters = c(a = 0.01)),
+    transition("larva", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0.99)),
+    transition("nymph", "adult", function(a) a, transition_type = "probability", parameters = c(a = 0.1)),
+    transition("nymph", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0.9)),
+    transition("adult", "egg", function(a) a, transition_type = "probability", parameters = c(a = 1000)),
+    transition("adult", NULL, function(a) a, transition_type = "probability", mortality_type = "per_day", parameters = c(a = 0))
   ),
-  initial_population = c("__a" = 1000),
+  initial_population = c("adult" = 1000),
   steps = 29L
 )
 ```
@@ -168,7 +167,9 @@ one degree warmer.
 ``` r
 output <- run(temp_example_config)
 
-temp_pred2 <- readr::read_csv("./data-raw/temp_example_config/predictors.csv")
+# Predictor data for this example config is the temperature data from the Ogden config
+# (host density data is dropped).
+temp_pred2 <- readr::read_csv("./data-raw/ogden2005/predictors.csv") %>% dplyr::filter(pred == "temp")
 
 temp_pred2$value <- temp_pred2$value + 1
 
@@ -255,10 +256,10 @@ axis(side = 2, at = 2:5, labels = c(expression(10^2),expression(10^3),expression
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="75%" />
 
-## Tick-borne disease infection dynamics
+## Tick-borne pathogen infection dynamics
 
-In the examples above we modeled a tick population without a tick borne
-disease. Here we give an example of how the package can be used to also
+In the examples above we modeled a tick population without a tick-borne
+pathogen Here we give an example of how the package can be used to also
 include infection dynamics.
 
 So far all examples have used transition functions loaded into the
