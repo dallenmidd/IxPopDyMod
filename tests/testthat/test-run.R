@@ -7,12 +7,12 @@ test_that("`life_stages()` works with `ogden2005` data", {
 })
 
 test_that("`life_stages()` works with `config_ex_1` data", {
-  expected_life_stages <- c("__e", "__l", "__n", "__a")
+  expected_life_stages <- c("egg", "larva", "nymph", "adult")
   expect_equal(life_stages(config_ex_1$cycle), expected_life_stages)
 })
 
 test_that("`life_stages()` works with `config_ex_2` data", {
-  expected_life_stages <- c("__e", "__l", "__n", "__a")
+  expected_life_stages <- c("egg", "larva", "nymph", "adult")
   expect_equal(life_stages(config_ex_2$cycle), expected_life_stages)
 })
 
