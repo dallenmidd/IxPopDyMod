@@ -7,12 +7,12 @@ test_that("`life_stages()` works with `ogden2005` data", {
 })
 
 test_that("`life_stages()` works with `config_ex_1` data", {
-  expected_life_stages <- c("__e", "__l", "__n", "__a")
+  expected_life_stages <- c("egg", "larva", "nymph", "adult")
   expect_equal(life_stages(config_ex_1$cycle), expected_life_stages)
 })
 
 test_that("`life_stages()` works with `config_ex_2` data", {
-  expected_life_stages <- c("__e", "__l", "__n", "__a")
+  expected_life_stages <- c("egg", "larva", "nymph", "adult")
   expect_equal(life_stages(config_ex_2$cycle), expected_life_stages)
 })
 
@@ -432,10 +432,10 @@ test_that("`gen_transition_matrix() works with `config_ex_1`", {
   life_stages <- life_stages(config_ex_1$cycle)
 
   expected <- empty_transition_matrix(life_stages)
-  expected["__a", "__e"] <- 1000
-  expected["__e", "__l"] <- 1
-  expected["__l", "__n"] <- 0.01
-  expected["__n", "__a"] <- 0.1
+  expected["adult", "egg"] <- 1000
+  expected["egg", "larva"] <- 1
+  expected["larva", "nymph"] <- 0.01
+  expected["nymph", "adult"] <- 0.1
 
   result <- gen_transition_matrix(
     1,
@@ -451,7 +451,7 @@ test_that("`gen_transition_matrix() works with `config_ex_1`", {
 test_that("`gen_transition_matrix()` works with `config_ex_2`", {
   life_stages <- life_stages(config_ex_2$cycle)
   expected <- empty_transition_matrix(life_stages)
-  expected["__a", "__e"] <- 489.3045
+  expected["adult", "egg"] <- 489.3045
 
   result <- gen_transition_matrix(
     1,
