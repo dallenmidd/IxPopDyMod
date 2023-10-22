@@ -1,3 +1,17 @@
+# IxPopDyMod 1.0.0
+* Rewrote `config()`, breaking the components of a `config` object out into a hierarchy of (new) S3 objects: `predictors`, `life_cycle`, `parameters`, `predictor_spec`, `transition_function`, and `transition`. This has numerous advantages, including the abilility for users to build up individual components of a `config` with validation from the new classes. This change requires modifying existing `config` objects to fit the new schema. The most significant changes are:
+  - Life cycles are represented with the list-based `life_cycle` class. Previously, this data was represented in the `transitions` and `parameters` attributes of a `config`. 
+  - Modified the mechanism for passing functions to transitions to compute transition probability or duration. Previously, `config`s contained strings with the name of functions to `get()` from the environment; now we pass the functions themselves. This removes the possibility for the state of the R environment to impact model results. These functions now also have their own class, `transition_function`.
+  - Using `predictor_spec` and `parameters`, passing parameter and predictor values to `transition_function`s is now done more explicitly.
+* Removed several pieces of non-core functionality that we think is better handled by users. This refocuses the package on its core purpose: configuring and running tick population models.
+  - Removed `read_config()`, `write_config()`, which provided the ability to serialize and deserialize `config`s. These functions were not sufficient to comprehensively serialize all `config`s for reproducible model results. Now, the package only handles in-memory objects.
+  - Removed `run_all_configs` and the related `parallel` package dependency. This function was just a thin wrapper over a call to `lapply` or a parallel apply operation.
+  - Removed `graph_lifecycle` for visualizing the flow between life stages, and the dependency on the package `igraph`. 
+  - Removed `vary_param` and `vary_many_params`. 
+* Removed the graphing functions `graph_population_each_group()` and `graph_population_each_trend()`. These functions were intended as an easy way to visualize model results, but they did not handle all cases, since model output can be highly variable. We now recommend users write their own code, e.g. with `ggplot2`, to visualize results.
+* Added `annual_growth_rate()`, for determining the annual factor by which population changes. Results from the `growth_rate()` function can be sensitive to the specific time period being modeled -- this aims to be a more universally applicable alternative.
+* TODO modified `growth_rate()`
+
 # IxPopDyMod 0.2.0 
 * Added new `config`s to the package.
   - `ogden2005`, which replicates an existing deer tick population model by Ogden et al. (2005).
