@@ -401,8 +401,9 @@ update_delay_arr <- function(
       query_transitions("from", from_stage) %>%
       query_transitions_by_mortality(mortality = FALSE) %>%
       # there can only be one duration-based transition from each life stage, so
-      # we just get the first element
-      .[[1]]  # nolint: object_usage_linter
+      # unlisting should just give the first element
+      unlist(recursive = FALSE)
+
 
     val <- get_transition_value(
       time = time,
