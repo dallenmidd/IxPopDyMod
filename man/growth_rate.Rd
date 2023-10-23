@@ -10,7 +10,7 @@ growth_rate(out)
 \item{out}{Model output data frame}
 }
 \value{
-Numeric vector of length one representing growth rate
+Numeric vector of length one representing daily growth rate.
 }
 \description{
 Calculate multiplicative growth rate of population
