@@ -1,3 +1,5 @@
+# IxPopDyMod (development version)
+
 # IxPopDyMod 0.3.0
 
 * Rewrote `config()`, breaking the components of a `config` object out into a hierarchy of (new) S3 objects: `predictors`, `life_cycle`, `parameters`, `predictor_spec`, `transition_function`, and `transition`. This has numerous advantages, including the ability for users to build up individual components of a `config` with validation from the new classes, rather than constructing the entire `config` object in one step. This update means users need to modify any existing `config` objects to fit the new schema. The most significant changes are:
