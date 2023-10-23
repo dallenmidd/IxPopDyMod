@@ -164,8 +164,9 @@ that rates and durations of transitions between tick life stages.
 
 We created this configuration by drawing from literature on
 relationships between climate and host communities and winter tick
-development (TODO: cite specific studies). For parameters not well
-described/understood in the literature, we used the model to deduce
+development (Drew and Samuel 1985, Drew and Samuel 1986, Samuel and
+Welch 1991, Addison and McLaughlin 1988). For parameters not well
+described or understood in the literature, we used the model to deduce
 reasonable parameter values. The configuration is as follows:
 
 ``` r

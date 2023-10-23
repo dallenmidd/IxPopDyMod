@@ -1,0 +1,4 @@
+Addison, E. M., & McLaughlin, R. F. (1988). Growth and Development of Winter Tick, Dermacentor albipictus, on Moose, Alces alces. The Journal of Parasitology, 74(4), 670–678. https://doi.org/10.2307/3282188
+Drew, M. L., & Samuel, W. M. (1985). Factors affecting transmission of larval winter ticks, Dermacentor albipictus (Packard), to moose, Alces alces L., in Alberta, Canada. Journal of Wildlife Diseases, 21(3), 274–282.
+Drew, M. L., & Samuel, W. M. (1986). Reproduction of the winter tick, Dermacentor albipictus, under field conditions in Alberta, Canada. Canadian Journal of Zoology, 64(3), 714–721.
+Samuel, W. M., & Welch, D. A. (1991). Winter ticks on moose and other ungulates: Factors influencing their population size. Alces: A Journal Devoted to the Biology and Management of Moose, 27, 168–182.
