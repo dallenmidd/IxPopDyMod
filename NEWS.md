@@ -13,7 +13,7 @@
   - Removed the graphing functions `graph_population_each_group()` and `graph_population_overall_trend()`. These functions were intended as an easy way to visualize model results, but they did not handle all cases, since model output can be highly variable. We now recommend users write their own code, e.g. with `ggplot2`, to visualize results.
 * Removed three columns from the data frame output from `run()`: `age_group`, `process` and `infected`. These columns were populated based on the assumption that life stage names were structured as a three-character string like `<process><infected><age_group>`, and used downstream in the graphing functions. Now, users are completely free to name life stages as they wish.
 * Added `annual_growth_rate()`, for determining the annual factor by which population changes. Results from the `growth_rate()` function can be sensitive to the specific time period being modeled -- this aims to be a more universally applicable alternative.
-* TODO modified `growth_rate()`
+* Refactored `growth_rate()` to use base R.
 
 # IxPopDyMod 0.2.0
 
