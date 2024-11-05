@@ -127,7 +127,6 @@ predictors <- function(df, verbose = FALSE) {
       message("Ordering predictors by `j_day`, `pred`, then `pred_subcategory` columns")
     }
     df <- df[order(df$j_day, df$pred, df$pred_subcategory, na.last = FALSE), ]
-    rownames(df) <- seq_len(nrow(df))
   }
 
   validate_predictors(new_predictors(df))
