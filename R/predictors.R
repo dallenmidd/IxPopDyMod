@@ -127,6 +127,10 @@ predictors <- function(df, verbose = FALSE) {
       message("Ordering predictors by `j_day`, `pred`, then `pred_subcategory` columns")
     }
     df <- df[order(df$j_day, df$pred, df$pred_subcategory, na.last = FALSE), ]
+    # We reset the rownames to the sequence 1:nrow(df). Nothing downstream
+    # depends on rownames, but it could be confusing if they're out of order.
+    # Explicitly setting rownames on tibbles is deprecated, so we set as NULL
+    rownames(df) <- NULL
   }
 
   validate_predictors(new_predictors(df))
