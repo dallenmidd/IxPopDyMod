@@ -33,7 +33,7 @@ new_transition <- function(
     class = "transition"
   )
 
-  return(transition)
+  transition
 }
 
 #' Check that a `transition` object is valid
@@ -84,7 +84,7 @@ validate_transition <- function(transition) {
     }
   }
 
-  return(transition)
+  transition
 }
 
 
