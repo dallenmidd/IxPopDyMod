@@ -188,7 +188,7 @@ get_pred_from_table <- function(time, pred, table) {
   if (is.null(p_data)) return(numeric(0))
 
   if (p_data$is_constant) {
-    return(p_data$data)
+    p_data$data
   } else {
 
     # Handle single day
@@ -198,7 +198,7 @@ get_pred_from_table <- function(time, pred, table) {
 
       val <- p_data$data[[time]]
       if (is.null(val)) return(numeric(0))
-      return(val)
+      val
 
     } else {
       # Handle multiple days
@@ -215,7 +215,7 @@ get_pred_from_table <- function(time, pred, table) {
       if (!is.null(names(res[[1]]))) {
         names(vec) <- unlist(lapply(res, names), use.names = FALSE)
       }
-      return(vec)
+      vec
     }
   }
 }
@@ -412,11 +412,11 @@ gen_transition_matrix <- function(
   life_stages <- rownames(population)
   trans_matrix <- empty_transition_matrix(life_stages)
 
-  transitions <- tick_transitions %>%
+  transitions <- tick_transitions |>
     query_transitions_by_mortality(mortality = FALSE) |>
     query_transitions("transition_type", "probability")
 
-  mort <- tick_transitions %>%
+  mort <- tick_transitions |>
     query_transitions_by_mortality(mortality = TRUE) |>
     query_transitions("transition_type", "probability")
 

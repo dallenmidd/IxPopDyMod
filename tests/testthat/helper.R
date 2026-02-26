@@ -19,7 +19,7 @@ transition_example_b <- function() {
   b <- transition_example_a()
   b$from <- "b"
   b$to <- "a"
-  return(b)
+  b
 }
 
 life_cycle_example_a <- function() {
