@@ -37,7 +37,7 @@ precompute_predictors <- function(table) {
       out[[p]] <- list(is_constant = FALSE, data = day_list)
     }
   }
-  return(out)
+  out
 }
 
 #' Run the model
@@ -413,11 +413,11 @@ gen_transition_matrix <- function(
   trans_matrix <- empty_transition_matrix(life_stages)
 
   transitions <- tick_transitions %>%
-    query_transitions_by_mortality(mortality = FALSE) %>%
+    query_transitions_by_mortality(mortality = FALSE) |>
     query_transitions("transition_type", "probability")
 
   mort <- tick_transitions %>%
-    query_transitions_by_mortality(mortality = TRUE) %>%
+    query_transitions_by_mortality(mortality = TRUE) |>
     query_transitions("transition_type", "probability")
 
   for (i in transitions) {
@@ -480,9 +480,9 @@ update_delay_arr <- function(
   # loop through these transitions by from_stage
   from_stages <- life_stages(transitions)
   for (from_stage in from_stages) {
-    trans <- transitions %>%
-      query_transitions("from", from_stage) %>%
-      query_transitions_by_mortality(mortality = FALSE) %>%
+    trans <- transitions |>
+      query_transitions("from", from_stage) |>
+      query_transitions_by_mortality(mortality = FALSE) |>
       # there can only be one duration-based transition from each life stage, so
       # unlisting should just give the first element
       unlist(recursive = FALSE)
@@ -500,9 +500,9 @@ update_delay_arr <- function(
     days_to_next <- get_transition_duration(val = val, max_duration = max_duration)
 
     # Get the 1 or 0 mortality transitions corresponding to the "from" stage
-    mort_transition <- transitions %>%
-      query_transitions("from", from_stage) %>%
-      query_transitions_by_mortality(mortality = TRUE) %>%
+    mort_transition <- transitions |>
+      query_transitions("from", from_stage) |>
+      query_transitions_by_mortality(mortality = TRUE) |>
       unlist(recursive = FALSE)
 
     surv_to_next <- get_transition_survival(
@@ -522,7 +522,7 @@ update_delay_arr <- function(
       delay_arr[from_stage, trans[["to"]], time + days_to_next] +
       population[from_stage, time] * surv_to_next
   }
-  return(delay_arr)
+  delay_arr
 }
 
 get_transition_survival <- function(
@@ -549,7 +549,7 @@ get_transition_survival <- function(
   }
 
   # Apply scalar mortality every day
-  return((1 - mort) ^ days_to_next)
+  (1 - mort) ^ days_to_next
 }
 
 get_transition_duration <- function(val, max_duration) {
