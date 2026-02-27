@@ -14,6 +14,11 @@ run <- function(cfg, progress = TRUE) {
   # 00 get valid life stages
   life_stages <- life_stages(cfg$cycle)
 
+  # 01 Precompute predictors and attach to cfg$preds
+  if (!is.null(cfg$preds)) {
+    attr(cfg$preds, "precomputed") <- precompute_predictors(cfg$preds)
+  }
+
   # 02 initialize a delay array of all zeros
   delay_arr <- empty_delay_array(
     life_stages = life_stages,
@@ -121,20 +126,56 @@ population_matrix_to_output_df <- function(matrix) {
 #'
 #' @returns a numeric vector of predictor values
 get_pred_from_table <- function(time, pred, table) {
-  # NA entry in the j_day column indicates that the predictor does not vary
-  # over time
-  rows <- (is.na(table$j_day) | (table$j_day %in% time)) &
-          (table$pred == pred)
+  # Check if we have precomputed the fast-lookup list
+  precomputed <- attr(table, "precomputed")
 
-  subset <- table[rows, ]
-  pred_values <- subset$value
-  pred_names <- subset$pred_subcategory
-
-  if (!all(is.na(pred_names))) {
-    names(pred_values) <- pred_names
+  if (is.null(precomputed)) {
+    rows <- (is.na(table$j_day) | (table$j_day %in% time)) & (table$pred == pred)
+    subset <- table[rows, ]
+    pred_values <- subset$value
+    pred_names <- subset$pred_subcategory
+    if (!all(is.na(pred_names))) {
+      names(pred_values) <- pred_names
+    }
+    return(pred_values)
   }
 
-  pred_values
+  p_data <- precomputed[[pred]]
+
+  # Edge case: predictor requested that is not in the table
+  if (is.null(p_data)) return(numeric(0))
+
+  if (p_data$is_constant) {
+    return(p_data$data)
+  } else {
+
+    # Handle single day
+    if (length(time) == 1) {
+      # Prevent out-of-bounds errors and replicate numeric(0) for missing days
+      if (time < 1 || time > length(p_data$data)) return(numeric(0))
+
+      val <- p_data$data[[time]]
+      if (is.null(val)) return(numeric(0))
+      return(val)
+
+    } else {
+      # Handle multiple days
+      valid_time <- time[time >= 1 & time <= length(p_data$data)]
+      res <- p_data$data[valid_time]
+
+      # Drop missing days to exactly match the old data frame subsetting behavior
+      res <- res[!vapply(res, is.null, logical(1))]
+      if (length(res) == 0) return(numeric(0))
+
+      vec <- unlist(res, use.names = FALSE)
+
+      # Extract names day-by-day to ensure exact matching, even if days were missing
+      if (!is.null(names(res[[1]]))) {
+        names(vec) <- unlist(lapply(res, names), use.names = FALSE)
+      }
+      return(vec)
+    }
+  }
 }
 
 #' Get tick density for specified time and life stages
@@ -482,6 +523,7 @@ get_transition_duration <- function(val, max_duration) {
 
   # With tiny tolerance for floating-point accumulation errors
   days <- cumsum(val) >= (1 - 1e-9)
+  #days <- cumsum(val) >= 1
 
   if (!any(days)) {
     # Note that this has to be a run-time check, because it's dependent on
@@ -540,4 +582,47 @@ set_initial_population <- function(population, initial_population) {
     FUN.VALUE = numeric(1L)
   )
   population
+}
+
+
+#' Precompute predictors for O(1) lookups
+#' @param table input predictors table
+#' @returns a nested list structure for fast extraction
+#' @noRd
+precompute_predictors <- function(table) {
+  if (is.null(table)) return(NULL)
+
+  preds <- unique(table$pred)
+  out <- list()
+
+  for (p in preds) {
+    sub <- table[table$pred == p, ]
+
+    if (all(is.na(sub$j_day))) {
+      # Handle constant predictors
+      vals <- sub$value
+      if (!all(is.na(sub$pred_subcategory))) {
+        names(vals) <- sub$pred_subcategory
+      }
+      out[[p]] <- list(is_constant = TRUE, data = vals)
+
+    } else {
+      # Handle variable predictors using a list indexed by day
+      max_day <- max(sub$j_day, na.rm = TRUE)
+      day_list <- vector("list", max_day)
+
+      for (d in 1:max_day) {
+        day_sub <- sub[sub$j_day == d, ]
+        if (nrow(day_sub) > 0) {
+          vals <- day_sub$value
+          if (!all(is.na(day_sub$pred_subcategory))) {
+            names(vals) <- day_sub$pred_subcategory
+          }
+          day_list[[d]] <- vals
+        }
+      }
+      out[[p]] <- list(is_constant = FALSE, data = day_list)
+    }
+  }
+  return(out)
 }
