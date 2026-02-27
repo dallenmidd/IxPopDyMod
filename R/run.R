@@ -482,7 +482,8 @@ get_transition_duration <- function(val, max_duration) {
     val <- rep(val, max_duration + 1)
   }
 
-  days <- cumsum(val) >= 1
+  # Add a tiny tolerance for floating-point accumulation errors
+  days <- cumsum(val) >= (1- 1e-9)
 
   if (!any(days)) {
     # Note that this has to be a run-time check, because it's dependent on
