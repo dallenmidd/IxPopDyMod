@@ -146,7 +146,7 @@ get_pred_from_table <- function(time, pred, table) {
   if (is.null(p_data)) return(numeric(0))
 
   if (p_data$is_constant) {
-    return(p_data$data)
+    p_data$data
   } else {
 
     # Handle single day
@@ -156,7 +156,7 @@ get_pred_from_table <- function(time, pred, table) {
 
       val <- p_data$data[[time]]
       if (is.null(val)) return(numeric(0))
-      return(val)
+      val
 
     } else {
       # Handle multiple days
@@ -173,7 +173,7 @@ get_pred_from_table <- function(time, pred, table) {
       if (!is.null(names(res[[1]]))) {
         names(vec) <- unlist(lapply(res, names), use.names = FALSE)
       }
-      return(vec)
+      vec
     }
   }
 }
@@ -624,5 +624,5 @@ precompute_predictors <- function(table) {
       out[[p]] <- list(is_constant = FALSE, data = day_list)
     }
   }
-  return(out)
+  out
 }
