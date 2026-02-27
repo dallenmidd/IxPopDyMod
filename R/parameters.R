@@ -25,7 +25,7 @@ new_parameters <- function(...) {
     }
   }
 
-  return(parameters)
+  parameters
 
 }
 

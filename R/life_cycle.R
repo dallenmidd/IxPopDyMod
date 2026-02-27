@@ -12,7 +12,7 @@ new_life_cycle <- function(...) {
 
   checkmate::assert_list(cycle, types = "transition", unique = TRUE)
 
-  return(cycle)
+  cycle
 
 }
 
@@ -30,7 +30,7 @@ validate_life_cycle <- function(cycle) {
   assert_only_one_transition_type_from_each_stage(cycle)
   assert_max_one_duration_transition_from_each_stage(cycle)
   # assert_transitions_form_a_cycle(cycle)
-  return(cycle)
+  cycle
 }
 
 assert_no_duplicate_transitions <- function(cycle) {
@@ -81,9 +81,9 @@ assert_only_one_transition_type_from_each_stage <- function(cycle) {
 
 assert_max_one_duration_transition_from_each_stage <- function(cycle) {
   for (stage in life_stages(cycle)) {
-    transitions <- cycle %>%
-      query_transitions_by_mortality(mortality = FALSE) %>%
-      query_transitions(field = "from", value = stage) %>%
+    transitions <- cycle |>
+      query_transitions_by_mortality(mortality = FALSE) |>
+      query_transitions(field = "from", value = stage) |>
       query_transitions(field = "transition_type", value = "duration")
     if (length(transitions) > 1) {
       stop(
@@ -127,9 +127,9 @@ life_cycle <- function(...) {
 #' @param max number of transitions to print, or NULL to print all transitions
 #' @noRd
 print.life_cycle <- function(x, ..., max = 10L) {
-  transitions <- x %>%
-    vapply(format.transition, character(1L)) %>%
-    number_each_element() %>%
+  transitions <- x |>
+    vapply(format.transition, character(1L)) |>
+    number_each_element() |>
     to_short_string(max = max, collapse = "", item_name = "transitions")
   cat(
     "** A life cycle",
