@@ -159,7 +159,9 @@ transition_is_mortality <- function(transition) {
 }
 
 
+
 # This is just a very simple option for use within a life_cycle
+#' @export
 format.transition <- function(x, ...) {
   to <- ifelse(transition_is_mortality(x), "mortality", x[["to"]])
   paste(x[["from"]], "->", to, "\n")

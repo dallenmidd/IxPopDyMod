@@ -19,50 +19,30 @@ run <- function(cfg, progress = TRUE) {
     attr(cfg$preds, "precomputed") <- precompute_predictors(cfg$preds)
   }
 
-  # 02 initialize a delay array of all zeros
-  delay_arr <- empty_delay_array(
-    life_stages = life_stages,
-    steps = cfg$steps,
-    max_duration = cfg$max_duration
+  total_days <- cfg$steps + cfg$max_duration
+
+  # 02 initialize a 2D delay matrix instead of a 3D array
+  delay_mat <- matrix(
+    0,
+    nrow = length(life_stages),
+    ncol = total_days,
+    dimnames = list(life_stages, NULL)
   )
 
-  # 03 initialize a population matrix with initial_population
-  population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
+  # 03 initialize population matrices (padded to total_days to handle future delays safely)
+  population <- empty_population_matrix(life_stages = life_stages, steps = total_days)
   population <- set_initial_population(
     population = population, initial_population = cfg$initial_population
   )
 
-  # Initialize a population matrix to keep track of the number of individuals of
-  # each stage that are currently developing (currently undergoing a delay)
-  developing_population <- empty_population_matrix(life_stages = life_stages, steps = cfg$steps)
-
-  # at each time step:
-  # (1) generate a new trans_matrix based on conditions at "time"
-  # (2) update the delay_arr based on conditions at "time"
-  # (3) update the population matrix "N" for "time + 1"
+  developing_population <- empty_population_matrix(life_stages = life_stages, steps = total_days)
 
   # at each time step
   for (time in 1:(cfg$steps - 1)) {
 
-    if (progress && time %% 100 == 0) {
-      message("Day: ", time)
-    }
+    if (progress && time %% 100 == 0) message("Day: ", time)
 
-    # Calculate the number of ticks currently in delayed development NOT
-    # INCLUDING those added on current day, because that would be double
-    # counting ticks in the population matrix, N. We exclude those added on
-    # current day by calculating developing_population before updating
-    # delay_arr. We slice the delay array from the current time + 1 to the end.
-    # We add 1 because ticks that emerge from delay at current time would have
-    # been added to population on the previous iteration when we update
-    # N[, time + 1] by adding delay_mat[, time + 1]. We sum across to_stage and
-    # days to get a vector of the number of ticks currently developing FROM each
-    # life stage.
-    developing_population[, time] <- rowSums(
-      delay_arr[, , (time + 1):dim(delay_arr)[3]]
-    )
-
-    # calculate transition probabilities
+    # 1. calculate transition probabilities
     trans_matrix <- gen_transition_matrix(
       time = time,
       population = population,
@@ -71,30 +51,29 @@ run <- function(cfg, progress = TRUE) {
       predictors = cfg$preds
     )
 
-    # calculate the number of ticks entering delayed development
-    delay_arr <- update_delay_arr(
+    # 2. calculate ticks entering delayed development and update matrices directly
+    delays <- update_delays(
       time = time,
-      delay_arr = delay_arr,
+      delay_mat = delay_mat,
       population = population,
       developing_population = developing_population,
       tick_transitions = cfg$cycle,
       max_duration = cfg$max_duration,
       predictors = cfg$preds
     )
+    delay_mat <- delays$delay_mat
+    developing_population <- delays$developing_population
 
-    # collapse the delay_arr by summing across 'from', giving a matrix with
-    # dims = (to, days)
-    delay_mat <- colSums(delay_arr)
-
-    # calculate the number of ticks at the next time step, which is
-    # current population * transition probabilities + ticks emerging from
-    # delayed development
+    # 3. calculate the number of ticks at the next time step
     population[, time + 1] <-
       population[, time] %*% trans_matrix + delay_mat[, time + 1]
   }
 
-  # Return the total population of ticks each day. Developing ticks are counted
-  # in the FROM stage.
+  # Truncate padded matrices back to exactly cfg$steps before returning
+  population <- population[, 1:cfg$steps]
+  developing_population <- developing_population[, 1:cfg$steps]
+
+  # Return the total population of ticks each day
   population_matrix_to_output_df(population + developing_population)
 }
 
@@ -409,77 +388,60 @@ gen_transition_matrix <- function(
   trans_matrix
 }
 
-#' Update the delay array for the current time
-#'
-#' @param time Numeric vector indicating day to get transition probabilities
-#' @param delay_arr Delay array from previous time step
-#' @param population Tick population matrix
-#' @param developing_population Matrix of currently developing ticks
-#' @param tick_transitions A \code{\link{life_cycle}} object
-#' @param predictors A \code{\link{predictors}} object
-#' @param max_duration Numeric vector of length one. Determines the maximum
-#' number of days that a delayed transition can last.
-#'
-#' @returns Delay array indicating the number of ticks currently undergoing delay
-#'   transitions. Axis 1 is the from_stage, axis 2 is the to_stage, and axis 3
-#'   is the day on which the ticks will emerge from the transition. The value
-#'   at a given cell is the number of ticks emerging from the transition.
+
+#' Update the delay matrices directly for the current time
 #' @noRd
-update_delay_arr <- function(
-    time, delay_arr, population, developing_population, tick_transitions, max_duration,
-    predictors
+update_delays <- function(
+    time, delay_mat, population, developing_population, tick_transitions, max_duration, predictors
 ) {
   life_stages <- rownames(population)
-  # select all delay transition functions, including mortality
   transitions <- query_transitions(tick_transitions, "transition_type", "duration")
 
-  # loop through these transitions by from_stage
-  from_stages <- life_stages(transitions)
-  for (from_stage in from_stages) {
+  for (from_stage in life_stages(transitions)) {
     trans <- transitions |>
       query_transitions("from", from_stage) |>
       query_transitions_by_mortality(mortality = FALSE) |>
-      # there can only be one duration-based transition from each life stage, so
-      # unlisting should just give the first element
       unlist(recursive = FALSE)
 
-
     val <- get_transition_value(
-      time = time,
-      transition = trans,
-      predictors = predictors,
-      max_duration = max_duration,
-      population = population,
+      time = time, transition = trans, predictors = predictors,
+      max_duration = max_duration, population = population,
       developing_population = developing_population
     )
 
     days_to_next <- get_transition_duration(val = val, max_duration = max_duration)
 
-    # Get the 1 or 0 mortality transitions corresponding to the "from" stage
     mort_transition <- transitions |>
       query_transitions("from", from_stage) |>
       query_transitions_by_mortality(mortality = TRUE) |>
       unlist(recursive = FALSE)
 
     surv_to_next <- get_transition_survival(
-      mort_transition = mort_transition,
-      time = time,
-      predictors = predictors,
-      max_duration = max_duration,
-      population = population,
-      developing_population = developing_population,
-      days_to_next = days_to_next
+      mort_transition = mort_transition, time = time, predictors = predictors,
+      max_duration = max_duration, population = population,
+      developing_population = developing_population, days_to_next = days_to_next
     )
 
-    # number of ticks emerging from from_stage to to_stage at time +
-    # days_to_next is the number of ticks that were already going to emerge
-    # then plus the current number of ticks in the from_stage * survival
-    delay_arr[from_stage, trans[["to"]], time + days_to_next] <-
-      delay_arr[from_stage, trans[["to"]], time + days_to_next] +
-      population[from_stage, time] * surv_to_next
+    # Calculate exactly how many ticks are entering the delay
+    new_delayed <- population[from_stage, time] * surv_to_next
+    emerge_day <- time + days_to_next
+
+    # Add them to the specific day they will emerge
+    delay_mat[trans[["to"]], emerge_day] <- delay_mat[trans[["to"]], emerge_day] + new_delayed
+
+    # Add them to the developing pool for the exact days they are "in the oven"
+    # (Starting tomorrow, ending the day before they emerge)
+    if (days_to_next > 1) {
+      dev_days <- (time + 1):(emerge_day - 1)
+      developing_population[from_stage, dev_days] <-
+        developing_population[from_stage, dev_days] + new_delayed
+    }
   }
-  delay_arr
+
+  list(delay_mat = delay_mat, developing_population = developing_population)
 }
+
+
 
 get_transition_survival <- function(
   mort_transition, time, predictors, max_duration, population, developing_population, days_to_next
@@ -540,16 +502,6 @@ get_transition_duration <- function(val, max_duration) {
   min(which(days))
 }
 
-
-# Generate an empty delay array
-# Dimensions are: from, to, time
-empty_delay_array <- function(life_stages, steps, max_duration) {
-  array(
-    dim = c(length(life_stages), length(life_stages), steps + max_duration),
-    dimnames = list(life_stages, life_stages, NULL),
-    data = 0
-  )
-}
 
 # Create an empty (zero population) population matrix
 empty_population_matrix <- function(life_stages, steps) {
