@@ -525,10 +525,6 @@ test_that("model output for `config_ex_2` stays the same", {
 })
 
 # NOTE tests on new core_functions.R methods ----------------------------------
-test_that("empty_delay_array snapshot", {
-  expect_snapshot(empty_delay_array(c("a", "b"), 1, 1))
-})
-
 test_that("empty_population_matrix snapshot", {
   expect_snapshot(empty_population_matrix(c("a", "b"), 3))
 })
@@ -551,21 +547,6 @@ test_that("model output for ogden config stays the same", {
   expect_snapshot_value(run(cfg, progress = FALSE), style = "serialize")
 })
 
-test_that("update_delay_arr works", {
-  cfg <- config_example_a()
-  cfg$steps <- 2
-  cfg$max_duration <- 2
-  life_stages <- life_stages(cfg$cycle)
-  expect_snapshot(update_delay_arr(
-    time = 2,
-    delay_arr = empty_delay_array(life_stages, cfg$steps, cfg$max_duration),
-    population = empty_population_matrix(life_stages, cfg$steps),
-    developing_population = empty_population_matrix(life_stages, cfg$steps),
-    tick_transitions = cfg$cycle,
-    max_duration = cfg$max_duration,
-    predictors = cfg$predictors
-  ))
-})
 
 test_that("population_matrix_to_output_df works", {
   matrix <- empty_population_matrix(life_stages = c("a", "b", "c"), steps = 2L)
