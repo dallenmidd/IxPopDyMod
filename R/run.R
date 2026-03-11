@@ -401,6 +401,8 @@ update_delays <- function(
     trans <- transitions |>
       query_transitions("from", from_stage) |>
       query_transitions_by_mortality(mortality = FALSE) |>
+      # there can only be one duration-based transition from each life stage, so
+      # unlisting should just give the first element
       unlist(recursive = FALSE)
 
     val <- get_transition_value(
