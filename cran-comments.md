@@ -1,8 +1,8 @@
 ## Test environments
 
-* local macOS install, R 4.1.1
-* win-builder (release, devel, oldrel)
-* Rhub via 
+* local macOS install, R 4.4.1
+* win-builder via devtools::check_win_devel()
+* Rhub via
     devtools::check_rhub(email = "mylesstokowski@gmail.com", interactive = FALSE,
       platforms = rhub::platforms() %>% dplyr::filter(!is.na(`cran-name`)) %>% dplyr::pull(name),
       env_vars=c(R_COMPILE_AND_INSTALL_PACKAGES = "always")
@@ -31,4 +31,4 @@ I got the following message. The DOI links may be slow, but they do load.
     From: man/winter_tick.Rd
     Status: 403
     Message: Forbidden
-    
+

@@ -1,4 +1,6 @@
-# IxPopDyMod (development version)
+# IxPopDyMod 0.4.0
+* Requires R (>= 4.1.0).
+* Internal optimizations to reduce runtime.
 
 # IxPopDyMod 0.3.0
 
